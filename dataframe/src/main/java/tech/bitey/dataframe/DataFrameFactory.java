@@ -16,6 +16,11 @@ package tech.bitey.dataframe;
 
 import static tech.bitey.dataframe.guava.DfPreconditions.checkArgument;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.channels.FileChannel;
+import java.nio.channels.ReadableByteChannel;
+import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -189,5 +194,48 @@ public enum DataFrameFactory {
 	 */
 	public static DataFrame create(List<Column<?>> columns, List<String> columnNames) {
 		return create(columns, columnNames, null);
+	}
+
+	/**
+	 * Load a dataframe from a file created via {@link DataFrame#writeTo(File)}.
+	 * 
+	 * @param file - the file to read from
+	 * 
+	 * @return the dataframe loaded from the specified file
+	 */
+	public static DataFrame readFrom(File file) throws IOException {
+		try (FileChannel fileChannel = FileChannel.open(file.toPath(), StandardOpenOption.READ);) {
+			return readFrom(fileChannel);
+		}
+	}
+
+	/**
+	 * Read a dataframe from the specified {@link ReadableByteChannel}.
+	 * 
+	 * @param channel - the channel to read from
+	 * 
+	 * @return the dataframe read from the specified channel
+	 */
+	public static DataFrame readFrom(ReadableByteChannel channel) throws IOException {
+
+		FileDataFrameHeader dfHeader = new FileDataFrameHeader(channel);
+		final int cc = dfHeader.getColumnCount();
+
+		String[] columnNames = new String[cc];
+		ColumnType[] columnTypes = new ColumnType[cc];
+		int[] characteristics = new int[cc];
+		for (int i = 0; i < cc; i++) {
+			FileColumnHeader columnHeader = new FileColumnHeader(channel);
+			columnNames[i] = columnHeader.getColumnName();
+			columnTypes[i] = columnHeader.getColumnType();
+			characteristics[i] = columnHeader.getCharacteristics();
+		}
+
+		Column<?>[] columns = new Column<?>[cc];
+		for (int i = 0; i < cc; i++)
+			columns[i] = columnTypes[i].readFrom(channel, characteristics[i]);
+
+		Integer keyIndex = dfHeader.keyIndex();
+		return create(columns, columnNames, keyIndex == null ? null : columnNames[keyIndex]);
 	}
 }

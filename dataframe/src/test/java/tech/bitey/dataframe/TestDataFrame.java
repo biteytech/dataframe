@@ -2,6 +2,7 @@ package tech.bitey.dataframe;
 
 import static java.util.Spliterator.DISTINCT;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -131,6 +132,23 @@ public class TestDataFrame {
 			actual = actual.join(actual);
 
 			Assertions.assertTrue(expected.equals(actual, true), e.getKey() + ", inner vs hash");
+		}
+	}
+	
+	@Test
+	public void testReadWriteFile() throws Exception {
+		
+		for (Map.Entry<String, DataFrame> e : DF_MAP.entrySet()) {
+
+			DataFrame expected = e.getValue();
+
+			File file = File.createTempFile(e.getKey(), null);
+			file.deleteOnExit();
+
+			expected.writeTo(file);
+			DataFrame actual = DataFrameFactory.readFrom(file);
+
+			Assertions.assertEquals(expected, actual, e.getKey() + ", read/write file");						
 		}
 	}
 

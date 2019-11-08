@@ -20,7 +20,9 @@ import static java.util.Spliterator.SORTED;
 import static tech.bitey.dataframe.guava.DfPreconditions.checkArgument;
 import static tech.bitey.dataframe.guava.DfPreconditions.checkPositionIndex;
 
+import java.io.IOException;
 import java.nio.Buffer;
+import java.nio.channels.ReadableByteChannel;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
 import java.util.Spliterator;
@@ -57,6 +59,7 @@ abstract class NonNullColumn<E, I extends Column<E>, C extends NonNullColumn<E, 
 	abstract C toSorted0();
 	abstract C toDistinct0(C sorted);
 	abstract C slice();
+	abstract C readFrom(ReadableByteChannel channel) throws IOException;
 	
 	@SuppressWarnings("unchecked")
 	@Override

@@ -17,11 +17,16 @@ package tech.bitey.dataframe;
 import static java.util.Spliterator.DISTINCT;
 import static java.util.Spliterator.NONNULL;
 import static java.util.Spliterator.SORTED;
-import static tech.bitey.bufferstuff.BufferUtils.duplicate;
 import static tech.bitey.bufferstuff.BufferUtils.EMPTY_BUFFER;
+import static tech.bitey.bufferstuff.BufferUtils.duplicate;
+import static tech.bitey.dataframe.guava.DfPreconditions.checkState;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.IntBuffer;
+import java.nio.channels.ReadableByteChannel;
+import java.nio.channels.WritableByteChannel;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
@@ -439,5 +444,45 @@ final class NonNullStringColumn extends NonNullColumn<String, StringColumn, NonN
 		
 		return new NonNullStringColumn(BufferUtils.slice(sorted.elements, 0, ptr),
 				BufferUtils.slice(sorted.rawPointers, 0, size<<2), 0, size, sorted.characteristics | SORTED | DISTINCT, false);
+	}
+
+	@Override
+	void writeTo(WritableByteChannel channel) throws IOException {
+		
+		final ByteOrder order = rawPointers.order();
+		
+		writeByteOrder(channel, order);		
+		writeInt(channel, order, size);
+		
+		if(size > 0) {
+			channel.write(BufferUtils.slice(rawPointers, offset*4, (offset+size)*4));
+			
+			writeInt(channel, order, end(lastIndex()) - pat(offset));
+			channel.write(BufferUtils.slice(elements, pat(offset), end(lastIndex())));
+		}
+	}
+
+	@Override
+	NonNullStringColumn readFrom(ReadableByteChannel channel) throws IOException {
+		
+		checkState(isEmpty());
+		
+		ByteOrder order = readByteOrder(channel);
+		int size = readInt(channel, order);
+		
+		if(size == 0)
+			return this;
+		
+		ByteBuffer rawPointers = BufferUtils.allocate(size * 4, order);
+		channel.read(rawPointers);
+		rawPointers.flip();
+		zero(rawPointers, size);
+		
+		int length = readInt(channel, order);
+		ByteBuffer elements = BufferUtils.allocate(length, order);
+		channel.read(elements);
+		elements.flip();
+		
+		return new NonNullStringColumn(elements, rawPointers, 0, size, characteristics, false);
 	}
 }

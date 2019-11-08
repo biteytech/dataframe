@@ -14,11 +14,18 @@
 
 package tech.bitey.dataframe;
 
+import static java.nio.ByteOrder.BIG_ENDIAN;
+import static java.nio.ByteOrder.LITTLE_ENDIAN;
 import static tech.bitey.dataframe.guava.DfPreconditions.checkArgument;
 import static tech.bitey.dataframe.guava.DfPreconditions.checkElementIndex;
 import static tech.bitey.dataframe.guava.DfPreconditions.checkPositionIndexes;
 
+import java.io.IOException;
 import java.lang.reflect.Array;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.channels.ReadableByteChannel;
+import java.nio.channels.WritableByteChannel;
 import java.util.AbstractCollection;
 import java.util.Arrays;
 import java.util.Collection;
@@ -32,110 +39,108 @@ import java.util.Set;
 
 import tech.bitey.bufferstuff.BufferBitSet;
 
-abstract class AbstractColumn<E, I extends Column<E>, C extends AbstractColumn<E, I, C>> extends AbstractCollection<E> implements Column<E>, RandomAccess {
-	
+abstract class AbstractColumn<E, I extends Column<E>, C extends AbstractColumn<E, I, C>> extends AbstractCollection<E>
+		implements Column<E>, RandomAccess {
+
 	final int offset;
 	final int size;
 	final boolean view;
-	
+
 	AbstractColumn(int offset, int size, boolean view) {
 		this.offset = offset;
 		this.size = size;
 		this.view = view;
 	}
-	
+
 	private C castThis() {
 		@SuppressWarnings("unchecked")
-		C cast = (C)this;
+		C cast = (C) this;
 		return cast;
 	}
-	
+
 	@Override
 	public C subColumn(int fromIndex, int toIndex) {
-		
+
 		checkPositionIndexes(fromIndex, toIndex, size);
-		
+
 		final int subSize = toIndex - fromIndex;
-		
-		if(subSize == 0)
+
+		if (subSize == 0)
 			return empty();
-		else if(subSize == size)
+		else if (subSize == size)
 			return castThis();
 		else
 			return subColumn0(fromIndex, toIndex);
 	}
-	
+
 	abstract C empty();
-	
+
 	abstract C subColumn0(int fromIndex, int toIndex);
-	
+
 	abstract E getNoOffset(int index);
-	abstract boolean isNullNoOffset(int index);	
-	
+
+	abstract boolean isNullNoOffset(int index);
+
 	abstract boolean checkType(Object o);
-	
+
 	@Override
 	public List<E> subList(int fromIndex, int toIndex) {
 		return subColumn(fromIndex, toIndex);
 	}
-	
+
 	abstract Column<E> applyFilter0(BufferBitSet keep, int cardinality);
-		
+
 	Column<E> applyFilter(BufferBitSet keep, int cardinality) {
-		if(cardinality == 0)
+		if (cardinality == 0)
 			return empty();
-		else if(cardinality == size())
+		else if (cardinality == size())
 			return this;
 		else
 			return applyFilter0(keep, cardinality);
 	}
-	
+
 	abstract Column<E> select0(IntColumn indices);
-	
+
 	Column<E> select(IntColumn indices) {
-		if(indices.size() == 0)
+		if (indices.size() == 0)
 			return empty();
 		else
 			return select0(indices);
 	}
-	
+
 	abstract I append0(Column<E> tail);
-	
+
 	@Override
-	public I append(Column<E> tail) {		
+	public I append(Column<E> tail) {
 		checkArgument(getType() == tail.getType(), "columns must have the same type");
 		checkArgument(isSorted() == tail.isSorted() && isDistinct() == tail.isDistinct(),
-				"both columns must have same sorted & distinct characteristics");		
-		
-		if(isEmpty()) {
+				"both columns must have same sorted & distinct characteristics");
+
+		if (isEmpty()) {
 			@SuppressWarnings("unchecked")
-			I cast = (I)tail;
+			I cast = (I) tail;
 			return cast;
-		}
-		else if(tail.isEmpty()) {
+		} else if (tail.isEmpty()) {
 			@SuppressWarnings("unchecked")
-			I cast = (I)this;
+			I cast = (I) this;
 			return cast;
-		}
-		else {			
-			if(isDistinct()) {
-				checkArgument(
-					comparator().compare(last(), tail.first()) < 0,
-					"last item of this column must be less than first item of provided column");
-			}			
-			else if(isSorted()) {
-				checkArgument(
-					comparator().compare(last(), tail.first()) <= 0,
-					"last item of this column must be <= first item of provided column");
+		} else {
+			if (isDistinct()) {
+				checkArgument(comparator().compare(last(), tail.first()) < 0,
+						"last item of this column must be less than first item of provided column");
+			} else if (isSorted()) {
+				checkArgument(comparator().compare(last(), tail.first()) <= 0,
+						"last item of this column must be <= first item of provided column");
 			}
-			
+
 			return append0(tail);
 		}
 	}
-	
+
 	abstract int intersectBothSorted(C rhs, BufferBitSet keepLeft, BufferBitSet keepRight);
+
 	abstract IntColumn intersectLeftSorted(I rhs, BufferBitSet keepRight);
-	
+
 	@Override
 	public int size() {
 		return size;
@@ -144,32 +149,29 @@ abstract class AbstractColumn<E, I extends Column<E>, C extends AbstractColumn<E
 	@Override
 	public E get(int index) {
 		checkElementIndex(index, size);
-		
-		return getNoOffset(index+offset);
+
+		return getNoOffset(index + offset);
 	}
-	
+
 	@Override
 	public boolean isNull(int index) {
 		checkElementIndex(index, size);
-		
-		return isNullNoOffset(index+offset);
+
+		return isNullNoOffset(index + offset);
 	}
-	
+
 	int lastIndex() {
 		return offset + size - 1;
 	}
-	
-	
-	
+
 	int indexOf(Object o, boolean first) {
-		if(first) {
+		if (first) {
 			Iterator<E> iter = iterator();
 
 			for (int i = 0; iter.hasNext(); i++)
 				if (Objects.equals(o, iter.next()))
 					return i;
-		}
-		else {
+		} else {
 			ListIterator<E> iter = listIterator(size);
 
 			for (int i = size - 1; iter.hasPrevious(); i--)
@@ -179,7 +181,7 @@ abstract class AbstractColumn<E, I extends Column<E>, C extends AbstractColumn<E
 
 		return -1;
 	}
-	
+
 	@Override
 	public int indexOf(Object o) {
 		return indexOf(o, true);
@@ -199,61 +201,57 @@ abstract class AbstractColumn<E, I extends Column<E>, C extends AbstractColumn<E
 	public Iterator<E> iterator() {
 		return listIterator();
 	}
-	
+
 	abstract boolean equals0(C rhs);
-	
+
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public boolean equals(Object o) {
 		if (o == this)
-            return true;
-		
-		if(o instanceof Column) {
-			AbstractColumn rhs = (AbstractColumn)o;
-			if(getType() != rhs.getType() || size != rhs.size)
+			return true;
+
+		if (o instanceof Column) {
+			AbstractColumn rhs = (AbstractColumn) o;
+			if (getType() != rhs.getType() || size != rhs.size)
 				return false;
-			
-			if(isNonnull() == rhs.isNonnull()) {
-				return equals0((C)o);
-			}
-			else {
-				NonNullColumn nonNull = isNonnull() ? (NonNullColumn)this : (NonNullColumn)rhs;
-				NullableColumn nullable = isNonnull() ? (NullableColumn)rhs : (NullableColumn)this;
-				
-				if(nullable.indexOf(null) != -1)
+
+			if (isNonnull() == rhs.isNonnull()) {
+				return equals0((C) o);
+			} else {
+				NonNullColumn nonNull = isNonnull() ? (NonNullColumn) this : (NonNullColumn) rhs;
+				NullableColumn nullable = isNonnull() ? (NullableColumn) rhs : (NullableColumn) this;
+
+				if (nullable.indexOf(null) != -1)
 					return false;
-				
+
 				return nonNull.equals0(nullable.subColumn);
 			}
-		}
-		else if(o instanceof List) {
+		} else if (o instanceof List) {
 			// from AbstractList
 
-	        ListIterator<E> e1 = listIterator();
-	        ListIterator<?> e2 = ((List<?>) o).listIterator();
-	        while (e1.hasNext() && e2.hasNext()) {
-	            E o1 = e1.next();
-	            Object o2 = e2.next();
-	            if (!(o1==null ? o2==null : o1.equals(o2)))
-	                return false;
-	        }
-	        return !(e1.hasNext() || e2.hasNext());
-		}
-		else if(isDistinct() && o instanceof Set) {
+			ListIterator<E> e1 = listIterator();
+			ListIterator<?> e2 = ((List<?>) o).listIterator();
+			while (e1.hasNext() && e2.hasNext()) {
+				E o1 = e1.next();
+				Object o2 = e2.next();
+				if (!(o1 == null ? o2 == null : o1.equals(o2)))
+					return false;
+			}
+			return !(e1.hasNext() || e2.hasNext());
+		} else if (isDistinct() && o instanceof Set) {
 			// from AbstractSet
 
-	        Collection<?> c = (Collection<?>) o;
-	        if (c.size() != size())
-	            return false;
-	        try {
-	            return containsAll(c);
-	        } catch (ClassCastException unused)   {
-	            return false;
-	        } catch (NullPointerException unused) {
-	            return false;
-	        }
-		}
-		else
+			Collection<?> c = (Collection<?>) o;
+			if (c.size() != size())
+				return false;
+			try {
+				return containsAll(c);
+			} catch (ClassCastException unused) {
+				return false;
+			} catch (NullPointerException unused) {
+				return false;
+			}
+		} else
 			return false;
 	}
 
@@ -295,23 +293,50 @@ abstract class AbstractColumn<E, I extends Column<E>, C extends AbstractColumn<E
 			return array;
 		}
 	}
-	
+
 	// navigableset
-	
+
 	@Override
 	public E first() {
-		if(isEmpty())
+		if (isEmpty())
 			throw new NoSuchElementException();
-		
+
 		return get(0);
 	}
 
 	@Override
 	public E last() {
-		if(isEmpty())
+		if (isEmpty())
 			throw new NoSuchElementException();
-		
-		return get(size()-1);
+
+		return get(size() - 1);
+	}
+
+	/*------------------------------------------------------------
+	 *  reading/writing files
+	 *------------------------------------------------------------*/
+	abstract void writeTo(WritableByteChannel channel) throws IOException;
+
+	static void writeByteOrder(WritableByteChannel channel, ByteOrder order) throws IOException {
+		channel.write(ByteBuffer.wrap(new byte[] { (byte) (order == BIG_ENDIAN ? 'B' : 'L') }));
+	}
+
+	static ByteOrder readByteOrder(ReadableByteChannel channel) throws IOException {
+		byte[] b = new byte[1];
+		channel.read(ByteBuffer.wrap(b));
+		return b[0] == (byte) 'B' ? BIG_ENDIAN : LITTLE_ENDIAN;
+	}
+
+	static void writeInt(WritableByteChannel channel, ByteOrder order, int value) throws IOException {
+		ByteBuffer b = ByteBuffer.allocate(4).order(order);
+		b.putInt(0, value);
+		channel.write(b);
+	}
+
+	static int readInt(ReadableByteChannel channel, ByteOrder order) throws IOException {
+		ByteBuffer b = ByteBuffer.allocate(4).order(order);
+		channel.read(b);
+		return b.getInt(0);
 	}
 
 	/*------------------------------------------------------------
@@ -346,7 +371,7 @@ abstract class AbstractColumn<E, I extends Column<E>, C extends AbstractColumn<E
 	public void clear() {
 		throw new UnsupportedOperationException("clear");
 	}
-	
+
 	// from list
 	@Override
 	public boolean addAll(int index, Collection<? extends E> c) {

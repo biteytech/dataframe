@@ -16,10 +16,14 @@ package tech.bitey.dataframe;
 
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
+import static java.nio.ByteOrder.BIG_ENDIAN;
 import static java.util.Spliterator.NONNULL;
 import static tech.bitey.bufferstuff.BufferBitSet.EMPTY_BITSET;
 import static tech.bitey.dataframe.guava.DfPreconditions.checkElementIndex;
 
+import java.io.IOException;
+import java.nio.channels.ReadableByteChannel;
+import java.nio.channels.WritableByteChannel;
 import java.util.Comparator;
 
 import tech.bitey.bufferstuff.BufferBitSet;
@@ -192,5 +196,19 @@ final class NonNullBooleanColumn extends NonNullColumn<Boolean, BooleanColumn, N
 	@Override
 	public NonNullBooleanColumn slice() {
 		return copy();
+	}
+
+	@Override
+	void writeTo(WritableByteChannel channel) throws IOException {
+		writeInt(channel, BIG_ENDIAN, size);
+		elements.writeTo(channel, offset, offset+size);
+	}
+
+	@Override
+	NonNullBooleanColumn readFrom(ReadableByteChannel channel) throws IOException {
+		int size = readInt(channel, BIG_ENDIAN);
+		BufferBitSet elements = BufferBitSet.readFrom(channel);
+		
+		return new NonNullBooleanColumn(elements, 0, size, false);
 	}
 }

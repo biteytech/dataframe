@@ -14,11 +14,18 @@
 
 package tech.bitey.dataframe;
 
+import static java.nio.file.StandardOpenOption.CREATE;
+import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
+import static java.nio.file.StandardOpenOption.WRITE;
 import static tech.bitey.dataframe.guava.DfPreconditions.checkArgument;
 import static tech.bitey.dataframe.guava.DfPreconditions.checkElementIndex;
 import static tech.bitey.dataframe.guava.DfPreconditions.checkNotNull;
 import static tech.bitey.dataframe.guava.DfPreconditions.checkPositionIndex;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.channels.FileChannel;
+import java.nio.channels.WritableByteChannel;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.AbstractList;
@@ -919,6 +926,32 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 		}
 
 		return new DataFrameImpl(columns, columnNames, null);
+	}
+
+	/*--------------------------------------------------------------------------------
+	 *	Export Methods
+	 *--------------------------------------------------------------------------------*/
+
+	@Override
+	public void writeTo(File file) throws IOException {
+		try (FileChannel fileChannel = FileChannel.open(file.toPath(), WRITE, CREATE, TRUNCATE_EXISTING);) {
+			writeTo(fileChannel);
+		}
+	}
+
+	@SuppressWarnings("rawtypes")
+	@Override
+	public void writeTo(WritableByteChannel channel) throws IOException {
+		FileDataFrameHeader dfHeader = new FileDataFrameHeader(this);
+		dfHeader.writeTo(channel);
+
+		for (int i = 0; i < columnCount(); i++) {
+			FileColumnHeader columnHeader = new FileColumnHeader(this, i);
+			columnHeader.writeTo(channel);
+		}
+
+		for (Column<?> column : columns)
+			((AbstractColumn) column).writeTo(channel);
 	}
 
 	/*--------------------------------------------------------------------------------

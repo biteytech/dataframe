@@ -17,7 +17,11 @@ package tech.bitey.dataframe;
 import static java.util.Spliterator.DISTINCT;
 import static java.util.Spliterator.SORTED;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.channels.ReadableByteChannel;
+import java.nio.channels.WritableByteChannel;
 
 import tech.bitey.bufferstuff.BufferUtils;
 
@@ -77,8 +81,7 @@ abstract class NonNullSingleBufferColumn<E, I extends Column<E>, C extends NonNu
 
 	@Override
 	public C slice() {
-		ByteBuffer copy = BufferUtils.slice(buffer, offset * elementSize(), (offset + size) * elementSize());
-		return construct(copy, 0, size, characteristics, false);
+		return construct(slice0(), 0, size, characteristics, false);
 	}
 
 	@Override
@@ -94,9 +97,32 @@ abstract class NonNullSingleBufferColumn<E, I extends Column<E>, C extends NonNu
 
 		ByteBuffer buffer = allocate(size);
 
-		buffer.put(BufferUtils.slice(this.buffer, this.offset * elementSize(), (this.offset + this.size) * elementSize()));
-		buffer.put(BufferUtils.slice(tail.buffer, tail.offset * elementSize(), (tail.offset + tail.size) * elementSize()));
+		buffer.put(this.slice0());
+		buffer.put(tail.slice0());
 
+		buffer.flip();
+
+		return construct(buffer, 0, size, characteristics, false);
+	}
+
+	ByteBuffer slice0() {
+		return BufferUtils.slice(buffer, offset * elementSize(), (offset + size) * elementSize());
+	}
+
+	@Override
+	void writeTo(WritableByteChannel channel) throws IOException {
+		writeByteOrder(channel, buffer.order());
+		writeInt(channel, buffer.order(), size);
+		channel.write(slice0());
+	}
+
+	@Override
+	C readFrom(ReadableByteChannel channel) throws IOException {
+		ByteOrder order = readByteOrder(channel);
+		int size = readInt(channel, order);
+
+		ByteBuffer buffer = BufferUtils.allocate(size * elementSize(), order);
+		channel.read(buffer);
 		buffer.flip();
 
 		return construct(buffer, 0, size, characteristics, false);

@@ -18,6 +18,9 @@ import static java.util.Spliterator.IMMUTABLE;
 import static java.util.Spliterator.NONNULL;
 import static java.util.Spliterator.ORDERED;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.channels.WritableByteChannel;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collection;
@@ -34,9 +37,6 @@ import java.util.function.ToIntFunction;
 import java.util.function.ToLongFunction;
 
 public interface DataFrame extends List<Row>, RandomAccess {
-
-//	static final long MAGIC_NUMBER = ((long) 'd') << 56 | ((long) 'a') << 48 | ((long) 't') << 40 | ((long) 'a') << 32
-//			| 'f' << 24 | 'r' << 16 | 'a' << 8 | 'm';
 
 	/*--------------------------------------------------------------------------------
 	 *	Object, Collection, and List style Methods
@@ -1084,6 +1084,28 @@ public interface DataFrame extends List<Row>, RandomAccess {
 	 *                                  are not recognized.
 	 */
 	DataFrame join(DataFrame df, String[] leftColumnNames, String[] rightColumnNames);
+
+	/*--------------------------------------------------------------------------------
+	 *	Export Methods
+	 *--------------------------------------------------------------------------------*/
+
+	/**
+	 * Saves this dataframe to a file in a binary format.
+	 * 
+	 * @param file - the file to be (over)written.
+	 * 
+	 * @throws IOException if some I/O error occurs
+	 */
+	void writeTo(File file) throws IOException;
+
+	/**
+	 * Writes this dataframe to the specified {@link WritableByteChannel}.
+	 * 
+	 * @param channel - the channel to be written to
+	 * 
+	 * @throws IOException if some I/O error occurs
+	 */
+	void writeTo(WritableByteChannel channel) throws IOException;
 
 	/*--------------------------------------------------------------------------------
 	 *	Cell Accessors

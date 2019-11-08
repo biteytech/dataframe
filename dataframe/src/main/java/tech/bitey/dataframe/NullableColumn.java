@@ -14,10 +14,13 @@
 
 package tech.bitey.dataframe;
 
+import static java.nio.ByteOrder.BIG_ENDIAN;
 import static tech.bitey.dataframe.guava.DfPreconditions.checkElementIndex;
 import static tech.bitey.dataframe.guava.DfPreconditions.checkPositionIndex;
 
+import java.io.IOException;
 import java.nio.IntBuffer;
+import java.nio.channels.WritableByteChannel;
 import java.util.Comparator;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
@@ -33,7 +36,7 @@ abstract class NullableColumn<E, I extends Column<E>, C extends NonNullColumn<E,
 	final IntBuffer nullCounts;
 	
 	NullableColumn(C column, BufferBitSet nonNulls, IntBuffer nullCounts, int offset, int size) {
-		super(offset, size, nullCounts == null);
+		super(offset, size, nullCounts == null || offset > 0);
 		
 		if(column.view)
 			column = column.slice();
@@ -397,6 +400,12 @@ abstract class NullableColumn<E, I extends Column<E>, C extends NonNullColumn<E,
 	}
 	
 	abstract void intersectRightSorted(C rhs, IntColumnBuilder indices, BufferBitSet keepLeft);
+	
+	void writeTo(WritableByteChannel channel) throws IOException {
+		writeInt(channel, BIG_ENDIAN, size);
+		nonNulls.writeTo(channel, offset, offset+size);
+		subColumn.writeTo(channel);
+	}
 	
 	// does not implement navigableset methods
 

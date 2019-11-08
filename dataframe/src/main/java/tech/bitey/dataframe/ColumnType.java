@@ -14,7 +14,15 @@
 
 package tech.bitey.dataframe;
 
+import static java.nio.ByteOrder.BIG_ENDIAN;
+import static java.util.Spliterator.NONNULL;
+import static tech.bitey.dataframe.AbstractColumn.readInt;
 import static tech.bitey.dataframe.guava.DfPreconditions.checkState;
+
+import java.io.IOException;
+import java.nio.channels.ReadableByteChannel;
+
+import tech.bitey.bufferstuff.BufferBitSet;
 
 /**
  * Represents the possible element types supported by the concrete
@@ -72,31 +80,6 @@ public enum ColumnType {
 	String getCode() {
 		return code;
 	}
-
-//	byte[] getCodeBytes() {
-//		return code.length() == 2 ? code.getBytes() : (" "+code).getBytes();
-//	}
-//	
-//	static ColumnType valueOf(byte[] codeBytes) {
-//		final String code;
-//		if(codeBytes[0] == ' ')
-//			code = String.valueOf((char)codeBytes[1]);
-//		else
-//			code = new String(codeBytes);
-//		
-//		switch(code) {
-//		case "B": return BOOLEAN;
-//		case "DA": return DATE;
-//		case "DT": return DATETIME;
-//		case "D": return DOUBLE;
-//		case "F": return FLOAT;
-//		case "I": return INT;
-//		case "L": return LONG;
-//		case "S": return STRING;
-//		default:
-//			throw new IllegalArgumentException("bad code bytes: "+code);
-//		}
-//	}
 
 	/**
 	 * Returns a {@link ColumnBuilder builder} for this column type.
@@ -161,5 +144,75 @@ public enum ColumnType {
 	 */
 	public Column<?> nullColumn(int size) {
 		return builder().addNulls(size).build();
+	}
+	
+	Column<?> readFrom(ReadableByteChannel channel, int characteristics) throws IOException {
+		BufferBitSet nonNulls = null;
+		int size = 0;
+		if(!((characteristics & NONNULL) != 0)) {
+			size = readInt(channel, BIG_ENDIAN);
+			nonNulls = BufferBitSet.readFrom(channel);
+		}
+		
+		switch (this) {
+		case BOOLEAN: {
+			NonNullBooleanColumn column = NonNullBooleanColumn.EMPTY.readFrom(channel);
+			if(nonNulls == null)
+				return column;
+			else
+				return new NullableBooleanColumn(column, nonNulls, null, 0, size);
+		}
+		case DATE: {
+			NonNullDateColumn column = NonNullDateColumn.empty(characteristics).readFrom(channel);
+			if(nonNulls == null)
+				return column;
+			else
+				return new NullableDateColumn(column, nonNulls, null, 0, size);
+		}
+		case DATETIME: {
+			NonNullDateTimeColumn column = NonNullDateTimeColumn.empty(characteristics).readFrom(channel);
+			if(nonNulls == null)
+				return column;
+			else
+				return new NullableDateTimeColumn(column, nonNulls, null, 0, size);
+		}
+		case DOUBLE: {
+			NonNullDoubleColumn column = NonNullDoubleColumn.empty(characteristics).readFrom(channel);
+			if(nonNulls == null)
+				return column;
+			else
+				return new NullableDoubleColumn(column, nonNulls, null, 0, size);
+		}
+		case FLOAT: {
+			NonNullFloatColumn column = NonNullFloatColumn.empty(characteristics).readFrom(channel);
+			if(nonNulls == null)
+				return column;
+			else
+				return new NullableFloatColumn(column, nonNulls, null, 0, size);
+		}
+		case INT: {
+			NonNullIntColumn column = NonNullIntColumn.empty(characteristics).readFrom(channel);
+			if(nonNulls == null)
+				return column;
+			else
+				return new NullableIntColumn(column, nonNulls, null, 0, size);
+		}
+		case LONG: {
+			NonNullLongColumn column = NonNullLongColumn.empty(characteristics).readFrom(channel);
+			if(nonNulls == null)
+				return column;
+			else
+				return new NullableLongColumn(column, nonNulls, null, 0, size);
+		}
+		case STRING: {
+			NonNullStringColumn column = NonNullStringColumn.empty(characteristics).readFrom(channel);
+			if(nonNulls == null)
+				return column;
+			else
+				return new NullableStringColumn(column, nonNulls, null, 0, size);
+		}
+		}
+
+		throw new IllegalStateException();
 	}
 }
