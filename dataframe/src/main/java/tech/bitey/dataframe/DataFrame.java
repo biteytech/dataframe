@@ -38,6 +38,22 @@ import java.util.function.ToDoubleFunction;
 import java.util.function.ToIntFunction;
 import java.util.function.ToLongFunction;
 
+/**
+ * A two-dimensional, {@link Column}-oriented, immutable, heterogeneous tabular
+ * data structure with labeled column names.
+ * <p>
+ * Dataframe implements {@code List<Row>}. The {@link Row rows} can be accessed
+ * using the standard {@code Collection}/{@code List}/{@code Iterator}
+ * approaches, or via a {@link Cursor} which avoids the overhead of creating a
+ * {@code Row} object for each row.
+ * <p>
+ * A dataframe may optionally designate a "key" column. A key column is a
+ * {@code Column} which reports {@link Column#isDistinct()} as true, and acts as
+ * an index in the database sense of the word. Certain methods will only work
+ * when a key column is present, e.g. {@link #subFrameByValue(Object, Object)}.
+ * 
+ * @author biteytech@protonmail.com
+ */
 public interface DataFrame extends List<Row>, RandomAccess {
 
 	/*--------------------------------------------------------------------------------
@@ -814,7 +830,7 @@ public interface DataFrame extends List<Row>, RandomAccess {
 	DataFrame subFrame(int fromIndex, int toIndex);
 
 	/**
-	 * Returns the rows from this dataframe whose key column values are strictly
+	 * Returns a dataframe containing the rows whose key column values are strictly
 	 * less than {@code toKey}.
 	 *
 	 * @param toKey high endpoint (exclusive) of the key column values in the
@@ -832,8 +848,8 @@ public interface DataFrame extends List<Row>, RandomAccess {
 	DataFrame headTo(Object toKey);
 
 	/**
-	 * Returns the rows from this dataframe whose key column values are greater than
-	 * or equal to {@code fromKey}.
+	 * Returns a dataframe containing the rows whose key column values are greater
+	 * than or equal to {@code fromKey}.
 	 *
 	 * @param fromKey low endpoint (inclusive) of the key column values in the
 	 *                returned dataframe
@@ -850,8 +866,8 @@ public interface DataFrame extends List<Row>, RandomAccess {
 	DataFrame tailFrom(Object fromKey);
 
 	/**
-	 * Returns the rows from this dataframe whose key column values are greater than
-	 * or equal to {@code fromKey} and strictly less than {@code toKey}.
+	 * Returns a dataframe containing the rows whose key column values are greater
+	 * than or equal to {@code fromKey} and strictly less than {@code toKey}.
 	 *
 	 * @param fromKey low endpoint (inclusive) of the key column values in the
 	 *                returned dataframe

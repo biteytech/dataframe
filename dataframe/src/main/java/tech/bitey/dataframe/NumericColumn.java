@@ -26,10 +26,58 @@ package tech.bitey.dataframe;
 public interface NumericColumn<E extends Number> extends Column<E> {
 
 	/**
+	 * Returns the smallest non-null value in this column.
+	 * 
+	 * @return the smallest value, or NaN if this column is empty or contains only
+	 *         null values.
+	 */
+	double min();
+
+	/**
+	 * Returns the largest non-null value in this column.
+	 * 
+	 * @return the largest value, or NaN if this column is empty or contains only
+	 *         null values.
+	 */
+	double max();
+
+//	// TODO
+//	/**
+//	 * Returns the median non-null value in this column.
+//	 * 
+//	 * @return the median value, or NaN if this column is empty or contains only
+//	 *         null values.
+//	 */
+//	double median();
+
+	/**
 	 * Returns the mean/average of the non-null values in this column.
 	 * 
 	 * @return the mean value, or NaN if this column is empty or contains only null
 	 *         values.
 	 */
 	double mean();
+
+	/**
+	 * Returns the specified standard deviation of the non-null values in this
+	 * column.
+	 * 
+	 * @param population - computes population stddev (over {@code n}) if true,
+	 *                   otherwise computes sample stddev (over {@code n - 1}).
+	 * 
+	 * 
+	 * @return the specified stddev value, or NaN if this column is empty or
+	 *         contains only null values.
+	 */
+	double stddev(boolean population);
+
+	/**
+	 * Returns the sample standard deviation of the non-null values in this column.
+	 * 
+	 * @return the sample stddev value, or NaN if this column is empty or contains
+	 *         only null values.
+	 */
+	default double stddev() {
+		return stddev(false);
+	}
 }

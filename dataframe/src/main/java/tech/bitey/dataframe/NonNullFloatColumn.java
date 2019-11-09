@@ -20,8 +20,8 @@ import static java.util.Spliterator.DISTINCT;
 import static java.util.Spliterator.NONNULL;
 import static java.util.Spliterator.SORTED;
 import static tech.bitey.bufferstuff.BufferSort.inplaceSort;
-import static tech.bitey.bufferstuff.BufferUtils.isSortedAndDistinct;
 import static tech.bitey.bufferstuff.BufferUtils.EMPTY_BUFFER;
+import static tech.bitey.bufferstuff.BufferUtils.isSortedAndDistinct;
 import static tech.bitey.dataframe.guava.DfPreconditions.checkElementIndex;
 
 import java.nio.ByteBuffer;
@@ -34,134 +34,188 @@ import tech.bitey.bufferstuff.BufferBitSet;
 import tech.bitey.bufferstuff.BufferSearch;
 import tech.bitey.bufferstuff.BufferUtils;
 
-final class NonNullFloatColumn extends NonNullSingleBufferColumn<Float, FloatColumn, NonNullFloatColumn> implements FloatColumn {
-	
+final class NonNullFloatColumn extends NonNullSingleBufferColumn<Float, FloatColumn, NonNullFloatColumn>
+		implements FloatColumn {
+
 	static final Map<Integer, NonNullFloatColumn> EMPTY = new HashMap<>();
 	static {
 		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS, c -> new NonNullFloatColumn(EMPTY_BUFFER, 0, 0, c, false));
-		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED, c -> new NonNullFloatColumn(EMPTY_BUFFER, 0, 0, c, false));
-		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED | DISTINCT, c -> new NonNullFloatColumn(EMPTY_BUFFER, 0, 0, c, false));
+		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED,
+				c -> new NonNullFloatColumn(EMPTY_BUFFER, 0, 0, c, false));
+		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED | DISTINCT,
+				c -> new NonNullFloatColumn(EMPTY_BUFFER, 0, 0, c, false));
 	}
+
 	static NonNullFloatColumn empty(int characteristics) {
 		return EMPTY.get(characteristics | NONNULL_CHARACTERISTICS);
 	}
-	
+
 	private final FloatBuffer elements;
-	
+
 	NonNullFloatColumn(ByteBuffer buffer, int offset, int size, int characteristics, boolean view) {
 		super(buffer, offset, size, characteristics, view);
-		
+
 		this.elements = buffer.asFloatBuffer();
 	}
-	
+
 	@Override
 	NonNullFloatColumn construct(ByteBuffer buffer, int offset, int size, int characteristics, boolean view) {
 		return new NonNullFloatColumn(buffer, offset, size, characteristics, view);
 	}
-	
+
 	float at(int index) {
 		return elements.get(index);
 	}
-	
+
 	@Override
 	Float getNoOffset(int index) {
 		return at(index);
 	}
 
 	@Override
+	public double min() {
+		if (size == 0)
+			return Double.NaN;
+		else if(isSorted())
+			return at(0);
+
+		float min = at(offset);
+
+		for (int i = offset + 1; i <= lastIndex(); i++) {
+			float x = at(i);
+			if (Float.compare(x, min) < 0)
+				min = x;
+		}
+
+		return min;
+	}
+
+	@Override
+	public double max() {
+		if (size == 0)
+			return Double.NaN;
+		else if(isSorted())
+			return at(lastIndex());
+
+		float max = at(offset);
+
+		for (int i = offset + 1; i <= lastIndex(); i++) {
+			float x = at(i);
+			if (Float.compare(x, max) > 0)
+				max = x;
+		}
+
+		return max;
+	}
+
+	@Override
 	public double mean() {
-		if(size == 0)
-        	return Double.NaN;
-		
+		if (size == 0)
+			return Double.NaN;
+
 		double sum = 0;
-		for(int i = offset; i < size; i++)
+		for (int i = offset; i <= lastIndex(); i++)
 			sum += at(i);
 
-        // Compute initial estimate using definitional formula
-        double xbar = sum / size;
+		// Compute initial estimate using definitional formula
+		double xbar = sum / size;
 
-        // Compute correction factor in second pass
-        double correction = 0;
-        for (int i = offset; i < size; i++) {
-            correction += at(i) - xbar;
-        }
-        return xbar + (correction/size);
+		// Compute correction factor in second pass
+		double correction = 0;
+		for (int i = offset; i <= lastIndex(); i++) {
+			correction += at(i) - xbar;
+		}
+		return xbar + (correction / size);
+	}
+
+	@Override
+	public double stddev(boolean population) {
+		if (size == 0 || (!population && size == 1))
+			return Double.NaN;
+
+		double μ = mean();
+
+		double numer = 0;
+		for (int i = offset; i <= lastIndex(); i++) {
+			double d = at(i) - μ;
+			numer += d * d;
+		}
+
+		return Math.sqrt(numer / (population ? size : size - 1));
 	}
 
 	int search(float value) {
-		return BufferSearch.binarySearch(elements, offset, offset+size, value);
+		return BufferSearch.binarySearch(elements, offset, offset + size, value);
 	}
-	
+
 	@Override
 	int search(Float value, boolean first) {
-		if(isSorted()) {
+		if (isSorted()) {
 			int index = search(value);
-			if(isDistinct() || index < 0)
-				return index;			
-			else if(first)
+			if (isDistinct() || index < 0)
+				return index;
+			else if (first)
 				return BufferSearch.binaryFindFirst(elements, offset, index);
 			else
-				return BufferSearch.binaryFindLast(elements, offset+size, index);
-		}
-		else {
+				return BufferSearch.binaryFindLast(elements, offset + size, index);
+		} else {
 			float d = value;
-			
-			if(first) {
-				for(int i = offset; i <= lastIndex(); i++)
-					if(Float.compare(at(i), d) == 0)
+
+			if (first) {
+				for (int i = offset; i <= lastIndex(); i++)
+					if (Float.compare(at(i), d) == 0)
+						return i;
+			} else {
+				for (int i = lastIndex(); i >= offset; i--)
+					if (Float.compare(at(i), d) == 0)
 						return i;
 			}
-			else {
-				for(int i = lastIndex(); i >= offset; i--)
-					if(Float.compare(at(i), d) == 0)
-						return i;
-			}
-			
+
 			return -1;
 		}
 	}
-	
+
 	@Override
 	void sort() {
-		inplaceSort(elements, offset, offset+size);
+		inplaceSort(elements, offset, offset + size);
 	}
-	
+
 	@Override
 	int deduplicate() {
-		return BufferUtils.deduplicate(elements, offset, offset+size);
+		return BufferUtils.deduplicate(elements, offset, offset + size);
 	}
 
 	@Override
 	boolean checkSorted() {
-		return BufferUtils.isSorted(elements, offset, offset+size);
+		return BufferUtils.isSorted(elements, offset, offset + size);
 	}
 
 	@Override
 	boolean checkDistinct() {
-		return isSortedAndDistinct(elements, offset, offset+size);
+		return isSortedAndDistinct(elements, offset, offset + size);
 	}
 
 	@Override
 	NonNullFloatColumn empty() {
 		return EMPTY.get(characteristics);
 	}
-	
+
 	@Override
 	public Comparator<Float> comparator() {
 		return Float::compareTo;
 	}
-	
+
 	@Override
 	public float getFloat(int index) {
 		checkElementIndex(index, size);
-		return at(index+offset);
+		return at(index + offset);
 	}
-	
+
 	@Override
 	public ColumnType getType() {
 		return ColumnType.FLOAT;
 	}
-	
+
 	@Override
 	public int hashCode(int fromIndex, int toIndex) {
 		// from Arrays::hashCode
@@ -175,24 +229,24 @@ final class NonNullFloatColumn extends NonNullSingleBufferColumn<Float, FloatCol
 
 	@Override
 	NonNullFloatColumn applyFilter0(BufferBitSet keep, int cardinality) {
-		
+
 		ByteBuffer buffer = allocate(cardinality);
-		for(int i = offset; i <= lastIndex(); i++)
-			if(keep.get(i - offset))
+		for (int i = offset; i <= lastIndex(); i++)
+			if (keep.get(i - offset))
 				buffer.putFloat(at(i));
 		buffer.flip();
-		
+
 		return new NonNullFloatColumn(buffer, 0, cardinality, characteristics, false);
 	}
 
 	@Override
 	NonNullFloatColumn select0(IntColumn indices) {
-		
+
 		ByteBuffer buffer = allocate(indices.size());
-		for(int i = 0; i < indices.size(); i++)
-			buffer.putFloat(at(indices.getInt(i)+offset));
+		for (int i = 0; i < indices.size(); i++)
+			buffer.putFloat(at(indices.getInt(i) + offset));
 		buffer.flip();
-		
+
 		return construct(buffer, 0, indices.size(), NONNULL, false);
 	}
 
@@ -203,12 +257,12 @@ final class NonNullFloatColumn extends NonNullSingleBufferColumn<Float, FloatCol
 
 	@Override
 	void intersectLeftSorted(NonNullFloatColumn rhs, IntColumnBuilder indices, BufferBitSet keepRight) {
-		
-		for(int i = rhs.offset; i <= rhs.lastIndex(); i++) {
-			
-			int leftIndex = search(rhs.at(i));			
-			if(leftIndex >= offset && leftIndex <= lastIndex()) {
-				
+
+		for (int i = rhs.offset; i <= rhs.lastIndex(); i++) {
+
+			int leftIndex = search(rhs.at(i));
+			if (leftIndex >= offset && leftIndex <= lastIndex()) {
+
 				indices.add(leftIndex - offset);
 				keepRight.set(i - rhs.offset);
 			}

@@ -32,13 +32,16 @@ final class NonNullIntColumn extends IntArrayColumn<Integer, IntColumn, NonNullI
 	static final Map<Integer, NonNullIntColumn> EMPTY = new HashMap<>();
 	static {
 		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS, c -> new NonNullIntColumn(EMPTY_BUFFER, 0, 0, c, false));
-		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED, c -> new NonNullIntColumn(EMPTY_BUFFER, 0, 0, c, false));
-		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED | DISTINCT, c -> new NonNullIntColumn(EMPTY_BUFFER, 0, 0, c, false));
+		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED,
+				c -> new NonNullIntColumn(EMPTY_BUFFER, 0, 0, c, false));
+		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED | DISTINCT,
+				c -> new NonNullIntColumn(EMPTY_BUFFER, 0, 0, c, false));
 	}
+
 	static NonNullIntColumn empty(int characteristics) {
 		return EMPTY.get(characteristics | NONNULL_CHARACTERISTICS);
 	}
-	
+
 	NonNullIntColumn(ByteBuffer buffer, int offset, int size, int characteristics, boolean view) {
 		super(buffer, INTEGER, offset, size, characteristics, view);
 	}
@@ -49,26 +52,78 @@ final class NonNullIntColumn extends IntArrayColumn<Integer, IntColumn, NonNullI
 	}
 
 	@Override
-	public double mean() {
-		if(size == 0)
+	public double min() {
+		if (size == 0)
 			return Double.NaN;
-		
+		else if(isSorted())
+			return at(0);
+
+		int min = at(offset);
+
+		for (int i = offset + 1; i <= lastIndex(); i++) {
+			int x = at(i);
+			if (x < min)
+				min = x;
+		}
+
+		return min;
+	}
+
+	@Override
+	public double max() {
+		if (size == 0)
+			return Double.NaN;
+		else if(isSorted())
+			return at(lastIndex());
+
+		int max = at(offset);
+
+		for (int i = offset + 1; i <= lastIndex(); i++) {
+			int x = at(i);
+			if (x > max)
+				max = x;
+		}
+
+		return max;
+	}
+
+	@Override
+	public double mean() {
+		if (size == 0)
+			return Double.NaN;
+
 		long sum = 0;
-		for(int i = 0; i < size; i++)
-			sum += at(i+offset);
-		return sum / (double)size;
+		for (int i = offset; i <= lastIndex(); i++)
+			sum += at(i);
+		return sum / (double) size;
+	}
+
+	@Override
+	public double stddev(boolean population) {
+		if (size == 0 || (!population && size == 1))
+			return Double.NaN;
+
+		double μ = mean();
+
+		double numer = 0;
+		for (int i = offset; i <= lastIndex(); i++) {
+			double d = at(i) - μ;
+			numer += d * d;
+		}
+
+		return Math.sqrt(numer / (population ? size : size - 1));
 	}
 
 	@Override
 	NonNullIntColumn empty() {
 		return EMPTY.get(characteristics);
 	}
-	
+
 	@Override
 	public Comparator<Integer> comparator() {
 		return Integer::compareTo;
 	}
-	
+
 	@Override
 	public ColumnType getType() {
 		return ColumnType.INT;
@@ -77,7 +132,7 @@ final class NonNullIntColumn extends IntArrayColumn<Integer, IntColumn, NonNullI
 	@Override
 	public int getInt(int index) {
 		checkElementIndex(index, size);
-		return at(index+offset);
+		return at(index + offset);
 	}
 
 	@Override
