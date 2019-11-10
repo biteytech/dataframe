@@ -204,6 +204,8 @@ public enum DataFrameFactory {
 	 * @param file - the file to read from
 	 * 
 	 * @return the dataframe loaded from the specified file
+	 * 
+	 * @throws IOException if some I/O error occurs
 	 */
 	public static DataFrame readFrom(File file) throws IOException {
 		try (FileChannel fileChannel = FileChannel.open(file.toPath(), StandardOpenOption.READ);) {
@@ -217,6 +219,8 @@ public enum DataFrameFactory {
 	 * @param channel - the channel to read from
 	 * 
 	 * @return the dataframe read from the specified channel
+	 * 
+	 * @throws IOException if some I/O error occurs
 	 */
 	public static DataFrame readFrom(ReadableByteChannel channel) throws IOException {
 

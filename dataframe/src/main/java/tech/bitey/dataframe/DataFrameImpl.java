@@ -678,15 +678,18 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 		return subFrame(fromIndex, size());
 	}
 
-	@SuppressWarnings("rawtypes")
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
-	public DataFrame subFrameByValue(Object fromKey, Object toKey) {
+	public DataFrame subFrameByValue(Object fromKey, boolean fromInclusive, Object toKey, boolean toInclusive) {
 		NonNullColumn keyColumn = checkedKeyColumn("subFrameByValue");
 
-		int fromIndex = indexOrInsertionPoint(keyColumn, fromKey);
-		int toIndex = indexOrInsertionPoint(keyColumn, toKey);
+		NonNullColumn subColumn = keyColumn.subColumnByValue(fromKey, fromInclusive, toKey, toInclusive);
+		
+		if(subColumn.isEmpty())
+			return empty();
 
-		return subFrame(fromIndex, toIndex);
+		int offset = subColumn.offset - keyColumn.offset;
+		return subFrame(offset, offset+subColumn.size);
 	}
 
 	@Override

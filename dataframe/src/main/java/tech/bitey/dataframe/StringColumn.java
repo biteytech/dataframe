@@ -27,10 +27,10 @@ public interface StringColumn extends Column<String> {
 	StringColumn subColumn(int fromIndex, int toIndex);
 
 	@Override
-	StringColumn subColumn(String fromElement, boolean fromInclusive, String toElement, boolean toInclusive);
+	StringColumn subColumnByValue(String fromElement, boolean fromInclusive, String toElement, boolean toInclusive);
 
 	@Override
-	StringColumn subColumn(String fromElement, String toElement);
+	StringColumn subColumnByValue(String fromElement, String toElement);
 
 	@Override
 	StringColumn head(String toElement, boolean inclusive);

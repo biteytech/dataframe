@@ -24,10 +24,10 @@ public interface DoubleColumn extends NumericColumn<Double> {
 	DoubleColumn subColumn(int fromIndex, int toIndex);
 
 	@Override
-	DoubleColumn subColumn(Double fromElement, boolean fromInclusive, Double toElement, boolean toInclusive);
+	DoubleColumn subColumnByValue(Double fromElement, boolean fromInclusive, Double toElement, boolean toInclusive);
 
 	@Override
-	DoubleColumn subColumn(Double fromElement, Double toElement);
+	DoubleColumn subColumnByValue(Double fromElement, Double toElement);
 
 	@Override
 	DoubleColumn head(Double toElement, boolean inclusive);

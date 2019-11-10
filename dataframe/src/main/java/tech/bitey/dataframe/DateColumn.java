@@ -25,10 +25,10 @@ public interface DateColumn extends Column<LocalDate> {
 	DateColumn subColumn(int fromIndex, int toIndex);
 
 	@Override
-	DateColumn subColumn(LocalDate fromElement, boolean fromInclusive, LocalDate toElement, boolean toInclusive);
+	DateColumn subColumnByValue(LocalDate fromElement, boolean fromInclusive, LocalDate toElement, boolean toInclusive);
 
 	@Override
-	DateColumn subColumn(LocalDate fromElement, LocalDate toElement);
+	DateColumn subColumnByValue(LocalDate fromElement, LocalDate toElement);
 
 	@Override
 	DateColumn head(LocalDate toElement, boolean inclusive);

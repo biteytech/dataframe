@@ -128,7 +128,7 @@ abstract class TestColumn<E extends Comparable<E>> {
 			E last = set.last();
 			
 			Assertions.assertEquals(new ArrayList<>(set.subSet(first, false, last, false)),
-					column.subColumn(first, false, last, false), s+", testSubSet");
+					column.subColumnByValue(first, false, last, false), s+", testSubSet");
 		}		
 	}
 	

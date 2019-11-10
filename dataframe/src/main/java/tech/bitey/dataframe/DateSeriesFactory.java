@@ -73,6 +73,8 @@ public enum DateSeriesFactory {
 	 * @param file - the file to read from
 	 * 
 	 * @return the date-series loaded from the specified file
+	 * 
+	 * @throws IOException if some I/O error occurs
 	 */
 	public static DateSeries readFrom(File file) throws IOException {
 		return DataFrameFactory.readFrom(file).toDateSeries(1);
@@ -84,6 +86,8 @@ public enum DateSeriesFactory {
 	 * @param channel - the channel to read from
 	 * 
 	 * @return the date-series read from the specified channel
+	 * 
+	 * @throws IOException if some I/O error occurs
 	 */
 	public static DateSeries readFrom(ReadableByteChannel channel) throws IOException {
 		return DataFrameFactory.readFrom(channel).toDateSeries(1);

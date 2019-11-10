@@ -434,12 +434,12 @@ abstract class NullableColumn<E, I extends Column<E>, C extends NonNullColumn<E,
 	// does not implement subColumn-by-element methods
 	
 	@Override
-	public N subColumn(E fromElement, boolean fromInclusive, E toElement, boolean toInclusive) {
+	public N subColumnByValue(E fromElement, boolean fromInclusive, E toElement, boolean toInclusive) {
 		throw new UnsupportedOperationException("subColumn");
 	}
 	
 	@Override
-	public N subColumn(E fromElement, E toElement) {
+	public N subColumnByValue(E fromElement, E toElement) {
 		throw new UnsupportedOperationException("subColumn");
 	}
 	

@@ -918,7 +918,35 @@ public interface DataFrame extends List<Row>, RandomAccess {
 	 *                                       this dataframe's key column type
 	 * @throws NullPointerException          if either key is null
 	 */
-	DataFrame subFrameByValue(Object fromKey, Object toKey);
+	default DataFrame subFrameByValue(Object fromKey, Object toKey) {
+		return subFrameByValue(fromKey, true, toKey, false);
+	}
+
+	/**
+	 * Returns a dataframe containing the rows whose key column values are between
+	 * {@code fromKey} and {@code toKey}. If {@code fromKey} and {@code toKey} are
+	 * equal, the resulting dataframe is empty unless {@code
+	 * fromInclusive} and {@code toInclusive} are both true.
+	 *
+	 * @param fromKey       low endpoint of the key column values in the returned
+	 *                      dataframe
+	 * @param fromInclusive true if the low endpoint is to be included in the
+	 *                      returned view
+	 * @param toKey         high endpoint of the key column values in the returned
+	 *                      dataframe
+	 * @param toInclusive   true if the high endpoint is to be included in the
+	 *                      returned view
+	 * 
+	 * @return the rows from this dataframe whose key column values are between the
+	 *         {@code fromKey} and {@code toKey}.
+	 * 
+	 * @throws UnsupportedOperationException if this dataframe does not contain a
+	 *                                       key column
+	 * @throws ClassCastException            if either key is not compatible with
+	 *                                       this dataframe's key column type
+	 * @throws NullPointerException          if either key is null
+	 */
+	DataFrame subFrameByValue(Object fromKey, boolean fromInclusive, Object toKey, boolean toInclusive);
 
 	/**
 	 * Returns a dataframe containing the rows which pass the specified

@@ -395,7 +395,7 @@ abstract class NonNullColumn<E, I extends Column<E>, C extends NonNullColumn<E, 
 	/*------------------------------------------------------------
 	 *                subColumn methods
 	 *------------------------------------------------------------*/	
-	public C subColumn(E fromElement, boolean fromInclusive, E toElement, boolean toInclusive) {
+	public C subColumnByValue(E fromElement, boolean fromInclusive, E toElement, boolean toInclusive) {
 		verifyDistinct();
 		
 		int direction = comparator().compare(fromElement, toElement);
@@ -416,8 +416,8 @@ abstract class NonNullColumn<E, I extends Column<E>, C extends NonNullColumn<E, 
 		return subColumn(fk-offset, tk+1-offset);
 	}
 	
-	public C subColumn(E fromElement, E toElement) {
-		return subColumn(fromElement, true, toElement, true);
+	public C subColumnByValue(E fromElement, E toElement) {
+		return subColumnByValue(fromElement, true, toElement, true);
 	}
 	
 	public C head(E toElement, boolean inclusive) {
@@ -430,7 +430,7 @@ abstract class NonNullColumn<E, I extends Column<E>, C extends NonNullColumn<E, 
 		if(comparator().compare(toElement, from) < 0)
 			return empty();
 		
-		return subColumn(from, true, toElement, inclusive);
+		return subColumnByValue(from, true, toElement, inclusive);
 	}
 	
 	public C head(E toElement) {
@@ -447,7 +447,7 @@ abstract class NonNullColumn<E, I extends Column<E>, C extends NonNullColumn<E, 
 		if(comparator().compare(fromElement, to) > 0)
 			return empty();
 		
-		return subColumn(fromElement, inclusive, to, true);
+		return subColumnByValue(fromElement, inclusive, to, true);
 	}
 	
 	public C tail(E fromElement) {

@@ -25,11 +25,11 @@ public interface DateTimeColumn extends Column<LocalDateTime> {
 	DateTimeColumn subColumn(int fromIndex, int toIndex);
 
 	@Override
-	DateTimeColumn subColumn(LocalDateTime fromElement, boolean fromInclusive, LocalDateTime toElement,
+	DateTimeColumn subColumnByValue(LocalDateTime fromElement, boolean fromInclusive, LocalDateTime toElement,
 			boolean toInclusive);
 
 	@Override
-	DateTimeColumn subColumn(LocalDateTime fromElement, LocalDateTime toElement);
+	DateTimeColumn subColumnByValue(LocalDateTime fromElement, LocalDateTime toElement);
 
 	@Override
 	DateTimeColumn head(LocalDateTime toElement, boolean inclusive);

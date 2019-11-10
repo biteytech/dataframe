@@ -24,10 +24,10 @@ public interface LongColumn extends NumericColumn<Long> {
 	LongColumn subColumn(int fromIndex, int toIndex);
 
 	@Override
-	LongColumn subColumn(Long fromElement, boolean fromInclusive, Long toElement, boolean toInclusive);
+	LongColumn subColumnByValue(Long fromElement, boolean fromInclusive, Long toElement, boolean toInclusive);
 
 	@Override
-	LongColumn subColumn(Long fromElement, Long toElement);
+	LongColumn subColumnByValue(Long fromElement, Long toElement);
 
 	@Override
 	LongColumn head(Long toElement, boolean inclusive);

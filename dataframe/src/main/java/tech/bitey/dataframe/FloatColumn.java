@@ -24,10 +24,10 @@ public interface FloatColumn extends NumericColumn<Float> {
 	FloatColumn subColumn(int fromIndex, int toIndex);
 
 	@Override
-	FloatColumn subColumn(Float fromElement, boolean fromInclusive, Float toElement, boolean toInclusive);
+	FloatColumn subColumnByValue(Float fromElement, boolean fromInclusive, Float toElement, boolean toInclusive);
 
 	@Override
-	FloatColumn subColumn(Float fromElement, Float toElement);
+	FloatColumn subColumnByValue(Float fromElement, Float toElement);
 
 	@Override
 	FloatColumn head(Float toElement, boolean inclusive);

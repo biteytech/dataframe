@@ -59,8 +59,6 @@ public interface DateSeries extends DataFrame {
 	 * 
 	 * @return the new joint date-series with value combined using the specified
 	 *         operation
-	 * 
-	 * @see DataFrame#join(DataFrame)
 	 */
 	DateSeries transform(DateSeries series, DoubleBinaryOperator op);
 

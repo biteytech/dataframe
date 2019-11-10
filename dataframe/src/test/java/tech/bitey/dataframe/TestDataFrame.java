@@ -151,6 +151,37 @@ public class TestDataFrame {
 			Assertions.assertEquals(expected, actual, e.getKey() + ", read/write file");						
 		}
 	}
+	
+	@Test
+	public void testSubFrameByValue() throws Exception {
+		
+		for (Map.Entry<String, DataFrame> e : DF_MAP.entrySet()) {
+			
+			DataFrame df = e.getValue();
+			if(df.isEmpty() || !df.column(0).isDistinct())
+				continue;			
+			df = df.withKeyColumn(0);
+			
+			testSubFrameByValue(e.getKey(), df, false, false);
+			testSubFrameByValue(e.getKey(), df, false, true);
+			testSubFrameByValue(e.getKey(), df, true, false);
+			testSubFrameByValue(e.getKey(), df, true, true);
+		}
+	}
+	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public void testSubFrameByValue(String label, DataFrame df, boolean fromInclusive, boolean toInclusive) throws Exception {
+		
+		Column keyColumn = df.column(0);
+		Object from = keyColumn.first();
+		Object to = keyColumn.last();
+		
+		Column subColumn = keyColumn.subColumnByValue(from, fromInclusive, to, toInclusive);
+		
+		DataFrame subFrame = df.subFrameByValue(from, fromInclusive, to, toInclusive);
+		
+		Assertions.assertEquals(subColumn, subFrame.column(0), label+", subFrameByValue, ("+fromInclusive+","+toInclusive+")");
+	}
 
 	@Test
 	public void testManyToOneJoin() {

@@ -395,7 +395,7 @@ public interface Column<E> extends List<E> {
 	 * @throws IllegalArgumentException      if {@code fromElement} is greater than
 	 *                                       {@code toElement}
 	 */
-	Column<E> subColumn(E fromElement, boolean fromInclusive, E toElement, boolean toInclusive);
+	Column<E> subColumnByValue(E fromElement, boolean fromInclusive, E toElement, boolean toInclusive);
 
 	/**
 	 * Same behavior as {@code Column#subColumn(Object, boolean, Object, Boolean)},
@@ -410,7 +410,7 @@ public interface Column<E> extends List<E> {
 	 * @return view of the portion of this column whose elements range from
 	 *         {@code fromElement}, inclusive, to {@code toElement}, exclusive
 	 */
-	Column<E> subColumn(E fromElement, E toElement);
+	Column<E> subColumnByValue(E fromElement, E toElement);
 
 	/**
 	 * Returns a view of the portion of this column whose elements are less than (or

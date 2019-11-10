@@ -24,10 +24,10 @@ public interface IntColumn extends NumericColumn<Integer> {
 	IntColumn subColumn(int fromIndex, int toIndex);
 
 	@Override
-	IntColumn subColumn(Integer fromElement, boolean fromInclusive, Integer toElement, boolean toInclusive);
+	IntColumn subColumnByValue(Integer fromElement, boolean fromInclusive, Integer toElement, boolean toInclusive);
 
 	@Override
-	IntColumn subColumn(Integer fromElement, Integer toElement);
+	IntColumn subColumnByValue(Integer fromElement, Integer toElement);
 
 	@Override
 	IntColumn head(Integer toElement, boolean inclusive);
