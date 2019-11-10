@@ -109,7 +109,7 @@ public interface DateSeries extends DataFrame {
 	 *                                   than {@link #size()}
 	 */
 	default double getValue(int index) {
-		return getDouble(index, 0);
+		return getDouble(index, 1);
 	}
 
 	/**
