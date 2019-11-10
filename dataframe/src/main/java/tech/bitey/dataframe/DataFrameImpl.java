@@ -23,6 +23,7 @@ import static tech.bitey.dataframe.guava.DfPreconditions.checkArgument;
 import static tech.bitey.dataframe.guava.DfPreconditions.checkElementIndex;
 import static tech.bitey.dataframe.guava.DfPreconditions.checkNotNull;
 import static tech.bitey.dataframe.guava.DfPreconditions.checkPositionIndex;
+import static tech.bitey.dataframe.guava.DfPreconditions.checkState;
 
 import java.io.File;
 import java.io.IOException;
@@ -58,11 +59,11 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 	/*--------------------------------------------------------------------------------
 	 *	Immutable State
 	 *--------------------------------------------------------------------------------*/
-	private final Integer keyIndex;
+	final Integer keyIndex;
 
-	private final String[] columnNames;
-	private final Column<?>[] columns;
-	private final Map<String, Integer> columnToIndexMap;
+	final String[] columnNames;
+	final Column<?>[] columns;
+	final Map<String, Integer> columnToIndexMap;
 
 	/*--------------------------------------------------------------------------------
 	 *	Constructors
@@ -235,6 +236,27 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 
 		Map map = new ColumnBackedMap<>(keyColumn, valueColumn);
 		return map;
+	}
+
+	@Override
+	public DateSeries toDateSeries(int columnIndex) {
+		return toDateSeries(checkedColumn(columnIndex), columnNames[columnIndex]);
+	}
+
+	@Override
+	public DateSeries toDateSeries(String columnName) {
+		return toDateSeries(checkedColumn(columnName), columnName);
+	}
+
+	private DateSeries toDateSeries(Column<?> values, String valueColumnName) {
+		checkState(hasKeyColumn(), "dataframe must have a key column");
+		checkState(keyColumnType() == ColumnType.DATE, "key column must have type DATE");
+
+		checkState(values.getType() == ColumnType.DOUBLE, "values column must have type DOUBLE");
+		checkState(values.isNonnull(), "values column must be non-null");
+
+		return new DateSeriesImpl((NonNullDateColumn) columns[keyIndex], columnNames[keyIndex],
+				(NonNullDoubleColumn) values, valueColumnName);
 	}
 
 	/*--------------------------------------------------------------------------------
@@ -514,6 +536,7 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 	public <T> Column<T> deriveColumn(ColumnType type, Function<Row, T> function) {
 
 		ColumnBuilder<T> builder = type.builder();
+		builder.ensureCapacity(size());
 
 		for (Cursor cursor = cursor(); cursor.hasNext(); cursor.next())
 			builder.add(function.apply(cursor));
@@ -525,6 +548,7 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 	public IntColumn deriveColumn(ToIntFunction<Row> function) {
 
 		IntColumnBuilder builder = IntColumn.builder();
+		builder.ensureCapacity(size());
 
 		for (Cursor cursor = cursor(); cursor.hasNext(); cursor.next())
 			builder.add(function.applyAsInt(cursor));
@@ -536,6 +560,7 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 	public LongColumn deriveColumn(ToLongFunction<Row> function) {
 
 		LongColumnBuilder builder = LongColumn.builder();
+		builder.ensureCapacity(size());
 
 		for (Cursor cursor = cursor(); cursor.hasNext(); cursor.next())
 			builder.add(function.applyAsLong(cursor));
@@ -547,6 +572,7 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 	public DoubleColumn deriveColumn(ToDoubleFunction<Row> function) {
 
 		DoubleColumnBuilder builder = DoubleColumn.builder();
+		builder.ensureCapacity(size());
 
 		for (Cursor cursor = cursor(); cursor.hasNext(); cursor.next())
 			builder.add(function.applyAsDouble(cursor));
@@ -558,6 +584,7 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 	public FloatColumn deriveColumn(ToFloatFunction<Row> function) {
 
 		FloatColumnBuilder builder = FloatColumn.builder();
+		builder.ensureCapacity(size());
 
 		for (Cursor cursor = cursor(); cursor.hasNext(); cursor.next())
 			builder.add(function.applyAsFloat(cursor));
@@ -569,6 +596,7 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 	public BooleanColumn deriveColumn(Predicate<Row> function) {
 
 		BooleanColumnBuilder builder = BooleanColumn.builder();
+		builder.ensureCapacity(size());
 
 		for (Cursor cursor = cursor(); cursor.hasNext(); cursor.next())
 			builder.add(function.test(cursor));
