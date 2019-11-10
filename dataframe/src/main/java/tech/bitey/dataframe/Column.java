@@ -384,11 +384,10 @@ public interface Column<E> extends List<E> {
 	 * true.</em>
 	 *
 	 * @param fromElement   low endpoint of the returned column
-	 * @param fromInclusive true if the low endpoint is to be included in the
-	 *                      returned view
+	 * @param fromInclusive true if the low endpoint is to be included in the result
 	 * @param toElement     high endpoint of the returned column
 	 * @param toInclusive   true if the high endpoint is to be included in the
-	 *                      returned view
+	 *                      result
 	 * @return a view of the portion of this column whose elements range from
 	 *         {@code fromElement} to {@code toElement}
 	 * @throws UnsupportedOperationException if {@link #isDistinct()} return false

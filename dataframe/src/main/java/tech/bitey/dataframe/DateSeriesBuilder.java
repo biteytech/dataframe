@@ -34,7 +34,7 @@ import java.time.LocalDate;
  * <p>
  * Builder instances can be reused; it is safe to call
  * {@link DateSeriesBuilder#build build} multiple times to build multiple
- * date-series. Each new series contains all the points of the ones created
+ * time series. Each new series contains all the points of the ones created
  * before it.
  *
  * @author biteytech@protonmail.com
@@ -66,7 +66,7 @@ public class DateSeriesBuilder {
 	}
 
 	/**
-	 * Add a point to this date-series.
+	 * Add a point to this time series.
 	 * 
 	 * @param year  - the year
 	 * @param month - the month (1-based)
@@ -82,7 +82,7 @@ public class DateSeriesBuilder {
 	}
 
 	/**
-	 * Add a point to this date-series.
+	 * Add a point to this time series.
 	 * 
 	 * @param yyyymmdd - the date in {@code yyyymmdd} format
 	 * @param value    - the value
@@ -94,7 +94,7 @@ public class DateSeriesBuilder {
 	}
 
 	/**
-	 * Add a point to this date-series.
+	 * Add a point to this time series.
 	 * 
 	 * @param date  - the date
 	 * @param value - the value

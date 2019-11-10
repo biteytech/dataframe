@@ -151,8 +151,8 @@ public interface DataFrame extends List<Row>, RandomAccess {
 
 	/**
 	 * Returns a {@link DateSeries} using the key column from this dataframe as the
-	 * date column in the date-series, and using the specified column as the values
-	 * column in the date-series.
+	 * date column in the time series, and using the specified column as the values
+	 * column in the time series.
 	 * 
 	 * @param columnIndex - index of a non-null {@link DoubleColumn} in this
 	 *                    dataframe
@@ -168,8 +168,8 @@ public interface DataFrame extends List<Row>, RandomAccess {
 
 	/**
 	 * Returns a {@link DateSeries} using the key column from this dataframe as the
-	 * date column in the date-series, and using the specified column as the values
-	 * column in the date-series.
+	 * date column in the time series, and using the specified column as the values
+	 * column in the time series.
 	 * 
 	 * @param columnName - name of a non-null {@link DoubleColumn} in this dataframe
 	 * 
@@ -930,12 +930,11 @@ public interface DataFrame extends List<Row>, RandomAccess {
 	 *
 	 * @param fromKey       low endpoint of the key column values in the returned
 	 *                      dataframe
-	 * @param fromInclusive true if the low endpoint is to be included in the
-	 *                      returned view
+	 * @param fromInclusive true if the low endpoint is to be included in the result
 	 * @param toKey         high endpoint of the key column values in the returned
 	 *                      dataframe
 	 * @param toInclusive   true if the high endpoint is to be included in the
-	 *                      returned view
+	 *                      result
 	 * 
 	 * @return the rows from this dataframe whose key column values are between the
 	 *         {@code fromKey} and {@code toKey}.
@@ -952,7 +951,7 @@ public interface DataFrame extends List<Row>, RandomAccess {
 	 * Returns a dataframe containing the rows which pass the specified
 	 * {@link Predicate}.
 	 * 
-	 * @param criteria - the {@code Predicate} used to the the rows in this
+	 * @param criteria - the {@code Predicate} used to filter the rows in this
 	 *                 dataframe
 	 * 
 	 * @return a dataframe containing the rows which pass the specified

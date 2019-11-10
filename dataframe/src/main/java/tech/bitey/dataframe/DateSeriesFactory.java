@@ -68,11 +68,11 @@ public enum DateSeriesFactory {
 	}
 
 	/**
-	 * Load a date-series from a file created via {@link DataFrame#writeTo(File)}.
+	 * Load a time series from a file created via {@link DataFrame#writeTo(File)}.
 	 * 
 	 * @param file - the file to read from
 	 * 
-	 * @return the date-series loaded from the specified file
+	 * @return the time series loaded from the specified file
 	 * 
 	 * @throws IOException if some I/O error occurs
 	 */
@@ -81,11 +81,11 @@ public enum DateSeriesFactory {
 	}
 
 	/**
-	 * Read a date-series from the specified {@link ReadableByteChannel}.
+	 * Read a time series from the specified {@link ReadableByteChannel}.
 	 * 
 	 * @param channel - the channel to read from
 	 * 
-	 * @return the date-series read from the specified channel
+	 * @return the time series read from the specified channel
 	 * 
 	 * @throws IOException if some I/O error occurs
 	 */

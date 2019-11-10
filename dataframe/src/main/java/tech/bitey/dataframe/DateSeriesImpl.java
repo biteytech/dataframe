@@ -21,6 +21,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.DoubleBinaryOperator;
 import java.util.function.DoubleUnaryOperator;
+import java.util.function.Predicate;
 
 import tech.bitey.bufferstuff.BufferBitSet;
 
@@ -86,5 +87,74 @@ public class DateSeriesImpl extends DataFrameImpl implements DateSeries {
 	@Override
 	public Map<LocalDate, Double> asMap() {
 		return toMap(1);
+	}
+
+	@Override
+	public DateSeries sampleN(int sampleSize) {
+		return super.sampleN(sampleSize).toDateSeries(1);
+	}
+
+	@Override
+	public DateSeries sampleX(double proportion) {
+		return super.sampleX(proportion).toDateSeries(1);
+	}
+
+	@Override
+	public DateSeries filter(Predicate<Row> criteria) {
+		return super.filter(criteria).toDateSeries(1);
+	}
+
+	public DateSeries append(DateSeries df) {
+		return super.append(df).toDateSeries(1);
+	}
+
+	@Override
+	public DateSeries head(int count) {
+		return super.head(count).toDateSeries(1);
+	}
+
+	@Override
+	public DateSeries empty() {
+		return super.empty().toDateSeries(1);
+	}
+
+	@Override
+	public DateSeries head() {
+		return super.head().toDateSeries(1);
+	}
+
+	@Override
+	public DateSeries tail(int count) {
+		return super.tail(count).toDateSeries(1);
+	}
+
+	@Override
+	public DateSeries tail() {
+		return super.tail().toDateSeries(1);
+	}
+
+	@Override
+	public DateSeries subSeries(int fromIndex, int toIndex) {
+		return super.subFrame(fromIndex, toIndex).toDateSeries(1);
+	}
+
+	@Override
+	public DateSeries headTo(LocalDate toKey) {
+		return super.headTo(toKey).toDateSeries(1);
+	}
+
+	@Override
+	public DateSeries tailFrom(LocalDate fromKey) {
+		return super.tailFrom(fromKey).toDateSeries(1);
+	}
+
+	@Override
+	public DateSeries subSeries(LocalDate fromKey, LocalDate toKey) {
+		return super.subFrameByValue(fromKey, toKey).toDateSeries(1);
+	}
+
+	@Override
+	public DateSeries subSeries(LocalDate fromKey, boolean fromInclusive, LocalDate toKey, boolean toInclusive) {
+		return super.subFrameByValue(fromKey, fromInclusive, toKey, toInclusive).toDateSeries(1);
 	}
 }
