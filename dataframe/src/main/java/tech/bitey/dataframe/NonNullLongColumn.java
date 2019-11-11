@@ -19,8 +19,8 @@ package tech.bitey.dataframe;
 import static java.util.Spliterator.DISTINCT;
 import static java.util.Spliterator.SORTED;
 import static tech.bitey.bufferstuff.BufferUtils.EMPTY_BUFFER;
+import static tech.bitey.dataframe.DfPreconditions.checkElementIndex;
 import static tech.bitey.dataframe.LongArrayPacker.LONG;
-import static tech.bitey.dataframe.guava.DfPreconditions.checkElementIndex;
 
 import java.nio.ByteBuffer;
 import java.util.Comparator;

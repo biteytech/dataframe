@@ -22,7 +22,7 @@ import static java.util.Spliterator.NONNULL;
 import static java.util.Spliterator.SORTED;
 import static tech.bitey.bufferstuff.BufferUtils.EMPTY_BUFFER;
 import static tech.bitey.bufferstuff.BufferUtils.duplicate;
-import static tech.bitey.dataframe.guava.DfPreconditions.checkState;
+import static tech.bitey.dataframe.DfPreconditions.checkState;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;

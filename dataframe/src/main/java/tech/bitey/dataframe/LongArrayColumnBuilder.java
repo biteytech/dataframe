@@ -20,7 +20,7 @@ import static java.util.Spliterator.DISTINCT;
 import static java.util.Spliterator.SORTED;
 import static tech.bitey.bufferstuff.BufferUtils.isSorted;
 import static tech.bitey.bufferstuff.BufferUtils.isSortedAndDistinct;
-import static tech.bitey.dataframe.guava.DfPreconditions.checkState;
+import static tech.bitey.dataframe.DfPreconditions.checkState;
 
 import java.nio.ByteBuffer;
 import java.nio.LongBuffer;

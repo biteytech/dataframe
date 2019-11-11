@@ -16,8 +16,8 @@
 
 package tech.bitey.dataframe;
 
-import static tech.bitey.dataframe.guava.DfPreconditions.checkArgument;
-import static tech.bitey.dataframe.guava.DfPreconditions.checkNotNull;
+import static tech.bitey.dataframe.DfPreconditions.checkArgument;
+import static tech.bitey.dataframe.DfPreconditions.checkNotNull;
 
 import java.util.AbstractMap;
 import java.util.AbstractSet;

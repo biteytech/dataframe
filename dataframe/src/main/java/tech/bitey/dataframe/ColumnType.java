@@ -19,7 +19,7 @@ package tech.bitey.dataframe;
 import static java.nio.ByteOrder.BIG_ENDIAN;
 import static java.util.Spliterator.NONNULL;
 import static tech.bitey.dataframe.AbstractColumn.readInt;
-import static tech.bitey.dataframe.guava.DfPreconditions.checkState;
+import static tech.bitey.dataframe.DfPreconditions.checkState;
 
 import java.io.IOException;
 import java.nio.channels.ReadableByteChannel;

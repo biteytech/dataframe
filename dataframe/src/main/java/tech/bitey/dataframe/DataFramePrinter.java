@@ -16,8 +16,8 @@
 
 package tech.bitey.dataframe;
 
-import static tech.bitey.dataframe.guava.DfStrings.isNullOrEmpty;
-import static tech.bitey.dataframe.guava.DfStrings.repeat;
+import static tech.bitey.dataframe.DfStrings.isNullOrEmpty;
+import static tech.bitey.dataframe.DfStrings.repeat;
 
 import java.math.BigDecimal;
 import java.math.MathContext;

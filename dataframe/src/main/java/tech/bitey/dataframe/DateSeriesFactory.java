@@ -16,7 +16,7 @@
 
 package tech.bitey.dataframe;
 
-import static tech.bitey.dataframe.guava.DfPreconditions.checkArgument;
+import static tech.bitey.dataframe.DfPreconditions.checkArgument;
 
 import java.io.File;
 import java.io.IOException;

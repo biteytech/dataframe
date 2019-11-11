@@ -20,8 +20,8 @@ import static java.util.Spliterator.DISTINCT;
 import static java.util.Spliterator.NONNULL;
 import static java.util.Spliterator.SORTED;
 import static tech.bitey.dataframe.Column.BASE_CHARACTERISTICS;
+import static tech.bitey.dataframe.DfPreconditions.checkArgument;
 import static tech.bitey.dataframe.NonNullColumn.NONNULL_CHARACTERISTICS;
-import static tech.bitey.dataframe.guava.DfPreconditions.checkArgument;
 
 import java.util.Collection;
 import java.util.Iterator;

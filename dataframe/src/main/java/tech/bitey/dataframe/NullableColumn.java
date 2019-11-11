@@ -17,8 +17,8 @@
 package tech.bitey.dataframe;
 
 import static java.nio.ByteOrder.BIG_ENDIAN;
-import static tech.bitey.dataframe.guava.DfPreconditions.checkElementIndex;
-import static tech.bitey.dataframe.guava.DfPreconditions.checkPositionIndex;
+import static tech.bitey.dataframe.DfPreconditions.checkElementIndex;
+import static tech.bitey.dataframe.DfPreconditions.checkPositionIndex;
 
 import java.io.IOException;
 import java.nio.IntBuffer;

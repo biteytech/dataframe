@@ -18,9 +18,9 @@ package tech.bitey.dataframe;
 
 import static java.lang.Character.isLetterOrDigit;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static tech.bitey.dataframe.guava.DfPreconditions.checkArgument;
-import static tech.bitey.dataframe.guava.DfPreconditions.checkNotNull;
-import static tech.bitey.dataframe.guava.DfPreconditions.checkState;
+import static tech.bitey.dataframe.DfPreconditions.checkArgument;
+import static tech.bitey.dataframe.DfPreconditions.checkNotNull;
+import static tech.bitey.dataframe.DfPreconditions.checkState;
 
 import java.io.BufferedReader;
 import java.io.IOException;

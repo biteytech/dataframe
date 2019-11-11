@@ -19,7 +19,7 @@ package tech.bitey.dataframe;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Spliterator.DISTINCT;
 import static java.util.Spliterator.SORTED;
-import static tech.bitey.dataframe.guava.DfPreconditions.checkArgument;
+import static tech.bitey.dataframe.DfPreconditions.checkArgument;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;

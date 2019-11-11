@@ -20,11 +20,11 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.nio.file.StandardOpenOption.CREATE;
 import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
 import static java.nio.file.StandardOpenOption.WRITE;
-import static tech.bitey.dataframe.guava.DfPreconditions.checkArgument;
-import static tech.bitey.dataframe.guava.DfPreconditions.checkElementIndex;
-import static tech.bitey.dataframe.guava.DfPreconditions.checkNotNull;
-import static tech.bitey.dataframe.guava.DfPreconditions.checkPositionIndex;
-import static tech.bitey.dataframe.guava.DfPreconditions.checkState;
+import static tech.bitey.dataframe.DfPreconditions.checkArgument;
+import static tech.bitey.dataframe.DfPreconditions.checkElementIndex;
+import static tech.bitey.dataframe.DfPreconditions.checkNotNull;
+import static tech.bitey.dataframe.DfPreconditions.checkPositionIndex;
+import static tech.bitey.dataframe.DfPreconditions.checkState;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
