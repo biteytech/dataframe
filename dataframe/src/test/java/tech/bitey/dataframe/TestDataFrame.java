@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Assertions;
@@ -183,6 +184,29 @@ public class TestDataFrame {
 			testSubFrameByValue(e.getKey(), df, false, true);
 			testSubFrameByValue(e.getKey(), df, true, false);
 			testSubFrameByValue(e.getKey(), df, true, true);
+		}
+	}
+	
+	@Test
+	public void testFilterNulls() throws Exception {
+		
+		StringColumn c11 = StringColumn.of(null, "B", "C");
+		IntColumn c21 = IntColumn.of(1, 2, null);
+		DataFrame df1 = DataFrameFactory.create(new Column<?>[] { c11, c21 }, new String[] { "C1", "C2" });
+		Assertions.assertEquals(df1.subFrame(1, 2), df1.filterNulls(), "basic, filter nulls");
+		
+		Predicate<Row> nullFilter = r -> {
+			for(int i = 0; i < r.columnCount(); i++)
+				if(r.isNull(i))
+					return false;
+			return true;
+		};
+		
+		for (Map.Entry<String, DataFrame> e : DF_MAP.entrySet()) {
+			
+			DataFrame df = e.getValue();
+			
+			Assertions.assertEquals(df.filter(nullFilter), df.filterNulls(), e.getKey() + ", filter nulls");
 		}
 	}
 	

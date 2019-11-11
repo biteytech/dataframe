@@ -58,10 +58,11 @@ import java.util.stream.Collectors;
 
 import tech.bitey.bufferstuff.BufferBitSet;
 
+@SuppressWarnings({ "rawtypes", "unchecked" })
 class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 
 	private static final DataFramePrinter DEFAULT_PRINTER = new DataFramePrinter(20);
-	
+
 	/*--------------------------------------------------------------------------------
 	 *	Immutable State
 	 *--------------------------------------------------------------------------------*/
@@ -153,7 +154,6 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 		return columns[columnIndex];
 	}
 
-	@SuppressWarnings("rawtypes")
 	private NonNullColumn checkedKeyColumn(String operation) {
 		if (!hasKeyColumn())
 			throw new UnsupportedOperationException(operation + ", missing key column");
@@ -235,7 +235,6 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 		return toMap(checkedColumn(columnName));
 	}
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private <K, V> Map<K, V> toMap(Column<?> valueColumn) {
 
 		Column<?> keyColumn = checkedKeyColumn("toMap");
@@ -446,9 +445,7 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 
 	@Override
 	public <T> Column<T> column(int columnIndex) {
-		@SuppressWarnings("unchecked")
-		Column<T> cast = (Column<T>) checkedColumn(columnIndex);
-		return cast;
+		return (Column<T>) checkedColumn(columnIndex);
 	}
 
 	@Override
@@ -493,9 +490,7 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 
 	@Override
 	public <T> Column<T> column(String columnName) {
-		@SuppressWarnings("unchecked")
-		Column<T> cast = (Column<T>) checkedColumn(columnName);
-		return cast;
+		return (Column<T>) checkedColumn(columnName);
 	}
 
 	@Override
@@ -650,10 +645,8 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 		return modifyColumns(column -> column.subColumn(fromIndex, toIndex));
 	}
 
-	@SuppressWarnings("rawtypes")
 	private int indexOrInsertionPoint(NonNullColumn keyColumn, Object o) {
 
-		@SuppressWarnings("unchecked")
 		int index = keyColumn.findIndexOrInsertionPoint(o);
 
 		if (index < 0) {
@@ -664,7 +657,6 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 		return index;
 	}
 
-	@SuppressWarnings("rawtypes")
 	@Override
 	public DataFrame headTo(Object toKey) {
 		NonNullColumn keyColumn = checkedKeyColumn("headTo");
@@ -674,7 +666,6 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 		return subFrame(0, toIndex);
 	}
 
-	@SuppressWarnings("rawtypes")
 	@Override
 	public DataFrame tailFrom(Object fromKey) {
 		NonNullColumn keyColumn = checkedKeyColumn("tailFrom");
@@ -684,7 +675,6 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 		return subFrame(fromIndex, size());
 	}
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public DataFrame subFrameByValue(Object fromKey, boolean fromInclusive, Object toKey, boolean toInclusive) {
 		NonNullColumn keyColumn = checkedKeyColumn("subFrameByValue");
@@ -709,6 +699,25 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 				keep.set(i);
 
 		return filter(keep);
+	}
+
+	@Override
+	public DataFrame filterNulls() {
+
+		BufferBitSet keep = null;
+
+		for (int i = 0; i < columns.length; i++) {
+			if (!columns[i].isNonnull()) {
+				NullableColumn n = (NullableColumn) columns[i];
+				BufferBitSet nonNulls = n.nonNulls.get(n.offset, n.offset + n.size);
+				if (keep == null)
+					keep = nonNulls;
+				else
+					keep.and(nonNulls);
+			}
+		}
+
+		return keep == null ? this : filter(keep);
 	}
 
 	/*--------------------------------------------------------------------------------
@@ -738,7 +747,6 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 		return new DataFrameImpl(columns, columnNames, keyIndex, columnToIndexMap);
 	}
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public DataFrame join(DataFrame df) {
 		checkArgument(hasKeyColumn() && df.hasKeyColumn(), "both dataframes must have a key column");
@@ -838,7 +846,6 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 		}
 	}
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private JoinSingleIndexResult joinSingleIndex(DataFrame df, String columnName) {
 
 		checkArgument(hasKeyColumn(), "missing key column");
@@ -978,7 +985,6 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 		}
 	}
 
-	@SuppressWarnings("rawtypes")
 	@Override
 	public void writeTo(WritableByteChannel channel) throws IOException {
 		FileDataFrameHeader dfHeader = new FileDataFrameHeader(this);
@@ -1004,44 +1010,40 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 	public void writeCsvTo(OutputStream os) throws IOException {
 
 		Matcher escapeRequired = Pattern.compile("\"|,|\\R").matcher("");
-		
-		try (
-			BufferedOutputStream bos = new BufferedOutputStream(os);
-		) {
-			// write header			
-			for(int i = 0; i < columnNames.length; i++) {
+
+		try (BufferedOutputStream bos = new BufferedOutputStream(os);) {
+			// write header
+			for (int i = 0; i < columnNames.length; i++) {
 				bos.write(csvEscape(columnNames[i], escapeRequired).getBytes(UTF_8));
-				if(i == columnNames.length - 1) {
-					bos.write('\r');
-					bos.write('\n');
-				}
-				else
-					bos.write(',');
+				terminateCsvField(bos, i == columns.length - 1);
 			}
-			
+
 			// write body
-			for(Cursor cursor = cursor(); cursor.hasNext(); cursor.next()) {
-				for(int i = 0; i < columns.length; i++) {
-					if(!cursor.isNull(i)) {
+			for (Cursor cursor = cursor(); cursor.hasNext(); cursor.next()) {
+				for (int i = 0; i < columns.length; i++) {
+					if (!cursor.isNull(i)) {
 						String value = cursor.get(i).toString();
 						bos.write(csvEscape(value, escapeRequired).getBytes(UTF_8));
 					}
-					if(i == columns.length - 1) {
-						bos.write('\r');
-						bos.write('\n');
-					}
-					else
-						bos.write(',');
+					terminateCsvField(bos, i == columns.length - 1);
 				}
 			}
 		}
 	}
-	
+
 	private static String csvEscape(String field, Matcher escapeRequired) {
-		if(escapeRequired.reset(field).find())
+		if (escapeRequired.reset(field).find())
 			return '"' + field.replace("\"", "\"\"") + '"';
 		else
 			return field;
+	}
+
+	private static void terminateCsvField(BufferedOutputStream bos, boolean last) throws IOException {
+		if (last) {
+			bos.write('\r');
+			bos.write('\n');
+		} else
+			bos.write(',');
 	}
 
 	/*--------------------------------------------------------------------------------
@@ -1062,17 +1064,13 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 	@Override
 	public <T> T get(int rowIndex, int columnIndex) {
 		Column<?> column = checkedColumn(columnIndex);
-		@SuppressWarnings("unchecked")
-		T value = (T) column.get(rowIndex);
-		return value;
+		return (T) column.get(rowIndex);
 	}
 
 	@Override
 	public <T> T get(int rowIndex, String columnName) {
 		Column<?> column = checkedColumn(columnName);
-		@SuppressWarnings("unchecked")
-		T value = (T) column.get(rowIndex);
-		return value;
+		return (T) column.get(rowIndex);
 	}
 
 	@Override
@@ -1168,7 +1166,6 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 	/*--------------------------------------------------------------------------------
 	 *	Methods which modify all columns
 	 *--------------------------------------------------------------------------------*/
-	@SuppressWarnings("rawtypes")
 	private DataFrameImpl modifyColumns(Function<AbstractColumn, Column> transformation) {
 
 		Column<?>[] columns = new Column[columnCount()];

@@ -960,6 +960,13 @@ public interface DataFrame extends List<Row>, RandomAccess {
 	 */
 	DataFrame filter(Predicate<Row> criteria);
 
+	/**
+	 * Returns a dataframe containing the rows which do not contain any null values.
+	 * 
+	 * @return a dataframe containing the rows which do not contain any null values.
+	 */
+	DataFrame filterNulls();
+
 	/*--------------------------------------------------------------------------------
 	 *	Database-like Methods
 	 *--------------------------------------------------------------------------------*/

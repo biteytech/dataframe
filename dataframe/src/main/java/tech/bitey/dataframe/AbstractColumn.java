@@ -41,6 +41,7 @@ import java.util.Set;
 
 import tech.bitey.bufferstuff.BufferBitSet;
 
+@SuppressWarnings({ "rawtypes", "unchecked" })
 abstract class AbstractColumn<E, I extends Column<E>, C extends AbstractColumn<E, I, C>> extends AbstractCollection<E>
 		implements Column<E>, RandomAccess {
 
@@ -54,12 +55,6 @@ abstract class AbstractColumn<E, I extends Column<E>, C extends AbstractColumn<E
 		this.view = view;
 	}
 
-	private C castThis() {
-		@SuppressWarnings("unchecked")
-		C cast = (C) this;
-		return cast;
-	}
-
 	@Override
 	public C subColumn(int fromIndex, int toIndex) {
 
@@ -70,7 +65,7 @@ abstract class AbstractColumn<E, I extends Column<E>, C extends AbstractColumn<E
 		if (subSize == 0)
 			return empty();
 		else if (subSize == size)
-			return castThis();
+			return (C) this;
 		else
 			return subColumn0(fromIndex, toIndex);
 	}
@@ -119,13 +114,9 @@ abstract class AbstractColumn<E, I extends Column<E>, C extends AbstractColumn<E
 				"both columns must have same sorted & distinct characteristics");
 
 		if (isEmpty()) {
-			@SuppressWarnings("unchecked")
-			I cast = (I) tail;
-			return cast;
+			return (I) tail;
 		} else if (tail.isEmpty()) {
-			@SuppressWarnings("unchecked")
-			I cast = (I) this;
-			return cast;
+			return (I) this;
 		} else {
 			if (isDistinct()) {
 				checkArgument(comparator().compare(last(), tail.first()) < 0,
@@ -206,7 +197,6 @@ abstract class AbstractColumn<E, I extends Column<E>, C extends AbstractColumn<E
 
 	abstract boolean equals0(C rhs);
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public boolean equals(Object o) {
 		if (o == this)
@@ -270,7 +260,6 @@ abstract class AbstractColumn<E, I extends Column<E>, C extends AbstractColumn<E
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public <T> T[] toArray(T[] a) {
 
 		final int size = size();

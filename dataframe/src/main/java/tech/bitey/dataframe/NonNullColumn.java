@@ -32,6 +32,7 @@ import java.util.Spliterators;
 
 import tech.bitey.bufferstuff.BufferBitSet;
 
+@SuppressWarnings({ "unchecked", "rawtypes" })
 abstract class NonNullColumn<E, I extends Column<E>, C extends NonNullColumn<E, I, C>> extends AbstractColumn<E, I, C>
 {	
 	static final int NONNULL_CHARACTERISTICS = BASE_CHARACTERISTICS | NONNULL;
@@ -63,7 +64,6 @@ abstract class NonNullColumn<E, I extends Column<E>, C extends NonNullColumn<E, 
 	abstract C slice();
 	abstract C readFrom(ReadableByteChannel channel) throws IOException;
 	
-	@SuppressWarnings("unchecked")
 	@Override
 	public C toHeap() {
 		if(isSorted())
@@ -73,7 +73,6 @@ abstract class NonNullColumn<E, I extends Column<E>, C extends NonNullColumn<E, 
 		}
 	}
 	
-	@SuppressWarnings("unchecked")
 	@Override
 	public C toSorted() {
 		if(isDistinct())
@@ -89,7 +88,6 @@ abstract class NonNullColumn<E, I extends Column<E>, C extends NonNullColumn<E, 
 		}
 	}
 	
-	@SuppressWarnings("unchecked")
 	@Override
 	public C toDistinct() {
 		if(isDistinct())
@@ -104,7 +102,6 @@ abstract class NonNullColumn<E, I extends Column<E>, C extends NonNullColumn<E, 
 		}
 	}
 	
-	@SuppressWarnings("unchecked")
 	private C sortedToDistinct() {
 		if(checkDistinct())
 			return withCharacteristics(characteristics | SORTED | DISTINCT);
@@ -127,7 +124,6 @@ abstract class NonNullColumn<E, I extends Column<E>, C extends NonNullColumn<E, 
 	
 	abstract C appendNonNull(C tail);
 	
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	I append0(Column<E> tail) {				
 				
@@ -176,7 +172,6 @@ abstract class NonNullColumn<E, I extends Column<E>, C extends NonNullColumn<E, 
 	
 	abstract void intersectLeftSorted(C rhs, IntColumnBuilder indices, BufferBitSet keepRight);
 	
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	IntColumn intersectLeftSorted(I rhs, BufferBitSet keepRight) {		
 		IntColumnBuilder indices = IntColumn.builder();
@@ -203,7 +198,7 @@ abstract class NonNullColumn<E, I extends Column<E>, C extends NonNullColumn<E, 
 	@Override
 	public int indexOf(Object o) {
 		if(!checkType(o)) return -1;
-		@SuppressWarnings("unchecked")
+		
 		int index = search((E)o, true);
 		return index < 0 ? -1 : index - offset;
 	}
@@ -211,7 +206,7 @@ abstract class NonNullColumn<E, I extends Column<E>, C extends NonNullColumn<E, 
 	@Override
 	public int lastIndexOf(Object o) {
 		if(!checkType(o)) return -1;
-		@SuppressWarnings("unchecked")
+
 		int index = search((E)o, false);
 		return index < 0 ? -1 : index - offset;
 	}
