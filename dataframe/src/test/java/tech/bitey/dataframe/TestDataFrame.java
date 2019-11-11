@@ -136,7 +136,7 @@ public class TestDataFrame {
 	}
 	
 	@Test
-	public void testReadWriteFile() throws Exception {
+	public void testReadWriteBinary() throws Exception {
 		
 		for (Map.Entry<String, DataFrame> e : DF_MAP.entrySet()) {
 
@@ -148,7 +148,24 @@ public class TestDataFrame {
 			expected.writeTo(file);
 			DataFrame actual = DataFrameFactory.readFrom(file);
 
-			Assertions.assertEquals(expected, actual, e.getKey() + ", read/write file");						
+			Assertions.assertEquals(expected, actual, e.getKey() + ", read/write binary");						
+		}
+	}
+	
+	@Test
+	public void testReadWriteCsv() throws Exception {
+		
+		for (Map.Entry<String, DataFrame> e : DF_MAP.entrySet()) {
+
+			DataFrame expected = e.getValue();
+
+			File file = File.createTempFile(e.getKey(), null);
+			file.deleteOnExit();
+
+			expected.writeCsvTo(file);
+			DataFrame actual = DataFrameFactory.readCsvFrom(file, new ReadCsvConfig(expected.columnTypes()));
+
+			Assertions.assertEquals(expected, actual, e.getKey() + ", read/write csv");						
 		}
 	}
 	

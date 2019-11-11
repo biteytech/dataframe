@@ -22,6 +22,7 @@ import static java.util.Spliterator.ORDERED;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.channels.WritableByteChannel;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -1186,6 +1187,32 @@ public interface DataFrame extends List<Row>, RandomAccess {
 	 * @throws IOException if some I/O error occurs
 	 */
 	void writeTo(WritableByteChannel channel) throws IOException;
+
+	/**
+	 * Save this dataframe to an <a href="https://tools.ietf.org/html/rfc4180">RFC
+	 * 4180</a> compliant CSV file, encoded with UTF-8.
+	 * <p>
+	 * {@code null} values are written as empty fields.
+	 * 
+	 * @param file - the file to be (over)written.
+	 * 
+	 * @throws IOException if some I/O error occurs
+	 */
+	void writeCsvTo(File file) throws IOException;
+
+	/**
+	 * Write this dataframe as an <a href="https://tools.ietf.org/html/rfc4180">RFC
+	 * 4180</a> compliant CSV to the specified {@link OutputStream}, encoded with
+	 * UTF-8.
+	 * <p>
+	 * {@code null} values are written as empty fields.
+	 * 
+	 * @param os - the output stream to be written to. OutputStream will be closed
+	 *           by this method.
+	 * 
+	 * @throws IOException if some I/O error occurs
+	 */
+	void writeCsvTo(OutputStream os) throws IOException;
 
 	/*--------------------------------------------------------------------------------
 	 *	Cell Accessors

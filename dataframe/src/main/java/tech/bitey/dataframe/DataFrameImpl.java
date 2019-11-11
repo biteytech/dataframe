@@ -16,6 +16,7 @@
 
 package tech.bitey.dataframe;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.nio.file.StandardOpenOption.CREATE;
 import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
 import static java.nio.file.StandardOpenOption.WRITE;
@@ -25,8 +26,11 @@ import static tech.bitey.dataframe.guava.DfPreconditions.checkNotNull;
 import static tech.bitey.dataframe.guava.DfPreconditions.checkPositionIndex;
 import static tech.bitey.dataframe.guava.DfPreconditions.checkState;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.channels.FileChannel;
 import java.nio.channels.WritableByteChannel;
 import java.time.LocalDate;
@@ -48,6 +52,8 @@ import java.util.function.Predicate;
 import java.util.function.ToDoubleFunction;
 import java.util.function.ToIntFunction;
 import java.util.function.ToLongFunction;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import tech.bitey.bufferstuff.BufferBitSet;
@@ -55,7 +61,7 @@ import tech.bitey.bufferstuff.BufferBitSet;
 class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 
 	private static final DataFramePrinter DEFAULT_PRINTER = new DataFramePrinter(20);
-
+	
 	/*--------------------------------------------------------------------------------
 	 *	Immutable State
 	 *--------------------------------------------------------------------------------*/
@@ -684,12 +690,12 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 		NonNullColumn keyColumn = checkedKeyColumn("subFrameByValue");
 
 		NonNullColumn subColumn = keyColumn.subColumnByValue(fromKey, fromInclusive, toKey, toInclusive);
-		
-		if(subColumn.isEmpty())
+
+		if (subColumn.isEmpty())
 			return empty();
 
 		int offset = subColumn.offset - keyColumn.offset;
-		return subFrame(offset, offset+subColumn.size);
+		return subFrame(offset, offset + subColumn.size);
 	}
 
 	@Override
@@ -985,6 +991,57 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 
 		for (Column<?> column : columns)
 			((AbstractColumn) column).writeTo(channel);
+	}
+
+	@Override
+	public void writeCsvTo(File file) throws IOException {
+		try (FileOutputStream fos = new FileOutputStream(file);) {
+			writeCsvTo(fos);
+		}
+	}
+
+	@Override
+	public void writeCsvTo(OutputStream os) throws IOException {
+
+		Matcher escapeRequired = Pattern.compile("\"|,|\\R").matcher("");
+		
+		try (
+			BufferedOutputStream bos = new BufferedOutputStream(os);
+		) {
+			// write header			
+			for(int i = 0; i < columnNames.length; i++) {
+				bos.write(csvEscape(columnNames[i], escapeRequired).getBytes(UTF_8));
+				if(i == columnNames.length - 1) {
+					bos.write('\r');
+					bos.write('\n');
+				}
+				else
+					bos.write(',');
+			}
+			
+			// write body
+			for(Cursor cursor = cursor(); cursor.hasNext(); cursor.next()) {
+				for(int i = 0; i < columns.length; i++) {
+					if(!cursor.isNull(i)) {
+						String value = cursor.get(i).toString();
+						bos.write(csvEscape(value, escapeRequired).getBytes(UTF_8));
+					}
+					if(i == columns.length - 1) {
+						bos.write('\r');
+						bos.write('\n');
+					}
+					else
+						bos.write(',');
+				}
+			}
+		}
+	}
+	
+	private static String csvEscape(String field, Matcher escapeRequired) {
+		if(escapeRequired.reset(field).find())
+			return '"' + field.replace("\"", "\"\"") + '"';
+		else
+			return field;
 	}
 
 	/*--------------------------------------------------------------------------------

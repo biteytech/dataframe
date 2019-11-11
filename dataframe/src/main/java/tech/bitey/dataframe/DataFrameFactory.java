@@ -19,7 +19,9 @@ package tech.bitey.dataframe;
 import static tech.bitey.dataframe.guava.DfPreconditions.checkArgument;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.file.StandardOpenOption;
@@ -243,5 +245,59 @@ public enum DataFrameFactory {
 
 		Integer keyIndex = dfHeader.keyIndex();
 		return create(columns, columnNames, keyIndex == null ? null : columnNames[keyIndex]);
+	}
+
+	/**
+	 * Read a dataframe from a CSV file. The CSV must adhere to
+	 * <a href="https://tools.ietf.org/html/rfc4180">RFC 4180</a>, with the
+	 * following exceptions:
+	 * <ul>
+	 * <li>Lines can end in CR, LF, or CRLF (not just CRLF as defined in the RFC)
+	 * <li>If a CR or CRLF appears within a field, it will be converted to LF
+	 * <li>A delimiter other than comma may be specified in the configuration
+	 * <li>A header line must be present if and only if the column names are not
+	 * provided in the configuration
+	 * </ul>
+	 * 
+	 * @param file   - the file containing the CVS data
+	 * @param config - configuration for parsing the CSV file. See
+	 *               {@link ReadCsvConfig}.
+	 * @return the dataframe read from the CSV file
+	 * 
+	 * @throws IOException      if some I/O error occurs
+	 * @throws RuntimeException if there is any other error parsing the CVS file
+	 * 
+	 * @see ReadCsvConfig
+	 */
+	public static DataFrame readCsvFrom(File file, ReadCsvConfig config) throws IOException {
+		try (FileInputStream fis = new FileInputStream(file)) {
+			return readCsvFrom(fis, config);
+		}
+	}
+
+	/**
+	 * Read a dataframe in CSV format from the specified {@link InputStream}. The
+	 * CSV must adhere to <a href="https://tools.ietf.org/html/rfc4180">RFC
+	 * 4180</a>, with the following exceptions:
+	 * <ul>
+	 * <li>Lines can end in CR, LF, or CRLF (not just CRLF as defined in the RFC)
+	 * <li>If a CR or CRLF appears within a field, it will be converted to LF
+	 * <li>A delimiter other than comma may be specified in the configuration
+	 * <li>A header line must be present if and only if the column names are not
+	 * provided in the configuration
+	 * </ul>
+	 * 
+	 * @param is     - the {@code InputStream} containing the CSV data
+	 * @param config - configuration for parsing the CSV file. See
+	 *               {@link ReadCsvConfig}.
+	 * @return the dataframe read from the CSV file
+	 * 
+	 * @throws IOException      if some I/O error occurs
+	 * @throws RuntimeException if there is any other error parsing the CVS file
+	 * 
+	 * @see ReadCsvConfig
+	 */
+	public static DataFrame readCsvFrom(InputStream is, ReadCsvConfig config) throws IOException {
+		return config.process(is);
 	}
 }

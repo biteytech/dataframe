@@ -16,12 +16,9 @@
 
 package tech.bitey.dataframe;
 
-import java.nio.charset.Charset;
 import java.util.stream.Collector;
 
 public interface StringColumn extends Column<String> {
-
-	static final Charset UTF_8 = Charset.forName("UTF-8");
 
 	@Override
 	StringColumn subColumn(int fromIndex, int toIndex);

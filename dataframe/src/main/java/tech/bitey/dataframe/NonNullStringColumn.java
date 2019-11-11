@@ -16,6 +16,7 @@
 
 package tech.bitey.dataframe;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Spliterator.DISTINCT;
 import static java.util.Spliterator.NONNULL;
 import static java.util.Spliterator.SORTED;

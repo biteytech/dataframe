@@ -23,6 +23,8 @@ import static tech.bitey.dataframe.guava.DfPreconditions.checkState;
 
 import java.io.IOException;
 import java.nio.channels.ReadableByteChannel;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import tech.bitey.bufferstuff.BufferBitSet;
 
@@ -147,74 +149,162 @@ public enum ColumnType {
 	public Column<?> nullColumn(int size) {
 		return builder().addNulls(size).build();
 	}
-	
+
 	Column<?> readFrom(ReadableByteChannel channel, int characteristics) throws IOException {
 		BufferBitSet nonNulls = null;
 		int size = 0;
-		if(!((characteristics & NONNULL) != 0)) {
+		if (!((characteristics & NONNULL) != 0)) {
 			size = readInt(channel, BIG_ENDIAN);
 			nonNulls = BufferBitSet.readFrom(channel);
 		}
-		
+
 		switch (this) {
 		case BOOLEAN: {
 			NonNullBooleanColumn column = NonNullBooleanColumn.EMPTY.readFrom(channel);
-			if(nonNulls == null)
+			if (nonNulls == null)
 				return column;
 			else
 				return new NullableBooleanColumn(column, nonNulls, null, 0, size);
 		}
 		case DATE: {
 			NonNullDateColumn column = NonNullDateColumn.empty(characteristics).readFrom(channel);
-			if(nonNulls == null)
+			if (nonNulls == null)
 				return column;
 			else
 				return new NullableDateColumn(column, nonNulls, null, 0, size);
 		}
 		case DATETIME: {
 			NonNullDateTimeColumn column = NonNullDateTimeColumn.empty(characteristics).readFrom(channel);
-			if(nonNulls == null)
+			if (nonNulls == null)
 				return column;
 			else
 				return new NullableDateTimeColumn(column, nonNulls, null, 0, size);
 		}
 		case DOUBLE: {
 			NonNullDoubleColumn column = NonNullDoubleColumn.empty(characteristics).readFrom(channel);
-			if(nonNulls == null)
+			if (nonNulls == null)
 				return column;
 			else
 				return new NullableDoubleColumn(column, nonNulls, null, 0, size);
 		}
 		case FLOAT: {
 			NonNullFloatColumn column = NonNullFloatColumn.empty(characteristics).readFrom(channel);
-			if(nonNulls == null)
+			if (nonNulls == null)
 				return column;
 			else
 				return new NullableFloatColumn(column, nonNulls, null, 0, size);
 		}
 		case INT: {
 			NonNullIntColumn column = NonNullIntColumn.empty(characteristics).readFrom(channel);
-			if(nonNulls == null)
+			if (nonNulls == null)
 				return column;
 			else
 				return new NullableIntColumn(column, nonNulls, null, 0, size);
 		}
 		case LONG: {
 			NonNullLongColumn column = NonNullLongColumn.empty(characteristics).readFrom(channel);
-			if(nonNulls == null)
+			if (nonNulls == null)
 				return column;
 			else
 				return new NullableLongColumn(column, nonNulls, null, 0, size);
 		}
 		case STRING: {
 			NonNullStringColumn column = NonNullStringColumn.empty(characteristics).readFrom(channel);
-			if(nonNulls == null)
+			if (nonNulls == null)
 				return column;
 			else
 				return new NullableStringColumn(column, nonNulls, null, 0, size);
 		}
 		}
 
+		throw new IllegalStateException();
+	}
+
+	/**
+	 * Parse a string to an element according to the following logic:
+	 * 
+	 * <table border=1 cellpadding=3>
+	 * <caption><b>Parsing Logic</b></caption>
+	 * <tr>
+	 * <th>Column Type</th>
+	 * <th>Element Type</th>
+	 * <th>Logic</th>
+	 * </tr>
+	 * <tr>
+	 * <td>BOOLEAN</td>
+	 * <td>{@link Boolean}</td>
+	 * <td>{@code TRUE} if string equals "true" or "Y", ignoring case</td>
+	 * </tr>
+	 * <tr>
+	 * <td>DATE</td>
+	 * <td>{@link LocalDate}</td>
+	 * <td>
+	 * <ul>
+	 * <li>if string has length 8, treat as {@code yyyymmdd} int value
+	 * <li>otherwise, {@link LocalDate#parse(CharSequence)}
+	 * </ul>
+	 * </td>
+	 * </tr>
+	 * <tr>
+	 * <td>DATETIME</td>
+	 * <td>{@link LocalDateTime}</td>
+	 * <td>{@link LocalDateTime#parse(CharSequence)}</td>
+	 * </tr>
+	 * <tr>
+	 * <td>DOUBLE</td>
+	 * <td>{@link Double}</td>
+	 * <td>{@link Double#valueOf(String)}</td>
+	 * </tr>
+	 * <tr>
+	 * <td>FLOAT</td>
+	 * <td>{@link Float}</td>
+	 * <td>{@link Float#valueOf(String)}</td>
+	 * </tr>
+	 * <tr>
+	 * <td>INT</td>
+	 * <td>{@link Integer}</td>
+	 * <td>{@link Integer#valueOf(String)}</td>
+	 * </tr>
+	 * <tr>
+	 * <td>LONG</td>
+	 * <td>{@link Long}</td>
+	 * <td>{@link Long#valueOf(String)}</td>
+	 * </tr>
+	 * <tr>
+	 * <td>STRING</td>
+	 * <td>{@link String}</td>
+	 * <td>as-is</td>
+	 * </tr>
+	 * </table>
+	 * 
+	 * @param string - the string to parse
+	 * 
+	 * @return the parsed element
+	 */
+	public Object parse(String string) {
+		switch (this) {
+		case BOOLEAN:
+			return "true".equalsIgnoreCase(string) || "Y".equalsIgnoreCase(string);
+		case DATE: {
+			if (string.length() == 8) {
+				int yyyymmdd = Integer.parseInt(string);
+				return LocalDate.of(yyyymmdd / 10000, yyyymmdd % 10000 / 100, yyyymmdd % 100);
+			} else
+				return LocalDate.parse(string);
+		}
+		case DATETIME:
+			return LocalDateTime.parse(string);
+		case DOUBLE:
+			return Double.valueOf(string);
+		case FLOAT:
+			return Float.valueOf(string);
+		case INT:
+			return Integer.valueOf(string);
+		case LONG:
+			return Long.valueOf(string);
+		case STRING:
+			return string;
+		}
 		throw new IllegalStateException();
 	}
 }
