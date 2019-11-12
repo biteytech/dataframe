@@ -64,10 +64,14 @@ abstract class NonNullSingleBufferColumn<E, I extends Column<E>, C extends NonNu
 	}
 
 	@Override
-	C toDistinct0(C sorted) {
-		int size = sorted.deduplicate();
-		return construct(BufferUtils.slice(sorted.buffer, 0, size * elementSize()), 0, size,
-				sorted.characteristics | SORTED | DISTINCT, false);
+	C toDistinct0(boolean sort) {
+		C copy = copy();
+		if (sort)
+			copy.sort();
+		
+		int size = copy.deduplicate();
+
+		return construct(BufferUtils.slice(copy.buffer, 0, size * elementSize()), 0, size, SORTED | DISTINCT, false);
 	}
 
 	@Override

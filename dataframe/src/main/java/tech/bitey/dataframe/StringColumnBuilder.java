@@ -16,18 +16,11 @@
 
 package tech.bitey.dataframe;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.util.Spliterator.DISTINCT;
-import static java.util.Spliterator.SORTED;
-import static tech.bitey.dataframe.DfPreconditions.checkArgument;
+import static tech.bitey.dataframe.NonNullColumn.NONNULL_CHARACTERISTICS;
 
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Spliterator;
 
 import tech.bitey.bufferstuff.BufferBitSet;
-import tech.bitey.bufferstuff.BufferUtils;
 
 /**
  * A builder for creating {@link StringColumn} instances. Example:
@@ -46,83 +39,15 @@ import tech.bitey.bufferstuff.BufferUtils;
  *
  * @author biteytech@protonmail.com
  */
-public final class StringColumnBuilder extends AbstractColumnBuilder<String, StringColumn, StringColumnBuilder> {
+public final class StringColumnBuilder extends VarLenColumnBuilder<String, StringColumn, StringColumnBuilder> {
 
 	StringColumnBuilder(int characteristics) {
-		super(characteristics);
-	}
-
-	private final ArrayList<String> elements = new ArrayList<>();
-
-	@Override
-	void addNonNull(String element) {
-		elements.add(element);
-		size++;
-	}
-
-	@Override
-	void ensureAdditionalCapacity(int size) {
-		elements.ensureCapacity(elements.size() + size);
-	}
-
-	@Override
-	public StringColumnBuilder ensureCapacity(int minCapacity) {
-		elements.ensureCapacity(minCapacity);
-		return this;
+		super(characteristics, VarLenPacker.STRING);
 	}
 
 	@Override
 	StringColumn emptyNonNull() {
-		return NonNullStringColumn.EMPTY.get(characteristics | Spliterator.NONNULL);
-	}
-
-	@Override
-	int getNonNullSize() {
-		return elements.size();
-	}
-
-	@Override
-	void checkCharacteristics() {
-		if (elements.size() >= 2) {
-			String prev = elements.get(0);
-
-			if ((characteristics & DISTINCT) != 0) {
-				for (int i = 1; i < elements.size(); i++) {
-					String e = elements.get(i);
-					checkArgument(prev.compareTo(e) < 0, "column elements must be sorted and distinct");
-					prev = e;
-				}
-			} else if ((characteristics & SORTED) != 0) {
-				for (int i = 1; i < elements.size(); i++) {
-					String e = elements.get(i);
-					checkArgument(prev.compareTo(e) <= 0, "column elements must be sorted");
-					prev = e;
-				}
-			}
-		}
-	}
-
-	@Override
-	StringColumn buildNonNullColumn(int characteristics) {
-
-		int byteLength = 0;
-		for (int i = 0; i < elements.size(); i++)
-			byteLength += elements.get(i).getBytes(UTF_8).length;
-
-		ByteBuffer elements = BufferUtils.allocate(byteLength);
-		ByteBuffer pointers = BufferUtils.allocate(this.elements.size() * 4);
-
-		int destPos = 0;
-		for (String e : this.elements) {
-			byte[] bytes = e.getBytes(UTF_8);
-			elements.put(bytes);
-			pointers.putInt(destPos);
-			destPos += bytes.length;
-		}
-		pointers.flip();
-		elements.flip();
-
-		return new NonNullStringColumn(elements, pointers, 0, this.elements.size(), characteristics, false);
+		return NonNullStringColumn.EMPTY.get(NONNULL_CHARACTERISTICS);
 	}
 
 	@Override
@@ -136,12 +61,7 @@ public final class StringColumnBuilder extends AbstractColumnBuilder<String, Str
 	}
 
 	@Override
-	void append0(StringColumnBuilder tail) {
-		this.elements.addAll(tail.elements);
-	}
-
-	void sort() {
-		Collections.sort(elements);
-		characteristics |= SORTED;
+	StringColumn construct(ByteBuffer elements, ByteBuffer pointers, int characteristics) {
+		return new NonNullStringColumn(elements, pointers, 0, size, characteristics, false);
 	}
 }

@@ -60,7 +60,7 @@ abstract class NonNullColumn<E, I extends Column<E>, C extends NonNullColumn<E, 
 	abstract boolean checkSorted();	
 	abstract boolean checkDistinct();
 	abstract C toSorted0();
-	abstract C toDistinct0(C sorted);
+	abstract C toDistinct0(boolean sort);
 	abstract C slice();
 	abstract C readFrom(ReadableByteChannel channel) throws IOException;
 	abstract IntColumn sortIndices(C distinct);
@@ -99,7 +99,7 @@ abstract class NonNullColumn<E, I extends Column<E>, C extends NonNullColumn<E, 
 			if(checkSorted())
 				return sortedToDistinct();
 			else
-				return toDistinct0(toSorted0());
+				return toDistinct0(true);
 		}
 	}
 	
@@ -107,7 +107,7 @@ abstract class NonNullColumn<E, I extends Column<E>, C extends NonNullColumn<E, 
 		if(checkDistinct())
 			return withCharacteristics(characteristics | SORTED | DISTINCT);
 		else
-			return toDistinct0((C)copy());
+			return toDistinct0(false);
 	}
 	
 	/*

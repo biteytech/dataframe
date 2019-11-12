@@ -171,7 +171,7 @@ final class NonNullBooleanColumn extends NonNullColumn<Boolean, BooleanColumn, N
 	}
 
 	@Override
-	NonNullBooleanColumn toDistinct0(NonNullBooleanColumn sorted) {
+	NonNullBooleanColumn toDistinct0(boolean sort) {
 		throw new UnsupportedOperationException("toDistinct0");
 	}
 
