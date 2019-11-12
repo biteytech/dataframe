@@ -273,6 +273,19 @@ final class NonNullFloatColumn extends NonNullSingleBufferColumn<Float, FloatCol
 	boolean checkType(Object o) {
 		return o instanceof Float;
 	}
+	
+	@Override
+	IntColumn sortIndices(NonNullFloatColumn distinct) {
+		IntColumnBuilder indices = new IntColumnBuilder(NONNULL);
+		indices.ensureCapacity(size());
+		
+		for (int i = offset; i <= lastIndex(); i++) {
+			int index = distinct.search(at(i));
+			indices.add(index);
+		}
+		
+		return indices.build();
+	}
 
 	@Override
 	int elementSize() {

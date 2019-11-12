@@ -63,6 +63,7 @@ abstract class NonNullColumn<E, I extends Column<E>, C extends NonNullColumn<E, 
 	abstract C toDistinct0(C sorted);
 	abstract C slice();
 	abstract C readFrom(ReadableByteChannel channel) throws IOException;
+	abstract IntColumn sortIndices(C distinct);
 	
 	@Override
 	public C toHeap() {
@@ -107,6 +108,18 @@ abstract class NonNullColumn<E, I extends Column<E>, C extends NonNullColumn<E, 
 			return withCharacteristics(characteristics | SORTED | DISTINCT);
 		else
 			return toDistinct0((C)copy());
+	}
+	
+	/*
+	 * Object[0] -> distinct column
+	 * Object[1] -> sorted indices
+	 */
+	Object[] toDistinctWithIndices() {
+		
+		C distinct = toDistinct();		
+		IntColumn indices = sortIndices(distinct);
+		
+		return new Object[] {distinct, indices};
 	}
 	
 	/*

@@ -140,13 +140,8 @@ public class DateSeriesBuilder {
 
 		if (dates != distinctDates) {
 
-			IntColumnBuilder indices = new IntColumnBuilder(NONNULL);
-			for (int i = 0; i < dates.size; i++) {
-				int index = distinctDates.search(dates.at(i));
-				indices.add(index);
-			}
-
-			values = values.select0(indices.build());
+			IntColumn indices = dates.sortIndices(distinctDates);
+			values = values.select0(indices);
 		}
 
 		return new DateSeriesImpl(distinctDates, dateColumnName, values, valueColumnName);

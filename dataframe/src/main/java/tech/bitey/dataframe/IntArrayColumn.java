@@ -153,6 +153,19 @@ abstract class IntArrayColumn<E, I extends Column<E>, C extends IntArrayColumn<E
 			}
 		}
 	}
+	
+	@Override
+	IntColumn sortIndices(C distinct) {
+		IntColumnBuilder indices = new IntColumnBuilder(NONNULL);
+		indices.ensureCapacity(size());
+		
+		for (int i = offset; i <= lastIndex(); i++) {
+			int index = distinct.search(at(i));
+			indices.add(index);
+		}
+		
+		return indices.build();
+	}
 
 	@Override
 	int elementSize() {

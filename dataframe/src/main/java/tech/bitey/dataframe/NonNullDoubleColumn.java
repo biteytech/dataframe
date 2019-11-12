@@ -273,6 +273,19 @@ final class NonNullDoubleColumn extends NonNullSingleBufferColumn<Double, Double
 	boolean checkType(Object o) {
 		return o instanceof Double;
 	}
+	
+	@Override
+	IntColumn sortIndices(NonNullDoubleColumn distinct) {
+		IntColumnBuilder indices = new IntColumnBuilder(NONNULL);
+		indices.ensureCapacity(size());
+		
+		for (int i = offset; i <= lastIndex(); i++) {
+			int index = distinct.search(at(i));
+			indices.add(index);
+		}
+		
+		return indices.build();
+	}
 
 	@Override
 	int elementSize() {

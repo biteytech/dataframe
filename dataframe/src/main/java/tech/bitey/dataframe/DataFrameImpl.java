@@ -210,10 +210,7 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 
 	@Override
 	public DataFrame copy() {
-
-		Column<?>[] columns = Arrays.stream(this.columns).map(Column::copy).toArray(Column<?>[]::new);
-
-		return new DataFrameImpl(columns, columnNames, keyIndex);
+		return modifyColumns(Column::copy);
 	}
 
 	/*--------------------------------------------------------------------------------
@@ -302,7 +299,42 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 		if (hasKeyColumn() && keyIndex == this.keyIndex)
 			return this;
 
+		checkArgument(columns[keyIndex].isDistinct(),
+				"column must be a unique index (isDistinct) to act as a key column");
+
 		return new DataFrameImpl(columns, columnNames, keyIndex, columnToIndexMap);
+	}
+
+	@Override
+	public DataFrame indexOrganize(int columnIndex) {
+
+		Column column = checkedColumn(columnIndex);
+
+		if (column.isSorted())
+			return withKeyColumn(columnIndex);
+
+		checkArgument(column.isNonnull(), "cannot create key column from nullable column");
+
+		Object[] pair = ((NonNullColumn) column).toDistinctWithIndices();
+		Column distinct = (Column) pair[0];
+		IntColumn indices = (IntColumn) pair[1];
+
+		Column[] columns = new Column[this.columns.length];
+		for (int i = 0; i < columns.length; i++) {
+			if (i == columnIndex)
+				columns[i] = distinct;
+			else
+				columns[i] = ((AbstractColumn) this.columns[i]).select(indices);
+		}
+
+		return new DataFrameImpl(columns, columnNames, columnIndex, columnToIndexMap);
+	}
+
+	@Override
+	public DataFrame indexOrganize(String columnName) {
+
+		int columnIndex = checkedColumnIndex(columnName);
+		return indexOrganize(columnIndex);
 	}
 
 	/*--------------------------------------------------------------------------------

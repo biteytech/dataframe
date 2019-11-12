@@ -44,14 +44,18 @@ import java.util.function.ToLongFunction;
  * data structure with labeled column names.
  * <p>
  * Dataframe implements {@code List<Row>}. The {@link Row rows} can be accessed
- * using the standard {@code Collection}/{@code List}/{@code Iterator}
- * approaches, or via a {@link Cursor} which avoids the overhead of creating a
- * {@code Row} object for each row.
+ * using the standard {@code Collection}/{@code List}/{@code Iterator} methods,
+ * or via a {@link Cursor} which avoids the overhead of creating a {@code Row}
+ * object for each row.
  * <p>
  * A dataframe may optionally designate a "key" column. A key column is a
  * {@code Column} which reports {@link Column#isDistinct()} as true, and acts as
  * an index in the database sense of the word. Certain methods will only work
  * when a key column is present, e.g. {@link #subFrameByValue(Object, Object)}.
+ * <p>
+ * <ul>
+ * <li>Column names are case-sensitive, and must be distinct.
+ * </ul>
  * 
  * @author biteytech@protonmail.com
  */
@@ -219,11 +223,11 @@ public interface DataFrame extends List<Row>, RandomAccess {
 
 	/**
 	 * Returns a new dataframe which is a shallow copy of this one, but with the key
-	 * column set to the specified index.
+	 * column set to the specified column.
 	 * 
 	 * @param columnIndex - the key column index
 	 * 
-	 * @return a new dataframe with the key column set to the specified index.
+	 * @return a new dataframe with the key column set to the specified column.
 	 * 
 	 * @throws IndexOutOfBoundsException if {@code columnIndex} is negative or is
 	 *                                   not less than {@link #columnCount()}
@@ -232,16 +236,44 @@ public interface DataFrame extends List<Row>, RandomAccess {
 
 	/**
 	 * Returns a new dataframe which is a shallow copy of this one, but with the key
-	 * column set to the specified index.
+	 * column set to the specified column.
 	 * 
 	 * @param columnName - name of the column in this dataframe
 	 * 
-	 * @return a new dataframe with the key column set to the specified index.
+	 * @return a new dataframe with the key column set to the specified column.
 	 * 
 	 * @throws IllegalArgumentException if {@code columnName} is not a recognized
 	 *                                  column name in this dataframe
 	 */
 	DataFrame withKeyColumn(String columnName);
+
+	/**
+	 * Returns a new dataframe with rows sorted by the specified column. The
+	 * elements in the specified column must be non-null and distinct. The specified
+	 * column will be set as the key column of the resulting dataframe.
+	 * 
+	 * @param columnIndex - the key column index
+	 * 
+	 * @return a new dataframe with rows sorted by the specified column.
+	 * 
+	 * @throws IndexOutOfBoundsException if {@code columnIndex} is negative or is
+	 *                                   not less than {@link #columnCount()}
+	 */
+	DataFrame indexOrganize(int columnIndex);
+
+	/**
+	 * Returns a new dataframe with rows sorted by the specified column. The
+	 * elements in the specified column must be non-null and distinct. The specified
+	 * column will be set as the key column of the resulting dataframe.
+	 * 
+	 * @param columnName - name of the column in this dataframe
+	 * 
+	 * @return a new dataframe with rows sorted by the specified column.
+	 * 
+	 * @throws IllegalArgumentException if {@code columnName} is not a recognized
+	 *                                  column name in this dataframe
+	 */
+	DataFrame indexOrganize(String columnName);
 
 	/*--------------------------------------------------------------------------------
 	 *	Column Methods

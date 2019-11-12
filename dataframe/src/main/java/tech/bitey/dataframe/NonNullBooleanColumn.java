@@ -213,4 +213,9 @@ final class NonNullBooleanColumn extends NonNullColumn<Boolean, BooleanColumn, N
 		
 		return new NonNullBooleanColumn(elements, 0, size, false);
 	}
+
+	@Override
+	IntColumn sortIndices(NonNullBooleanColumn distinct) {
+		throw new UnsupportedOperationException("sortIndices");
+	}
 }

@@ -135,10 +135,10 @@ public class TestDataFrame {
 			Assertions.assertTrue(expected.equals(actual, true), e.getKey() + ", inner vs hash");
 		}
 	}
-	
+
 	@Test
 	public void testReadWriteBinary() throws Exception {
-		
+
 		for (Map.Entry<String, DataFrame> e : DF_MAP.entrySet()) {
 
 			DataFrame expected = e.getValue();
@@ -149,13 +149,13 @@ public class TestDataFrame {
 			expected.writeTo(file);
 			DataFrame actual = DataFrameFactory.readFrom(file);
 
-			Assertions.assertEquals(expected, actual, e.getKey() + ", read/write binary");						
+			Assertions.assertEquals(expected, actual, e.getKey() + ", read/write binary");
 		}
 	}
-	
+
 	@Test
 	public void testReadWriteCsv() throws Exception {
-		
+
 		for (Map.Entry<String, DataFrame> e : DF_MAP.entrySet()) {
 
 			DataFrame expected = e.getValue();
@@ -166,62 +166,64 @@ public class TestDataFrame {
 			expected.writeCsvTo(file);
 			DataFrame actual = DataFrameFactory.readCsvFrom(file, new ReadCsvConfig(expected.columnTypes()));
 
-			Assertions.assertEquals(expected, actual, e.getKey() + ", read/write csv");						
+			Assertions.assertEquals(expected, actual, e.getKey() + ", read/write csv");
 		}
 	}
-	
+
 	@Test
 	public void testSubFrameByValue() throws Exception {
-		
+
 		for (Map.Entry<String, DataFrame> e : DF_MAP.entrySet()) {
-			
+
 			DataFrame df = e.getValue();
-			if(df.isEmpty() || !df.column(0).isDistinct())
-				continue;			
+			if (df.isEmpty() || !df.column(0).isDistinct())
+				continue;
 			df = df.withKeyColumn(0);
-			
+
 			testSubFrameByValue(e.getKey(), df, false, false);
 			testSubFrameByValue(e.getKey(), df, false, true);
 			testSubFrameByValue(e.getKey(), df, true, false);
 			testSubFrameByValue(e.getKey(), df, true, true);
 		}
 	}
-	
+
 	@Test
 	public void testFilterNulls() throws Exception {
-		
+
 		StringColumn c11 = StringColumn.of(null, "B", "C");
 		IntColumn c21 = IntColumn.of(1, 2, null);
 		DataFrame df1 = DataFrameFactory.create(new Column<?>[] { c11, c21 }, new String[] { "C1", "C2" });
 		Assertions.assertEquals(df1.subFrame(1, 2), df1.filterNulls(), "basic, filter nulls");
-		
+
 		Predicate<Row> nullFilter = r -> {
-			for(int i = 0; i < r.columnCount(); i++)
-				if(r.isNull(i))
+			for (int i = 0; i < r.columnCount(); i++)
+				if (r.isNull(i))
 					return false;
 			return true;
 		};
-		
+
 		for (Map.Entry<String, DataFrame> e : DF_MAP.entrySet()) {
-			
+
 			DataFrame df = e.getValue();
-			
+
 			Assertions.assertEquals(df.filter(nullFilter), df.filterNulls(), e.getKey() + ", filter nulls");
 		}
 	}
-	
+
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public void testSubFrameByValue(String label, DataFrame df, boolean fromInclusive, boolean toInclusive) throws Exception {
-		
+	public void testSubFrameByValue(String label, DataFrame df, boolean fromInclusive, boolean toInclusive)
+			throws Exception {
+
 		Column keyColumn = df.column(0);
 		Object from = keyColumn.first();
 		Object to = keyColumn.last();
-		
+
 		Column subColumn = keyColumn.subColumnByValue(from, fromInclusive, to, toInclusive);
-		
+
 		DataFrame subFrame = df.subFrameByValue(from, fromInclusive, to, toInclusive);
-		
-		Assertions.assertEquals(subColumn, subFrame.column(0), label+", subFrameByValue, ("+fromInclusive+","+toInclusive+")");
+
+		Assertions.assertEquals(subColumn, subFrame.column(0),
+				label + ", subFrameByValue, (" + fromInclusive + "," + toInclusive + ")");
 	}
 
 	@Test
@@ -272,7 +274,7 @@ public class TestDataFrame {
 	}
 
 	@Test
-	void testToMap() throws Exception {
+	public void testToMap() throws Exception {
 
 		IntColumn df1KeyColumn = IntColumn.builder(DISTINCT).addAll(1, 3, 4, 5).build();
 		StringColumn df1ValueColumn = StringColumn.of("one", "three", "four", "five");
@@ -284,6 +286,28 @@ public class TestDataFrame {
 		Map<Integer, String> actual = df1.toMap("VALUE");
 
 		Assertions.assertEquals(expected, actual);
+	}
+
+	@Test
+	public void testIndexOrganize() {
+
+		IntColumn df1KeyColumn = IntColumn.of(1, 2, 3, 4, 5).toDistinct();
+		StringColumn df1ValueColumn = StringColumn.of("A", "B", "C", "D", "E").toDistinct();
+		DataFrame df = DataFrameFactory.create(new Column<?>[] { df1KeyColumn, df1ValueColumn },
+				new String[] { "KEY", "VALUE" }, "KEY");
+
+		Assertions.assertSame(df, df.indexOrganize("KEY"));
+		Assertions.assertTrue(df.equals(df.indexOrganize("VALUE"), true));
+
+		IntColumn c1 = IntColumn.of(1, 2, 3, 4, 5);
+		StringColumn c2 = StringColumn.of("E", "D", "C", "B", "A");
+		DataFrame df2 = DataFrameFactory.create(new Column<?>[] { c1, c2 }, new String[] { "C1", "C2" });
+		
+		IntColumn c3 = IntColumn.of(5, 4, 3, 2, 1);
+		StringColumn c4 = StringColumn.of("A", "B", "C", "D", "E").toDistinct();
+		DataFrame expected = DataFrameFactory.create(new Column<?>[] { c3, c4 }, new String[] { "C1", "C2" }, "C2");
+		
+		Assertions.assertEquals(expected, df2.indexOrganize("C2"));
 	}
 
 	DataFrame getDf(String label) {

@@ -21,7 +21,6 @@ import static java.util.Spliterator.DISTINCT;
 import static java.util.Spliterator.NONNULL;
 import static java.util.Spliterator.SORTED;
 import static tech.bitey.bufferstuff.BufferUtils.EMPTY_BUFFER;
-import static tech.bitey.bufferstuff.BufferUtils.duplicate;
 import static tech.bitey.dataframe.DfPreconditions.checkState;
 
 import java.io.IOException;
@@ -92,9 +91,7 @@ final class NonNullStringColumn extends NonNullColumn<String, StringColumn, NonN
 	@Override
 	String getNoOffset(int index) {
 		
-		ByteBuffer element = duplicate(elements);
-		element.position(pat(index));
-		element.limit(end(index));
+		ByteBuffer element = BufferUtils.slice(elements, pat(index), end(index));
 
 		byte[] bytes = new byte[length(index)];
 		element.get(bytes);
@@ -487,5 +484,18 @@ final class NonNullStringColumn extends NonNullColumn<String, StringColumn, NonN
 		elements.flip();
 		
 		return new NonNullStringColumn(elements, rawPointers, 0, size, characteristics, false);
+	}
+	
+	@Override
+	IntColumn sortIndices(NonNullStringColumn distinct) {
+		IntColumnBuilder indices = new IntColumnBuilder(NONNULL);
+		indices.ensureCapacity(size());
+		
+		for (int i = offset; i <= lastIndex(); i++) {
+			int index = distinct.search(getNoOffset(i));
+			indices.add(index);
+		}
+		
+		return indices.build();
 	}
 }
