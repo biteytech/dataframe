@@ -308,6 +308,17 @@ public class TestDataFrame {
 		DataFrame expected = DataFrameFactory.create(new Column<?>[] { c3, c4 }, new String[] { "C1", "C2" }, "C2");
 		
 		Assertions.assertEquals(expected, df2.indexOrganize("C2"));
+		
+		IntColumn c5 = IntColumn.of(1, 1, 2, 2, 3, 3);
+		StringColumn c6 = StringColumn.of("A", "B", "C", "D", "E", "F");
+		DataFrame df3 = DataFrameFactory.create(new Column<?>[] { c5, c6 }, new String[] { "C1", "C2" });
+		try {
+			df3.indexOrganize(0);
+			throw new RuntimeException("expecting IllegalStateException");
+		}
+		catch(IllegalStateException e) {
+			// ok
+		}
 	}
 
 	DataFrame getDf(String label) {
