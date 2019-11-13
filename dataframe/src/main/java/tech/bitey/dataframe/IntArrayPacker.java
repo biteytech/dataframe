@@ -31,9 +31,9 @@ interface IntArrayPacker<E> {
 			return new Integer(packed);
 		}
 	};
-	
+
 	final IntArrayPacker<LocalDate> LOCAL_DATE = new IntArrayPacker<LocalDate>() {
-		
+
 		@Override
 		public int pack(LocalDate value) {
 			int packed = IntArrayPacker.packDate(value.getYear(), value.getMonthValue(), value.getDayOfMonth());
@@ -45,10 +45,11 @@ interface IntArrayPacker<E> {
 			return LocalDate.of(packed >>> 16, (packed & 0xFF00) >>> 8, packed & 0xFF);
 		}
 	};
-	
+
 	int pack(E value);
+
 	E unpack(int packed);
-	
+
 	public static int packDate(int year, int month, int day) {
 		return year << 16 | month << 8 | day;
 	}

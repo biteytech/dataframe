@@ -10,24 +10,23 @@ import java.util.Random;
 public class TestIntColumn extends TestColumn<Integer> {
 
 	private static final Random RAND = new Random(0);
-	
+
 	@Override
 	TestSample<Integer> wrapSample(String label, Integer[] array, int characteristics) {
 		IntColumn column = IntColumn.builder(characteristics).addAll(array).build();
 		return new TestSample<>(label, array, 0, array.length, column);
 	}
-	
+
 	@Override
 	TestSample<Integer> wrapSample(String label, Integer[] array, Column<Integer> column, int fromIndex, int toIndex) {
 		return new TestSample<>(label, array, fromIndex, toIndex, column);
 	}
 
-	
 	@Override
 	Integer[] toArray(Collection<Integer> samples) {
 		return samples.toArray(empty());
 	}
-	
+
 	@Override
 	Integer[] empty() {
 		return new Integer[0];
@@ -83,7 +82,7 @@ public class TestIntColumn extends TestColumn<Integer> {
 	@Override
 	Integer[] NXNX(int size) {
 		Integer[] random = random(size);
-		for(int i = 0; i < size; i += 2)
+		for (int i = 0; i < size; i += 2)
 			random[i] = null;
 		return random;
 	}
@@ -91,10 +90,10 @@ public class TestIntColumn extends TestColumn<Integer> {
 	@Override
 	Integer[] NNXX(int size) {
 		Integer[] random = random(size);
-		for(int i = 0; i < size; i += 4) {
+		for (int i = 0; i < size; i += 4) {
 			random[i] = null;
-			if(i+1 < size)
-				random[i+1] = null;
+			if (i + 1 < size)
+				random[i + 1] = null;
 		}
 		return random;
 	}
@@ -123,12 +122,12 @@ public class TestIntColumn extends TestColumn<Integer> {
 				elements[i++] = n;
 		return elements;
 	}
-	
+
 	@Override
 	Integer[] notPresent() {
-		return new Integer[] {-2378457, -347700, -88};
+		return new Integer[] { -2378457, -347700, -88 };
 	}
-	
+
 	// 1026 values
 	private static final Integer[] RANDOM = { 5, 5, 8, 5, 2, 6, 9, 2, 2, 8, 7, 1, 5, 1, 3, 4, 8, 8, 3, 1, 5, 6, 1, 2, 1,
 			0, 1, 4, 5, 9, 1, 2, 2, 9, 7, 8, 8, 6, 2, 0, 3, 9, 6, 2, 6, 5, 9, 8, 8, 6, 3, 8, 9, 3, 8, 7, 2, 1, 5, 9, 2,

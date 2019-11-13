@@ -39,32 +39,33 @@ interface VarLenPacker<E> {
 
 	final VarLenPacker<BigDecimal> DECIMAL = new VarLenPacker<BigDecimal>() {
 		@Override
-		public byte[] pack(BigDecimal value) {			
-			
+		public byte[] pack(BigDecimal value) {
+
 			byte[] unscaledBytes = value.unscaledValue().toByteArray();
-			
+
 			ByteBuffer packed = ByteBuffer.allocate(4 + unscaledBytes.length).order(BIG_ENDIAN);
-			
+
 			packed.putInt(value.scale());
 			packed.put(unscaledBytes);
-			
+
 			return packed.array();
 		}
 
 		@Override
 		public BigDecimal unpack(byte[] packed) {
-			
+
 			ByteBuffer buffer = ByteBuffer.wrap(packed).order(BIG_ENDIAN);
-			
+
 			int scale = buffer.getInt();
-			
+
 			byte[] unscaledbytes = new byte[packed.length - 4];
 			buffer.get(unscaledbytes);
-			
+
 			return new BigDecimal(new BigInteger(unscaledbytes), scale);
 		}
 	};
-	
+
 	byte[] pack(E value);
+
 	E unpack(byte[] packed);
 }

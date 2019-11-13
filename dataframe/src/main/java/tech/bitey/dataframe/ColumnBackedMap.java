@@ -30,47 +30,47 @@ class ColumnBackedMap<K, V> extends AbstractMap<K, V> {
 
 	private final Column<K> keyColumn;
 	private final Column<V> valueColumn;
-	
+
 	ColumnBackedMap(Column<K> keyColumn, Column<V> valueColumn) {
-		
+
 		checkNotNull(keyColumn, "key column cannot be null");
 		checkNotNull(valueColumn, "value column cannot be null");
 		checkArgument(keyColumn.isDistinct(), "key column must be a unique index");
 		checkArgument(keyColumn.size() == valueColumn.size(), "key and value columns must have the same size");
-		
+
 		this.keyColumn = keyColumn;
 		this.valueColumn = valueColumn;
 	}
-	
+
 	@Override
 	public V get(Object o) {
 		int index = keyColumn.indexOf(o);
 		return index < 0 ? null : valueColumn.get(index);
 	}
-	
+
 	@Override
 	public boolean containsKey(Object o) {
 		return keyColumn.indexOf(o) >= 0;
 	}
-	
+
 	@Override
 	public boolean containsValue(Object o) {
 		return valueColumn.indexOf(o) >= 0;
 	}
-	
+
 	@Override
 	public int size() {
 		return keyColumn.size();
 	}
-	
+
 	private class ColumnEntry implements Map.Entry<K, V> {
 
 		private final int index;
-		
+
 		private ColumnEntry(int index) {
 			this.index = index;
 		}
-		
+
 		@Override
 		public K getKey() {
 			return keyColumn.get(index);
@@ -84,9 +84,9 @@ class ColumnBackedMap<K, V> extends AbstractMap<K, V> {
 		@Override
 		public V setValue(V value) {
 			throw new UnsupportedOperationException("setValue");
-		}		
+		}
 	}
-	
+
 	private class ColumnEntrySet extends AbstractSet<Map.Entry<K, V>> {
 		@SuppressWarnings({ "rawtypes", "unchecked" })
 		@Override
@@ -94,7 +94,7 @@ class ColumnBackedMap<K, V> extends AbstractMap<K, V> {
 			return new Iterator() {
 
 				int index = 0;
-				
+
 				@Override
 				public boolean hasNext() {
 					return index < size();
@@ -102,11 +102,11 @@ class ColumnBackedMap<K, V> extends AbstractMap<K, V> {
 
 				@Override
 				public ColumnEntry next() {
-					if(!hasNext())
+					if (!hasNext())
 						throw new NoSuchElementException();
-					
+
 					return new ColumnEntry(index++);
-				}				
+				}
 			};
 		}
 
@@ -115,7 +115,7 @@ class ColumnBackedMap<K, V> extends AbstractMap<K, V> {
 			return keyColumn.size();
 		}
 	}
-	
+
 	@Override
 	public Set<Entry<K, V>> entrySet() {
 		return new ColumnEntrySet();

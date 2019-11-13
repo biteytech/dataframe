@@ -17,8 +17,19 @@
 package tech.bitey.dataframe;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.nio.ByteBuffer;
 import java.util.stream.Collector;
 
+/**
+ * A {@link Column} with element type {@link BigDecimal}.
+ * <p>
+ * Elements are stored in a {@link ByteBuffer} as a scale ({@code int}) and an
+ * unscaled {@link BigInteger} ({@link BigInteger#toByteArray()}), where the
+ * value is <tt>(unscaled &times; 10<sup>-scale</sup>)</tt>
+ * 
+ * @author biteytech@protonmail.com
+ */
 public interface DecimalColumn extends NumericColumn<BigDecimal> {
 
 	@Override
@@ -119,8 +130,8 @@ public interface DecimalColumn extends NumericColumn<BigDecimal> {
 	 * @throws IllegalArgumentException if {@code characteristic} is not valid
 	 */
 	public static Collector<BigDecimal, ?, DecimalColumn> collector(int characteristic) {
-		return Collector.of(() -> builder(characteristic), DecimalColumnBuilder::add,
-				DecimalColumnBuilder::append, DecimalColumnBuilder::build);
+		return Collector.of(() -> builder(characteristic), DecimalColumnBuilder::add, DecimalColumnBuilder::append,
+				DecimalColumnBuilder::build);
 	}
 
 	/**

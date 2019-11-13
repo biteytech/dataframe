@@ -64,9 +64,8 @@ public enum ColumnType {
 	LONG("L"),
 	/** The type for {@link StringColumn} */
 	STRING("S"),
-	/** The type for {@link BigDecimalColumn} */
-	DECIMAL("BD"),
-	;
+	/** The type for {@link DecimalColumn} */
+	DECIMAL("BD"),;
 
 	private final String code;
 

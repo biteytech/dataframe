@@ -27,24 +27,31 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
-final class NonNullDecimalColumn extends NonNullVarLenColumn<BigDecimal, DecimalColumn, NonNullDecimalColumn> implements DecimalColumn {
-	
+final class NonNullDecimalColumn extends NonNullVarLenColumn<BigDecimal, DecimalColumn, NonNullDecimalColumn>
+		implements DecimalColumn {
+
 	static final Map<Integer, NonNullDecimalColumn> EMPTY = new HashMap<>();
 	static {
-		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS, c -> new NonNullDecimalColumn(EMPTY_BUFFER, EMPTY_BUFFER, 0, 0, c, false));
-		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED, c -> new NonNullDecimalColumn(EMPTY_BUFFER, EMPTY_BUFFER, 0, 0, c, false));
-		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED | DISTINCT, c -> new NonNullDecimalColumn(EMPTY_BUFFER, EMPTY_BUFFER, 0, 0, c, false));
+		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS,
+				c -> new NonNullDecimalColumn(EMPTY_BUFFER, EMPTY_BUFFER, 0, 0, c, false));
+		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED,
+				c -> new NonNullDecimalColumn(EMPTY_BUFFER, EMPTY_BUFFER, 0, 0, c, false));
+		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED | DISTINCT,
+				c -> new NonNullDecimalColumn(EMPTY_BUFFER, EMPTY_BUFFER, 0, 0, c, false));
 	}
+
 	static NonNullDecimalColumn empty(int characteristics) {
 		return EMPTY.get(characteristics | NONNULL_CHARACTERISTICS);
 	}
-		
-	NonNullDecimalColumn(ByteBuffer elements, ByteBuffer rawPointers, int offset, int size, int characteristics, boolean view) {
+
+	NonNullDecimalColumn(ByteBuffer elements, ByteBuffer rawPointers, int offset, int size, int characteristics,
+			boolean view) {
 		super(VarLenPacker.DECIMAL, elements, rawPointers, offset, size, characteristics, view);
 	}
 
 	@Override
-	NonNullDecimalColumn construct(ByteBuffer elements, ByteBuffer rawPointers, int offset, int size, int characteristics, boolean view) {
+	NonNullDecimalColumn construct(ByteBuffer elements, ByteBuffer rawPointers, int offset, int size,
+			int characteristics, boolean view) {
 		return new NonNullDecimalColumn(elements, rawPointers, offset, size, characteristics, view);
 	}
 
@@ -52,12 +59,12 @@ final class NonNullDecimalColumn extends NonNullVarLenColumn<BigDecimal, Decimal
 	NonNullDecimalColumn empty() {
 		return EMPTY.get(characteristics);
 	}
-	
+
 	@Override
 	public Comparator<BigDecimal> comparator() {
 		return BigDecimal::compareTo;
 	}
-	
+
 	@Override
 	public ColumnType getType() {
 		return ColumnType.DECIMAL;
@@ -67,13 +74,13 @@ final class NonNullDecimalColumn extends NonNullVarLenColumn<BigDecimal, Decimal
 	boolean checkType(Object o) {
 		return o instanceof BigDecimal;
 	}
-	
+
 	@Override
 	NonNullDecimalColumn toSorted0() {
 		DecimalColumnBuilder builder = new DecimalColumnBuilder(NONNULL);
 		builder.addAll(this);
 		builder.sort();
-		return (NonNullDecimalColumn)builder.build();
+		return (NonNullDecimalColumn) builder.build();
 	}
 
 	@Override
@@ -81,7 +88,7 @@ final class NonNullDecimalColumn extends NonNullVarLenColumn<BigDecimal, Decimal
 		DecimalColumnBuilder builder = new DecimalColumnBuilder(NONNULL);
 		builder.addAll(this);
 		builder.distinct();
-		return (NonNullDecimalColumn)builder.build();
+		return (NonNullDecimalColumn) builder.build();
 	}
 
 	private double dat(int index) {
@@ -92,7 +99,7 @@ final class NonNullDecimalColumn extends NonNullVarLenColumn<BigDecimal, Decimal
 	public double min() {
 		if (size == 0)
 			return Double.NaN;
-		else if(isSorted())
+		else if (isSorted())
 			return dat(offset);
 
 		double min = dat(offset);
@@ -110,7 +117,7 @@ final class NonNullDecimalColumn extends NonNullVarLenColumn<BigDecimal, Decimal
 	public double max() {
 		if (size == 0)
 			return Double.NaN;
-		else if(isSorted())
+		else if (isSorted())
 			return dat(lastIndex());
 
 		double max = dat(offset);

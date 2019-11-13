@@ -16,9 +16,17 @@
 
 package tech.bitey.dataframe;
 
+import java.nio.ByteBuffer;
 import java.time.LocalDate;
 import java.util.stream.Collector;
 
+/**
+ * A {@link Column} with element type {@link LocalDate}.
+ * <p>
+ * Each date is stored encoded as an {@code int} in a {@link ByteBuffer}.
+ * 
+ * @author biteytech@protonmail.com
+ */
 public interface DateColumn extends Column<LocalDate> {
 
 	@Override

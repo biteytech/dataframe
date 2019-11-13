@@ -24,9 +24,11 @@ import java.time.LocalDate;
 
 import tech.bitey.bufferstuff.BufferBitSet;
 
-final class NullableDateColumn extends NullableIntArrayColumn<LocalDate, DateColumn, NonNullDateColumn, NullableDateColumn> implements DateColumn {
-	
-	static final NullableDateColumn EMPTY = new NullableDateColumn(NonNullDateColumn.EMPTY.get(NONNULL_CHARACTERISTICS), EMPTY_BITSET, null, 0, 0);
+final class NullableDateColumn extends
+		NullableIntArrayColumn<LocalDate, DateColumn, NonNullDateColumn, NullableDateColumn> implements DateColumn {
+
+	static final NullableDateColumn EMPTY = new NullableDateColumn(NonNullDateColumn.EMPTY.get(NONNULL_CHARACTERISTICS),
+			EMPTY_BITSET, null, 0, 0);
 
 	NullableDateColumn(NonNullDateColumn column, BufferBitSet nonNulls, IntBuffer nullCounts, int offset, int size) {
 		super(column, nonNulls, nullCounts, offset, size);
@@ -34,7 +36,7 @@ final class NullableDateColumn extends NullableIntArrayColumn<LocalDate, DateCol
 
 	@Override
 	NullableDateColumn subColumn0(int fromIndex, int toIndex) {
-		return new NullableDateColumn(column, nonNulls, nullCounts, fromIndex+offset, toIndex-fromIndex);
+		return new NullableDateColumn(column, nonNulls, nullCounts, fromIndex + offset, toIndex - fromIndex);
 	}
 
 	@Override
@@ -45,7 +47,7 @@ final class NullableDateColumn extends NullableIntArrayColumn<LocalDate, DateCol
 	@Override
 	public int yyyymmdd(int index) {
 		checkGetPrimitive(index);
-		return column.yyyymmdd(nonNullIndex(index+offset));
+		return column.yyyymmdd(nonNullIndex(index + offset));
 	}
 
 	@Override

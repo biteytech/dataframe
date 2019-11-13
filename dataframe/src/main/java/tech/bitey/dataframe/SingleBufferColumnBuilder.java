@@ -23,7 +23,8 @@ import java.nio.ByteBuffer;
 
 import tech.bitey.bufferstuff.BufferUtils;
 
-abstract class SingleBufferColumnBuilder<E, F extends Buffer, C extends Column<E>, B extends SingleBufferColumnBuilder<E, F, C, B>> extends AbstractColumnBuilder<E, C, B> {
+abstract class SingleBufferColumnBuilder<E, F extends Buffer, C extends Column<E>, B extends SingleBufferColumnBuilder<E, F, C, B>>
+		extends AbstractColumnBuilder<E, C, B> {
 
 	SingleBufferColumnBuilder(int characteristics) {
 		super(characteristics);
@@ -33,38 +34,40 @@ abstract class SingleBufferColumnBuilder<E, F extends Buffer, C extends Column<E
 	F elements = asBuffer(buffer);
 
 	abstract F asBuffer(ByteBuffer buffer);
+
 	abstract C buildNonNullColumn(ByteBuffer trim, int characteristics);
-	abstract int elementSize();	
-	
+
+	abstract int elementSize();
+
 	private void resetElementBuffer() {
 		ByteBuffer buffer = duplicate(this.buffer);
 		buffer.clear();
 		elements = asBuffer(buffer);
 		elements.position(this.buffer.position() / elementSize());
 	}
-	
+
 	private ByteBuffer allocate(int capacity) {
 		return BufferUtils.allocate(capacity * elementSize());
 	}
-	
+
 	private void extendCapacity(int newCapacity) {
 		ByteBuffer extended = allocate(newCapacity);
 		buffer.position(elements.limit() * elementSize());
-		buffer.flip();			
+		buffer.flip();
 		extended.put(buffer);
-		
+
 		buffer = extended;
 		resetElementBuffer();
 	}
-	
+
 	@Override
 	void ensureAdditionalCapacity(int required) {
-		if(elements.remaining() < required) {
+		if (elements.remaining() < required) {
 			elements.flip();
-			
+
 			int additionalCapacity = elements.limit() >>> 1;
 			additionalCapacity = Math.max(additionalCapacity, required);
-			
+
 			extendCapacity(elements.limit() + additionalCapacity);
 		}
 	}
@@ -72,11 +75,11 @@ abstract class SingleBufferColumnBuilder<E, F extends Buffer, C extends Column<E
 	@SuppressWarnings("unchecked")
 	@Override
 	public B ensureCapacity(int minCapacity) {
-		if(elements.capacity() < minCapacity) {
+		if (elements.capacity() < minCapacity) {
 			elements.flip();
 			extendCapacity(minCapacity);
 		}
-		return (B)this;
+		return (B) this;
 	}
 
 	@Override
@@ -89,18 +92,18 @@ abstract class SingleBufferColumnBuilder<E, F extends Buffer, C extends Column<E
 		ByteBuffer full = duplicate(buffer);
 		full.flip();
 		full.limit(elements.position() * elementSize());
-		
+
 		ByteBuffer trim = allocate(getNonNullSize());
 		trim.put(full);
 		trim.flip();
-		
+
 		return buildNonNullColumn(trim, characteristics);
 	}
 
 	@Override
 	void append0(B tail) {
 		ensureAdditionalCapacity(tail.getNonNullSize());
-		
+
 		ByteBuffer tailBuffer = duplicate(tail.buffer);
 		tailBuffer.flip();
 		buffer.put(tailBuffer);

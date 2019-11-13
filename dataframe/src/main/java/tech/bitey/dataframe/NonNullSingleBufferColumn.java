@@ -68,7 +68,7 @@ abstract class NonNullSingleBufferColumn<E, I extends Column<E>, C extends NonNu
 		C copy = copy();
 		if (sort)
 			copy.sort();
-		
+
 		int size = copy.deduplicate();
 
 		return construct(BufferUtils.slice(copy.buffer, 0, size * elementSize()), 0, size, SORTED | DISTINCT, false);

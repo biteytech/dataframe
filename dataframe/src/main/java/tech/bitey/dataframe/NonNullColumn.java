@@ -411,6 +411,7 @@ abstract class NonNullColumn<E, I extends Column<E>, C extends NonNullColumn<E, 
 	/*------------------------------------------------------------
 	 *                subColumn methods
 	 *------------------------------------------------------------*/
+	@Override
 	public C subColumnByValue(E fromElement, boolean fromInclusive, E toElement, boolean toInclusive) {
 		verifyDistinct();
 
@@ -432,10 +433,12 @@ abstract class NonNullColumn<E, I extends Column<E>, C extends NonNullColumn<E, 
 		return subColumn(fk - offset, tk + 1 - offset);
 	}
 
+	@Override
 	public C subColumnByValue(E fromElement, E toElement) {
 		return subColumnByValue(fromElement, true, toElement, true);
 	}
 
+	@Override
 	public C head(E toElement, boolean inclusive) {
 
 		if (isEmpty())
@@ -449,10 +452,12 @@ abstract class NonNullColumn<E, I extends Column<E>, C extends NonNullColumn<E, 
 		return subColumnByValue(from, true, toElement, inclusive);
 	}
 
+	@Override
 	public C head(E toElement) {
 		return head(toElement, false);
 	}
 
+	@Override
 	public C tail(E fromElement, boolean inclusive) {
 
 		if (isEmpty())
@@ -466,6 +471,7 @@ abstract class NonNullColumn<E, I extends Column<E>, C extends NonNullColumn<E, 
 		return subColumnByValue(fromElement, inclusive, to, true);
 	}
 
+	@Override
 	public C tail(E fromElement) {
 		return tail(fromElement, true);
 	}

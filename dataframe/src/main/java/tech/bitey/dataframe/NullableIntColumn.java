@@ -23,9 +23,11 @@ import java.nio.IntBuffer;
 
 import tech.bitey.bufferstuff.BufferBitSet;
 
-final class NullableIntColumn extends NullableIntArrayColumn<Integer, IntColumn, NonNullIntColumn, NullableIntColumn> implements IntColumn {
-	
-	static final NullableIntColumn EMPTY = new NullableIntColumn(NonNullIntColumn.EMPTY.get(NONNULL_CHARACTERISTICS), EMPTY_BITSET, null, 0, 0);
+final class NullableIntColumn extends NullableIntArrayColumn<Integer, IntColumn, NonNullIntColumn, NullableIntColumn>
+		implements IntColumn {
+
+	static final NullableIntColumn EMPTY = new NullableIntColumn(NonNullIntColumn.EMPTY.get(NONNULL_CHARACTERISTICS),
+			EMPTY_BITSET, null, 0, 0);
 
 	NullableIntColumn(NonNullIntColumn column, BufferBitSet nonNulls, IntBuffer nullCounts, int offset, int size) {
 		super(column, nonNulls, nullCounts, offset, size);
@@ -33,7 +35,7 @@ final class NullableIntColumn extends NullableIntArrayColumn<Integer, IntColumn,
 
 	@Override
 	NullableIntColumn subColumn0(int fromIndex, int toIndex) {
-		return new NullableIntColumn(column, nonNulls, nullCounts, fromIndex+offset, toIndex-fromIndex);
+		return new NullableIntColumn(column, nonNulls, nullCounts, fromIndex + offset, toIndex - fromIndex);
 	}
 
 	@Override
@@ -64,7 +66,7 @@ final class NullableIntColumn extends NullableIntArrayColumn<Integer, IntColumn,
 	@Override
 	public int getInt(int index) {
 		checkGetPrimitive(index);
-		return column.getInt(nonNullIndex(index+offset));
+		return column.getInt(nonNullIndex(index + offset));
 	}
 
 	@Override

@@ -23,9 +23,11 @@ import java.nio.IntBuffer;
 
 import tech.bitey.bufferstuff.BufferBitSet;
 
-final class NullableLongColumn extends NullableLongArrayColumn<Long, LongColumn, NonNullLongColumn, NullableLongColumn> implements LongColumn {
-	
-	static final NullableLongColumn EMPTY = new NullableLongColumn(NonNullLongColumn.EMPTY.get(NONNULL_CHARACTERISTICS), EMPTY_BITSET, null, 0, 0);
+final class NullableLongColumn extends NullableLongArrayColumn<Long, LongColumn, NonNullLongColumn, NullableLongColumn>
+		implements LongColumn {
+
+	static final NullableLongColumn EMPTY = new NullableLongColumn(NonNullLongColumn.EMPTY.get(NONNULL_CHARACTERISTICS),
+			EMPTY_BITSET, null, 0, 0);
 
 	NullableLongColumn(NonNullLongColumn column, BufferBitSet nonNulls, IntBuffer nullCounts, int offset, int size) {
 		super(column, nonNulls, nullCounts, offset, size);
@@ -33,7 +35,7 @@ final class NullableLongColumn extends NullableLongArrayColumn<Long, LongColumn,
 
 	@Override
 	NullableLongColumn subColumn0(int fromIndex, int toIndex) {
-		return new NullableLongColumn(column, nonNulls, nullCounts, fromIndex+offset, toIndex-fromIndex);
+		return new NullableLongColumn(column, nonNulls, nullCounts, fromIndex + offset, toIndex - fromIndex);
 	}
 
 	@Override
@@ -64,7 +66,7 @@ final class NullableLongColumn extends NullableLongArrayColumn<Long, LongColumn,
 	@Override
 	public long getLong(int index) {
 		checkGetPrimitive(index);
-		return column.getLong(nonNullIndex(index+offset));
+		return column.getLong(nonNullIndex(index + offset));
 	}
 
 	@Override

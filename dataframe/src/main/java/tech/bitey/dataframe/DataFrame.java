@@ -52,7 +52,6 @@ import java.util.function.ToLongFunction;
  * {@code Column} which reports {@link Column#isDistinct()} as true, and acts as
  * an index in the database sense of the word. Certain methods will only work
  * when a key column is present, e.g. {@link #subFrameByValue(Object, Object)}.
- * <p>
  * <ul>
  * <li>Column names are case-sensitive, and must be distinct.
  * </ul>

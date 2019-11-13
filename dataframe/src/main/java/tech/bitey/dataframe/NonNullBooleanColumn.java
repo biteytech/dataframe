@@ -30,12 +30,13 @@ import java.util.Comparator;
 
 import tech.bitey.bufferstuff.BufferBitSet;
 
-final class NonNullBooleanColumn extends NonNullColumn<Boolean, BooleanColumn, NonNullBooleanColumn> implements BooleanColumn {
+final class NonNullBooleanColumn extends NonNullColumn<Boolean, BooleanColumn, NonNullBooleanColumn>
+		implements BooleanColumn {
 
 	static final NonNullBooleanColumn EMPTY = new NonNullBooleanColumn(EMPTY_BITSET, 0, 0, false);
-	
+
 	private final BufferBitSet elements;
-	
+
 	NonNullBooleanColumn(BufferBitSet elements, int offset, int size, boolean view) {
 		super(offset, size, NONNULL, view);
 		this.elements = elements;
@@ -45,7 +46,7 @@ final class NonNullBooleanColumn extends NonNullColumn<Boolean, BooleanColumn, N
 	NonNullBooleanColumn withCharacteristics(int characteristics) {
 		throw new IllegalStateException();
 	}
-	
+
 	@Override
 	Boolean getNoOffset(int index) {
 		return elements.get(index) ? TRUE : FALSE;
@@ -53,24 +54,23 @@ final class NonNullBooleanColumn extends NonNullColumn<Boolean, BooleanColumn, N
 
 	@Override
 	NonNullBooleanColumn subColumn0(int fromIndex, int toIndex) {
-		return new NonNullBooleanColumn(elements, fromIndex+offset, toIndex-fromIndex, true);
+		return new NonNullBooleanColumn(elements, fromIndex + offset, toIndex - fromIndex, true);
 	}
 
 	@Override
 	int search(Boolean value, boolean first) {
-		if(isSorted())
+		if (isSorted())
 			throw new IllegalStateException();
-		else if(first) {
-			if(value)
+		else if (first) {
+			if (value)
 				return elements.nextSetBit(offset);
 			else {
 				// special case - all bits are considered clear after last index
 				int index = elements.nextClearBit(offset);
 				return index > lastIndex() ? -1 : index;
 			}
-		}
-		else {
-			if(value)
+		} else {
+			if (value)
 				return elements.previousSetBit(lastIndex());
 			else
 				return elements.previousClearBit(lastIndex());
@@ -90,9 +90,9 @@ final class NonNullBooleanColumn extends NonNullColumn<Boolean, BooleanColumn, N
 	@Override
 	public boolean getBoolean(int index) {
 		checkElementIndex(index, size);
-		return elements.get(index+offset);
+		return elements.get(index + offset);
 	}
-	
+
 	@Override
 	public ColumnType getType() {
 		return ColumnType.BOOLEAN;
@@ -109,44 +109,44 @@ final class NonNullBooleanColumn extends NonNullColumn<Boolean, BooleanColumn, N
 
 	@Override
 	boolean equals0(NonNullBooleanColumn rhs, int lStart, int rStart, int length) {
-		for(int i = 0; i < length; i++)
-			if(elements.get(lStart+i) != rhs.elements.get(rStart+i))
+		for (int i = 0; i < length; i++)
+			if (elements.get(lStart + i) != rhs.elements.get(rStart + i))
 				return false;
 		return true;
 	}
 
 	@Override
 	NonNullBooleanColumn applyFilter0(BufferBitSet keep, int cardinality) {
-		
+
 		BufferBitSet elements = new BufferBitSet();
-		for(int i = offset, j = 0; i <= lastIndex(); i++) {
-			if(keep.get(i - offset)) {
-				if(this.elements.get(i))
+		for (int i = offset, j = 0; i <= lastIndex(); i++) {
+			if (keep.get(i - offset)) {
+				if (this.elements.get(i))
 					elements.set(j);
 				j++;
 			}
 		}
-		
+
 		return new NonNullBooleanColumn(elements, 0, cardinality, false);
 	}
 
 	@Override
 	NonNullBooleanColumn select0(IntColumn indices) {
-		
+
 		BufferBitSet elements = new BufferBitSet();
-		for(int i = 0; i < indices.size(); i++)
-			if(this.elements.get(indices.getInt(i) + offset))
+		for (int i = 0; i < indices.size(); i++)
+			if (this.elements.get(indices.getInt(i) + offset))
 				elements.set(i);
-		
+
 		return new NonNullBooleanColumn(elements, 0, indices.size(), false);
 	}
 
 	@Override
 	NonNullBooleanColumn appendNonNull(NonNullBooleanColumn tail) {
-		
-		BufferBitSet elements = tail.elements.get(tail.offset, tail.offset+tail.size).shiftRight(size());
-		elements.or(this.elements.get(offset, offset+size));
-			
+
+		BufferBitSet elements = tail.elements.get(tail.offset, tail.offset + tail.size).shiftRight(size());
+		elements.or(this.elements.get(offset, offset + size));
+
 		return new NonNullBooleanColumn(elements, 0, this.size() + tail.size(), false);
 	}
 
@@ -157,7 +157,7 @@ final class NonNullBooleanColumn extends NonNullColumn<Boolean, BooleanColumn, N
 
 	@Override
 	void intersectLeftSorted(NonNullBooleanColumn rhs, IntColumnBuilder indices, BufferBitSet keepRight) {
-		throw new UnsupportedOperationException("intersectLeftSorted");	
+		throw new UnsupportedOperationException("intersectLeftSorted");
 	}
 
 	@Override
@@ -191,8 +191,8 @@ final class NonNullBooleanColumn extends NonNullColumn<Boolean, BooleanColumn, N
 	}
 
 	@Override
-	public NonNullBooleanColumn copy() {		
-		return new NonNullBooleanColumn(elements.get(offset, offset+size), 0, size, false);
+	public NonNullBooleanColumn copy() {
+		return new NonNullBooleanColumn(elements.get(offset, offset + size), 0, size, false);
 	}
 
 	@Override
@@ -203,14 +203,14 @@ final class NonNullBooleanColumn extends NonNullColumn<Boolean, BooleanColumn, N
 	@Override
 	void writeTo(WritableByteChannel channel) throws IOException {
 		writeInt(channel, BIG_ENDIAN, size);
-		elements.writeTo(channel, offset, offset+size);
+		elements.writeTo(channel, offset, offset + size);
 	}
 
 	@Override
 	NonNullBooleanColumn readFrom(ReadableByteChannel channel) throws IOException {
 		int size = readInt(channel, BIG_ENDIAN);
 		BufferBitSet elements = BufferBitSet.readFrom(channel);
-		
+
 		return new NonNullBooleanColumn(elements, 0, size, false);
 	}
 

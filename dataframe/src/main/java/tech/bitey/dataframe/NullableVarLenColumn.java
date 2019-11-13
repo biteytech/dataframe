@@ -20,7 +20,8 @@ import java.nio.IntBuffer;
 
 import tech.bitey.bufferstuff.BufferBitSet;
 
-abstract class NullableVarLenColumn<E extends Comparable<E>, I extends Column<E>, C extends NonNullVarLenColumn<E, I, C>, N extends NullableColumn<E, I, C, N>> extends NullableColumn<E, I, C, N>  {
+abstract class NullableVarLenColumn<E extends Comparable<E>, I extends Column<E>, C extends NonNullVarLenColumn<E, I, C>, N extends NullableColumn<E, I, C, N>>
+		extends NullableColumn<E, I, C, N> {
 
 	NullableVarLenColumn(C column, BufferBitSet nonNulls, IntBuffer nullCounts, int offset, int size) {
 		super(column, nonNulls, nullCounts, offset, size);
@@ -28,15 +29,15 @@ abstract class NullableVarLenColumn<E extends Comparable<E>, I extends Column<E>
 
 	@Override
 	void intersectRightSorted(C rhs, IntColumnBuilder indices, BufferBitSet keepLeft) {
-		
-		for(int i = offset; i <= lastIndex(); i++) {
-			
-			if(!nonNulls.get(i))
+
+		for (int i = offset; i <= lastIndex(); i++) {
+
+			if (!nonNulls.get(i))
 				continue;
-			
-			int rightIndex = rhs.search(column.getNoOffset(nonNullIndex(i)));			
-			if(rightIndex >= rhs.offset && rightIndex <= rhs.lastIndex()) {
-				
+
+			int rightIndex = rhs.search(column.getNoOffset(nonNullIndex(i)));
+			if (rightIndex >= rhs.offset && rightIndex <= rhs.lastIndex()) {
+
 				indices.add(rightIndex - rhs.offset);
 				keepLeft.set(i - offset);
 			}

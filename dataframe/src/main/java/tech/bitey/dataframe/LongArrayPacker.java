@@ -31,32 +31,33 @@ interface LongArrayPacker<E> {
 			return new Long(packed);
 		}
 	};
-	
+
 	final LongArrayPacker<LocalDateTime> LOCAL_DATE_TIME = new LongArrayPacker<LocalDateTime>() {
 		@Override
 		public long pack(LocalDateTime value) {
-			
-			long packed = (long)value.getYear() << 47 | (long)value.getMonthValue() << 43 | (long)value.getDayOfMonth() << 37
-					| (long)value.getHour() << 32 | (long)value.getMinute() << 26 | value.getSecond() << 20 | value.getNano()/1000;
-			
+
+			long packed = (long) value.getYear() << 47 | (long) value.getMonthValue() << 43
+					| (long) value.getDayOfMonth() << 37 | (long) value.getHour() << 32 | (long) value.getMinute() << 26
+					| value.getSecond() << 20 | value.getNano() / 1000;
+
 			return packed;
 		}
 
 		@Override
 		public LocalDateTime unpack(long packed) {
-			
-			return LocalDateTime.of(
-					(int)((packed & 0x7FF800000000000L) >> 47), // year
-					(int)((packed & 0x780000000000L) >> 43), // month
-					(int)((packed & 0x7E000000000L) >> 37), // dayOfMonth
-					(int)((packed & 0x1F00000000L) >> 32), // hour
-					(int)((packed & 0xFC000000L) >> 26), // minute
-					(int)((packed & 0x3F00000L) >> 20), // second
-					(int)((packed & 0xFFFFF)*1000) // nanoOfSecond
+
+			return LocalDateTime.of((int) ((packed & 0x7FF800000000000L) >> 47), // year
+					(int) ((packed & 0x780000000000L) >> 43), // month
+					(int) ((packed & 0x7E000000000L) >> 37), // dayOfMonth
+					(int) ((packed & 0x1F00000000L) >> 32), // hour
+					(int) ((packed & 0xFC000000L) >> 26), // minute
+					(int) ((packed & 0x3F00000L) >> 20), // second
+					(int) ((packed & 0xFFFFF) * 1000) // nanoOfSecond
 			);
 		}
 	};
-	
+
 	long pack(E value);
+
 	E unpack(long packed);
 }

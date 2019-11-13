@@ -33,9 +33,9 @@ import java.time.LocalDate;
  * order the points were added in.
  * <p>
  * Builder instances can be reused; it is safe to call
- * {@link DateSeriesBuilder#build build} multiple times to build multiple
- * time series. Each new series contains all the points of the ones created
- * before it.
+ * {@link DateSeriesBuilder#build build} multiple times to build multiple time
+ * series. Each new series contains all the points of the ones created before
+ * it.
  *
  * @author biteytech@protonmail.com
  */

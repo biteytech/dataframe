@@ -24,17 +24,21 @@ import java.nio.IntBuffer;
 
 import tech.bitey.bufferstuff.BufferBitSet;
 
-final class NullableDecimalColumn extends NullableVarLenColumn<BigDecimal, DecimalColumn, NonNullDecimalColumn, NullableDecimalColumn> implements DecimalColumn {
-	
-	static final NullableDecimalColumn EMPTY = new NullableDecimalColumn(NonNullDecimalColumn.EMPTY.get(NONNULL_CHARACTERISTICS), EMPTY_BITSET, null, 0, 0);
+final class NullableDecimalColumn
+		extends NullableVarLenColumn<BigDecimal, DecimalColumn, NonNullDecimalColumn, NullableDecimalColumn>
+		implements DecimalColumn {
 
-	NullableDecimalColumn(NonNullDecimalColumn column, BufferBitSet nonNulls, IntBuffer nullCounts, int offset, int size) {
+	static final NullableDecimalColumn EMPTY = new NullableDecimalColumn(
+			NonNullDecimalColumn.EMPTY.get(NONNULL_CHARACTERISTICS), EMPTY_BITSET, null, 0, 0);
+
+	NullableDecimalColumn(NonNullDecimalColumn column, BufferBitSet nonNulls, IntBuffer nullCounts, int offset,
+			int size) {
 		super(column, nonNulls, nullCounts, offset, size);
 	}
 
 	@Override
 	NullableDecimalColumn subColumn0(int fromIndex, int toIndex) {
-		return new NullableDecimalColumn(column, nonNulls, nullCounts, fromIndex+offset, toIndex-fromIndex);
+		return new NullableDecimalColumn(column, nonNulls, nullCounts, fromIndex + offset, toIndex - fromIndex);
 	}
 
 	@Override
@@ -43,7 +47,7 @@ final class NullableDecimalColumn extends NullableVarLenColumn<BigDecimal, Decim
 	}
 
 	@Override
-	NullableDecimalColumn construct(NonNullDecimalColumn column, BufferBitSet nonNulls, int size) {		
+	NullableDecimalColumn construct(NonNullDecimalColumn column, BufferBitSet nonNulls, int size) {
 		return new NullableDecimalColumn(column, nonNulls, null, 0, size);
 	}
 

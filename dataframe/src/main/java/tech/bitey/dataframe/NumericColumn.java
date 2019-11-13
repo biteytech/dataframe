@@ -18,10 +18,10 @@ package tech.bitey.dataframe;
 
 /**
  * A {@link Column} with a numeric element type.
- * 
- * @author biteytech@protonmail.com
  *
  * @param <E> a {@link Number numeric} type
+ * 
+ * @author biteytech@protonmail.com
  */
 public interface NumericColumn<E extends Number> extends Column<E> {
 

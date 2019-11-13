@@ -16,8 +16,16 @@
 
 package tech.bitey.dataframe;
 
+import java.nio.ByteBuffer;
 import java.util.stream.Collector;
 
+/**
+ * A {@link Column} with element type {@link Double}.
+ * <p>
+ * Each element is stored as 8 bytes in a {@link ByteBuffer}.
+ * 
+ * @author biteytech@protonmail.com
+ */
 public interface DoubleColumn extends NumericColumn<Double> {
 
 	@Override

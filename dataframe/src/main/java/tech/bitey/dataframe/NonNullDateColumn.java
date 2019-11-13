@@ -29,17 +29,20 @@ import java.util.HashMap;
 import java.util.Map;
 
 final class NonNullDateColumn extends IntArrayColumn<LocalDate, DateColumn, NonNullDateColumn> implements DateColumn {
-	
+
 	static final Map<Integer, NonNullDateColumn> EMPTY = new HashMap<>();
 	static {
 		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS, c -> new NonNullDateColumn(EMPTY_BUFFER, 0, 0, c, false));
-		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED, c -> new NonNullDateColumn(EMPTY_BUFFER, 0, 0, c, false));
-		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED | DISTINCT, c -> new NonNullDateColumn(EMPTY_BUFFER, 0, 0, c, false));
+		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED,
+				c -> new NonNullDateColumn(EMPTY_BUFFER, 0, 0, c, false));
+		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED | DISTINCT,
+				c -> new NonNullDateColumn(EMPTY_BUFFER, 0, 0, c, false));
 	}
+
 	static NonNullDateColumn empty(int characteristics) {
 		return EMPTY.get(characteristics | NONNULL_CHARACTERISTICS);
 	}
-	
+
 	NonNullDateColumn(ByteBuffer buffer, int offset, int size, int characteristics, boolean view) {
 		super(buffer, LOCAL_DATE, offset, size, characteristics, view);
 	}
@@ -53,7 +56,7 @@ final class NonNullDateColumn extends IntArrayColumn<LocalDate, DateColumn, NonN
 	NonNullDateColumn empty() {
 		return EMPTY.get(characteristics);
 	}
-	
+
 	@Override
 	public Comparator<LocalDate> comparator() {
 		return LocalDate::compareTo;
@@ -62,10 +65,10 @@ final class NonNullDateColumn extends IntArrayColumn<LocalDate, DateColumn, NonN
 	@Override
 	public int yyyymmdd(int index) {
 		checkElementIndex(index, size);
-		int packed = at(index+offset);
-		return (packed >>> 16)*10000 + ((packed & 0xFF00) >>> 8)*100 + (packed & 0xFF);
+		int packed = at(index + offset);
+		return (packed >>> 16) * 10000 + ((packed & 0xFF00) >>> 8) * 100 + (packed & 0xFF);
 	}
-	
+
 	@Override
 	public ColumnType getType() {
 		return ColumnType.DATE;

@@ -101,9 +101,9 @@ abstract class VarLenColumnBuilder<E extends Comparable<E>, C extends Column<E>,
 		elements.clear();
 		elements.addAll(distinct);
 		size = elements.size();
-		characteristics |= SORTED | DISTINCT;		
+		characteristics |= SORTED | DISTINCT;
 	}
-	
+
 	abstract C construct(ByteBuffer elements, ByteBuffer pointers, int characteristics);
 
 	@Override

@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 public class TestNumericColumn {
 
 	private static final double DELTA = 1e-10;
-	
+
 	@Test
 	public void numericMethods() {
 		test(new int[] { 0 });
@@ -24,7 +24,7 @@ public class TestNumericColumn {
 		test(new int[] { -2, -4, -6, -8 });
 		test(new int[] { 80, 72, 95, 27, 56, 71, 73, 92, 37, 84 });
 		test(new int[] { 2000000000, -1000000000, 0, 1, 1000000000 });
-		test(new int[] { Integer.MAX_VALUE/100, Integer.MIN_VALUE/100 });
+		test(new int[] { Integer.MAX_VALUE / 100, Integer.MIN_VALUE / 100 });
 	}
 
 	private static void test(int[] values) {

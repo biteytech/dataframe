@@ -40,8 +40,7 @@ import tech.bitey.bufferstuff.BufferBitSet;
  *
  * @author biteytech@protonmail.com
  */
-public final class DecimalColumnBuilder
-		extends VarLenColumnBuilder<BigDecimal, DecimalColumn, DecimalColumnBuilder> {
+public final class DecimalColumnBuilder extends VarLenColumnBuilder<BigDecimal, DecimalColumn, DecimalColumnBuilder> {
 
 	DecimalColumnBuilder(int characteristics) {
 		super(characteristics, VarLenPacker.DECIMAL);

@@ -37,7 +37,7 @@ import java.util.stream.IntStream;
 class DataFramePrinter {
 
 	private static final String TOO_SHORT_COLUMN_MARKER = "?";
-	
+
 	private static final int PADDING = 1;
 
 	private final int maxRows;
@@ -88,7 +88,7 @@ class DataFramePrinter {
 			final StringBuilder text = new StringBuilder();
 			whitespace(text, leading + PADDING - 1);
 			text.append("%").append(i + 1).append("$s");
-			whitespace(text, trailing + PADDING);			
+			whitespace(text, trailing + PADDING);
 			text.append("|");
 			return text.toString();
 		}).reduce((left, right) -> left + " " + right).orElse("");
@@ -101,9 +101,10 @@ class DataFramePrinter {
 	 * @return the line format template
 	 */
 	private static String getDataTemplate(int[] widths) {
-		String LEFT_PADDING = repeat(" ", PADDING-1);
+		String LEFT_PADDING = repeat(" ", PADDING - 1);
 		String RIGHT_PADDING = repeat(" ", PADDING);
-		return IntStream.range(0, widths.length).mapToObj(i -> LEFT_PADDING + "%" + (i + 1) + "$" + widths[i] + "s" + RIGHT_PADDING + "|")
+		return IntStream.range(0, widths.length)
+				.mapToObj(i -> LEFT_PADDING + "%" + (i + 1) + "$" + widths[i] + "s" + RIGHT_PADDING + "|")
 				.reduce((left, right) -> left + " " + right).orElse("");
 	}
 
@@ -123,7 +124,7 @@ class DataFramePrinter {
 		final int[] widths = getWidths(headers, data);
 		final String dataTemplate = getDataTemplate(widths);
 		final String headerTemplate = getHeaderTemplate(widths, headers);
-		final int totalWidth = IntStream.of(widths).map(w -> w + 2*PADDING + 1).sum() - 1;
+		final int totalWidth = IntStream.of(widths).map(w -> w + 2 * PADDING + 1).sum() - 1;
 		final int totalHeight = data.length + 1;
 		int capacity = totalWidth * totalHeight;
 		if (capacity < 0) {
@@ -156,9 +157,8 @@ class DataFramePrinter {
 		final String[] header = new String[colCount];
 		Integer keyColumnIndex = frame.keyColumnIndex();
 		IntStream.range(0, colCount).forEach(colIndex -> {
-			header[colIndex] = frame.columnName(colIndex)
-					+" <"+frame.columnType(colIndex).getCode();	
-			if(keyColumnIndex != null && keyColumnIndex == colIndex) {
+			header[colIndex] = frame.columnName(colIndex) + " <" + frame.columnType(colIndex).getCode();
+			if (keyColumnIndex != null && keyColumnIndex == colIndex) {
 				header[colIndex] += "*";
 			}
 			header[colIndex] += ">";
@@ -166,8 +166,8 @@ class DataFramePrinter {
 		return header;
 	}
 
-	private static final MathContext ROUNDING_CONTEXT = new MathContext(8); 
-	
+	private static final MathContext ROUNDING_CONTEXT = new MathContext(8);
+
 	private String getDataToken(Column<?> col, int i) {
 //		return col.size() > i ? col.getString(i) : TOO_SHORT_COLUMN_MARKER;
 		if (col.size() > i) {
@@ -176,21 +176,21 @@ class DataFramePrinter {
 		} else
 			return TOO_SHORT_COLUMN_MARKER;
 	}
-	
+
 	String pretty(Object o, ColumnType type) {
-		if(o == null)
+		if (o == null)
 			return "(null)";
 		else {
-			switch(type) {
-			case FLOAT: case DOUBLE:
-				double d = ((Number)o).doubleValue();
-				if(!Double.isFinite(d))
+			switch (type) {
+			case FLOAT:
+			case DOUBLE:
+				double d = ((Number) o).doubleValue();
+				if (!Double.isFinite(d))
 					return Double.toString(d);
 				else
-					return BigDecimal.valueOf(d)
-						.round(ROUNDING_CONTEXT).toPlainString();
+					return BigDecimal.valueOf(d).round(ROUNDING_CONTEXT).toPlainString();
 			case STRING:
-				String s = (String)o;
+				String s = (String) o;
 				s = s.replaceAll("\r|\n", "");
 				s = s.replaceAll("\t", "  ");
 				return StringUtils.abbreviate(s, 100);
@@ -243,54 +243,52 @@ class DataFramePrinter {
 		}
 		return data;
 	}
-	
-	
-	
-	
+
 	// from Apache commons lang3
 	private static class StringUtils {
 
-	    static String abbreviate(final String str, final int maxWidth) {
-	        final String defaultAbbrevMarker = "...";
-	        return abbreviate(str, defaultAbbrevMarker, 0, maxWidth);
-	    }
+		static String abbreviate(final String str, final int maxWidth) {
+			final String defaultAbbrevMarker = "...";
+			return abbreviate(str, defaultAbbrevMarker, 0, maxWidth);
+		}
 
-	    static String abbreviate(final String str, final String abbrevMarker, final int maxWidth) {
-	        return abbreviate(str, abbrevMarker, 0, maxWidth);
-	    }
+		static String abbreviate(final String str, final String abbrevMarker, final int maxWidth) {
+			return abbreviate(str, abbrevMarker, 0, maxWidth);
+		}
 
-	    static String abbreviate(final String str, final String abbrevMarker, int offset, final int maxWidth) {
-	        if (isNullOrEmpty(str) || isNullOrEmpty(abbrevMarker)) {
-	            return str;
-	        }
+		static String abbreviate(final String str, final String abbrevMarker, int offset, final int maxWidth) {
+			if (isNullOrEmpty(str) || isNullOrEmpty(abbrevMarker)) {
+				return str;
+			}
 
-	        final int abbrevMarkerLength = abbrevMarker.length();
-	        final int minAbbrevWidth = abbrevMarkerLength + 1;
-	        final int minAbbrevWidthOffset = abbrevMarkerLength + abbrevMarkerLength + 1;
+			final int abbrevMarkerLength = abbrevMarker.length();
+			final int minAbbrevWidth = abbrevMarkerLength + 1;
+			final int minAbbrevWidthOffset = abbrevMarkerLength + abbrevMarkerLength + 1;
 
-	        if (maxWidth < minAbbrevWidth) {
-	            throw new IllegalArgumentException(String.format("Minimum abbreviation width is %d", minAbbrevWidth));
-	        }
-	        if (str.length() <= maxWidth) {
-	            return str;
-	        }
-	        if (offset > str.length()) {
-	            offset = str.length();
-	        }
-	        if (str.length() - offset < maxWidth - abbrevMarkerLength) {
-	            offset = str.length() - (maxWidth - abbrevMarkerLength);
-	        }
-	        if (offset <= abbrevMarkerLength+1) {
-	            return str.substring(0, maxWidth - abbrevMarkerLength) + abbrevMarker;
-	        }
-	        if (maxWidth < minAbbrevWidthOffset) {
-	            throw new IllegalArgumentException(String.format("Minimum abbreviation width with offset is %d", minAbbrevWidthOffset));
-	        }
-	        if (offset + maxWidth - abbrevMarkerLength < str.length()) {
-	            return abbrevMarker + abbreviate(str.substring(offset), abbrevMarker, maxWidth - abbrevMarkerLength);
-	        }
-	        return abbrevMarker + str.substring(str.length() - (maxWidth - abbrevMarkerLength));
-	    }
+			if (maxWidth < minAbbrevWidth) {
+				throw new IllegalArgumentException(String.format("Minimum abbreviation width is %d", minAbbrevWidth));
+			}
+			if (str.length() <= maxWidth) {
+				return str;
+			}
+			if (offset > str.length()) {
+				offset = str.length();
+			}
+			if (str.length() - offset < maxWidth - abbrevMarkerLength) {
+				offset = str.length() - (maxWidth - abbrevMarkerLength);
+			}
+			if (offset <= abbrevMarkerLength + 1) {
+				return str.substring(0, maxWidth - abbrevMarkerLength) + abbrevMarker;
+			}
+			if (maxWidth < minAbbrevWidthOffset) {
+				throw new IllegalArgumentException(
+						String.format("Minimum abbreviation width with offset is %d", minAbbrevWidthOffset));
+			}
+			if (offset + maxWidth - abbrevMarkerLength < str.length()) {
+				return abbrevMarker + abbreviate(str.substring(offset), abbrevMarker, maxWidth - abbrevMarkerLength);
+			}
+			return abbrevMarker + str.substring(str.length() - (maxWidth - abbrevMarkerLength));
+		}
 
 	}
 }

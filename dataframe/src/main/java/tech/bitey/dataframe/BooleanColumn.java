@@ -18,6 +18,15 @@ package tech.bitey.dataframe;
 
 import java.util.stream.Collector;
 
+import tech.bitey.bufferstuff.BufferBitSet;
+
+/**
+ * A {@link Column} with element type {@link Boolean}.
+ * <p>
+ * Each element is stored as a bit in a {@link BufferBitSet}.
+ * 
+ * @author biteytech@protonmail.com
+ */
 public interface BooleanColumn extends Column<Boolean> {
 
 	@Override

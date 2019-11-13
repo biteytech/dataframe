@@ -25,10 +25,11 @@ import static tech.bitey.dataframe.DfPreconditions.checkState;
 import java.nio.ByteBuffer;
 import java.nio.LongBuffer;
 
-abstract class LongArrayColumnBuilder<E, C extends Column<E>, B extends LongArrayColumnBuilder<E, C, B>> extends SingleBufferColumnBuilder<E, LongBuffer, C, B> {
+abstract class LongArrayColumnBuilder<E, C extends Column<E>, B extends LongArrayColumnBuilder<E, C, B>>
+		extends SingleBufferColumnBuilder<E, LongBuffer, C, B> {
 
 	private final LongArrayPacker<E> packer;
-	
+
 	LongArrayColumnBuilder(int characteristics, LongArrayPacker<E> packer) {
 		super(characteristics);
 		this.packer = packer;
@@ -43,13 +44,11 @@ abstract class LongArrayColumnBuilder<E, C extends Column<E>, B extends LongArra
 
 	@Override
 	void checkCharacteristics() {
-		if((characteristics & DISTINCT) != 0) {
+		if ((characteristics & DISTINCT) != 0) {
 			checkState(isSortedAndDistinct(elements, 0, elements.position()),
-				"column elements must be sorted and distinct");
-		}
-		else if((characteristics & SORTED) != 0) {
-			checkState(isSorted(elements, 0, elements.position()),
-				"column elements must be sorted");
+					"column elements must be sorted and distinct");
+		} else if ((characteristics & SORTED) != 0) {
+			checkState(isSorted(elements, 0, elements.position()), "column elements must be sorted");
 		}
 	}
 

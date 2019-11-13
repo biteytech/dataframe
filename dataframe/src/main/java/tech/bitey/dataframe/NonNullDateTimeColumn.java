@@ -27,18 +27,22 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
-final class NonNullDateTimeColumn extends LongArrayColumn<LocalDateTime, DateTimeColumn, NonNullDateTimeColumn> implements DateTimeColumn {
-	
+final class NonNullDateTimeColumn extends LongArrayColumn<LocalDateTime, DateTimeColumn, NonNullDateTimeColumn>
+		implements DateTimeColumn {
+
 	static final Map<Integer, NonNullDateTimeColumn> EMPTY = new HashMap<>();
 	static {
 		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS, c -> new NonNullDateTimeColumn(EMPTY_BUFFER, 0, 0, c, false));
-		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED, c -> new NonNullDateTimeColumn(EMPTY_BUFFER, 0, 0, c, false));
-		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED | DISTINCT, c -> new NonNullDateTimeColumn(EMPTY_BUFFER, 0, 0, c, false));
+		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED,
+				c -> new NonNullDateTimeColumn(EMPTY_BUFFER, 0, 0, c, false));
+		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED | DISTINCT,
+				c -> new NonNullDateTimeColumn(EMPTY_BUFFER, 0, 0, c, false));
 	}
+
 	static NonNullDateTimeColumn empty(int characteristics) {
 		return EMPTY.get(characteristics | NONNULL_CHARACTERISTICS);
 	}
-	
+
 	NonNullDateTimeColumn(ByteBuffer buffer, int offset, int size, int characteristics, boolean view) {
 		super(buffer, LOCAL_DATE_TIME, offset, size, characteristics, view);
 	}
@@ -52,12 +56,12 @@ final class NonNullDateTimeColumn extends LongArrayColumn<LocalDateTime, DateTim
 	NonNullDateTimeColumn empty() {
 		return EMPTY.get(characteristics);
 	}
-	
+
 	@Override
 	public Comparator<LocalDateTime> comparator() {
 		return LocalDateTime::compareTo;
 	}
-	
+
 	@Override
 	public ColumnType getType() {
 		return ColumnType.DATETIME;

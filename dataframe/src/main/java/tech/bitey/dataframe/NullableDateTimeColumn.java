@@ -24,17 +24,21 @@ import java.time.LocalDateTime;
 
 import tech.bitey.bufferstuff.BufferBitSet;
 
-final class NullableDateTimeColumn extends NullableLongArrayColumn<LocalDateTime, DateTimeColumn, NonNullDateTimeColumn, NullableDateTimeColumn> implements DateTimeColumn {
-	
-	static final NullableDateTimeColumn EMPTY = new NullableDateTimeColumn(NonNullDateTimeColumn.EMPTY.get(NONNULL_CHARACTERISTICS), EMPTY_BITSET, null, 0, 0);
+final class NullableDateTimeColumn
+		extends NullableLongArrayColumn<LocalDateTime, DateTimeColumn, NonNullDateTimeColumn, NullableDateTimeColumn>
+		implements DateTimeColumn {
 
-	NullableDateTimeColumn(NonNullDateTimeColumn column, BufferBitSet nonNulls, IntBuffer nullCounts, int offset, int size) {
+	static final NullableDateTimeColumn EMPTY = new NullableDateTimeColumn(
+			NonNullDateTimeColumn.EMPTY.get(NONNULL_CHARACTERISTICS), EMPTY_BITSET, null, 0, 0);
+
+	NullableDateTimeColumn(NonNullDateTimeColumn column, BufferBitSet nonNulls, IntBuffer nullCounts, int offset,
+			int size) {
 		super(column, nonNulls, nullCounts, offset, size);
 	}
 
 	@Override
 	NullableDateTimeColumn subColumn0(int fromIndex, int toIndex) {
-		return new NullableDateTimeColumn(column, nonNulls, nullCounts, fromIndex+offset, toIndex-fromIndex);
+		return new NullableDateTimeColumn(column, nonNulls, nullCounts, fromIndex + offset, toIndex - fromIndex);
 	}
 
 	@Override

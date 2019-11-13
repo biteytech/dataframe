@@ -24,12 +24,12 @@ interface ImmutableListIterator<E> extends ListIterator<E> {
 	default void remove() {
 		throw new UnsupportedOperationException("remove");
 	}
-	
+
 	@Override
 	default void set(E e) {
 		throw new UnsupportedOperationException("set");
 	}
-	
+
 	@Override
 	default void add(E e) {
 		throw new UnsupportedOperationException("add");

@@ -388,6 +388,7 @@ abstract class NullableColumn<E, I extends Column<E>, C extends NonNullColumn<E,
 
 	abstract void intersectRightSorted(C rhs, IntColumnBuilder indices, BufferBitSet keepLeft);
 
+	@Override
 	void writeTo(WritableByteChannel channel) throws IOException {
 		writeInt(channel, BIG_ENDIAN, size);
 		nonNulls.writeTo(channel, offset, offset + size);

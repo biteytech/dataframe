@@ -104,6 +104,7 @@ public class DateSeriesImpl extends DataFrameImpl implements DateSeries {
 		return super.filter(criteria).toDateSeries(1);
 	}
 
+	@Override
 	public DateSeries append(DateSeries df) {
 		return super.append(df).toDateSeries(1);
 	}

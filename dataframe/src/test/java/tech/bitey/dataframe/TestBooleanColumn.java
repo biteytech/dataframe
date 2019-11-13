@@ -5,35 +5,40 @@ import java.util.Collection;
 public class TestBooleanColumn extends TestColumn<Boolean> {
 
 	private TestIntColumn intColumn = new TestIntColumn();
-	
+
 	@Override
 	TestSample<Boolean> wrapSample(String label, Boolean[] array, int characteristics) {
 		BooleanColumn column = BooleanColumn.builder().addAll(array).build();
 		return new TestSample<>(label, array, 0, array.length, column);
 	}
-	
+
 	@Override
 	TestSample<Boolean> wrapSample(String label, Boolean[] array, Column<Boolean> column, int fromIndex, int toIndex) {
 		return new TestSample<>(label, array, fromIndex, toIndex, column);
 	}
 
-	@Override public void testToSorted() {}
-	@Override public void testToDistinct() {}
-	
+	@Override
+	public void testToSorted() {
+	}
+
+	@Override
+	public void testToDistinct() {
+	}
+
 	@Override
 	Boolean[] toArray(Collection<Boolean> samples) {
 		return samples.toArray(empty());
 	}
-	
+
 	Boolean[] fromInteger(Integer[] array) {
 		Boolean[] bools = new Boolean[array.length];
-		for(int i = 0; i < array.length; i++) {
-			if(array[i] != null)
+		for (int i = 0; i < array.length; i++) {
+			if (array[i] != null)
 				bools[i] = array[i] % 2 == 0 ? Boolean.FALSE : Boolean.TRUE;
 		}
 		return bools;
 	}
-	
+
 	@Override
 	Boolean[] empty() {
 		return new Boolean[0];
@@ -108,7 +113,7 @@ public class TestBooleanColumn extends TestColumn<Boolean> {
 	Boolean[] smar(int size) {
 		return fromInteger(intColumn.smar(size));
 	}
-	
+
 	@Override
 	Boolean[] notPresent() {
 		return new Boolean[] {};

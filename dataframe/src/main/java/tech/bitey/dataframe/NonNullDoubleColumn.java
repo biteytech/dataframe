@@ -20,9 +20,9 @@ import static java.util.Spliterator.DISTINCT;
 import static java.util.Spliterator.NONNULL;
 import static java.util.Spliterator.SORTED;
 import static tech.bitey.bufferstuff.BufferSort.inplaceSort;
+import static tech.bitey.bufferstuff.BufferUtils.EMPTY_BUFFER;
 import static tech.bitey.bufferstuff.BufferUtils.isSortedAndDistinct;
 import static tech.bitey.dataframe.DfPreconditions.checkElementIndex;
-import static tech.bitey.bufferstuff.BufferUtils.EMPTY_BUFFER;
 
 import java.nio.ByteBuffer;
 import java.nio.DoubleBuffer;
@@ -273,17 +273,17 @@ final class NonNullDoubleColumn extends NonNullSingleBufferColumn<Double, Double
 	boolean checkType(Object o) {
 		return o instanceof Double;
 	}
-	
+
 	@Override
 	IntColumn sortIndices(NonNullDoubleColumn distinct) {
 		IntColumnBuilder indices = new IntColumnBuilder(NONNULL);
 		indices.ensureCapacity(size());
-		
+
 		for (int i = offset; i <= lastIndex(); i++) {
 			int index = distinct.search(at(i));
 			indices.add(index);
 		}
-		
+
 		return indices.build();
 	}
 

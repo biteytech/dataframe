@@ -22,17 +22,20 @@ import java.nio.IntBuffer;
 
 import tech.bitey.bufferstuff.BufferBitSet;
 
-final class NullableBooleanColumn extends NullableColumn<Boolean, BooleanColumn, NonNullBooleanColumn, NullableBooleanColumn> implements BooleanColumn {
-	
-	static final NullableBooleanColumn EMPTY = new NullableBooleanColumn(NonNullBooleanColumn.EMPTY, EMPTY_BITSET, null, 0, 0); 
-	
-	NullableBooleanColumn(NonNullBooleanColumn column, BufferBitSet nonNulls, IntBuffer nullCounts, int offset, int size) {
+final class NullableBooleanColumn extends
+		NullableColumn<Boolean, BooleanColumn, NonNullBooleanColumn, NullableBooleanColumn> implements BooleanColumn {
+
+	static final NullableBooleanColumn EMPTY = new NullableBooleanColumn(NonNullBooleanColumn.EMPTY, EMPTY_BITSET, null,
+			0, 0);
+
+	NullableBooleanColumn(NonNullBooleanColumn column, BufferBitSet nonNulls, IntBuffer nullCounts, int offset,
+			int size) {
 		super(column, nonNulls, nullCounts, offset, size);
 	}
 
 	@Override
 	NullableBooleanColumn subColumn0(int fromIndex, int toIndex) {
-		return new NullableBooleanColumn(column, nonNulls, nullCounts, fromIndex+offset, toIndex-fromIndex);
+		return new NullableBooleanColumn(column, nonNulls, nullCounts, fromIndex + offset, toIndex - fromIndex);
 	}
 
 	@Override
@@ -43,7 +46,7 @@ final class NullableBooleanColumn extends NullableColumn<Boolean, BooleanColumn,
 	@Override
 	public boolean getBoolean(int index) {
 		checkGetPrimitive(index);
-		return column.getBoolean(nonNullIndex(index+offset));
+		return column.getBoolean(nonNullIndex(index + offset));
 	}
 
 	@Override

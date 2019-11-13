@@ -302,21 +302,20 @@ public class TestDataFrame {
 		IntColumn c1 = IntColumn.of(1, 2, 3, 4, 5);
 		StringColumn c2 = StringColumn.of("E", "D", "C", "B", "A");
 		DataFrame df2 = DataFrameFactory.create(new Column<?>[] { c1, c2 }, new String[] { "C1", "C2" });
-		
+
 		IntColumn c3 = IntColumn.of(5, 4, 3, 2, 1);
 		StringColumn c4 = StringColumn.of("A", "B", "C", "D", "E").toDistinct();
 		DataFrame expected = DataFrameFactory.create(new Column<?>[] { c3, c4 }, new String[] { "C1", "C2" }, "C2");
-		
+
 		Assertions.assertEquals(expected, df2.indexOrganize("C2"));
-		
+
 		IntColumn c5 = IntColumn.of(1, 1, 2, 2, 3, 3);
 		StringColumn c6 = StringColumn.of("A", "B", "C", "D", "E", "F");
 		DataFrame df3 = DataFrameFactory.create(new Column<?>[] { c5, c6 }, new String[] { "C1", "C2" });
 		try {
 			df3.indexOrganize(0);
 			throw new RuntimeException("expecting IllegalStateException");
-		}
-		catch(IllegalStateException e) {
+		} catch (IllegalStateException e) {
 			// ok
 		}
 	}

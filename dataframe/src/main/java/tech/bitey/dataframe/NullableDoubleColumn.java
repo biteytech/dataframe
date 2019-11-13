@@ -23,17 +23,20 @@ import java.nio.IntBuffer;
 
 import tech.bitey.bufferstuff.BufferBitSet;
 
-final class NullableDoubleColumn extends NullableColumn<Double, DoubleColumn, NonNullDoubleColumn, NullableDoubleColumn> implements DoubleColumn {
-	
-	static final NullableDoubleColumn EMPTY = new NullableDoubleColumn(NonNullDoubleColumn.EMPTY.get(NONNULL_CHARACTERISTICS), EMPTY_BITSET, null, 0, 0);
+final class NullableDoubleColumn extends NullableColumn<Double, DoubleColumn, NonNullDoubleColumn, NullableDoubleColumn>
+		implements DoubleColumn {
 
-	NullableDoubleColumn(NonNullDoubleColumn column, BufferBitSet nonNulls, IntBuffer nullCounts, int offset, int size) {
+	static final NullableDoubleColumn EMPTY = new NullableDoubleColumn(
+			NonNullDoubleColumn.EMPTY.get(NONNULL_CHARACTERISTICS), EMPTY_BITSET, null, 0, 0);
+
+	NullableDoubleColumn(NonNullDoubleColumn column, BufferBitSet nonNulls, IntBuffer nullCounts, int offset,
+			int size) {
 		super(column, nonNulls, nullCounts, offset, size);
 	}
 
 	@Override
 	NullableDoubleColumn subColumn0(int fromIndex, int toIndex) {
-		return new NullableDoubleColumn(column, nonNulls, nullCounts, fromIndex+offset, toIndex-fromIndex);
+		return new NullableDoubleColumn(column, nonNulls, nullCounts, fromIndex + offset, toIndex - fromIndex);
 	}
 
 	@Override
@@ -64,7 +67,7 @@ final class NullableDoubleColumn extends NullableColumn<Double, DoubleColumn, No
 	@Override
 	public double getDouble(int index) {
 		checkGetPrimitive(index);
-		return column.getDouble(nonNullIndex(index+offset));
+		return column.getDouble(nonNullIndex(index + offset));
 	}
 
 	@Override
@@ -79,15 +82,15 @@ final class NullableDoubleColumn extends NullableColumn<Double, DoubleColumn, No
 
 	@Override
 	void intersectRightSorted(NonNullDoubleColumn rhs, IntColumnBuilder indices, BufferBitSet keepLeft) {
-		
-		for(int i = offset; i <= lastIndex(); i++) {
-			
-			if(!nonNulls.get(i))
+
+		for (int i = offset; i <= lastIndex(); i++) {
+
+			if (!nonNulls.get(i))
 				continue;
-			
-			int rightIndex = rhs.search(column.at(nonNullIndex(i)));			
-			if(rightIndex >= rhs.offset && rightIndex <= rhs.lastIndex()) {
-				
+
+			int rightIndex = rhs.search(column.at(nonNullIndex(i)));
+			if (rightIndex >= rhs.offset && rightIndex <= rhs.lastIndex()) {
+
 				indices.add(rightIndex - rhs.offset);
 				keepLeft.set(i - offset);
 			}

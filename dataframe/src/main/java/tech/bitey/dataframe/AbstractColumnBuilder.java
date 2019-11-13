@@ -41,7 +41,7 @@ abstract class AbstractColumnBuilder<E, C extends Column<E>, B extends AbstractC
 
 	AbstractColumnBuilder(int characteristics) {
 		checkArgument((characteristics & ~VALID_CHARACTERISTICS) == 0, "invalid characteristics");
-		
+
 		characteristics |= BASE_CHARACTERISTICS;
 
 		if ((characteristics & DISTINCT) != 0)

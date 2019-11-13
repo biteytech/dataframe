@@ -55,7 +55,7 @@ final class NonNullLongColumn extends LongArrayColumn<Long, LongColumn, NonNullL
 	public double min() {
 		if (size == 0)
 			return Double.NaN;
-		else if(isSorted())
+		else if (isSorted())
 			return at(offset);
 
 		long min = at(offset);
@@ -73,7 +73,7 @@ final class NonNullLongColumn extends LongArrayColumn<Long, LongColumn, NonNullL
 	public double max() {
 		if (size == 0)
 			return Double.NaN;
-		else if(isSorted())
+		else if (isSorted())
 			return at(lastIndex());
 
 		long max = at(offset);

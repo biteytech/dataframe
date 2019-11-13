@@ -23,17 +23,20 @@ import java.nio.IntBuffer;
 
 import tech.bitey.bufferstuff.BufferBitSet;
 
-final class NullableStringColumn extends NullableVarLenColumn<String, StringColumn, NonNullStringColumn, NullableStringColumn> implements StringColumn {
-	
-	static final NullableStringColumn EMPTY = new NullableStringColumn(NonNullStringColumn.EMPTY.get(NONNULL_CHARACTERISTICS), EMPTY_BITSET, null, 0, 0);
+final class NullableStringColumn extends
+		NullableVarLenColumn<String, StringColumn, NonNullStringColumn, NullableStringColumn> implements StringColumn {
 
-	NullableStringColumn(NonNullStringColumn column, BufferBitSet nonNulls, IntBuffer nullCounts, int offset, int size) {
+	static final NullableStringColumn EMPTY = new NullableStringColumn(
+			NonNullStringColumn.EMPTY.get(NONNULL_CHARACTERISTICS), EMPTY_BITSET, null, 0, 0);
+
+	NullableStringColumn(NonNullStringColumn column, BufferBitSet nonNulls, IntBuffer nullCounts, int offset,
+			int size) {
 		super(column, nonNulls, nullCounts, offset, size);
 	}
 
 	@Override
 	NullableStringColumn subColumn0(int fromIndex, int toIndex) {
-		return new NullableStringColumn(column, nonNulls, nullCounts, fromIndex+offset, toIndex-fromIndex);
+		return new NullableStringColumn(column, nonNulls, nullCounts, fromIndex + offset, toIndex - fromIndex);
 	}
 
 	@Override
@@ -42,7 +45,7 @@ final class NullableStringColumn extends NullableVarLenColumn<String, StringColu
 	}
 
 	@Override
-	NullableStringColumn construct(NonNullStringColumn column, BufferBitSet nonNulls, int size) {		
+	NullableStringColumn construct(NonNullStringColumn column, BufferBitSet nonNulls, int size) {
 		return new NullableStringColumn(column, nonNulls, null, 0, size);
 	}
 

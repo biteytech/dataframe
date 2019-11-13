@@ -26,24 +26,31 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
-final class NonNullStringColumn extends NonNullVarLenColumn<String, StringColumn, NonNullStringColumn> implements StringColumn {
-	
+final class NonNullStringColumn extends NonNullVarLenColumn<String, StringColumn, NonNullStringColumn>
+		implements StringColumn {
+
 	static final Map<Integer, NonNullStringColumn> EMPTY = new HashMap<>();
 	static {
-		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS, c -> new NonNullStringColumn(EMPTY_BUFFER, EMPTY_BUFFER, 0, 0, c, false));
-		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED, c -> new NonNullStringColumn(EMPTY_BUFFER, EMPTY_BUFFER, 0, 0, c, false));
-		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED | DISTINCT, c -> new NonNullStringColumn(EMPTY_BUFFER, EMPTY_BUFFER, 0, 0, c, false));
+		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS,
+				c -> new NonNullStringColumn(EMPTY_BUFFER, EMPTY_BUFFER, 0, 0, c, false));
+		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED,
+				c -> new NonNullStringColumn(EMPTY_BUFFER, EMPTY_BUFFER, 0, 0, c, false));
+		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED | DISTINCT,
+				c -> new NonNullStringColumn(EMPTY_BUFFER, EMPTY_BUFFER, 0, 0, c, false));
 	}
+
 	static NonNullStringColumn empty(int characteristics) {
 		return EMPTY.get(characteristics | NONNULL_CHARACTERISTICS);
 	}
-		
-	NonNullStringColumn(ByteBuffer elements, ByteBuffer rawPointers, int offset, int size, int characteristics, boolean view) {
+
+	NonNullStringColumn(ByteBuffer elements, ByteBuffer rawPointers, int offset, int size, int characteristics,
+			boolean view) {
 		super(VarLenPacker.STRING, elements, rawPointers, offset, size, characteristics, view);
 	}
 
 	@Override
-	NonNullStringColumn construct(ByteBuffer elements, ByteBuffer rawPointers, int offset, int size, int characteristics, boolean view) {
+	NonNullStringColumn construct(ByteBuffer elements, ByteBuffer rawPointers, int offset, int size,
+			int characteristics, boolean view) {
 		return new NonNullStringColumn(elements, rawPointers, offset, size, characteristics, view);
 	}
 
@@ -51,12 +58,12 @@ final class NonNullStringColumn extends NonNullVarLenColumn<String, StringColumn
 	NonNullStringColumn empty() {
 		return EMPTY.get(characteristics);
 	}
-	
+
 	@Override
 	public Comparator<String> comparator() {
 		return String::compareTo;
 	}
-	
+
 	@Override
 	public ColumnType getType() {
 		return ColumnType.STRING;
@@ -66,13 +73,13 @@ final class NonNullStringColumn extends NonNullVarLenColumn<String, StringColumn
 	boolean checkType(Object o) {
 		return o instanceof String;
 	}
-	
+
 	@Override
 	NonNullStringColumn toSorted0() {
 		StringColumnBuilder builder = new StringColumnBuilder(NONNULL);
 		builder.addAll(this);
 		builder.sort();
-		return (NonNullStringColumn)builder.build();
+		return (NonNullStringColumn) builder.build();
 	}
 
 	@Override
@@ -80,6 +87,6 @@ final class NonNullStringColumn extends NonNullVarLenColumn<String, StringColumn
 		StringColumnBuilder builder = new StringColumnBuilder(NONNULL);
 		builder.addAll(this);
 		builder.distinct();
-		return (NonNullStringColumn)builder.build();
+		return (NonNullStringColumn) builder.build();
 	}
 }
