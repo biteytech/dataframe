@@ -29,7 +29,7 @@ public class TestDataFrame {
 		});
 
 		TestColumn[] columnTest = new TestColumn[] { new TestLongColumn(), new TestFloatColumn(),
-				new TestDoubleColumn(), new TestStringColumn(), new TestBooleanColumn() };
+				new TestDoubleColumn(), new TestStringColumn(), new TestBooleanColumn(), new TestDecimalColumn() };
 
 		for (TestColumn<?> tests : columnTest) {
 			tests.samples().forEach(s -> {

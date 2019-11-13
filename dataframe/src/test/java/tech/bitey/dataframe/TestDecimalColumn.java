@@ -11,7 +11,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
-public class TestBigDecimalColumn extends TestColumn<BigDecimal> {
+public class TestDecimalColumn extends TestColumn<BigDecimal> {
 
 	private static final Random RAND = new Random(0);
 

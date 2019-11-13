@@ -16,6 +16,7 @@
 
 package tech.bitey.dataframe;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -437,6 +438,33 @@ public interface Row {
 	 * @throws ClassCastException       if the column is not a {@code DateColumn}
 	 */
 	String getString(String columnName);
+
+	/**
+	 * Returns the value for this row in the specified {@link DecimalColumn}.
+	 * 
+	 * @param columnIndex - index of the column in the parent {@link DataFrame}.
+	 * 
+	 * @return the value for this row in the specified {@code DecimalColumn}.
+	 * 
+	 * @throws IndexOutOfBoundsException if {@code columnIndex} is negative or is
+	 *                                   not less than {@link #columnCount()}
+	 * @throws ClassCastException        if the column is not a
+	 *                                   {@code DecimalColumn}
+	 */
+	BigDecimal getBigDecimal(int columnIndex);
+
+	/**
+	 * Returns the value for this row in the specified {@link DecimalColumn}.
+	 * 
+	 * @param columnName - name of the column in the parent {@link DataFrame}.
+	 * 
+	 * @return the value for this row in the specified {@code DecimalColumn}.
+	 * 
+	 * @throws IllegalArgumentException if {@code columnName} is not a recognized
+	 *                                  column name in the parent dataframe.
+	 * @throws ClassCastException       if the column is not a {@code DecimalColumn}
+	 */
+	BigDecimal getBigDecimal(String columnName);
 
 	/**
 	 * Returns the value for this row in the specified {@link DateColumn}.

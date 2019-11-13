@@ -58,7 +58,7 @@ public final class DecimalColumnBuilder extends VarLenColumnBuilder<BigDecimal, 
 
 	@Override
 	public ColumnType getType() {
-		return ColumnType.STRING;
+		return ColumnType.DECIMAL;
 	}
 
 	@Override

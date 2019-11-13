@@ -23,6 +23,7 @@ import static java.util.Spliterator.ORDERED;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.math.BigDecimal;
 import java.nio.channels.WritableByteChannel;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -502,6 +503,20 @@ public interface DataFrame extends List<Row>, RandomAccess {
 	StringColumn stringColumn(int columnIndex);
 
 	/**
+	 * Returns the {@link DecimalColumn} at the specified index.
+	 * 
+	 * @param columnIndex - index of the column
+	 * 
+	 * @return the column at the specified index
+	 * 
+	 * @throws IndexOutOfBoundsException if {@code columnIndex} is negative or is
+	 *                                   not less than {@link #columnCount()}
+	 * @throws ClassCastException        if the column is not a
+	 *                                   {@code DecimalColumn}
+	 */
+	DecimalColumn decimalColumn(int columnIndex);
+
+	/**
 	 * Returns the {@link BooleanColumn} at the specified index.
 	 * 
 	 * @param columnIndex - index of the column
@@ -623,6 +638,19 @@ public interface DataFrame extends List<Row>, RandomAccess {
 	 * @throws ClassCastException       if the column is not a {@code StringColumn}
 	 */
 	StringColumn stringColumn(String columnName);
+
+	/**
+	 * Returns the specified {@link DecimalColumn}
+	 * 
+	 * @param columnName - column name
+	 * 
+	 * @return the specified column
+	 * 
+	 * @throws IllegalArgumentException if {@code columnName} is not a recognized
+	 *                                  column name in this dataframe.
+	 * @throws ClassCastException       if the column is not a {@code DecimalColumn}
+	 */
+	DecimalColumn decimalColumn(String columnName);
 
 	/**
 	 * Returns the specified {@link BooleanColumn}
@@ -1363,6 +1391,40 @@ public interface DataFrame extends List<Row>, RandomAccess {
 	 * @throws ClassCastException        if the column is not a {@code DateColumn}
 	 */
 	String getString(int rowIndex, String columnName);
+
+	/**
+	 * Returns the value for the specified row in the specified
+	 * {@link DecimalColumn}.
+	 * 
+	 * @param rowIndex    - the row index
+	 * @param columnIndex - index of the column in this {@link DataFrame}.
+	 * 
+	 * @return the value for the specified row in the specified
+	 *         {@code DecimalColumn}.
+	 * 
+	 * @throws IndexOutOfBoundsException if {@code columnIndex} is negative or is
+	 *                                   not less than {@link #columnCount()}
+	 * @throws ClassCastException        if the column is not a {@code StringColumn}
+	 */
+	BigDecimal getBigDecimal(int rowIndex, int columnIndex);
+
+	/**
+	 * Returns the value for the specified row in the specified
+	 * {@link DecimalColumn}.
+	 * 
+	 * @param rowIndex   - the row index
+	 * @param columnName - name of the column in this {@link DataFrame}.
+	 * 
+	 * @return the value for the specified row in the specified
+	 *         {@code DecimalColumn}.
+	 * 
+	 * @throws IndexOutOfBoundsException if {@code rowIndex} is negative or is not
+	 *                                   less than {@link #size()}
+	 * @throws IllegalArgumentException  if {@code columnName} is not a recognized
+	 *                                   column name in this dataframe.
+	 * @throws ClassCastException        if the column is not a {@code DateColumn}
+	 */
+	BigDecimal getBigDecimal(int rowIndex, String columnName);
 
 	/**
 	 * {@code boolean} primitive specialization of {@link #get(int,int)}.

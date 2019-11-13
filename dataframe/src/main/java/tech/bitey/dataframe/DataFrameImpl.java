@@ -31,6 +31,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.math.BigDecimal;
 import java.nio.channels.FileChannel;
 import java.nio.channels.WritableByteChannel;
 import java.time.LocalDate;
@@ -486,6 +487,11 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 	}
 
 	@Override
+	public DecimalColumn decimalColumn(int columnIndex) {
+		return (DecimalColumn) checkedColumn(columnIndex);
+	}
+
+	@Override
 	public BooleanColumn booleanColumn(int columnIndex) {
 		return (BooleanColumn) checkedColumn(columnIndex);
 	}
@@ -528,6 +534,11 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 	@Override
 	public StringColumn stringColumn(String columnName) {
 		return (StringColumn) checkedColumn(columnName);
+	}
+
+	@Override
+	public DecimalColumn decimalColumn(String columnName) {
+		return (DecimalColumn) checkedColumn(columnName);
 	}
 
 	@Override
@@ -1116,6 +1127,16 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 	}
 
 	@Override
+	public BigDecimal getBigDecimal(int rowIndex, int columnIndex) {
+		return decimalColumn(columnIndex).get(rowIndex);
+	}
+
+	@Override
+	public BigDecimal getBigDecimal(int rowIndex, String columnName) {
+		return decimalColumn(columnName).get(rowIndex);
+	}
+
+	@Override
 	public boolean getBoolean(int rowIndex, int columnIndex) {
 		return booleanColumn(columnIndex).getBoolean(rowIndex);
 	}
@@ -1341,6 +1362,16 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 		@Override
 		public String getString(String columnName) {
 			return DataFrameImpl.this.getString(rowIndex(), columnName);
+		}
+
+		@Override
+		public BigDecimal getBigDecimal(int columnIndex) {
+			return DataFrameImpl.this.getBigDecimal(rowIndex(), columnIndex);
+		}
+
+		@Override
+		public BigDecimal getBigDecimal(String columnName) {
+			return DataFrameImpl.this.getBigDecimal(rowIndex(), columnName);
 		}
 
 		@Override
