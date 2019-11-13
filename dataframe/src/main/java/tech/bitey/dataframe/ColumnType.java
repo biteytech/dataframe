@@ -22,6 +22,7 @@ import static tech.bitey.dataframe.AbstractColumn.readInt;
 import static tech.bitey.dataframe.DfPreconditions.checkState;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.nio.channels.ReadableByteChannel;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -40,6 +41,7 @@ import tech.bitey.bufferstuff.BufferBitSet;
  * <li>{@link #INT}
  * <li>{@link #LONG}
  * <li>{@link #STRING}
+ * <li>{@link #DECIMAL}
  * </ul>
  * 
  * @author biteytech@protonmail.com
@@ -47,29 +49,24 @@ import tech.bitey.bufferstuff.BufferBitSet;
 public enum ColumnType {
 
 	/** The type for {@link BooleanColumn} */
-	BOOLEAN("B") {
-	},
+	BOOLEAN("B"),
 	/** The type for {@link DateColumn} */
-	DATE("DA") {
-	},
+	DATE("DA"),
 	/** The type for {@link DateTimeColumn} */
-	DATETIME("DT") {
-	},
+	DATETIME("DT"),
 	/** The type for {@link DoubleColumn} */
-	DOUBLE("D") {
-	},
+	DOUBLE("D"),
 	/** The type for {@link FloatColumn} */
-	FLOAT("F") {
-	},
+	FLOAT("F"),
 	/** The type for {@link IntColumn} */
-	INT("I") {
-	},
+	INT("I"),
 	/** The type for {@link LongColumn} */
-	LONG("L") {
-	},
+	LONG("L"),
 	/** The type for {@link StringColumn} */
-	STRING("S") {
-	},;
+	STRING("S"),
+	/** The type for {@link BigDecimalColumn} */
+	DECIMAL("BD"),
+	;
 
 	private final String code;
 
@@ -134,6 +131,8 @@ public enum ColumnType {
 			return (ColumnBuilder<T>) LongColumn.builder(characteristic);
 		case STRING:
 			return (ColumnBuilder<T>) StringColumn.builder(characteristic);
+		case DECIMAL:
+			return (ColumnBuilder<T>) DecimalColumn.builder(characteristic);
 		}
 
 		throw new IllegalStateException();
@@ -215,6 +214,13 @@ public enum ColumnType {
 			else
 				return new NullableStringColumn(column, nonNulls, null, 0, size);
 		}
+		case DECIMAL: {
+			NonNullDecimalColumn column = NonNullDecimalColumn.empty(characteristics).readFrom(channel);
+			if (nonNulls == null)
+				return column;
+			else
+				return new NullableDecimalColumn(column, nonNulls, null, 0, size);
+		}
 		}
 
 		throw new IllegalStateException();
@@ -275,6 +281,11 @@ public enum ColumnType {
 	 * <td>{@link String}</td>
 	 * <td>as-is</td>
 	 * </tr>
+	 * <tr>
+	 * <td>DECIMAL</td>
+	 * <td>{@link BigDecimal}</td>
+	 * <td>{@link BigDecimal#BigDecimal(String)}</td>
+	 * </tr>
 	 * </table>
 	 * 
 	 * @param string - the string to parse
@@ -304,6 +315,8 @@ public enum ColumnType {
 			return Long.valueOf(string);
 		case STRING:
 			return string;
+		case DECIMAL:
+			return new BigDecimal(string);
 		}
 		throw new IllegalStateException();
 	}

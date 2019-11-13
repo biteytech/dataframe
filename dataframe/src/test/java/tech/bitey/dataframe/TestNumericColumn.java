@@ -1,5 +1,6 @@
 package tech.bitey.dataframe;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 
 import org.junit.jupiter.api.Assertions;
@@ -40,6 +41,7 @@ public class TestNumericColumn {
 		test("Long", LongColumn.of(toLong(values)), min, max, mean, population, sample);
 		test("Double", DoubleColumn.of(toDouble(values)), min, max, mean, population, sample);
 		test("Float", FloatColumn.of(toFloat(values)), min, max, mean, population, sample);
+		test("Decimal", DecimalColumn.of(toBigDecimal(values)), min, max, mean, population, sample);
 	}
 
 	private static void test(String columnType, NumericColumn<?> column, double min, double max, double mean,
@@ -77,6 +79,13 @@ public class TestNumericColumn {
 		Float[] array = new Float[values.length];
 		for (int i = 0; i < values.length; i++)
 			array[i] = (float) values[i];
+		return array;
+	}
+
+	private static BigDecimal[] toBigDecimal(int[] values) {
+		BigDecimal[] array = new BigDecimal[values.length];
+		for (int i = 0; i < values.length; i++)
+			array[i] = BigDecimal.valueOf(values[i]);
 		return array;
 	}
 }

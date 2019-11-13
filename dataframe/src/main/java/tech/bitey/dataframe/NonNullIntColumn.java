@@ -56,7 +56,7 @@ final class NonNullIntColumn extends IntArrayColumn<Integer, IntColumn, NonNullI
 		if (size == 0)
 			return Double.NaN;
 		else if(isSorted())
-			return at(0);
+			return at(offset);
 
 		int min = at(offset);
 

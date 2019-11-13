@@ -77,7 +77,7 @@ final class NonNullFloatColumn extends NonNullSingleBufferColumn<Float, FloatCol
 		if (size == 0)
 			return Double.NaN;
 		else if(isSorted())
-			return at(0);
+			return at(offset);
 
 		float min = at(offset);
 

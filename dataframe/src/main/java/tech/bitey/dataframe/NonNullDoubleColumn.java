@@ -77,7 +77,7 @@ final class NonNullDoubleColumn extends NonNullSingleBufferColumn<Double, Double
 		if (size == 0)
 			return Double.NaN;
 		else if (isSorted())
-			return at(0);
+			return at(offset);
 
 		double min = at(offset);
 
