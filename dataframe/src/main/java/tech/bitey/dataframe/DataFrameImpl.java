@@ -1049,6 +1049,8 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 		}
 	}
 
+	private static final byte[] EMPTY_STRING = "\"\"".getBytes(UTF_8);
+
 	@Override
 	public void writeCsvTo(OutputStream os) throws IOException {
 
@@ -1066,7 +1068,10 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 				for (int i = 0; i < columns.length; i++) {
 					if (!cursor.isNull(i)) {
 						String value = cursor.get(i).toString();
-						bos.write(csvEscape(value, escapeRequired).getBytes(UTF_8));
+						if (value.isEmpty() && columns[i].getType() == ColumnType.STRING)
+							bos.write(EMPTY_STRING);
+						else
+							bos.write(csvEscape(value, escapeRequired).getBytes(UTF_8));
 					}
 					terminateCsvField(bos, i == columns.length - 1);
 				}

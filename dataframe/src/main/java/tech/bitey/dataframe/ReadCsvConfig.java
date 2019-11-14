@@ -131,7 +131,7 @@ public class ReadCsvConfig {
 			int rno = 1;
 
 			if (columnNames == null) {
-				columnNames = nextRecord(in, rno, lineno);
+				columnNames = nextRecord(in, rno, lineno, true);
 				rno++;
 
 				checkNotNull(columnNames, "missing header - no column names configured and empty input");
@@ -139,14 +139,14 @@ public class ReadCsvConfig {
 						+ columnNames.length + "), vs configured types (" + builders.length + ")");
 			}
 
-			for (String[] fields; (fields = nextRecord(in, rno, lineno)) != null; rno++) {
+			for (String[] fields; (fields = nextRecord(in, rno, lineno, false)) != null; rno++) {
 				try {
 					checkState(fields.length == builders.length, "mismatch between number of fields (" + fields.length
 							+ "), vs configured types (" + builders.length + ")");
 
 					for (int i = 0; i < fields.length; i++) {
 						try {
-							if (fields[i].isEmpty())
+							if (fields[i] == null)
 								builders[i].addNull();
 							else {
 								Object value = builders[i].getType().parse(fields[i]);
@@ -169,7 +169,7 @@ public class ReadCsvConfig {
 		return DataFrameFactory.create(columns, columnNames);
 	}
 
-	private String[] nextRecord(BufferedReader in, int rno, int lineno[]) {
+	private String[] nextRecord(BufferedReader in, int rno, int lineno[], boolean header) {
 		try {
 			int count = 0;
 			StringBuilder builder = null;
@@ -192,7 +192,7 @@ public class ReadCsvConfig {
 
 				if (builder == null && count % 2 == 0) {
 					// first line is a whole record
-					return split(line);
+					return split(line, header);
 				} else if (builder == null) {
 					// first line is not a whole record
 					builder = new StringBuilder();
@@ -204,7 +204,7 @@ public class ReadCsvConfig {
 				}
 			} while (count % 2 == 1);
 
-			return split(builder.toString());
+			return split(builder.toString(), header);
 		} catch (Exception e) {
 			throw new RuntimeException(errorMessage(rno, lineno[0], e.getMessage()), e);
 		}
@@ -218,7 +218,7 @@ public class ReadCsvConfig {
 		return String.format("Field #%d: %s", fno, error);
 	}
 
-	private String[] split(String record) {
+	private String[] split(String record, boolean header) {
 
 		List<Integer> splits = new ArrayList<>();
 
@@ -241,8 +241,18 @@ public class ReadCsvConfig {
 		fields[i] = record.substring(prevSplit + 1);
 
 		for (i = 0; i < fields.length; i++) {
+			if ("\"\"".equals(fields[i]) && (header || columnTypes[i] == ColumnType.STRING)) {
+				fields[i] = "";
+				continue;
+			}
+
 			if (fields[i].startsWith("\""))
 				fields[i] = fields[i].substring(1, fields[i].length() - 1);
+
+			if (fields[i].isEmpty()) {
+				fields[i] = null;
+				continue;
+			}
 
 			int count = 0;
 			for (int j = 0; j < fields[i].length(); j++) {

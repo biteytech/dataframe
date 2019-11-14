@@ -4,6 +4,7 @@ import static java.util.Spliterator.DISTINCT;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -167,6 +168,20 @@ public class TestDataFrame {
 			DataFrame actual = DataFrameFactory.readCsvFrom(file, new ReadCsvConfig(expected.columnTypes()));
 
 			Assertions.assertEquals(expected, actual, e.getKey() + ", read/write csv");
+		}
+
+		// test null vs empty string
+		{
+			StringColumn column = StringColumn.of(null, "", "foo", "", null);
+			DataFrame expected = DataFrameFactory.create(new Column<?>[] { column }, new String[] { "COLUMN" });
+
+			File file = File.createTempFile("emptyString", "csv");
+			file.deleteOnExit();
+			expected.writeCsvTo(file);
+
+			DataFrame actual = DataFrameFactory.readCsvFrom(file, new ReadCsvConfig(Arrays.asList(ColumnType.STRING)));
+
+			Assertions.assertEquals(expected, actual, "null vs empty, read/write csv");
 		}
 	}
 

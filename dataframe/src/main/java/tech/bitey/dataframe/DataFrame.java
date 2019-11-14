@@ -1258,7 +1258,9 @@ public interface DataFrame extends List<Row>, RandomAccess {
 	 * Save this dataframe to an <a href="https://tools.ietf.org/html/rfc4180">RFC
 	 * 4180</a> compliant CSV file, encoded with UTF-8.
 	 * <p>
-	 * {@code null} values are written as empty fields.
+	 * Individual elements are written using their {@code toString} methods.
+	 * {@code null} values are written as empty fields. For column type STRING,
+	 * empty strings are written as {@code ""}.
 	 * 
 	 * @param file - the file to be (over)written.
 	 * 
@@ -1271,7 +1273,9 @@ public interface DataFrame extends List<Row>, RandomAccess {
 	 * 4180</a> compliant CSV to the specified {@link OutputStream}, encoded with
 	 * UTF-8.
 	 * <p>
-	 * {@code null} values are written as empty fields.
+	 * Individual elements are written using their {@code toString} methods.
+	 * {@code null} values are written as empty fields. For column type STRING,
+	 * empty strings are written as {@code ""}.
 	 * 
 	 * @param os - the output stream to be written to. OutputStream will be closed
 	 *           by this method.
