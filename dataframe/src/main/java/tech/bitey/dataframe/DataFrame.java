@@ -25,6 +25,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.nio.channels.WritableByteChannel;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collection;
@@ -1283,6 +1285,37 @@ public interface DataFrame extends List<Row>, RandomAccess {
 	 * @throws IOException if some I/O error occurs
 	 */
 	void writeCsvTo(OutputStream os) throws IOException;
+
+	/**
+	 * Writes this dataframe to the specified {@link PreparedStatement} using the
+	 * specified {@link WriteToDbConfig configuration}.
+	 * <p>
+	 * The connection returned by {@line PreparedStatement#getConnection()} must
+	 * have {@code autocommit} turned off.
+	 * 
+	 * @param ps     - the {@link PreparedStatement} to write rows to
+	 * @param config - the {@link WriteToDbConfig configuration} for writing this
+	 *               dataframe to the {@code PreparedStatement}.
+	 * 
+	 * @see WriteToDbConfig
+	 * 
+	 * @throws SQLException          if some SQL or database error occurs
+	 * @throws IllegalStateException if the connection used to create the
+	 *                               {@code PreparedStatement} has
+	 *                               {@code autocommit} turned on.
+	 */
+	void writeTo(PreparedStatement ps, WriteToDbConfig config) throws SQLException;
+
+	/**
+	 * Equivalent to {@code writeTo(ps, WriteToDbConfig.DEFAULT_CONFIG)}
+	 * 
+	 * @param ps - the {@link PreparedStatement} to write rows to
+	 * 
+	 * @throws SQLException if some SQL or database error occurs
+	 */
+	default void writeTo(PreparedStatement ps) throws SQLException {
+		writeTo(ps, WriteToDbConfig.DEFAULT_CONFIG);
+	}
 
 	/*--------------------------------------------------------------------------------
 	 *	Cell Accessors

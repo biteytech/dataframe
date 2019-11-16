@@ -25,6 +25,8 @@ import java.io.InputStream;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.file.StandardOpenOption;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -299,5 +301,27 @@ public enum DataFrameFactory {
 	 */
 	public static DataFrame readCsvFrom(InputStream is, ReadCsvConfig config) throws IOException {
 		return config.process(is);
+	}
+
+	/**
+	 * Read a dataframe from the specified {@link ResultSet} according to the
+	 * specified {@link ReadFromDbConfig configuration}.
+	 * 
+	 * @param rs     - a {@link ResultSet}
+	 * @param config - a {@link ReadFromDbConfig configuration} containing
+	 *               per-column logic for getting fields from the {@code ResultSet}.
+	 *               The number of columns in the configuration must match the
+	 *               number in the {@code ResultSet}. Configurations can be reused
+	 *               for multiple {@code ResultSets}.
+	 * 
+	 * @return the dataframe read from the {@code ResultSet}
+	 * 
+	 * @throws SQLException          if some SQL or database error occurs
+	 * @throws IllegalStateException if the number of columns in the configuration
+	 *                               does not match the number in the
+	 *                               {@code ResultSet}
+	 */
+	public static DataFrame readFrom(ResultSet rs, ReadFromDbConfig config) throws SQLException {
+		return config.read(rs);
 	}
 }

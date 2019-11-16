@@ -31,6 +31,7 @@ import java.util.Iterator;
  * <li>{@link IntColumnBuilder}
  * <li>{@link LongColumnBuilder}
  * <li>{@link StringColumnBuilder}
+ * <li>{@link DecimalColumnBuilder}
  * </ul>
  *
  * @author biteytech@protonmail.com

@@ -3,6 +3,11 @@ package tech.bitey.dataframe;
 import static java.util.Spliterator.DISTINCT;
 
 import java.io.File;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -14,6 +19,17 @@ import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+
+import tech.bitey.dataframe.db.DecimalFromResultSet;
+import tech.bitey.dataframe.db.BooleanFromResultSet;
+import tech.bitey.dataframe.db.DateFromResultSet;
+import tech.bitey.dataframe.db.DateTimeFromResultSet;
+import tech.bitey.dataframe.db.DoubleFromResultSet;
+import tech.bitey.dataframe.db.FloatFromResultSet;
+import tech.bitey.dataframe.db.IFromResultSet;
+import tech.bitey.dataframe.db.IntFromResultSet;
+import tech.bitey.dataframe.db.LongFromResultSet;
+import tech.bitey.dataframe.db.StringFromResultSet;
 
 public class TestDataFrame {
 
@@ -182,6 +198,90 @@ public class TestDataFrame {
 			DataFrame actual = DataFrameFactory.readCsvFrom(file, new ReadCsvConfig(Arrays.asList(ColumnType.STRING)));
 
 			Assertions.assertEquals(expected, actual, "null vs empty, read/write csv");
+		}
+	}
+
+	@Test
+	public void testReadWriteDb() throws Exception {
+
+		try (Connection conn = DriverManager.getConnection("jdbc:sqlite::memory:");
+				Statement stmt = conn.createStatement();) {
+
+			conn.setAutoCommit(false);
+
+			int count = 0;
+
+			for (Map.Entry<String, DataFrame> e : DF_MAP.entrySet()) {
+
+				String tableName = "test" + count++;
+
+				DataFrame expected = e.getValue();
+				int cc = expected.columnCount();
+
+				StringBuilder create = new StringBuilder();
+				create.append("create table ").append(tableName).append(" (");
+
+				List<IFromResultSet<?>> fromRsLogic = new ArrayList<>();
+
+				for (int i = 0; i < cc; i++) {
+					create.append(expected.columnName(i)).append(' ');
+					switch (expected.columnType(i)) {
+					case BOOLEAN:
+						create.append("TEXT");
+						fromRsLogic.add(BooleanFromResultSet.BOOLEAN_FROM_STRING);
+						break;
+					case DATE:
+						create.append("TEXT");
+						fromRsLogic.add(DateFromResultSet.DATE_FROM_DATE);
+						break;
+					case DATETIME:
+						create.append("TEXT");
+						fromRsLogic.add(DateTimeFromResultSet.DATETIME_FROM_TIMESTAMP);
+						break;
+					case STRING:
+						create.append("TEXT");
+						fromRsLogic.add(StringFromResultSet.STRING_FROM_STRING);
+						break;
+					case DECIMAL:
+						create.append("NUMERIC");
+						fromRsLogic.add(DecimalFromResultSet.BIGDECIMAL_FROM_BIGDECIMAL);
+						break;
+					case DOUBLE:
+						create.append("DOUBLE");
+						fromRsLogic.add(DoubleFromResultSet.DOUBLE_FROM_DOUBLE);
+						break;
+					case FLOAT:
+						create.append("FLOAT");
+						fromRsLogic.add(FloatFromResultSet.FLOAT_FROM_FLOAT);
+						break;
+					case INT:
+						create.append("INT");
+						fromRsLogic.add(IntFromResultSet.INT_FROM_INT);
+						break;
+					case LONG:
+						create.append("INT8");
+						fromRsLogic.add(LongFromResultSet.LONG_FROM_LONG);
+						break;
+					}
+
+					if (i < cc - 1)
+						create.append(", ");
+					else
+						create.append(")");
+				}
+
+				stmt.execute(create.toString());
+
+				try (PreparedStatement ps = conn.prepareStatement(
+						"insert into " + tableName + " values (?" + DfStrings.repeat(",?", cc - 1) + ")");) {
+
+					expected.writeTo(ps, new WriteToDbConfig(null, 1000, true));
+
+					ResultSet rs = stmt.executeQuery("select * from " + tableName);
+					DataFrame actual = DataFrameFactory.readFrom(rs, new ReadFromDbConfig(fromRsLogic, 1000));
+					Assertions.assertEquals(expected, actual, e.getKey() + ", read/write db");
+				}
+			}
 		}
 	}
 

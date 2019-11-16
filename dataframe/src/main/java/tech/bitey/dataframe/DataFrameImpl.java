@@ -34,6 +34,8 @@ import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.nio.channels.FileChannel;
 import java.nio.channels.WritableByteChannel;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.AbstractList;
@@ -1092,6 +1094,11 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 			bos.write('\n');
 		} else
 			bos.write(',');
+	}
+
+	@Override
+	public void writeTo(PreparedStatement ps, WriteToDbConfig config) throws SQLException {
+		config.write(this, ps);
 	}
 
 	/*--------------------------------------------------------------------------------

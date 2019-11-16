@@ -5,7 +5,7 @@
 
 	<groupId>tech.bitey</groupId>
 	<artifactId>dataframe</artifactId>
-	<version>0.2.2</version>
+	<version>0.3.0</version>
 	<packaging>jar</packaging>
 
 	<name>${project.groupId}:${project.artifactId}</name>
@@ -138,5 +138,12 @@
 			<version>5.5.2</version>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.xerial</groupId>
+			<artifactId>sqlite-jdbc</artifactId>
+			<version>3.28.0</version>
+			<scope>test</scope>
+		</dependency>
+
 	</dependencies>
 </project>

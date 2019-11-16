@@ -27,7 +27,7 @@ import tech.bitey.bufferstuff.BufferBitSet;
  * A builder for creating {@link DecimalColumn} instances. Example:
  *
  * <pre>
- * BigDecimalColumn column = BigDecimalColumn.builder().add(BigDecimal.ZERO).add(new BigDecimal("42.42").build();
+ * DecimalColumn column = DecimalColumn.builder().add(BigDecimal.ZERO).add(new BigDecimal("42.42").build();
  * </pre>
  * 
  * Elements appear in the resulting column in the same order they were added to
