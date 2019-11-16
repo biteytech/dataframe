@@ -20,7 +20,6 @@ import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import tech.bitey.dataframe.ColumnBuilder;
 import tech.bitey.dataframe.ColumnType;
 import tech.bitey.dataframe.DateColumnBuilder;
 import tech.bitey.dataframe.DecimalColumnBuilder;
@@ -28,18 +27,17 @@ import tech.bitey.dataframe.DecimalColumnBuilder;
 /**
  * Logic for reading a {@link BigDecimal} value from a {@link ResultSet} into a
  * {@link DateColumnBuilder}:
- * <p>
  * <ul>
  * <li>{@link #BIGDECIMAL_FROM_BIGDECIMAL}
  * </ul>
  * 
  * @author biteytech@protonmail.com
  */
-public enum DecimalFromResultSet implements IFromResultSet<DecimalColumnBuilder> {
+public enum DecimalFromResultSet implements IFromResultSet<BigDecimal, DecimalColumnBuilder> {
 	/**
 	 * Reads a {@link BigDecimal} from the {@code ResultSet} using
 	 * {@link ResultSet#getBigDecimal(int)}, and adds it to the builder using
-	 * {@link ColumnBuilder#add(BigDecimal)}
+	 * {@code ColumnBuilder.add(BigDecimal)}
 	 */
 	BIGDECIMAL_FROM_BIGDECIMAL {
 		@Override
@@ -52,7 +50,7 @@ public enum DecimalFromResultSet implements IFromResultSet<DecimalColumnBuilder>
 	};
 
 	@Override
-	public ColumnType getColumnType() {
+	public ColumnType<BigDecimal> getColumnType() {
 		return ColumnType.DECIMAL;
 	}
 }

@@ -62,7 +62,7 @@ public final class DateTimeColumnBuilder
 	}
 
 	@Override
-	public ColumnType getType() {
+	public ColumnType<LocalDateTime> getType() {
 		return ColumnType.DATETIME;
 	}
 }

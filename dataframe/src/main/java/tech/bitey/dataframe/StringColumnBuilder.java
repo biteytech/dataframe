@@ -56,7 +56,7 @@ public final class StringColumnBuilder extends VarLenColumnBuilder<String, Strin
 	}
 
 	@Override
-	public ColumnType getType() {
+	public ColumnType<String> getType() {
 		return ColumnType.STRING;
 	}
 

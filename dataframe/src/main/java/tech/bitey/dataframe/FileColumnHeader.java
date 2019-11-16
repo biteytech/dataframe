@@ -39,7 +39,7 @@ class FileColumnHeader {
 	FileColumnHeader(DataFrame df, int columnIndex) {
 
 		this.columnName = df.columnName(columnIndex).getBytes(CHARSET);
-		this.columnType = df.columnType(columnIndex).name().getBytes(CHARSET);
+		this.columnType = df.columnType(columnIndex).getCode().name().getBytes(CHARSET);
 		this.characteristics = df.column(columnIndex).characteristics();
 	}
 
@@ -104,8 +104,8 @@ class FileColumnHeader {
 		return new String(columnName, CHARSET);
 	}
 
-	ColumnType getColumnType() {
-		return ColumnType.valueOf(new String(columnType, CHARSET));
+	ColumnType<?> getColumnType() {
+		return ColumnTypeCode.valueOf(new String(columnType, CHARSET)).getType();
 	}
 
 	int getCharacteristics() {

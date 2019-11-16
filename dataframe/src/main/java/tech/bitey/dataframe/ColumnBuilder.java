@@ -45,7 +45,7 @@ public interface ColumnBuilder<E> {
 	 * 
 	 * @return the type of the column created by this builder.
 	 */
-	ColumnType getType();
+	ColumnType<E> getType();
 
 	/**
 	 * Returns a newly-created {@code Column} based on the contents of this builder.

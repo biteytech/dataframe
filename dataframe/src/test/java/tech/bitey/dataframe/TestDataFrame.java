@@ -20,10 +20,10 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import tech.bitey.dataframe.db.DecimalFromResultSet;
 import tech.bitey.dataframe.db.BooleanFromResultSet;
 import tech.bitey.dataframe.db.DateFromResultSet;
 import tech.bitey.dataframe.db.DateTimeFromResultSet;
+import tech.bitey.dataframe.db.DecimalFromResultSet;
 import tech.bitey.dataframe.db.DoubleFromResultSet;
 import tech.bitey.dataframe.db.FloatFromResultSet;
 import tech.bitey.dataframe.db.IFromResultSet;
@@ -221,44 +221,44 @@ public class TestDataFrame {
 				StringBuilder create = new StringBuilder();
 				create.append("create table ").append(tableName).append(" (");
 
-				List<IFromResultSet<?>> fromRsLogic = new ArrayList<>();
+				List<IFromResultSet<?, ?>> fromRsLogic = new ArrayList<>();
 
 				for (int i = 0; i < cc; i++) {
 					create.append(expected.columnName(i)).append(' ');
-					switch (expected.columnType(i)) {
-					case BOOLEAN:
+					switch (expected.columnType(i).getCode()) {
+					case B:
 						create.append("TEXT");
 						fromRsLogic.add(BooleanFromResultSet.BOOLEAN_FROM_STRING);
 						break;
-					case DATE:
+					case DA:
 						create.append("TEXT");
 						fromRsLogic.add(DateFromResultSet.DATE_FROM_DATE);
 						break;
-					case DATETIME:
+					case DT:
 						create.append("TEXT");
 						fromRsLogic.add(DateTimeFromResultSet.DATETIME_FROM_TIMESTAMP);
 						break;
-					case STRING:
+					case S:
 						create.append("TEXT");
 						fromRsLogic.add(StringFromResultSet.STRING_FROM_STRING);
 						break;
-					case DECIMAL:
+					case BD:
 						create.append("NUMERIC");
 						fromRsLogic.add(DecimalFromResultSet.BIGDECIMAL_FROM_BIGDECIMAL);
 						break;
-					case DOUBLE:
+					case D:
 						create.append("DOUBLE");
 						fromRsLogic.add(DoubleFromResultSet.DOUBLE_FROM_DOUBLE);
 						break;
-					case FLOAT:
+					case F:
 						create.append("FLOAT");
 						fromRsLogic.add(FloatFromResultSet.FLOAT_FROM_FLOAT);
 						break;
-					case INT:
+					case I:
 						create.append("INT");
 						fromRsLogic.add(IntFromResultSet.INT_FROM_INT);
 						break;
-					case LONG:
+					case L:
 						create.append("INT8");
 						fromRsLogic.add(LongFromResultSet.LONG_FROM_LONG);
 						break;

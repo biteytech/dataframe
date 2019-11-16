@@ -42,9 +42,10 @@ import tech.bitey.dataframe.ColumnType;
  * 
  * @author biteytech@protonmail.com
  *
+ * @param <E> - the column's element type
  * @param <B> - the {@link ColumnBuilder} type
  */
-public interface IFromResultSet<B extends ColumnBuilder<?>> {
+public interface IFromResultSet<E, B extends ColumnBuilder<E>> {
 
 	/**
 	 * Returns the {@link ColumnType} used to create the {@link ColumnBuilder} (via
@@ -52,7 +53,7 @@ public interface IFromResultSet<B extends ColumnBuilder<?>> {
 	 * 
 	 * @return the {@code ColumnType} used to create the {@code ColumnBuilder}
 	 */
-	ColumnType getColumnType();
+	ColumnType<E> getColumnType();
 
 	/**
 	 * Gets one elements from the {@link ResultSet} at the current row, for the

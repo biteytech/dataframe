@@ -232,7 +232,7 @@ public enum DataFrameFactory {
 		final int cc = dfHeader.getColumnCount();
 
 		String[] columnNames = new String[cc];
-		ColumnType[] columnTypes = new ColumnType[cc];
+		ColumnType<?>[] columnTypes = new ColumnType[cc];
 		int[] characteristics = new int[cc];
 		for (int i = 0; i < cc; i++) {
 			FileColumnHeader columnHeader = new FileColumnHeader(channel);

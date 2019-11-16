@@ -88,7 +88,7 @@ public final class LongColumnBuilder extends LongArrayColumnBuilder<Long, LongCo
 	}
 
 	@Override
-	public ColumnType getType() {
+	public ColumnType<Long> getType() {
 		return ColumnType.LONG;
 	}
 }

@@ -63,7 +63,7 @@ final class NonNullDateTimeColumn extends LongArrayColumn<LocalDateTime, DateTim
 	}
 
 	@Override
-	public ColumnType getType() {
+	public ColumnType<LocalDateTime> getType() {
 		return ColumnType.DATETIME;
 	}
 

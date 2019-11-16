@@ -19,15 +19,14 @@ package tech.bitey.dataframe.db;
 import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
 
-import tech.bitey.dataframe.ColumnBuilder;
 import tech.bitey.dataframe.ColumnType;
 import tech.bitey.dataframe.DateColumnBuilder;
 
 /**
  * Logic for reading a date value from a {@link ResultSet} into a
  * {@link DateColumnBuilder}:
- * <p>
  * <ul>
  * <li>{@link #DATE_FROM_DATE}
  * <li>{@link #DATE_FROM_INT}
@@ -35,11 +34,11 @@ import tech.bitey.dataframe.DateColumnBuilder;
  * 
  * @author biteytech@protonmail.com
  */
-public enum DateFromResultSet implements IFromResultSet<DateColumnBuilder> {
+public enum DateFromResultSet implements IFromResultSet<LocalDate, DateColumnBuilder> {
 	/**
 	 * Reads an {@link Date} from the {@code ResultSet} using
 	 * {@link ResultSet#getDate(int)}, and adds it to the builder using
-	 * {@link ColumnBuilder#add(int, int, int)}
+	 * {@link DateColumnBuilder#add(int, int, int)}
 	 */
 	@SuppressWarnings("deprecation")
 	DATE_FROM_DATE {
@@ -57,7 +56,7 @@ public enum DateFromResultSet implements IFromResultSet<DateColumnBuilder> {
 	/**
 	 * Reads a {@code yyyymmdd int} value from the {@code ResultSet} using
 	 * {@link ResultSet#getInt(int)}. The {@code yyyymmdd} value is added to the
-	 * builder using {@link DateColumnBuilder#add(int, int, int)
+	 * builder using {@link DateColumnBuilder#add(int, int, int)}
 	 */
 	DATE_FROM_INT {
 		@Override
@@ -73,7 +72,7 @@ public enum DateFromResultSet implements IFromResultSet<DateColumnBuilder> {
 	};
 
 	@Override
-	public ColumnType getColumnType() {
+	public ColumnType<LocalDate> getColumnType() {
 		return ColumnType.DATE;
 	}
 }

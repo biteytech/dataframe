@@ -25,7 +25,6 @@ import tech.bitey.dataframe.ColumnType;
 /**
  * Logic for reading a boolean value from a {@link ResultSet} into a
  * {@link BooleanColumnBuilder}:
- * <p>
  * <ul>
  * <li>{@link #BOOLEAN_FROM_STRING}
  * <li>{@link #BOOLEAN_FROM_INT}
@@ -33,7 +32,7 @@ import tech.bitey.dataframe.ColumnType;
  * 
  * @author biteytech@protonmail.com
  */
-public enum BooleanFromResultSet implements IFromResultSet<BooleanColumnBuilder> {
+public enum BooleanFromResultSet implements IFromResultSet<Boolean, BooleanColumnBuilder> {
 	/**
 	 * Reads a string value from the {@code ResultSet} using
 	 * {@link ResultSet#getString(int)}. The string value is considered to be
@@ -75,7 +74,7 @@ public enum BooleanFromResultSet implements IFromResultSet<BooleanColumnBuilder>
 	 * @return {@code ColumnType.BOOLEAN}
 	 */
 	@Override
-	public ColumnType getColumnType() {
+	public ColumnType<Boolean> getColumnType() {
 		return ColumnType.BOOLEAN;
 	}
 }

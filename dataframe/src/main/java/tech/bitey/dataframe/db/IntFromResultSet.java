@@ -25,14 +25,13 @@ import tech.bitey.dataframe.IntColumnBuilder;
 /**
  * Logic for reading a {@code int} value from a {@link ResultSet} into a
  * {@link IntColumnBuilder}:
- * <p>
  * <ul>
  * <li>{@link #INT_FROM_INT}
  * </ul>
  * 
  * @author biteytech@protonmail.com
  */
-public enum IntFromResultSet implements IFromResultSet<IntColumnBuilder> {
+public enum IntFromResultSet implements IFromResultSet<Integer, IntColumnBuilder> {
 	/**
 	 * Reads an {@code int} from the {@code ResultSet} using
 	 * {@link ResultSet#getInt(int)}, and adds it to the builder using
@@ -52,7 +51,7 @@ public enum IntFromResultSet implements IFromResultSet<IntColumnBuilder> {
 	};
 
 	@Override
-	public ColumnType getColumnType() {
+	public ColumnType<Integer> getColumnType() {
 		return ColumnType.INT;
 	}
 }

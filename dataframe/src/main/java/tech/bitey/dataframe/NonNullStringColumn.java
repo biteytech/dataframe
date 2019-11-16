@@ -65,7 +65,7 @@ final class NonNullStringColumn extends NonNullVarLenColumn<String, StringColumn
 	}
 
 	@Override
-	public ColumnType getType() {
+	public ColumnType<String> getType() {
 		return ColumnType.STRING;
 	}
 

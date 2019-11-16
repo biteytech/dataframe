@@ -19,7 +19,15 @@ package tech.bitey.dataframe;
 import static java.nio.ByteOrder.BIG_ENDIAN;
 import static java.util.Spliterator.NONNULL;
 import static tech.bitey.dataframe.AbstractColumn.readInt;
-import static tech.bitey.dataframe.DfPreconditions.checkState;
+import static tech.bitey.dataframe.ColumnTypeCode.B;
+import static tech.bitey.dataframe.ColumnTypeCode.BD;
+import static tech.bitey.dataframe.ColumnTypeCode.D;
+import static tech.bitey.dataframe.ColumnTypeCode.DA;
+import static tech.bitey.dataframe.ColumnTypeCode.DT;
+import static tech.bitey.dataframe.ColumnTypeCode.F;
+import static tech.bitey.dataframe.ColumnTypeCode.I;
+import static tech.bitey.dataframe.ColumnTypeCode.L;
+import static tech.bitey.dataframe.ColumnTypeCode.S;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -46,38 +54,42 @@ import tech.bitey.bufferstuff.BufferBitSet;
  * 
  * @author biteytech@protonmail.com
  */
-public enum ColumnType {
+public class ColumnType<E> {
 
 	/** The type for {@link BooleanColumn} */
-	BOOLEAN("B"),
+	public static final ColumnType<Boolean> BOOLEAN = new ColumnType<>(B);
+
 	/** The type for {@link DateColumn} */
-	DATE("DA"),
+	public static final ColumnType<LocalDate> DATE = new ColumnType<>(DA);
+
 	/** The type for {@link DateTimeColumn} */
-	DATETIME("DT"),
+	public static final ColumnType<LocalDateTime> DATETIME = new ColumnType<>(DT);
+
 	/** The type for {@link DoubleColumn} */
-	DOUBLE("D"),
+	public static final ColumnType<Double> DOUBLE = new ColumnType<>(D);
+
 	/** The type for {@link FloatColumn} */
-	FLOAT("F"),
+	public static final ColumnType<Float> FLOAT = new ColumnType<>(F);
+
 	/** The type for {@link IntColumn} */
-	INT("I"),
+	public static final ColumnType<Integer> INT = new ColumnType<>(I);
+
 	/** The type for {@link LongColumn} */
-	LONG("L"),
+	public static final ColumnType<Long> LONG = new ColumnType<>(L);
+
 	/** The type for {@link StringColumn} */
-	STRING("S"),
+	public static final ColumnType<String> STRING = new ColumnType<>(S);
+
 	/** The type for {@link DecimalColumn} */
-	DECIMAL("BD"),;
+	public static final ColumnType<BigDecimal> DECIMAL = new ColumnType<>(BD);
 
-	private final String code;
+	private final ColumnTypeCode code;
 
-	private ColumnType(String code) {
-
-		byte[] codeBytes = code.getBytes();
-		checkState(codeBytes.length >= 1 && codeBytes.length <= 2, "code must be one or two (ascii) characters");
-
+	private ColumnType(ColumnTypeCode code) {
 		this.code = code;
 	}
 
-	String getCode() {
+	ColumnTypeCode getCode() {
 		return code;
 	}
 
@@ -113,24 +125,24 @@ public enum ColumnType {
 	 */
 	@SuppressWarnings("unchecked")
 	public <T> ColumnBuilder<T> builder(int characteristic) {
-		switch (this) {
-		case BOOLEAN:
+		switch (getCode()) {
+		case B:
 			return (ColumnBuilder<T>) BooleanColumn.builder();
-		case DATE:
+		case DA:
 			return (ColumnBuilder<T>) DateColumn.builder(characteristic);
-		case DATETIME:
+		case DT:
 			return (ColumnBuilder<T>) DateTimeColumn.builder(characteristic);
-		case DOUBLE:
+		case D:
 			return (ColumnBuilder<T>) DoubleColumn.builder(characteristic);
-		case FLOAT:
+		case F:
 			return (ColumnBuilder<T>) FloatColumn.builder(characteristic);
-		case INT:
+		case I:
 			return (ColumnBuilder<T>) IntColumn.builder(characteristic);
-		case LONG:
+		case L:
 			return (ColumnBuilder<T>) LongColumn.builder(characteristic);
-		case STRING:
+		case S:
 			return (ColumnBuilder<T>) StringColumn.builder(characteristic);
-		case DECIMAL:
+		case BD:
 			return (ColumnBuilder<T>) DecimalColumn.builder(characteristic);
 		}
 
@@ -156,64 +168,64 @@ public enum ColumnType {
 			nonNulls = BufferBitSet.readFrom(channel);
 		}
 
-		switch (this) {
-		case BOOLEAN: {
+		switch (getCode()) {
+		case B: {
 			NonNullBooleanColumn column = NonNullBooleanColumn.EMPTY.readFrom(channel);
 			if (nonNulls == null)
 				return column;
 			else
 				return new NullableBooleanColumn(column, nonNulls, null, 0, size);
 		}
-		case DATE: {
+		case DA: {
 			NonNullDateColumn column = NonNullDateColumn.empty(characteristics).readFrom(channel);
 			if (nonNulls == null)
 				return column;
 			else
 				return new NullableDateColumn(column, nonNulls, null, 0, size);
 		}
-		case DATETIME: {
+		case DT: {
 			NonNullDateTimeColumn column = NonNullDateTimeColumn.empty(characteristics).readFrom(channel);
 			if (nonNulls == null)
 				return column;
 			else
 				return new NullableDateTimeColumn(column, nonNulls, null, 0, size);
 		}
-		case DOUBLE: {
+		case D: {
 			NonNullDoubleColumn column = NonNullDoubleColumn.empty(characteristics).readFrom(channel);
 			if (nonNulls == null)
 				return column;
 			else
 				return new NullableDoubleColumn(column, nonNulls, null, 0, size);
 		}
-		case FLOAT: {
+		case F: {
 			NonNullFloatColumn column = NonNullFloatColumn.empty(characteristics).readFrom(channel);
 			if (nonNulls == null)
 				return column;
 			else
 				return new NullableFloatColumn(column, nonNulls, null, 0, size);
 		}
-		case INT: {
+		case I: {
 			NonNullIntColumn column = NonNullIntColumn.empty(characteristics).readFrom(channel);
 			if (nonNulls == null)
 				return column;
 			else
 				return new NullableIntColumn(column, nonNulls, null, 0, size);
 		}
-		case LONG: {
+		case L: {
 			NonNullLongColumn column = NonNullLongColumn.empty(characteristics).readFrom(channel);
 			if (nonNulls == null)
 				return column;
 			else
 				return new NullableLongColumn(column, nonNulls, null, 0, size);
 		}
-		case STRING: {
+		case S: {
 			NonNullStringColumn column = NonNullStringColumn.empty(characteristics).readFrom(channel);
 			if (nonNulls == null)
 				return column;
 			else
 				return new NullableStringColumn(column, nonNulls, null, 0, size);
 		}
-		case DECIMAL: {
+		case BD: {
 			NonNullDecimalColumn column = NonNullDecimalColumn.empty(characteristics).readFrom(channel);
 			if (nonNulls == null)
 				return column;
@@ -292,29 +304,29 @@ public enum ColumnType {
 	 * @return the parsed element
 	 */
 	public Object parse(String string) {
-		switch (this) {
-		case BOOLEAN:
+		switch (getCode()) {
+		case B:
 			return "true".equalsIgnoreCase(string) || "Y".equalsIgnoreCase(string);
-		case DATE: {
+		case DA: {
 			if (string.length() == 8) {
 				int yyyymmdd = Integer.parseInt(string);
 				return LocalDate.of(yyyymmdd / 10000, yyyymmdd % 10000 / 100, yyyymmdd % 100);
 			} else
 				return LocalDate.parse(string);
 		}
-		case DATETIME:
+		case DT:
 			return LocalDateTime.parse(string);
-		case DOUBLE:
+		case D:
 			return Double.valueOf(string);
-		case FLOAT:
+		case F:
 			return Float.valueOf(string);
-		case INT:
+		case I:
 			return Integer.valueOf(string);
-		case LONG:
+		case L:
 			return Long.valueOf(string);
-		case STRING:
+		case S:
 			return string;
-		case DECIMAL:
+		case BD:
 			return new BigDecimal(string);
 		}
 		throw new IllegalStateException();

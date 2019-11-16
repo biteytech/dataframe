@@ -221,7 +221,7 @@ public interface DataFrame extends List<Row>, RandomAccess {
 	 * 
 	 * @return the key column type, or null if no key column has been specified.
 	 */
-	ColumnType keyColumnType();
+	ColumnType<?> keyColumnType();
 
 	/**
 	 * Returns a new dataframe which is a shallow copy of this one, but with the key
@@ -321,7 +321,7 @@ public interface DataFrame extends List<Row>, RandomAccess {
 	 * @throws IndexOutOfBoundsException if {@code columnIndex} is negative or is
 	 *                                   not less than {@link #columnCount()}
 	 */
-	ColumnType columnType(int columnIndex);
+	ColumnType<?> columnType(int columnIndex);
 
 	/**
 	 * Returns the {@link ColumnType column type} at the specified index.
@@ -333,7 +333,7 @@ public interface DataFrame extends List<Row>, RandomAccess {
 	 * @throws IllegalArgumentException if {@code columnName} is not a recognized
 	 *                                  column name in this dataframe
 	 */
-	ColumnType columnType(String columnName);
+	ColumnType<?> columnType(String columnName);
 
 	/**
 	 * Returns an ordered map where the entries are (name, column) pairs.
@@ -361,7 +361,7 @@ public interface DataFrame extends List<Row>, RandomAccess {
 	 * 
 	 * @return a list of column types in this dataframe.
 	 */
-	List<ColumnType> columnTypes();
+	List<ColumnType<?>> columnTypes();
 
 	/**
 	 * Returns a new dataframe which is a shallow copy of this one, but including
@@ -762,7 +762,7 @@ public interface DataFrame extends List<Row>, RandomAccess {
 	 * 
 	 * @throws ClassCastException if the column type does not match the return type.
 	 */
-	<T> Column<T> deriveColumn(ColumnType type, Function<Row, T> function);
+	<T> Column<T> deriveColumn(ColumnType<T> type, Function<Row, T> function);
 
 	/**
 	 * Derive a new {@link IntColumn} from the rows of this dataframe. The new
@@ -1290,7 +1290,7 @@ public interface DataFrame extends List<Row>, RandomAccess {
 	 * Writes this dataframe to the specified {@link PreparedStatement} using the
 	 * specified {@link WriteToDbConfig configuration}.
 	 * <p>
-	 * The connection returned by {@line PreparedStatement#getConnection()} must
+	 * The connection returned by {@link PreparedStatement#getConnection()} must
 	 * have {@code autocommit} turned off.
 	 * 
 	 * @param ps     - the {@link PreparedStatement} to write rows to

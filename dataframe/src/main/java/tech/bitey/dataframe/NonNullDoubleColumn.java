@@ -212,7 +212,7 @@ final class NonNullDoubleColumn extends NonNullSingleBufferColumn<Double, Double
 	}
 
 	@Override
-	public ColumnType getType() {
+	public ColumnType<Double> getType() {
 		return ColumnType.DOUBLE;
 	}
 

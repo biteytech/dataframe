@@ -25,14 +25,13 @@ import tech.bitey.dataframe.FloatColumnBuilder;
 /**
  * Logic for reading a {@code float} value from a {@link ResultSet} into a
  * {@link FloatColumnBuilder}:
- * <p>
  * <ul>
  * <li>{@link #FLOAT_FROM_FLOAT}
  * </ul>
  * 
  * @author biteytech@protonmail.com
  */
-public enum FloatFromResultSet implements IFromResultSet<FloatColumnBuilder> {
+public enum FloatFromResultSet implements IFromResultSet<Float, FloatColumnBuilder> {
 	/**
 	 * Reads an {@code float} from the {@code ResultSet} using
 	 * {@link ResultSet#getFloat(int)}, and adds it to the builder using
@@ -52,7 +51,7 @@ public enum FloatFromResultSet implements IFromResultSet<FloatColumnBuilder> {
 	};
 
 	@Override
-	public ColumnType getColumnType() {
+	public ColumnType<Float> getColumnType() {
 		return ColumnType.FLOAT;
 	}
 }

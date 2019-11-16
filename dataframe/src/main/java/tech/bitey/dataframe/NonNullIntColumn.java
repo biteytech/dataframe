@@ -125,7 +125,7 @@ final class NonNullIntColumn extends IntArrayColumn<Integer, IntColumn, NonNullI
 	}
 
 	@Override
-	public ColumnType getType() {
+	public ColumnType<Integer> getType() {
 		return ColumnType.INT;
 	}
 

@@ -120,7 +120,7 @@ public final class BooleanColumnBuilder extends AbstractColumnBuilder<Boolean, B
 	}
 
 	@Override
-	public ColumnType getType() {
+	public ColumnType<Boolean> getType() {
 		return ColumnType.BOOLEAN;
 	}
 

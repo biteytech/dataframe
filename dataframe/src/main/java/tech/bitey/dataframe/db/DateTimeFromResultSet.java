@@ -19,27 +19,26 @@ package tech.bitey.dataframe.db;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
-import tech.bitey.dataframe.ColumnBuilder;
 import tech.bitey.dataframe.ColumnType;
 import tech.bitey.dataframe.DateTimeColumnBuilder;
 
 /**
  * Logic for reading a date-time value from a {@link ResultSet} into a
  * {@link DateTimeColumnBuilder}:
- * <p>
  * <ul>
  * <li>{@link #DATETIME_FROM_TIMESTAMP}
  * </ul>
  * 
  * @author biteytech@protonmail.com
  */
-public enum DateTimeFromResultSet implements IFromResultSet<DateTimeColumnBuilder> {
+public enum DateTimeFromResultSet implements IFromResultSet<LocalDateTime, DateTimeColumnBuilder> {
 	/**
 	 * Reads an {@link Timestamp} from the {@code ResultSet} using
 	 * {@link ResultSet#getTimestamp(int)}, and adds it to the builder using
 	 * {@link Timestamp#toLocalDateTime()} and
-	 * {@link ColumnBuilder#add(java.time.LocalDateTime)}
+	 * {@code ColumnBuilder.add(java.time.LocalDateTime)}
 	 */
 	DATETIME_FROM_TIMESTAMP {
 		@Override
@@ -55,7 +54,7 @@ public enum DateTimeFromResultSet implements IFromResultSet<DateTimeColumnBuilde
 	};
 
 	@Override
-	public ColumnType getColumnType() {
+	public ColumnType<LocalDateTime> getColumnType() {
 		return ColumnType.DATETIME;
 	}
 }

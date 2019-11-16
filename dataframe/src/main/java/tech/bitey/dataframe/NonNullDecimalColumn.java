@@ -66,7 +66,7 @@ final class NonNullDecimalColumn extends NonNullVarLenColumn<BigDecimal, Decimal
 	}
 
 	@Override
-	public ColumnType getType() {
+	public ColumnType<BigDecimal> getType() {
 		return ColumnType.DECIMAL;
 	}
 

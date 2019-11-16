@@ -71,32 +71,32 @@ public class WriteToDbConfig {
 			toPsLogic = new IToPreparedStatement[columns.length];
 
 			for (int i = 0; i < columns.length; i++) {
-				switch (columns[i].getType()) {
-				case BOOLEAN:
+				switch (columns[i].getType().getCode()) {
+				case B:
 					toPsLogic[i] = BooleanToStatement.BOOLEAN_TO_STRING;
 					break;
-				case DATE:
+				case DA:
 					toPsLogic[i] = DateToStatement.DATE_TO_DATE;
 					break;
-				case DATETIME:
+				case DT:
 					toPsLogic[i] = DateTimeToStatement.DATETIME_FROM_TIMESTAMP;
 					break;
-				case DECIMAL:
+				case BD:
 					toPsLogic[i] = DecimalToStatement.BIGDECIMAL_TO_BIGDECIMAL;
 					break;
-				case DOUBLE:
+				case D:
 					toPsLogic[i] = DoubleToStatement.DOUBLE_TO_DOUBLE;
 					break;
-				case FLOAT:
+				case F:
 					toPsLogic[i] = FloatToStatement.FLOAT_TO_FLOAT;
 					break;
-				case INT:
+				case I:
 					toPsLogic[i] = IntToStatement.INT_TO_INT;
 					break;
-				case LONG:
+				case L:
 					toPsLogic[i] = LongToStatement.LONG_TO_LONG;
 					break;
-				case STRING:
+				case S:
 					toPsLogic[i] = StringToStatement.STRING_TO_STRING;
 					break;
 				}

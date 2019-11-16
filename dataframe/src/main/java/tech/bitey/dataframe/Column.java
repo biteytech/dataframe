@@ -203,7 +203,7 @@ public interface Column<E> extends List<E> {
 	/**
 	 * @return this column's {@link ColumnType type}.
 	 */
-	ColumnType getType();
+	ColumnType<E> getType();
 
 	/**
 	 * Test if a value is null at a given index.

@@ -25,14 +25,13 @@ import tech.bitey.dataframe.LongColumnBuilder;
 /**
  * Logic for reading a {@code long} value from a {@link ResultSet} into a
  * {@link LongColumnBuilder}:
- * <p>
  * <ul>
  * <li>{@link #LONG_FROM_LONG}
  * </ul>
  * 
  * @author biteytech@protonmail.com
  */
-public enum LongFromResultSet implements IFromResultSet<LongColumnBuilder> {
+public enum LongFromResultSet implements IFromResultSet<Long, LongColumnBuilder> {
 	/**
 	 * Reads an {@code long} from the {@code ResultSet} using
 	 * {@link ResultSet#getLong(int)}, and adds it to the builder using
@@ -52,7 +51,7 @@ public enum LongFromResultSet implements IFromResultSet<LongColumnBuilder> {
 	};
 
 	@Override
-	public ColumnType getColumnType() {
+	public ColumnType<Long> getColumnType() {
 		return ColumnType.LONG;
 	}
 }

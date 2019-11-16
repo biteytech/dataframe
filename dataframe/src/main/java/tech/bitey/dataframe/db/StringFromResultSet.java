@@ -19,14 +19,12 @@ package tech.bitey.dataframe.db;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import tech.bitey.dataframe.ColumnBuilder;
 import tech.bitey.dataframe.ColumnType;
 import tech.bitey.dataframe.StringColumnBuilder;
 
 /**
  * Logic for reading a string from a {@link ResultSet} into a
  * {@link StringColumnBuilder}:
- * <p>
  * <ul>
  * <li>{@link #STRING_FROM_STRING}
  * <li>{@link #STRING_FROM_NSTRING}
@@ -34,11 +32,11 @@ import tech.bitey.dataframe.StringColumnBuilder;
  * 
  * @author biteytech@protonmail.com
  */
-public enum StringFromResultSet implements IFromResultSet<StringColumnBuilder> {
+public enum StringFromResultSet implements IFromResultSet<String, StringColumnBuilder> {
 	/**
 	 * Reads a string from the {@code ResultSet} using
 	 * {@link ResultSet#getString(int)}, and adds it to the builder using
-	 * {@link ColumnBuilder#add(String)}
+	 * {@code ColumnBuilder.add(String)}
 	 */
 	STRING_FROM_STRING {
 		@Override
@@ -52,7 +50,7 @@ public enum StringFromResultSet implements IFromResultSet<StringColumnBuilder> {
 	/**
 	 * Reads a string from the {@code ResultSet} using
 	 * {@link ResultSet#getNString(int)}, and adds it to the builder using
-	 * {@link ColumnBuilder#add(String)}
+	 * {@code ColumnBuilder.add(String)}
 	 */
 	STRING_FROM_NSTRING {
 		@Override
@@ -65,7 +63,7 @@ public enum StringFromResultSet implements IFromResultSet<StringColumnBuilder> {
 	};
 
 	@Override
-	public ColumnType getColumnType() {
+	public ColumnType<String> getColumnType() {
 		return ColumnType.STRING;
 	}
 }

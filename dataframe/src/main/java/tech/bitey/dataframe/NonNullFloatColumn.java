@@ -212,7 +212,7 @@ final class NonNullFloatColumn extends NonNullSingleBufferColumn<Float, FloatCol
 	}
 
 	@Override
-	public ColumnType getType() {
+	public ColumnType<Float> getType() {
 		return ColumnType.FLOAT;
 	}
 

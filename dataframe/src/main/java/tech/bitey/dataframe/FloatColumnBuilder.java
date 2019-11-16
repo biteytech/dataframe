@@ -106,7 +106,7 @@ public final class FloatColumnBuilder
 	}
 
 	@Override
-	public ColumnType getType() {
+	public ColumnType<Float> getType() {
 		return ColumnType.FLOAT;
 	}
 

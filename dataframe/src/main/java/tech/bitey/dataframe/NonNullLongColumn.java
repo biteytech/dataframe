@@ -125,7 +125,7 @@ final class NonNullLongColumn extends LongArrayColumn<Long, LongColumn, NonNullL
 	}
 
 	@Override
-	public ColumnType getType() {
+	public ColumnType<Long> getType() {
 		return ColumnType.LONG;
 	}
 

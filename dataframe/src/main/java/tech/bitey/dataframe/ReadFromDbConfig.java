@@ -60,7 +60,7 @@ public class ReadFromDbConfig {
 	 * @throws IllegalArgumentException if {@code fromResultSetLogic} is empty or
 	 *                                  {@code fetchSize}
 	 */
-	public ReadFromDbConfig(List<IFromResultSet<?>> fromResultSetLogic, int fetchSize) {
+	public ReadFromDbConfig(List<IFromResultSet<?, ?>> fromResultSetLogic, int fetchSize) {
 
 		checkNotNull(fromResultSetLogic, "result set logic list cannot be null");
 		checkArgument(!fromResultSetLogic.isEmpty(), "result set logic list cannot be empty");
@@ -83,8 +83,8 @@ public class ReadFromDbConfig {
 	 * @throws IllegalArgumentException if {@code fromResultSetLogic} is empty or
 	 *                                  {@code fetchSize}
 	 */
-	public ReadFromDbConfig(List<IFromResultSet<?>> fromRsLogic) {
-		this(fromRsLogic, 1000);
+	public ReadFromDbConfig(List<IFromResultSet<?, ?>> fromResultSetLogic) {
+		this(fromResultSetLogic, 1000);
 	}
 
 	DataFrame read(ResultSet rs) throws SQLException {

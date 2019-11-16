@@ -61,7 +61,7 @@ public final class DateColumnBuilder extends IntArrayColumnBuilder<LocalDate, Da
 	}
 
 	@Override
-	public ColumnType getType() {
+	public ColumnType<LocalDate> getType() {
 		return ColumnType.DATE;
 	}
 

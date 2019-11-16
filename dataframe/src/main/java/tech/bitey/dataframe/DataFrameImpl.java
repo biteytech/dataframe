@@ -390,7 +390,7 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 	}
 
 	@Override
-	public List<ColumnType> columnTypes() {
+	public List<ColumnType<?>> columnTypes() {
 		return columns().stream().map(Column::getType).collect(Collectors.toList());
 	}
 
@@ -579,7 +579,7 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 	}
 
 	@Override
-	public <T> Column<T> deriveColumn(ColumnType type, Function<Row, T> function) {
+	public <T> Column<T> deriveColumn(ColumnType<T> type, Function<Row, T> function) {
 
 		ColumnBuilder<T> builder = type.builder();
 		builder.ensureCapacity(size());

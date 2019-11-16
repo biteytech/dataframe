@@ -94,7 +94,7 @@ final class NonNullBooleanColumn extends NonNullColumn<Boolean, BooleanColumn, N
 	}
 
 	@Override
-	public ColumnType getType() {
+	public ColumnType<Boolean> getType() {
 		return ColumnType.BOOLEAN;
 	}
 

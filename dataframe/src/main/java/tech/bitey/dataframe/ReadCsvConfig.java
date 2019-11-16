@@ -44,7 +44,7 @@ import java.util.List;
  */
 public class ReadCsvConfig {
 
-	private final ColumnType[] columnTypes;
+	private final ColumnType<?>[] columnTypes;
 	private final String[] columnNames;
 	private final char delim;
 
@@ -58,7 +58,7 @@ public class ReadCsvConfig {
 	 * @param delim       - any ASCII character which is not a letter, digit, double
 	 *                    quote, CR, or LF.
 	 */
-	public ReadCsvConfig(List<ColumnType> columnTypes, List<String> columnNames, char delim) {
+	public ReadCsvConfig(List<ColumnType<?>> columnTypes, List<String> columnNames, char delim) {
 
 		checkNotNull(columnTypes, "columnTypes array cannot be null");
 		checkArgument(columnTypes.size() > 0, "columnTypes array cannot be empty");
@@ -86,7 +86,7 @@ public class ReadCsvConfig {
 	 * @param delim       - any ASCII character which is not a letter, digit, double
 	 *                    quote, CR, or LF.
 	 */
-	public ReadCsvConfig(List<ColumnType> columnTypes, char delim) {
+	public ReadCsvConfig(List<ColumnType<?>> columnTypes, char delim) {
 		this(columnTypes, null, delim);
 	}
 
@@ -100,7 +100,7 @@ public class ReadCsvConfig {
 	 * @param columnNames - must be specified if and only if a header line is not
 	 *                    present in the CSV file.
 	 */
-	public ReadCsvConfig(List<ColumnType> columnTypes, List<String> columnNames) {
+	public ReadCsvConfig(List<ColumnType<?>> columnTypes, List<String> columnNames) {
 		this(columnTypes, columnNames, ',');
 	}
 
@@ -113,7 +113,7 @@ public class ReadCsvConfig {
 	 * @param columnTypes - mandatory {@link ColumnType column types}. The size of
 	 *                    this list must match the number of fields in the CSV file.
 	 */
-	public ReadCsvConfig(List<ColumnType> columnTypes) {
+	public ReadCsvConfig(List<ColumnType<?>> columnTypes) {
 		this(columnTypes, null, ',');
 	}
 

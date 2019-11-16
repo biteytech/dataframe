@@ -177,19 +177,19 @@ class DataFramePrinter {
 			return TOO_SHORT_COLUMN_MARKER;
 	}
 
-	String pretty(Object o, ColumnType type) {
+	String pretty(Object o, ColumnType<?> type) {
 		if (o == null)
 			return "(null)";
 		else {
-			switch (type) {
-			case FLOAT:
-			case DOUBLE:
+			switch (type.getCode()) {
+			case F:
+			case D:
 				double d = ((Number) o).doubleValue();
 				if (!Double.isFinite(d))
 					return Double.toString(d);
 				else
 					return BigDecimal.valueOf(d).round(ROUNDING_CONTEXT).toPlainString();
-			case STRING:
+			case S:
 				String s = (String) o;
 				s = s.replaceAll("\r|\n", "");
 				s = s.replaceAll("\t", "  ");

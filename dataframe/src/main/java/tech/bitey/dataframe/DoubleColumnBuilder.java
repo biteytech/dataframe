@@ -106,7 +106,7 @@ public final class DoubleColumnBuilder
 	}
 
 	@Override
-	public ColumnType getType() {
+	public ColumnType<Double> getType() {
 		return ColumnType.DOUBLE;
 	}
 

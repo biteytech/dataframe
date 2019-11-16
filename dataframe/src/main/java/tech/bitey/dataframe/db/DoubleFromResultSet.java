@@ -25,14 +25,13 @@ import tech.bitey.dataframe.DoubleColumnBuilder;
 /**
  * Logic for reading a {@code double} value from a {@link ResultSet} into a
  * {@link DoubleColumnBuilder}:
- * <p>
  * <ul>
  * <li>{@link #DOUBLE_FROM_DOUBLE}
  * </ul>
  * 
  * @author biteytech@protonmail.com
  */
-public enum DoubleFromResultSet implements IFromResultSet<DoubleColumnBuilder> {
+public enum DoubleFromResultSet implements IFromResultSet<Double, DoubleColumnBuilder> {
 	/**
 	 * Reads an {@code double} from the {@code ResultSet} using
 	 * {@link ResultSet#getDouble(int)}, and adds it to the builder using
@@ -52,7 +51,7 @@ public enum DoubleFromResultSet implements IFromResultSet<DoubleColumnBuilder> {
 	};
 
 	@Override
-	public ColumnType getColumnType() {
+	public ColumnType<Double> getColumnType() {
 		return ColumnType.DOUBLE;
 	}
 }

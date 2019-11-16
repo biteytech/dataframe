@@ -93,7 +93,7 @@ public final class IntColumnBuilder extends IntArrayColumnBuilder<Integer, IntCo
 	 * @return {@code ColumnType.INT}
 	 */
 	@Override
-	public ColumnType getType() {
+	public ColumnType<Integer> getType() {
 		return ColumnType.INT;
 	}
 }

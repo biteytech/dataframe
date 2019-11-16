@@ -70,7 +70,7 @@ final class NonNullDateColumn extends IntArrayColumn<LocalDate, DateColumn, NonN
 	}
 
 	@Override
-	public ColumnType getType() {
+	public ColumnType<LocalDate> getType() {
 		return ColumnType.DATE;
 	}
 
