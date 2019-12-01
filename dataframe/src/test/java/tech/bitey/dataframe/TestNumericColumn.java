@@ -23,6 +23,8 @@ public class TestNumericColumn {
 		test(new int[] { 2, 4, 6, 8 });
 		test(new int[] { -2, -4, -6, -8 });
 		test(new int[] { 80, 72, 95, 27, 56, 71, 73, 92, 37, 84 });
+		test(new int[] { 20000, -10000, 0, 1, 10000 });
+		test(new int[] { Short.MAX_VALUE, Short.MIN_VALUE });
 		test(new int[] { 2000000000, -1000000000, 0, 1, 1000000000 });
 		test(new int[] { Integer.MAX_VALUE / 100, Integer.MIN_VALUE / 100 });
 	}
@@ -42,6 +44,9 @@ public class TestNumericColumn {
 		test("Double", DoubleColumn.of(toDouble(values)), min, max, mean, population, sample);
 		test("Float", FloatColumn.of(toFloat(values)), min, max, mean, population, sample);
 		test("Decimal", DecimalColumn.of(toBigDecimal(values)), min, max, mean, population, sample);
+
+		if (values[0] <= Short.MAX_VALUE)
+			test("Short", ShortColumn.of(toShort(values)), min, max, mean, population, sample);
 	}
 
 	private static void test(String columnType, NumericColumn<?> column, double min, double max, double mean,
@@ -65,6 +70,13 @@ public class TestNumericColumn {
 		Long[] array = new Long[values.length];
 		for (int i = 0; i < values.length; i++)
 			array[i] = (long) values[i];
+		return array;
+	}
+
+	private static Short[] toShort(int[] values) {
+		Short[] array = new Short[values.length];
+		for (int i = 0; i < values.length; i++)
+			array[i] = (short) values[i];
 		return array;
 	}
 

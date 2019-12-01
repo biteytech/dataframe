@@ -559,6 +559,19 @@ public interface DataFrame extends List<Row>, RandomAccess {
 	LongColumn longColumn(int columnIndex);
 
 	/**
+	 * Returns the {@link ShortColumn} at the specified index.
+	 * 
+	 * @param columnIndex - index of the column
+	 * 
+	 * @return the column at the specified index
+	 * 
+	 * @throws IndexOutOfBoundsException if {@code columnIndex} is negative or is
+	 *                                   not less than {@link #columnCount()}
+	 * @throws ClassCastException        if the column is not a {@code ShortColumn}
+	 */
+	ShortColumn shortColumn(int columnIndex);
+
+	/**
 	 * Returns the {@link DoubleColumn} at the specified index.
 	 * 
 	 * @param columnIndex - index of the column
@@ -692,6 +705,19 @@ public interface DataFrame extends List<Row>, RandomAccess {
 	 * @throws ClassCastException       if the column is not a {@code LongColumn}
 	 */
 	LongColumn longColumn(String columnName);
+
+	/**
+	 * Returns the specified {@link ShortColumn}
+	 * 
+	 * @param columnName - column name
+	 * 
+	 * @return the specified column
+	 * 
+	 * @throws IllegalArgumentException if {@code columnName} is not a recognized
+	 *                                  column name in this dataframe.
+	 * @throws ClassCastException       if the column is not a {@code ShortColumn}
+	 */
+	ShortColumn shortColumn(String columnName);
 
 	/**
 	 * Returns the specified {@link DoubleColumn}
@@ -1632,9 +1658,8 @@ public interface DataFrame extends List<Row>, RandomAccess {
 	 * @param columnName   - name of the column in this {@link DataFrame}.
 	 * @param defaultValue - the value to return instead of null
 	 * 
-	 * @return the value for the specified row in the specified
-	 *         {@code DoubleColumn}, or the specified {@code defaultValue} if the
-	 *         value is null.
+	 * @return the value for the specified row in the specified {@code LongColumn},
+	 *         or the specified {@code defaultValue} if the value is null.
 	 * 
 	 * @throws IndexOutOfBoundsException if {@code rowIndex} is negative or is not
 	 *                                   less than {@link #size()}
@@ -1644,6 +1669,78 @@ public interface DataFrame extends List<Row>, RandomAccess {
 	 */
 	default long getOrDefaultLong(int rowIndex, String columnName, long defaultValue) {
 		return isNull(rowIndex, columnName) ? defaultValue : getLong(rowIndex, columnName);
+	}
+
+	/**
+	 * {@code short} primitive specialization of {@link #get(int,int)}.
+	 * 
+	 * @param rowIndex    - the row index
+	 * @param columnIndex - index of the column in this {@link DataFrame}.
+	 * 
+	 * @return the value for the specified row in the specified {@code ShortColumn}.
+	 * 
+	 * @throws IndexOutOfBoundsException if {@code rowIndex} is negative or is not
+	 *                                   less than {@link #size()}
+	 * @throws IndexOutOfBoundsException if {@code columnIndex} is negative or is
+	 *                                   not less than {@link #columnCount()}
+	 * @throws ClassCastException        if the column is not a {@link ShortColumn}
+	 */
+	short getShort(int rowIndex, int columnIndex);
+
+	/**
+	 * {@code short} primitive specialization of {@link #get(int,String)}.
+	 * 
+	 * @param rowIndex   - the row index
+	 * @param columnName - name of the column in this {@link DataFrame}.
+	 * 
+	 * @return the value for the specified row in the specified {@code ShortColumn}.
+	 * 
+	 * @throws IllegalArgumentException if {@code columnName} is not a recognized
+	 *                                  column name in this dataframe.
+	 * @throws ClassCastException       if the column is not a {@link ShortColumn}
+	 */
+	short getShort(int rowIndex, String columnName);
+
+	/**
+	 * Returns the value for the specified row in the specified {@link ShortColumn},
+	 * or the specified {@code defaultValue} if the value is null.
+	 * 
+	 * @param rowIndex     - the row index
+	 * @param columnIndex  - index of the column in this {@link DataFrame}.
+	 * @param defaultValue - the value to return instead of null
+	 * 
+	 * @return the value for the specified row in the specified {@code ShortColumn},
+	 *         or the specified {@code defaultValue} if the value is null.
+	 * 
+	 * @throws IndexOutOfBoundsException if {@code rowIndex} is negative or is not
+	 *                                   less than {@link #size()}
+	 * @throws IndexOutOfBoundsException if {@code columnIndex} is negative or is
+	 *                                   not less than {@link #columnCount()}
+	 * @throws ClassCastException        if the column is not an {@link ShortColumn}
+	 */
+	default long getOrDefaultShort(int rowIndex, int columnIndex, short defaultValue) {
+		return isNull(rowIndex, columnIndex) ? defaultValue : getShort(rowIndex, columnIndex);
+	}
+
+	/**
+	 * Returns the value for the specified row in the specified {@link ShortColumn},
+	 * or the specified {@code defaultValue} if the value is null.
+	 * 
+	 * @param rowIndex     - the row index
+	 * @param columnName   - name of the column in this {@link DataFrame}.
+	 * @param defaultValue - the value to return instead of null
+	 * 
+	 * @return the value for the specified row in the specified {@code ShortColumn},
+	 *         or the specified {@code defaultValue} if the value is null.
+	 * 
+	 * @throws IndexOutOfBoundsException if {@code rowIndex} is negative or is not
+	 *                                   less than {@link #size()}
+	 * @throws IllegalArgumentException  if {@code columnName} is not a recognized
+	 *                                   column name in this dataframe.
+	 * @throws ClassCastException        if the column is not an {@link ShortColumn}
+	 */
+	default long getOrDefaultShort(int rowIndex, String columnName, short defaultValue) {
+		return isNull(rowIndex, columnName) ? defaultValue : getShort(rowIndex, columnName);
 	}
 
 	/**

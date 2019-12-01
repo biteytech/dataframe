@@ -509,6 +509,11 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 	}
 
 	@Override
+	public ShortColumn shortColumn(int columnIndex) {
+		return (ShortColumn) checkedColumn(columnIndex);
+	}
+
+	@Override
 	public DoubleColumn doubleColumn(int columnIndex) {
 		return (DoubleColumn) checkedColumn(columnIndex);
 	}
@@ -556,6 +561,11 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 	@Override
 	public LongColumn longColumn(String columnName) {
 		return (LongColumn) checkedColumn(columnName);
+	}
+
+	@Override
+	public ShortColumn shortColumn(String columnName) {
+		return (ShortColumn) checkedColumn(columnName);
 	}
 
 	@Override
@@ -1179,6 +1189,16 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 	}
 
 	@Override
+	public short getShort(int rowIndex, int columnIndex) {
+		return shortColumn(columnIndex).getShort(rowIndex);
+	}
+
+	@Override
+	public short getShort(int rowIndex, String columnName) {
+		return shortColumn(columnName).getShort(rowIndex);
+	}
+
+	@Override
 	public double getDouble(int rowIndex, int columnIndex) {
 		return doubleColumn(columnIndex).getDouble(rowIndex);
 	}
@@ -1329,6 +1349,16 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 		@Override
 		public long getLong(String columnName) {
 			return DataFrameImpl.this.getLong(rowIndex(), columnName);
+		}
+
+		@Override
+		public short getShort(int columnIndex) {
+			return DataFrameImpl.this.getShort(rowIndex(), columnIndex);
+		}
+
+		@Override
+		public short getShort(String columnName) {
+			return DataFrameImpl.this.getShort(rowIndex(), columnName);
 		}
 
 		@Override

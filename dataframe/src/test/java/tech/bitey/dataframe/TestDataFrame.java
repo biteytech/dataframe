@@ -29,6 +29,7 @@ import tech.bitey.dataframe.db.FloatFromResultSet;
 import tech.bitey.dataframe.db.IFromResultSet;
 import tech.bitey.dataframe.db.IntFromResultSet;
 import tech.bitey.dataframe.db.LongFromResultSet;
+import tech.bitey.dataframe.db.ShortFromResultSet;
 import tech.bitey.dataframe.db.StringFromResultSet;
 
 public class TestDataFrame {
@@ -46,7 +47,8 @@ public class TestDataFrame {
 		});
 
 		TestColumn[] columnTest = new TestColumn[] { new TestLongColumn(), new TestFloatColumn(),
-				new TestDoubleColumn(), new TestStringColumn(), new TestBooleanColumn(), new TestDecimalColumn() };
+				new TestDoubleColumn(), new TestStringColumn(), new TestBooleanColumn(), new TestDecimalColumn(),
+				new TestShortColumn(), };
 
 		for (TestColumn<?> tests : columnTest) {
 			tests.samples().forEach(s -> {
@@ -261,6 +263,10 @@ public class TestDataFrame {
 					case L:
 						create.append("INT8");
 						fromRsLogic.add(LongFromResultSet.LONG_FROM_LONG);
+						break;
+					case T:
+						create.append("INT2");
+						fromRsLogic.add(ShortFromResultSet.SHORT_FROM_SHORT);
 						break;
 					}
 

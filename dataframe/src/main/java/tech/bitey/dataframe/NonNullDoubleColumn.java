@@ -19,7 +19,6 @@ package tech.bitey.dataframe;
 import static java.util.Spliterator.DISTINCT;
 import static java.util.Spliterator.NONNULL;
 import static java.util.Spliterator.SORTED;
-import static tech.bitey.bufferstuff.BufferSort.inplaceSort;
 import static tech.bitey.bufferstuff.BufferUtils.EMPTY_BUFFER;
 import static tech.bitey.bufferstuff.BufferUtils.isSortedAndDistinct;
 import static tech.bitey.dataframe.DfPreconditions.checkElementIndex;
@@ -32,6 +31,7 @@ import java.util.Map;
 
 import tech.bitey.bufferstuff.BufferBitSet;
 import tech.bitey.bufferstuff.BufferSearch;
+import tech.bitey.bufferstuff.BufferSort;
 import tech.bitey.bufferstuff.BufferUtils;
 
 final class NonNullDoubleColumn extends NonNullSingleBufferColumn<Double, DoubleColumn, NonNullDoubleColumn>
@@ -177,7 +177,7 @@ final class NonNullDoubleColumn extends NonNullSingleBufferColumn<Double, Double
 
 	@Override
 	void sort() {
-		inplaceSort(elements, offset, offset + size);
+		BufferSort.sort(elements, offset, offset + size);
 	}
 
 	@Override

@@ -259,6 +259,68 @@ public interface Row {
 	}
 
 	/**
+	 * {@code short} primitive specialization of {@link #get(int)}.
+	 * 
+	 * @param columnIndex - index of the column in the parent {@link DataFrame}.
+	 * 
+	 * @return the value for this row in the specified {@code ShortColumn}.
+	 * 
+	 * @throws IndexOutOfBoundsException if {@code columnIndex} is negative or is
+	 *                                   not less than {@link #columnCount()}
+	 * @throws ClassCastException        if the column is not a {@link ShortColumn}
+	 */
+	short getShort(int columnIndex);
+
+	/**
+	 * {@code short} primitive specialization of {@link #get(int)}.
+	 * 
+	 * @param columnName - name of the column in the parent {@link DataFrame}.
+	 * 
+	 * @return the value for this row in the specified {@code ShortColumn}.
+	 * 
+	 * @throws IllegalArgumentException if {@code columnName} is not a recognized
+	 *                                  column name in the parent dataframe.
+	 * @throws ClassCastException       if the column is not a {@link ShortColumn}
+	 */
+	short getShort(String columnName);
+
+	/**
+	 * Returns the value for this row in the specified {@link ShortColumn}, or the
+	 * specified {@code defaultValue} if the value is null.
+	 * 
+	 * @param columnIndex  - index of the column in the parent {@link DataFrame}.
+	 * @param defaultValue - the value to return instead of null
+	 * 
+	 * @return the value for this row in the specified {@code ShortColumn}, or the
+	 *         specified {@code defaultValue} if the value is null.
+	 * 
+	 * @throws IndexOutOfBoundsException if {@code columnIndex} is negative or is
+	 *                                   not less than {@link #columnCount()}
+	 * @throws ClassCastException        if the column is not an {@link ShortColumn}
+	 */
+	default short getOrDefaultShort(int columnIndex, short defaultValue) {
+		return isNull(columnIndex) ? defaultValue : getShort(columnIndex);
+	}
+
+	/**
+	 * Returns the value for this row in the specified {@link ShortColumn}, or the
+	 * specified {@code defaultValue} if the value is null.
+	 * 
+	 * @param columnName   - name of the column in the parent {@link DataFrame}.
+	 * @param defaultValue - the value to return instead of null
+	 * 
+	 * @return the value for this row in the specified {@code ShortColumn}, or the
+	 *         specified {@code defaultValue} if the value is null.
+	 * 
+	 * @throws IllegalArgumentException if {@code columnName} is not a recognized
+	 *                                  column name in the parent dataframe.
+	 * @throws ClassCastException       if the column is not an {@link ShortColumn}
+	 */
+	default short getOrDefaultShort(String columnName, short defaultValue) {
+		return isNull(columnName) ? defaultValue : getShort(columnName);
+	}
+
+	/**
 	 * {@code double} primitive specialization of {@link #get(int)}.
 	 * 
 	 * @param columnIndex - index of the column in the parent {@link DataFrame}.

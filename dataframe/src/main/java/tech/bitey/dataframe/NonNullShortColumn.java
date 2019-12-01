@@ -24,7 +24,7 @@ import static tech.bitey.bufferstuff.BufferUtils.isSortedAndDistinct;
 import static tech.bitey.dataframe.DfPreconditions.checkElementIndex;
 
 import java.nio.ByteBuffer;
-import java.nio.FloatBuffer;
+import java.nio.ShortBuffer;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
@@ -34,41 +34,41 @@ import tech.bitey.bufferstuff.BufferSearch;
 import tech.bitey.bufferstuff.BufferSort;
 import tech.bitey.bufferstuff.BufferUtils;
 
-final class NonNullFloatColumn extends NonNullSingleBufferColumn<Float, FloatColumn, NonNullFloatColumn>
-		implements FloatColumn {
+final class NonNullShortColumn extends NonNullSingleBufferColumn<Short, ShortColumn, NonNullShortColumn>
+		implements ShortColumn {
 
-	static final Map<Integer, NonNullFloatColumn> EMPTY = new HashMap<>();
+	static final Map<Integer, NonNullShortColumn> EMPTY = new HashMap<>();
 	static {
-		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS, c -> new NonNullFloatColumn(EMPTY_BUFFER, 0, 0, c, false));
+		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS, c -> new NonNullShortColumn(EMPTY_BUFFER, 0, 0, c, false));
 		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED,
-				c -> new NonNullFloatColumn(EMPTY_BUFFER, 0, 0, c, false));
+				c -> new NonNullShortColumn(EMPTY_BUFFER, 0, 0, c, false));
 		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED | DISTINCT,
-				c -> new NonNullFloatColumn(EMPTY_BUFFER, 0, 0, c, false));
+				c -> new NonNullShortColumn(EMPTY_BUFFER, 0, 0, c, false));
 	}
 
-	static NonNullFloatColumn empty(int characteristics) {
+	static NonNullShortColumn empty(int characteristics) {
 		return EMPTY.get(characteristics | NONNULL_CHARACTERISTICS);
 	}
 
-	private final FloatBuffer elements;
+	private final ShortBuffer elements;
 
-	NonNullFloatColumn(ByteBuffer buffer, int offset, int size, int characteristics, boolean view) {
+	NonNullShortColumn(ByteBuffer buffer, int offset, int size, int characteristics, boolean view) {
 		super(buffer, offset, size, characteristics, view);
 
-		this.elements = buffer.asFloatBuffer();
+		this.elements = buffer.asShortBuffer();
 	}
 
 	@Override
-	NonNullFloatColumn construct(ByteBuffer buffer, int offset, int size, int characteristics, boolean view) {
-		return new NonNullFloatColumn(buffer, offset, size, characteristics, view);
+	NonNullShortColumn construct(ByteBuffer buffer, int offset, int size, int characteristics, boolean view) {
+		return new NonNullShortColumn(buffer, offset, size, characteristics, view);
 	}
 
-	float at(int index) {
+	short at(int index) {
 		return elements.get(index);
 	}
 
 	@Override
-	Float getNoOffset(int index) {
+	Short getNoOffset(int index) {
 		return at(index);
 	}
 
@@ -79,11 +79,11 @@ final class NonNullFloatColumn extends NonNullSingleBufferColumn<Float, FloatCol
 		else if (isSorted())
 			return at(offset);
 
-		float min = at(offset);
+		short min = at(offset);
 
 		for (int i = offset + 1; i <= lastIndex(); i++) {
-			float x = at(i);
-			if (Float.compare(x, min) < 0)
+			short x = at(i);
+			if (x < min)
 				min = x;
 		}
 
@@ -97,11 +97,11 @@ final class NonNullFloatColumn extends NonNullSingleBufferColumn<Float, FloatCol
 		else if (isSorted())
 			return at(lastIndex());
 
-		float max = at(offset);
+		short max = at(offset);
 
 		for (int i = offset + 1; i <= lastIndex(); i++) {
-			float x = at(i);
-			if (Float.compare(x, max) > 0)
+			short x = at(i);
+			if (x > max)
 				max = x;
 		}
 
@@ -113,19 +113,10 @@ final class NonNullFloatColumn extends NonNullSingleBufferColumn<Float, FloatCol
 		if (size == 0)
 			return Double.NaN;
 
-		double sum = 0;
+		long sum = 0;
 		for (int i = offset; i <= lastIndex(); i++)
 			sum += at(i);
-
-		// Compute initial estimate using definitional formula
-		double xbar = sum / size;
-
-		// Compute correction factor in second pass
-		double correction = 0;
-		for (int i = offset; i <= lastIndex(); i++) {
-			correction += at(i) - xbar;
-		}
-		return xbar + (correction / size);
+		return sum / (double) size;
 	}
 
 	@Override
@@ -144,12 +135,12 @@ final class NonNullFloatColumn extends NonNullSingleBufferColumn<Float, FloatCol
 		return Math.sqrt(numer / (population ? size : size - 1));
 	}
 
-	int search(float value) {
+	int search(short value) {
 		return BufferSearch.binarySearch(elements, offset, offset + size, value);
 	}
 
 	@Override
-	int search(Float value, boolean first) {
+	int search(Short value, boolean first) {
 		if (isSorted()) {
 			int index = search(value);
 			if (isDistinct() || index < 0)
@@ -159,15 +150,15 @@ final class NonNullFloatColumn extends NonNullSingleBufferColumn<Float, FloatCol
 			else
 				return BufferSearch.binaryFindLast(elements, offset + size, index);
 		} else {
-			float d = value;
+			short d = value;
 
 			if (first) {
 				for (int i = offset; i <= lastIndex(); i++)
-					if (Float.compare(at(i), d) == 0)
+					if (Short.compare(at(i), d) == 0)
 						return i;
 			} else {
 				for (int i = lastIndex(); i >= offset; i--)
-					if (Float.compare(at(i), d) == 0)
+					if (Short.compare(at(i), d) == 0)
 						return i;
 			}
 
@@ -196,24 +187,24 @@ final class NonNullFloatColumn extends NonNullSingleBufferColumn<Float, FloatCol
 	}
 
 	@Override
-	NonNullFloatColumn empty() {
+	NonNullShortColumn empty() {
 		return EMPTY.get(characteristics);
 	}
 
 	@Override
-	public Comparator<Float> comparator() {
-		return Float::compareTo;
+	public Comparator<Short> comparator() {
+		return Short::compareTo;
 	}
 
 	@Override
-	public float getFloat(int index) {
+	public short getShort(int index) {
 		checkElementIndex(index, size);
 		return at(index + offset);
 	}
 
 	@Override
-	public ColumnType<Float> getType() {
-		return ColumnType.FLOAT;
+	public ColumnType<Short> getType() {
+		return ColumnType.SHORT;
 	}
 
 	@Override
@@ -221,42 +212,41 @@ final class NonNullFloatColumn extends NonNullSingleBufferColumn<Float, FloatCol
 		// from Arrays::hashCode
 		int result = 1;
 		for (int i = fromIndex; i <= toIndex; i++) {
-			int bits = Float.floatToIntBits(at(i));
-			result = 31 * result + bits;
+			result = 31 * result + at(i);
 		}
 		return result;
 	}
 
 	@Override
-	NonNullFloatColumn applyFilter0(BufferBitSet keep, int cardinality) {
+	NonNullShortColumn applyFilter0(BufferBitSet keep, int cardinality) {
 
 		ByteBuffer buffer = allocate(cardinality);
 		for (int i = offset; i <= lastIndex(); i++)
 			if (keep.get(i - offset))
-				buffer.putFloat(at(i));
+				buffer.putShort(at(i));
 		buffer.flip();
 
-		return new NonNullFloatColumn(buffer, 0, cardinality, characteristics, false);
+		return new NonNullShortColumn(buffer, 0, cardinality, characteristics, false);
 	}
 
 	@Override
-	NonNullFloatColumn select0(IntColumn indices) {
+	NonNullShortColumn select0(IntColumn indices) {
 
 		ByteBuffer buffer = allocate(indices.size());
 		for (int i = 0; i < indices.size(); i++)
-			buffer.putFloat(at(indices.getInt(i) + offset));
+			buffer.putShort(at(indices.getInt(i) + offset));
 		buffer.flip();
 
 		return construct(buffer, 0, indices.size(), NONNULL, false);
 	}
 
 	@Override
-	int compareValuesAt(NonNullFloatColumn rhs, int l, int r) {
-		return Float.compare(at(l + offset), rhs.at(r + rhs.offset));
+	int compareValuesAt(NonNullShortColumn rhs, int l, int r) {
+		return Short.compare(at(l + offset), rhs.at(r + rhs.offset));
 	}
 
 	@Override
-	void intersectLeftSorted(NonNullFloatColumn rhs, IntColumnBuilder indices, BufferBitSet keepRight) {
+	void intersectLeftSorted(NonNullShortColumn rhs, IntColumnBuilder indices, BufferBitSet keepRight) {
 
 		for (int i = rhs.offset; i <= rhs.lastIndex(); i++) {
 
@@ -271,11 +261,11 @@ final class NonNullFloatColumn extends NonNullSingleBufferColumn<Float, FloatCol
 
 	@Override
 	boolean checkType(Object o) {
-		return o instanceof Float;
+		return o instanceof Short;
 	}
 
 	@Override
-	IntColumn sortIndices(NonNullFloatColumn distinct) {
+	IntColumn sortIndices(NonNullShortColumn distinct) {
 		IntColumnBuilder indices = new IntColumnBuilder(NONNULL);
 		indices.ensureCapacity(size());
 
@@ -289,6 +279,6 @@ final class NonNullFloatColumn extends NonNullSingleBufferColumn<Float, FloatCol
 
 	@Override
 	int elementSize() {
-		return 4;
+		return 2;
 	}
 }

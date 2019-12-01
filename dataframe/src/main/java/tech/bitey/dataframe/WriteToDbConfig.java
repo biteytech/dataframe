@@ -32,6 +32,7 @@ import tech.bitey.dataframe.db.FloatToStatement;
 import tech.bitey.dataframe.db.IToPreparedStatement;
 import tech.bitey.dataframe.db.IntToStatement;
 import tech.bitey.dataframe.db.LongToStatement;
+import tech.bitey.dataframe.db.ShortToStatement;
 import tech.bitey.dataframe.db.StringToStatement;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -95,6 +96,9 @@ public class WriteToDbConfig {
 					break;
 				case L:
 					toPsLogic[i] = LongToStatement.LONG_TO_LONG;
+					break;
+				case T:
+					toPsLogic[i] = ShortToStatement.SHORT_TO_SHORT;
 					break;
 				case S:
 					toPsLogic[i] = StringToStatement.STRING_TO_STRING;

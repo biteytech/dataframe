@@ -9,6 +9,7 @@ public enum ColumnTypeCode {
 	F, // Float
 	I, // Int
 	L, // Long
+	T, // Short
 	S, // String
 	BD; // Decimal
 
@@ -28,6 +29,8 @@ public enum ColumnTypeCode {
 			return ColumnType.INT;
 		case L:
 			return ColumnType.LONG;
+		case T:
+			return ColumnType.SHORT;
 		case S:
 			return ColumnType.STRING;
 		case BD:
