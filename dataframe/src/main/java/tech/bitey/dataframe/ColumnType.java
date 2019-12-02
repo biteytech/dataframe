@@ -29,6 +29,7 @@ import static tech.bitey.dataframe.ColumnTypeCode.I;
 import static tech.bitey.dataframe.ColumnTypeCode.L;
 import static tech.bitey.dataframe.ColumnTypeCode.S;
 import static tech.bitey.dataframe.ColumnTypeCode.T;
+import static tech.bitey.dataframe.ColumnTypeCode.Y;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -83,6 +84,9 @@ public class ColumnType<E> {
 
 	/** The type for {@link StringColumn} */
 	public static final ColumnType<String> STRING = new ColumnType<>(S);
+
+	/** The type for {@link StringColumn} */
+	public static final ColumnType<Byte> BYTE = new ColumnType<>(Y);
 
 	/** The type for {@link DecimalColumn} */
 	public static final ColumnType<BigDecimal> DECIMAL = new ColumnType<>(BD);
@@ -146,6 +150,8 @@ public class ColumnType<E> {
 			return (ColumnBuilder<T>) LongColumn.builder(characteristic);
 		case T:
 			return (ColumnBuilder<T>) ShortColumn.builder(characteristic);
+		case Y:
+			return (ColumnBuilder<T>) ByteColumn.builder(characteristic);
 		case S:
 			return (ColumnBuilder<T>) StringColumn.builder(characteristic);
 		case BD:
@@ -230,6 +236,13 @@ public class ColumnType<E> {
 				return column;
 			else
 				return new NullableShortColumn(column, nonNulls, null, 0, size);
+		}
+		case Y: {
+			NonNullByteColumn column = NonNullByteColumn.empty(characteristics).readFrom(channel);
+			if (nonNulls == null)
+				return column;
+			else
+				return new NullableByteColumn(column, nonNulls, null, 0, size);
 		}
 		case S: {
 			NonNullStringColumn column = NonNullStringColumn.empty(characteristics).readFrom(channel);
@@ -339,6 +352,8 @@ public class ColumnType<E> {
 			return Long.valueOf(string);
 		case T:
 			return Short.valueOf(string);
+		case Y:
+			return Byte.valueOf(string);
 		case S:
 			return string;
 		case BD:

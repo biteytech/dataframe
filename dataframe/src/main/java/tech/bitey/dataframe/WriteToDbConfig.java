@@ -24,6 +24,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 import tech.bitey.dataframe.db.BooleanToStatement;
+import tech.bitey.dataframe.db.ByteToStatement;
 import tech.bitey.dataframe.db.DateTimeToStatement;
 import tech.bitey.dataframe.db.DateToStatement;
 import tech.bitey.dataframe.db.DecimalToStatement;
@@ -99,6 +100,9 @@ public class WriteToDbConfig {
 					break;
 				case T:
 					toPsLogic[i] = ShortToStatement.SHORT_TO_SHORT;
+					break;
+				case Y:
+					toPsLogic[i] = ByteToStatement.BYTE_TO_BYTE;
 					break;
 				case S:
 					toPsLogic[i] = StringToStatement.STRING_TO_STRING;

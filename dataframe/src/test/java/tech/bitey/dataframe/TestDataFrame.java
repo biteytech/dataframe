@@ -21,6 +21,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import tech.bitey.dataframe.db.BooleanFromResultSet;
+import tech.bitey.dataframe.db.ByteFromResultSet;
 import tech.bitey.dataframe.db.DateFromResultSet;
 import tech.bitey.dataframe.db.DateTimeFromResultSet;
 import tech.bitey.dataframe.db.DecimalFromResultSet;
@@ -48,7 +49,7 @@ public class TestDataFrame {
 
 		TestColumn[] columnTest = new TestColumn[] { new TestLongColumn(), new TestFloatColumn(),
 				new TestDoubleColumn(), new TestStringColumn(), new TestBooleanColumn(), new TestDecimalColumn(),
-				new TestShortColumn(), };
+				new TestShortColumn(), new TestByteColumn() };
 
 		for (TestColumn<?> tests : columnTest) {
 			tests.samples().forEach(s -> {
@@ -267,6 +268,10 @@ public class TestDataFrame {
 					case T:
 						create.append("INT2");
 						fromRsLogic.add(ShortFromResultSet.SHORT_FROM_SHORT);
+						break;
+					case Y:
+						create.append("INT2");
+						fromRsLogic.add(ByteFromResultSet.BYTE_FROM_BYTE);
 						break;
 					}
 

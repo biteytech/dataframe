@@ -24,6 +24,7 @@ public class TestNumericColumn {
 		test(new int[] { -2, -4, -6, -8 });
 		test(new int[] { 80, 72, 95, 27, 56, 71, 73, 92, 37, 84 });
 		test(new int[] { 20000, -10000, 0, 1, 10000 });
+		test(new int[] { Byte.MAX_VALUE, Byte.MIN_VALUE });
 		test(new int[] { Short.MAX_VALUE, Short.MIN_VALUE });
 		test(new int[] { 2000000000, -1000000000, 0, 1, 1000000000 });
 		test(new int[] { Integer.MAX_VALUE / 100, Integer.MIN_VALUE / 100 });
@@ -47,6 +48,8 @@ public class TestNumericColumn {
 
 		if (values[0] <= Short.MAX_VALUE)
 			test("Short", ShortColumn.of(toShort(values)), min, max, mean, population, sample);
+		if (values[0] <= Byte.MAX_VALUE)
+			test("Byte", ByteColumn.of(toByte(values)), min, max, mean, population, sample);
 	}
 
 	private static void test(String columnType, NumericColumn<?> column, double min, double max, double mean,
@@ -77,6 +80,13 @@ public class TestNumericColumn {
 		Short[] array = new Short[values.length];
 		for (int i = 0; i < values.length; i++)
 			array[i] = (short) values[i];
+		return array;
+	}
+
+	private static Byte[] toByte(int[] values) {
+		Byte[] array = new Byte[values.length];
+		for (int i = 0; i < values.length; i++)
+			array[i] = (byte) values[i];
 		return array;
 	}
 

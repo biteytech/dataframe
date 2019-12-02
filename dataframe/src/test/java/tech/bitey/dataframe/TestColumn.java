@@ -401,6 +401,9 @@ abstract class TestColumn<E extends Comparable<E>> {
 
 		int[] sizes = { 7, 8, 9, 127, 128, 129, 1023, 1024, 1025 };
 		for (int size : sizes) {
+			if (this instanceof TestByteColumn && size > 127)
+				break;
+
 			samples.add(wrapSample("allNull_" + size, allNull(size)));
 			samples.add(wrapSample("random_" + size, random(size)));
 			samples.add(wrapSample("NXNX_" + size, NXNX(size)));

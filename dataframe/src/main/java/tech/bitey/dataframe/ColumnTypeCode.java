@@ -10,6 +10,7 @@ public enum ColumnTypeCode {
 	I, // Int
 	L, // Long
 	T, // Short
+	Y, // Byte
 	S, // String
 	BD; // Decimal
 
@@ -31,6 +32,8 @@ public enum ColumnTypeCode {
 			return ColumnType.LONG;
 		case T:
 			return ColumnType.SHORT;
+		case Y:
+			return ColumnType.BYTE;
 		case S:
 			return ColumnType.STRING;
 		case BD:
