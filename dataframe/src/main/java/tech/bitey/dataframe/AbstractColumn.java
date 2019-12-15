@@ -261,9 +261,13 @@ abstract class AbstractColumn<E, I extends Column<E>, C extends AbstractColumn<E
 
 	@Override
 	public <T> T[] toArray(T[] a) {
+		return toArray(a, this);
+	}
 
-		final int size = size();
-		final Iterator<E> iter = iterator();
+	static <T, E> T[] toArray(T[] a, Column<E> column) {
+
+		final int size = column.size();
+		final Iterator<E> iter = column.iterator();
 
 		if (size <= a.length) {
 			int i = 0;
