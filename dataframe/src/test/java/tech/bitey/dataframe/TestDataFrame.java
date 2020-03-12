@@ -3,11 +3,13 @@ package tech.bitey.dataframe;
 import static java.util.Spliterator.DISTINCT;
 
 import java.io.File;
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -444,6 +446,48 @@ public class TestDataFrame {
 		} catch (IllegalStateException e) {
 			// ok
 		}
+	}
+
+	@Test
+	public void testIndexOrganize2() {
+
+		String[] names = { "A", "B", "C", "D", "E", "F", "G", "H", "I" };
+
+		Column<?>[] unsorted = new Column<?>[9];
+		{
+			unsorted[0] = ByteColumn.of((byte) 4, (byte) 3, (byte) 1, (byte) 2, (byte) 5);
+			unsorted[1] = ShortColumn.of((short) 4, (short) 3, (short) 1, (short) 2, (short) 5);
+			unsorted[2] = IntColumn.of(4, 3, 1, 2, 5);
+			unsorted[3] = FloatColumn.of(4f, 3f, 1f, 2f, 5f);
+			unsorted[4] = DoubleColumn.of(4d, 3d, 1d, 2d, 5d);
+			unsorted[5] = StringColumn.of("4", "3", "1", "2", "5");
+			unsorted[6] = DecimalColumn.of(new BigDecimal("4"), new BigDecimal("3"), new BigDecimal("1"),
+					new BigDecimal("2"), new BigDecimal("5"));
+
+			int yyyymmd0 = 20190100;
+
+			unsorted[7] = DateColumn.of(fromInt(yyyymmd0 + 4), fromInt(yyyymmd0 + 3), fromInt(yyyymmd0 + 1),
+					fromInt(yyyymmd0 + 2), fromInt(yyyymmd0 + 5));
+
+			unsorted[8] = DateTimeColumn.of(fromInt(yyyymmd0 + 4).atStartOfDay(), fromInt(yyyymmd0 + 3).atStartOfDay(),
+					fromInt(yyyymmd0 + 1).atStartOfDay(), fromInt(yyyymmd0 + 2).atStartOfDay(),
+					fromInt(yyyymmd0 + 5).atStartOfDay());
+		}
+
+		Column<?>[] sorted = new Column<?>[unsorted.length];
+		for (int i = 0; i < sorted.length; i++)
+			sorted[i] = unsorted[i].toDistinct();
+
+		DataFrame expected = DataFrameFactory.create(sorted, names);
+
+		for (int i = 0; i < unsorted.length; i++) {
+			DataFrame df = DataFrameFactory.create(unsorted, names);
+			Assertions.assertEquals(expected.withKeyColumn(i), df.indexOrganize(i));
+		}
+	}
+
+	private static LocalDate fromInt(int yyyymmdd) {
+		return LocalDate.of(yyyymmdd / 10000, yyyymmdd % 10000 / 100, yyyymmdd % 100);
 	}
 
 	DataFrame getDf(String label) {

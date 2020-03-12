@@ -24,7 +24,7 @@ import java.time.LocalDateTime;
 import tech.bitey.dataframe.DateTimeColumn;
 
 public enum DateTimeToStatement implements IToPreparedStatement<DateTimeColumn> {
-	DATETIME_FROM_TIMESTAMP {
+	DATETIME_TO_TIMESTAMP {
 
 		@Override
 		public void set(DateTimeColumn column, int rowIndex, PreparedStatement ps, int paramIndex) throws SQLException {

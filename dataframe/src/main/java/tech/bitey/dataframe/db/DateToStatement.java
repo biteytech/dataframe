@@ -34,7 +34,7 @@ public enum DateToStatement implements IToPreparedStatement<DateColumn> {
 				int yyyymmdd = column.yyyymmdd(rowIndex);
 
 				@SuppressWarnings("deprecation")
-				Date date = new Date(yyyymmdd % 10000 - 1900, yyyymmdd % 10000 / 100 - 1, yyyymmdd % 100);
+				Date date = new Date(yyyymmdd / 10000 - 1900, yyyymmdd % 10000 / 100 - 1, yyyymmdd % 100);
 				ps.setDate(paramIndex, date);
 			}
 		}

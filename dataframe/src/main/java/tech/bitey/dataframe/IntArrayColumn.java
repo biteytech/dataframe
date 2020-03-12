@@ -156,15 +156,15 @@ abstract class IntArrayColumn<E, I extends Column<E>, C extends IntArrayColumn<E
 
 	@Override
 	IntColumn sortIndices(C distinct) {
-		IntColumnBuilder indices = new IntColumnBuilder(NONNULL);
-		indices.ensureCapacity(size());
+		ByteBuffer buffer = BufferUtils.allocate(size() * 4);
+		IntBuffer indices = buffer.asIntBuffer();
 
-		for (int i = offset; i <= lastIndex(); i++) {
+		for (int i = offset, j = 0; i <= lastIndex(); i++, j++) {
 			int index = distinct.search(at(i));
-			indices.add(index);
+			indices.put(index, j);
 		}
 
-		return indices.build();
+		return NonNullIntColumn.sortIndices(buffer);
 	}
 
 	@Override

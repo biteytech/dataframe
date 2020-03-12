@@ -81,7 +81,7 @@ public class WriteToDbConfig {
 					toPsLogic[i] = DateToStatement.DATE_TO_DATE;
 					break;
 				case DT:
-					toPsLogic[i] = DateTimeToStatement.DATETIME_FROM_TIMESTAMP;
+					toPsLogic[i] = DateTimeToStatement.DATETIME_TO_TIMESTAMP;
 					break;
 				case BD:
 					toPsLogic[i] = DecimalToStatement.BIGDECIMAL_TO_BIGDECIMAL;

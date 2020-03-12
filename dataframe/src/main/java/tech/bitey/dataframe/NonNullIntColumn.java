@@ -51,6 +51,10 @@ final class NonNullIntColumn extends IntArrayColumn<Integer, IntColumn, NonNullI
 		return new NonNullIntColumn(buffer, offset, size, characteristics, view);
 	}
 
+	static NonNullIntColumn sortIndices(ByteBuffer buffer) {
+		return new NonNullIntColumn(buffer, 0, buffer.capacity() / 4, 0, false);
+	}
+
 	@Override
 	public double min() {
 		if (size == 0)

@@ -429,14 +429,14 @@ abstract class NonNullVarLenColumn<E extends Comparable<E>, I extends Column<E>,
 
 	@Override
 	IntColumn sortIndices(C distinct) {
-		IntColumnBuilder indices = new IntColumnBuilder(NONNULL);
-		indices.ensureCapacity(size());
+		ByteBuffer buffer = BufferUtils.allocate(size() * 4);
+		IntBuffer indices = buffer.asIntBuffer();
 
-		for (int i = offset; i <= lastIndex(); i++) {
+		for (int i = offset, j = 0; i <= lastIndex(); i++, j++) {
 			int index = distinct.search(getNoOffset(i));
-			indices.add(index);
+			indices.put(index, j);
 		}
 
-		return indices.build();
+		return NonNullIntColumn.sortIndices(buffer);
 	}
 }

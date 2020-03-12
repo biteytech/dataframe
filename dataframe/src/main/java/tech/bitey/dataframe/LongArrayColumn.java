@@ -20,6 +20,7 @@ import static java.util.Spliterator.NONNULL;
 import static tech.bitey.bufferstuff.BufferUtils.isSortedAndDistinct;
 
 import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
 import java.nio.LongBuffer;
 
 import tech.bitey.bufferstuff.BufferBitSet;
@@ -158,15 +159,15 @@ abstract class LongArrayColumn<E, I extends Column<E>, C extends LongArrayColumn
 
 	@Override
 	IntColumn sortIndices(C distinct) {
-		IntColumnBuilder indices = new IntColumnBuilder(NONNULL);
-		indices.ensureCapacity(size());
+		ByteBuffer buffer = BufferUtils.allocate(size() * 4);
+		IntBuffer indices = buffer.asIntBuffer();
 
-		for (int i = offset; i <= lastIndex(); i++) {
+		for (int i = offset, j = 0; i <= lastIndex(); i++, j++) {
 			int index = distinct.search(at(i));
-			indices.add(index);
+			indices.put(index, j);
 		}
 
-		return indices.build();
+		return NonNullIntColumn.sortIndices(buffer);
 	}
 
 	@Override
