@@ -17,6 +17,7 @@
 package tech.bitey.dataframe;
 
 import static tech.bitey.bufferstuff.BufferUtils.duplicate;
+import static tech.bitey.dataframe.DfPreconditions.checkState;
 
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
@@ -26,11 +27,20 @@ import tech.bitey.bufferstuff.BufferUtils;
 abstract class SingleBufferColumnBuilder<E, F extends Buffer, C extends Column<E>, B extends SingleBufferColumnBuilder<E, F, C, B>>
 		extends AbstractColumnBuilder<E, C, B> {
 
+	/**
+	 * From {@code AbstractCollection}
+	 * <p>
+	 * The maximum size of array to allocate. Some VMs reserve some header words in
+	 * an array. Attempts to allocate larger arrays may result in OutOfMemoryError:
+	 * Requested array size exceeds VM limit
+	 */
+	private static final int MAX_ARRAY_SIZE = Integer.MAX_VALUE - 8;
+
 	SingleBufferColumnBuilder(int characteristics) {
 		super(characteristics);
 	}
 
-	ByteBuffer buffer = allocate(8);
+	ByteBuffer buffer = allocate(16);
 	F elements = asBuffer(buffer);
 
 	abstract F asBuffer(ByteBuffer buffer);
@@ -50,36 +60,45 @@ abstract class SingleBufferColumnBuilder<E, F extends Buffer, C extends Column<E
 		return BufferUtils.allocate(capacity * elementSize());
 	}
 
-	private void extendCapacity(int newCapacity) {
-		ByteBuffer extended = allocate(newCapacity);
-		buffer.position(elements.limit() * elementSize());
-		buffer.flip();
-		extended.put(buffer);
-
-		buffer = extended;
-		resetElementBuffer();
-	}
-
 	@Override
-	void ensureAdditionalCapacity(int required) {
-		if (elements.remaining() < required) {
-			elements.flip();
-
-			int additionalCapacity = elements.limit() >>> 1;
-			additionalCapacity = Math.max(additionalCapacity, required);
-
-			extendCapacity(elements.limit() + additionalCapacity);
-		}
+	void ensureAdditionalCapacity(int additionalCapacity) {
+		ensureCapacity(elements.position() + additionalCapacity);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public B ensureCapacity(int minCapacity) {
 		if (elements.capacity() < minCapacity) {
-			elements.flip();
-			extendCapacity(minCapacity);
+
+			int expandedCapacity = expandedCapacity(elements.capacity(), minCapacity);
+			ByteBuffer extended = allocate(expandedCapacity);
+			buffer.position(elements.position() * elementSize());
+			buffer.flip();
+			extended.put(buffer);
+
+			buffer = extended;
+			resetElementBuffer();
 		}
 		return (B) this;
+	}
+
+	// from Guava's ImmutableCollection.Builder
+	private int expandedCapacity(int oldCapacity, int minCapacity) {
+
+		final int maxCapacity = MAX_ARRAY_SIZE / elementSize();
+
+		checkState(minCapacity >= 0 && minCapacity <= maxCapacity,
+				"cannot store more than " + maxCapacity + " elements");
+
+		// careful of overflow!
+		int newCapacity = oldCapacity + (oldCapacity >> 1) + 1;
+		if (newCapacity < minCapacity) {
+			newCapacity = Integer.highestOneBit(minCapacity - 1) << 1;
+		}
+		if (newCapacity < 0 || newCapacity > maxCapacity) {
+			newCapacity = maxCapacity;
+		}
+		return newCapacity;
 	}
 
 	@Override

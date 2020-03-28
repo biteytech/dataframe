@@ -25,6 +25,8 @@ import static tech.bitey.dataframe.NonNullColumn.NONNULL_CHARACTERISTICS;
 
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
+import java.util.RandomAccess;
 
 import tech.bitey.bufferstuff.BufferBitSet;
 
@@ -158,15 +160,18 @@ abstract class AbstractColumnBuilder<E, C extends Column<E>, B extends AbstractC
 		return addAll(rest);
 	}
 
-	abstract void ensureAdditionalCapacity(int required);
-
-	@Override
-	public abstract B ensureCapacity(int minCapacity);
+	abstract void ensureAdditionalCapacity(int additionalCapacity);
 
 	@Override
 	public B addAll(E[] elements) {
 
-		ensureAdditionalCapacity(elements.length);
+		int nonNullCount = 0;
+		for (E e : elements)
+			if (e != null)
+				nonNullCount++;
+
+		if (nonNullCount > 0)
+			ensureAdditionalCapacity(nonNullCount);
 
 		for (E e : elements)
 			add(e);
@@ -179,7 +184,18 @@ abstract class AbstractColumnBuilder<E, C extends Column<E>, B extends AbstractC
 	@Override
 	public B addAll(Collection<E> elements) {
 
-		ensureAdditionalCapacity(elements.size());
+		if (elements instanceof List && elements instanceof RandomAccess) {
+
+			List<E> list = (List<E>) elements;
+
+			int nonNullCount = 0;
+			for (int i = 0; i < list.size(); i++)
+				if (list.get(i) != null)
+					nonNullCount++;
+
+			if (nonNullCount > 0)
+				ensureAdditionalCapacity(nonNullCount);
+		}
 
 		return addAll(elements.iterator());
 	}

@@ -84,7 +84,7 @@ public final class BooleanColumnBuilder extends AbstractColumnBuilder<Boolean, B
 	}
 
 	@Override
-	void ensureAdditionalCapacity(int size) {
+	void ensureAdditionalCapacity(int additionalCapacity) {
 		// noop
 	}
 

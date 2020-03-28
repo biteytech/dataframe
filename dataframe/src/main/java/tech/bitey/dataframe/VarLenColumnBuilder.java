@@ -49,8 +49,8 @@ abstract class VarLenColumnBuilder<E extends Comparable<E>, C extends Column<E>,
 	}
 
 	@Override
-	void ensureAdditionalCapacity(int size) {
-		elements.ensureCapacity(elements.size() + size);
+	void ensureAdditionalCapacity(int additionalCapacity) {
+		elements.ensureCapacity(elements.size() + additionalCapacity);
 	}
 
 	@Override
