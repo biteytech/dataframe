@@ -40,7 +40,7 @@ abstract class NullableColumn<E, I extends Column<E>, C extends NonNullColumn<E,
 	final IntBuffer nullCounts;
 
 	NullableColumn(C column, BufferBitSet nonNulls, IntBuffer nullCounts, int offset, int size) {
-		super(offset, size, nullCounts == null || offset > 0);
+		super(offset, size);
 
 		if (column.view)
 			column = column.slice();

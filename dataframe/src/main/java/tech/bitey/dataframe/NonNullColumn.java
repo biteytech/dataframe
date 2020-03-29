@@ -37,11 +37,13 @@ abstract class NonNullColumn<E, I extends Column<E>, C extends NonNullColumn<E, 
 	static final int NONNULL_CHARACTERISTICS = BASE_CHARACTERISTICS | NONNULL;
 
 	final int characteristics;
+	final boolean view;
 
 	NonNullColumn(int offset, int size, int characteristics, boolean view) {
-		super(offset, size, view);
+		super(offset, size);
 
 		this.characteristics = NONNULL_CHARACTERISTICS | characteristics;
+		this.view = view;
 	}
 
 	@Override
