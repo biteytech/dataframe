@@ -49,12 +49,11 @@ abstract class NullableColumn<E, I extends Column<E>, C extends NonNullColumn<E,
 		this.nonNulls = nonNulls;
 
 		if (nullCounts == null) {
-			final int words = (size - 1) / 32;
-			this.nullCounts = BufferUtils.allocate(words * 4).asIntBuffer();
-			for (int i = 0, w = 0, count = 0; w < words; w++) {
-				for (int j = 0; i < size && j < 32; j++, i++)
-					if (!nonNulls.get(i))
-						count++;
+			final int words = (size - 1) / 32 + 1;
+			this.nullCounts = BufferUtils.allocate((words + 1) * 4).asIntBuffer();
+			this.nullCounts.put(0, 0);
+			for (int i = 0, w = 1, count = 0; w <= words; w++) {
+				count += 32 - nonNulls.cardinality(i, i += 32);
 				this.nullCounts.put(w, count);
 			}
 		} else
@@ -113,14 +112,10 @@ abstract class NullableColumn<E, I extends Column<E>, C extends NonNullColumn<E,
 	int nonNullIndex(int index) {
 
 		// count null bits before index
-		int word = (index - 1) / 32;
-		int count = word == 0 ? 0 : nullCounts.get(word - 1);
+		final int word = (index - 1) / 32;
+		final int from = word << 5;
 
-		for (int i = word * 32; i < index; i++)
-			if (!nonNulls.get(i))
-				count++;
-
-		return index - count;
+		return from + nonNulls.cardinality(from, index) - nullCounts.get(word);
 	}
 
 	private int nullIndex(int index) {

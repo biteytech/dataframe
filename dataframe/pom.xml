@@ -5,7 +5,7 @@
 
 	<groupId>tech.bitey</groupId>
 	<artifactId>dataframe</artifactId>
-	<version>0.3.2</version>
+	<version>0.3.3</version>
 	<packaging>jar</packaging>
 
 	<name>${project.groupId}:${project.artifactId}</name>
@@ -123,7 +123,7 @@
 		<dependency>
 			<groupId>tech.bitey</groupId>
 			<artifactId>bufferstuff</artifactId>
-			<version>0.5.0</version>
+			<version>0.5.1</version>
 		</dependency>
 
 		<dependency>
