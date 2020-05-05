@@ -16,12 +16,19 @@
 
 package tech.bitey.dataframe;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
+
+import org.junit.jupiter.api.Test;
 
 public class TestStringColumn extends TestColumn<String> {
 
@@ -143,6 +150,40 @@ public class TestStringColumn extends TestColumn<String> {
 	@Override
 	String[] notPresent() {
 		return new String[] { "-2378457", "-347700", "-88" };
+	}
+
+	@Test
+	public void testParse() {
+
+		StringColumn s = StringColumn.of(null, "true", null, "false", null).subColumn(1, 4);
+		assertEquals(BooleanColumn.of(true, null, false), s.parseBoolean(), "parseBoolean");
+
+		s = StringColumn.of("2020-05-04");
+		assertEquals(DateColumn.of(LocalDate.parse("2020-05-04")), s.parseDate(), "parseDate");
+
+		s = StringColumn.of("2020-05-04T10:01");
+		assertEquals(DateTimeColumn.of(LocalDateTime.parse("2020-05-04T10:01")), s.parseDateTime(), "parseDateTime");
+
+		s = StringColumn.of("1.0", "NaN", "-5e5");
+		assertEquals(DoubleColumn.of(1.0, Double.NaN, -500000.0), s.parseDouble(), "parseDouble");
+
+		s = StringColumn.of("1.0", "NaN", "-5e5");
+		assertEquals(FloatColumn.of(1f, Float.NaN, -500000f), s.parseFloat(), "parseFloat");
+
+		s = StringColumn.of("-1", "0", "" + Integer.MAX_VALUE);
+		assertEquals(IntColumn.of(-1, 0, Integer.MAX_VALUE), s.parseInt(), "parseInt");
+
+		s = StringColumn.of("-1", "0", "" + Long.MAX_VALUE);
+		assertEquals(LongColumn.of(-1L, 0L, Long.MAX_VALUE), s.parseLong(), "parseLong");
+
+		s = StringColumn.of("-1", "0", "" + Short.MAX_VALUE);
+		assertEquals(ShortColumn.of((short) -1, (short) 0, Short.MAX_VALUE), s.parseShort(), "parseShort");
+
+		s = StringColumn.of("-1", "0", "" + Byte.MAX_VALUE);
+		assertEquals(ByteColumn.of((byte) -1, (byte) 0, Byte.MAX_VALUE), s.parseByte(), "parseByte");
+
+		s = StringColumn.of("-1", "0");
+		assertEquals(DecimalColumn.of(BigDecimal.ONE.negate(), BigDecimal.ZERO), s.parseDecimal(), "parseDecmial");
 	}
 
 	// 1026 values

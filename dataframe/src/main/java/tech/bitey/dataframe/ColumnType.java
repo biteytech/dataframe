@@ -332,14 +332,9 @@ public class ColumnType<E> {
 	public Object parse(String string) {
 		switch (getCode()) {
 		case B:
-			return "true".equalsIgnoreCase(string) || "Y".equalsIgnoreCase(string);
-		case DA: {
-			if (string.length() == 8) {
-				int yyyymmdd = Integer.parseInt(string);
-				return LocalDate.of(yyyymmdd / 10000, yyyymmdd % 10000 / 100, yyyymmdd % 100);
-			} else
-				return LocalDate.parse(string);
-		}
+			return Boolean.valueOf(parseBoolean(string));
+		case DA:
+			return parseDate(string);
 		case DT:
 			return LocalDateTime.parse(string);
 		case D:
@@ -360,5 +355,17 @@ public class ColumnType<E> {
 			return new BigDecimal(string);
 		}
 		throw new IllegalStateException();
+	}
+
+	public static boolean parseBoolean(String string) {
+		return "true".equalsIgnoreCase(string) || "Y".equalsIgnoreCase(string);
+	}
+
+	public static LocalDate parseDate(String string) {
+		if (string.length() == 8) {
+			int yyyymmdd = Integer.parseInt(string);
+			return LocalDate.of(yyyymmdd / 10000, yyyymmdd % 10000 / 100, yyyymmdd % 100);
+		} else
+			return LocalDate.parse(string);
 	}
 }

@@ -139,4 +139,114 @@ public interface StringColumn extends Column<String> {
 	public static Collector<String, ?, StringColumn> collector() {
 		return collector(0);
 	}
+
+	/**
+	 * Convert this column into a {@link BooleanColumn} by applying the same logic
+	 * as in {@link ColumnType#parse(String)} to each non-null element. Nulls are
+	 * preserved as-is.
+	 * <p>
+	 * The resulting column will not be flagged as sorted or distinct.
+	 * 
+	 * @return A {@link BooleanColumn} created from this column in the obvious way.
+	 */
+	public BooleanColumn parseBoolean();
+
+	/**
+	 * Convert this column into a {@link DateColumn} by applying the same logic as
+	 * in {@link ColumnType#parse(String)} to each non-null element. Nulls are
+	 * preserved as-is.
+	 * <p>
+	 * The resulting column will not be flagged as sorted or distinct.
+	 * 
+	 * @return A {@link DateColumn} created from this column in the obvious way.
+	 */
+	public DateColumn parseDate();
+
+	/**
+	 * Convert this column into a {@link DateTimeColumn} by applying the same logic
+	 * as in {@link ColumnType#parse(String)} to each non-null element. Nulls are
+	 * preserved as-is.
+	 * <p>
+	 * The resulting column will not be flagged as sorted or distinct.
+	 * 
+	 * @return A {@link DateTimeColumn} created from this column in the obvious way.
+	 */
+	public DateTimeColumn parseDateTime();
+
+	/**
+	 * Convert this column into a {@link DoubleColumn} by applying the same logic as
+	 * in {@link ColumnType#parse(String)} to each non-null element. Nulls are
+	 * preserved as-is.
+	 * <p>
+	 * The resulting column will not be flagged as sorted or distinct.
+	 * 
+	 * @return A {@link DoubleColumn} created from this column in the obvious way.
+	 */
+	public DoubleColumn parseDouble();
+
+	/**
+	 * Convert this column into a {@link FloatColumn} by applying the same logic as
+	 * in {@link ColumnType#parse(String)} to each non-null element. Nulls are
+	 * preserved as-is.
+	 * <p>
+	 * The resulting column will not be flagged as sorted or distinct.
+	 * 
+	 * @return A {@link FloatColumn} created from this column in the obvious way.
+	 */
+	public FloatColumn parseFloat();
+
+	/**
+	 * Convert this column into a {@link IntColumn} by applying the same logic as in
+	 * {@link ColumnType#parse(String)} to each non-null element. Nulls are
+	 * preserved as-is.
+	 * <p>
+	 * The resulting column will not be flagged as sorted or distinct.
+	 * 
+	 * @return A {@link IntColumn} created from this column in the obvious way.
+	 */
+	public IntColumn parseInt();
+
+	/**
+	 * Convert this column into a {@link LongColumn} by applying the same logic as
+	 * in {@link ColumnType#parse(String)} to each non-null element. Nulls are
+	 * preserved as-is.
+	 * <p>
+	 * The resulting column will not be flagged as sorted or distinct.
+	 * 
+	 * @return A {@link LongColumn} created from this column in the obvious way.
+	 */
+	public LongColumn parseLong();
+
+	/**
+	 * Convert this column into a {@link ShortColumn} by applying the same logic as
+	 * in {@link ColumnType#parse(String)} to each non-null element. Nulls are
+	 * preserved as-is.
+	 * <p>
+	 * The resulting column will not be flagged as sorted or distinct.
+	 * 
+	 * @return A {@link ShortColumn} created from this column in the obvious way.
+	 */
+	public ShortColumn parseShort();
+
+	/**
+	 * Convert this column into a {@link ByteColumn} by applying the same logic as
+	 * in {@link ColumnType#parse(String)} to each non-null element. Nulls are
+	 * preserved as-is.
+	 * <p>
+	 * The resulting column will not be flagged as sorted or distinct.
+	 * 
+	 * @return A {@link ByteColumn} created from this column in the obvious way.
+	 */
+	public ByteColumn parseByte();
+
+	/**
+	 * Convert this column into a {@link DecimalColumn} by applying the same logic
+	 * as in {@link ColumnType#parse(String)} to each non-null element. Nulls are
+	 * preserved as-is.
+	 * <p>
+	 * The resulting column will not be flagged as sorted or distinct.
+	 * 
+	 * @return A {@link DecimalColumn} created from this column in the obvious way.
+	 */
+	public DecimalColumn parseDecimal();
 }

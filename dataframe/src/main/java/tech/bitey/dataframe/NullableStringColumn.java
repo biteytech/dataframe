@@ -53,4 +53,64 @@ final class NullableStringColumn extends
 	boolean checkType(Object o) {
 		return o instanceof String;
 	}
+
+	@Override
+	public BooleanColumn parseBoolean() {
+		return NullableBooleanColumn.EMPTY.construct((NonNullBooleanColumn) subColumn.parseBoolean(),
+				nonNulls.get(offset, offset + size), size);
+	}
+
+	@Override
+	public DateColumn parseDate() {
+		return NullableDateColumn.EMPTY.construct((NonNullDateColumn) subColumn.parseDate(),
+				nonNulls.get(offset, offset + size), size);
+	}
+
+	@Override
+	public DateTimeColumn parseDateTime() {
+		return NullableDateTimeColumn.EMPTY.construct((NonNullDateTimeColumn) subColumn.parseDateTime(),
+				nonNulls.get(offset, offset + size), size);
+	}
+
+	@Override
+	public DoubleColumn parseDouble() {
+		return NullableDoubleColumn.EMPTY.construct((NonNullDoubleColumn) subColumn.parseDouble(),
+				nonNulls.get(offset, offset + size), size);
+	}
+
+	@Override
+	public FloatColumn parseFloat() {
+		return NullableFloatColumn.EMPTY.construct((NonNullFloatColumn) subColumn.parseFloat(),
+				nonNulls.get(offset, offset + size), size);
+	}
+
+	@Override
+	public IntColumn parseInt() {
+		return NullableIntColumn.EMPTY.construct((NonNullIntColumn) subColumn.parseInt(),
+				nonNulls.get(offset, offset + size), size);
+	}
+
+	@Override
+	public LongColumn parseLong() {
+		return NullableLongColumn.EMPTY.construct((NonNullLongColumn) subColumn.parseLong(),
+				nonNulls.get(offset, offset + size), size);
+	}
+
+	@Override
+	public ShortColumn parseShort() {
+		return NullableShortColumn.EMPTY.construct((NonNullShortColumn) subColumn.parseShort(),
+				nonNulls.get(offset, offset + size), size);
+	}
+
+	@Override
+	public ByteColumn parseByte() {
+		return NullableByteColumn.EMPTY.construct((NonNullByteColumn) subColumn.parseByte(),
+				nonNulls.get(offset, offset + size), size);
+	}
+
+	@Override
+	public DecimalColumn parseDecimal() {
+		return NullableDecimalColumn.EMPTY.construct((NonNullDecimalColumn) subColumn.parseDecimal(),
+				nonNulls.get(offset, offset + size), size);
+	}
 }
