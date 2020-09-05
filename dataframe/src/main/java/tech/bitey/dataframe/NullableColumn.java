@@ -21,11 +21,19 @@ import static tech.bitey.dataframe.DfPreconditions.checkElementIndex;
 import static tech.bitey.dataframe.DfPreconditions.checkPositionIndex;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.nio.IntBuffer;
 import java.nio.channels.WritableByteChannel;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.function.ToDoubleFunction;
+import java.util.function.ToIntFunction;
+import java.util.function.ToLongFunction;
 
 import tech.bitey.bufferstuff.BufferBitSet;
 import tech.bitey.bufferstuff.BufferUtils;
@@ -320,7 +328,7 @@ abstract class NullableColumn<E, I extends Column<E>, C extends NonNullColumn<E,
 
 	I prependNonNull(C head) {
 
-		BufferBitSet nonNulls = this.nonNulls.get(offset, offset + this.size());
+		BufferBitSet nonNulls = subNonNulls();
 		nonNulls = nonNulls.shiftRight(head.size());
 		nonNulls.set(0, head.size());
 
@@ -344,8 +352,8 @@ abstract class NullableColumn<E, I extends Column<E>, C extends NonNullColumn<E,
 
 			C column = (C) this.subColumn.append(rhs.subColumn);
 
-			BufferBitSet nonNulls = this.nonNulls.get(offset, offset + this.size());
-			BufferBitSet bothNonNulls = rhs.nonNulls.get(rhs.offset, rhs.offset + rhs.size());
+			BufferBitSet nonNulls = this.subNonNulls();
+			BufferBitSet bothNonNulls = rhs.subNonNulls();
 
 			bothNonNulls = bothNonNulls.shiftRight(size());
 			bothNonNulls.or(nonNulls);
@@ -357,7 +365,7 @@ abstract class NullableColumn<E, I extends Column<E>, C extends NonNullColumn<E,
 
 			C column = (C) this.subColumn.append(rhs);
 
-			BufferBitSet nonNulls = this.nonNulls.get(offset, offset + this.size());
+			BufferBitSet nonNulls = this.subNonNulls();
 			nonNulls.set(this.size(), size);
 
 			return (I) construct(column, nonNulls, size);
@@ -368,7 +376,7 @@ abstract class NullableColumn<E, I extends Column<E>, C extends NonNullColumn<E,
 	public N copy() {
 		C column = (C) subColumn.copy();
 
-		return construct(column, nonNulls.get(offset, offset + size), size);
+		return construct(column, subNonNulls(), size);
 	}
 
 	@Override
@@ -388,6 +396,68 @@ abstract class NullableColumn<E, I extends Column<E>, C extends NonNullColumn<E,
 		writeInt(channel, BIG_ENDIAN, size);
 		nonNulls.writeTo(channel, offset, offset + size);
 		subColumn.writeTo(channel);
+	}
+	
+	/*------------------------------------------------------------
+	 *  Type Conversion Methods
+	 *------------------------------------------------------------*/
+	@Override
+	public BooleanColumn toBooleanColumn(Predicate<E> predicate) {		
+		return new NullableBooleanColumn(subColumn.toBooleanColumn(predicate), subNonNulls(), null, 0, size);
+	}
+	
+	@Override
+	public DateColumn toDateColumn(Function<E, LocalDate> function) {		
+		return new NullableDateColumn(subColumn.toDateColumn(function), subNonNulls(), null, 0, size);
+	}
+	
+	@Override
+	public DateTimeColumn toDateTimeColumn(Function<E, LocalDateTime> function) {		
+		return new NullableDateTimeColumn(subColumn.toDateTimeColumn(function), subNonNulls(), null, 0, size);
+	}
+	
+	@Override
+	public DoubleColumn toDoubleColumn(ToDoubleFunction<E> function) {		
+		return new NullableDoubleColumn(subColumn.toDoubleColumn(function), subNonNulls(), null, 0, size);
+	}
+	
+	@Override
+	public FloatColumn toFloatColumn(ToFloatFunction<E> function) {		
+		return new NullableFloatColumn(subColumn.toFloatColumn(function), subNonNulls(), null, 0, size);
+	}
+	
+	@Override
+	public IntColumn toIntColumn(ToIntFunction<E> function) {		
+		return new NullableIntColumn(subColumn.toIntColumn(function), subNonNulls(), null, 0, size);
+	}
+	
+	@Override
+	public LongColumn toLongColumn(ToLongFunction<E> function) {		
+		return new NullableLongColumn(subColumn.toLongColumn(function), subNonNulls(), null, 0, size);
+	}
+	
+	@Override
+	public ShortColumn toShortColumn(ToShortFunction<E> function) {		
+		return new NullableShortColumn(subColumn.toShortColumn(function), subNonNulls(), null, 0, size);
+	}
+	
+	@Override
+	public ByteColumn toByteColumn(ToByteFunction<E> function) {		
+		return new NullableByteColumn(subColumn.toByteColumn(function), subNonNulls(), null, 0, size);
+	}
+	
+	@Override
+	public DecimalColumn toDecimalColumn(Function<E, BigDecimal> function) {		
+		return new NullableDecimalColumn(subColumn.toDecimalColumn(function), subNonNulls(), null, 0, size);
+	}
+	
+	@Override
+	public StringColumn toStringColumn(Function<E, String> function) {		
+		return new NullableStringColumn(subColumn.toStringColumn(function), subNonNulls(), null, 0, size);
+	}
+	
+	BufferBitSet subNonNulls() {
+		return nonNulls.get(offset, offset + size);
 	}
 
 	// does not implement navigableset methods

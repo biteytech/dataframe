@@ -26,6 +26,11 @@ import java.util.Random;
 public class TestLongColumn extends TestColumn<Long> {
 
 	private static final Random RAND = new Random(0);
+	
+	@Override
+	Column<Long> parseColumn(StringColumn stringColumn) {
+		return stringColumn.parseLong();
+	}
 
 	@Override
 	TestSample<Long> wrapSample(String label, Long[] array, int characteristics) {

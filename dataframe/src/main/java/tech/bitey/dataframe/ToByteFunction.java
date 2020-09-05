@@ -3,15 +3,15 @@ package tech.bitey.dataframe;
 import java.util.function.Function;
 
 /**
- * Represents a function that produces a float-valued result. This is the
- * {@code float}-producing primitive specialization for {@link Function}.
+ * Represents a function that produces a byte-valued result. This is the
+ * {@code byte}-producing primitive specialization for {@link Function}.
  *
  * @param <T> the type of the input to the function
  *
  * @see Function
  */
 @FunctionalInterface
-public interface ToFloatFunction<T> {
+public interface ToByteFunction<T> {
 
 	/**
 	 * Applies this function to the given argument.
@@ -19,5 +19,5 @@ public interface ToFloatFunction<T> {
 	 * @param value the function argument
 	 * @return the function result
 	 */
-	float applyAsFloat(T value);
+	byte applyAsByte(T value);
 }

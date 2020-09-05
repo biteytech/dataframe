@@ -67,6 +67,17 @@ public interface DataFrame extends List<Row>, RandomAccess {
 	 *	Object, Collection, and List style Methods
 	 *--------------------------------------------------------------------------------*/
 	/**
+	 * Pretty-print the first ⌈maxRows/2⌉ and last ⌊maxRows/2⌋ rows in this
+	 * DataFrame.
+	 * 
+	 * @param maxRows - the number of rows to print
+	 * @return a pretty String representation of this table
+	 * 
+	 * @throws IllegalArgumentException if {@code rowIndex} is negative
+	 */
+	String toString(int maxRows);
+
+	/**
 	 * Tests this DataFrame against the specified one for equality. Only compares
 	 * the column data if {@code dataOnly} is true, otherwise compares column names
 	 * and {@link #keyColumnIndex()} as well.

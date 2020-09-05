@@ -26,6 +26,11 @@ import java.util.Random;
 public class TestShortColumn extends TestColumn<Short> {
 
 	private static final Random RAND = new Random(0);
+	
+	@Override
+	Column<Short> parseColumn(StringColumn stringColumn) {
+		return stringColumn.parseShort();
+	}
 
 	@Override
 	TestSample<Short> wrapSample(String label, Short[] array, int characteristics) {

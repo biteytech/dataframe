@@ -21,9 +21,7 @@ import static java.util.Spliterator.NONNULL;
 import static java.util.Spliterator.SORTED;
 import static tech.bitey.bufferstuff.BufferUtils.EMPTY_BUFFER;
 
-import java.math.BigDecimal;
 import java.nio.ByteBuffer;
-import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
@@ -90,125 +88,5 @@ final class NonNullStringColumn extends NonNullVarLenColumn<String, StringColumn
 		builder.addAll(this);
 		builder.distinct();
 		return (NonNullStringColumn) builder.build();
-	}
-
-	@Override
-	public BooleanColumn parseBoolean() {
-
-		BooleanColumnBuilder builder = new BooleanColumnBuilder();
-		builder.ensureCapacity(size);
-
-		for (String string : this)
-			builder.add(ColumnType.parseBoolean(string));
-
-		return builder.build();
-	}
-
-	@Override
-	public DateColumn parseDate() {
-
-		DateColumnBuilder builder = new DateColumnBuilder(NONNULL_CHARACTERISTICS);
-		builder.ensureCapacity(size);
-
-		for (String string : this)
-			builder.add(ColumnType.parseDate(string));
-
-		return builder.build();
-	}
-
-	@Override
-	public DateTimeColumn parseDateTime() {
-
-		DateTimeColumnBuilder builder = new DateTimeColumnBuilder(NONNULL_CHARACTERISTICS);
-		builder.ensureCapacity(size);
-
-		for (String string : this)
-			builder.add(LocalDateTime.parse(string));
-
-		return builder.build();
-	}
-
-	@Override
-	public DoubleColumn parseDouble() {
-
-		DoubleColumnBuilder builder = new DoubleColumnBuilder(NONNULL_CHARACTERISTICS);
-		builder.ensureCapacity(size);
-
-		for (String string : this)
-			builder.add(Double.parseDouble(string));
-
-		return builder.build();
-	}
-
-	@Override
-	public FloatColumn parseFloat() {
-
-		FloatColumnBuilder builder = new FloatColumnBuilder(NONNULL_CHARACTERISTICS);
-		builder.ensureCapacity(size);
-
-		for (String string : this)
-			builder.add(Float.parseFloat(string));
-
-		return builder.build();
-	}
-
-	@Override
-	public IntColumn parseInt() {
-
-		IntColumnBuilder builder = new IntColumnBuilder(NONNULL_CHARACTERISTICS);
-		builder.ensureCapacity(size);
-
-		for (String string : this)
-			builder.add(Integer.parseInt(string));
-
-		return builder.build();
-	}
-
-	@Override
-	public LongColumn parseLong() {
-
-		LongColumnBuilder builder = new LongColumnBuilder(NONNULL_CHARACTERISTICS);
-		builder.ensureCapacity(size);
-
-		for (String string : this)
-			builder.add(Long.parseLong(string));
-
-		return builder.build();
-	}
-
-	@Override
-	public ShortColumn parseShort() {
-
-		ShortColumnBuilder builder = new ShortColumnBuilder(NONNULL_CHARACTERISTICS);
-		builder.ensureCapacity(size);
-
-		for (String string : this)
-			builder.add(Short.parseShort(string));
-
-		return builder.build();
-	}
-
-	@Override
-	public ByteColumn parseByte() {
-
-		ByteColumnBuilder builder = new ByteColumnBuilder(NONNULL_CHARACTERISTICS);
-		builder.ensureCapacity(size);
-
-		for (String string : this)
-			builder.add(Byte.parseByte(string));
-
-		return builder.build();
-	}
-
-	@Override
-	public DecimalColumn parseDecimal() {
-
-		DecimalColumnBuilder builder = new DecimalColumnBuilder(NONNULL_CHARACTERISTICS);
-		builder.ensureCapacity(size);
-
-		for (String string : this)
-			builder.add(new BigDecimal(string));
-
-		return builder.build();
 	}
 }

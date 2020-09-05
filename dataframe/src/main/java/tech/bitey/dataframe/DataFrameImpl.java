@@ -178,8 +178,14 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 	 *	Object, Collection, and List Methods
 	 *--------------------------------------------------------------------------------*/
 	@Override
-	public String toString() {
+	public String toString() {		
 		return DEFAULT_PRINTER.print(this);
+	}
+	
+	@Override
+	public String toString(int maxRows) {
+		checkArgument(maxRows >= 0, "maxRows cannot be negative");
+		return new DataFramePrinter(maxRows).print(this);
 	}
 
 	@Override

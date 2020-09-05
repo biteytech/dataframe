@@ -21,6 +21,11 @@ import java.util.Collection;
 public class TestBooleanColumn extends TestColumn<Boolean> {
 
 	private TestIntColumn intColumn = new TestIntColumn();
+	
+	@Override
+	Column<Boolean> parseColumn(StringColumn stringColumn) {
+		return stringColumn.parseBoolean();
+	}
 
 	@Override
 	TestSample<Boolean> wrapSample(String label, Boolean[] array, int characteristics) {

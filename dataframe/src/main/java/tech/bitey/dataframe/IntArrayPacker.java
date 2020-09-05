@@ -28,7 +28,7 @@ interface IntArrayPacker<E> {
 
 		@Override
 		public Integer unpack(int packed) {
-			return new Integer(packed);
+			return Integer.valueOf(packed);
 		}
 	};
 

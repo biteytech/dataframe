@@ -33,6 +33,11 @@ public class TestDecimalColumn extends TestColumn<BigDecimal> {
 
 	private static final BigDecimal MIN_VALUE = BigDecimal.valueOf(Integer.MIN_VALUE);
 	private static final BigDecimal MAX_VALUE = BigDecimal.valueOf(Integer.MAX_VALUE);
+	
+	@Override
+	Column<BigDecimal> parseColumn(StringColumn stringColumn) {
+		return stringColumn.parseDecimal();
+	}
 
 	@Override
 	TestSample<BigDecimal> wrapSample(String label, BigDecimal[] array, int characteristics) {

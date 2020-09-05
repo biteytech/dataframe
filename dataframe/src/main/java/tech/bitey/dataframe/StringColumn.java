@@ -16,7 +16,11 @@
 
 package tech.bitey.dataframe;
 
+import java.math.BigDecimal;
 import java.nio.ByteBuffer;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.stream.Collector;
 
 /**
@@ -147,9 +151,11 @@ public interface StringColumn extends Column<String> {
 	 * <p>
 	 * The resulting column will not be flagged as sorted or distinct.
 	 * 
-	 * @return A {@link BooleanColumn} created from this column in the obvious way.
+	 * @return A {@link BooleanColumn} parsed from this column.
 	 */
-	public BooleanColumn parseBoolean();
+	default BooleanColumn parseBoolean() {
+		return toBooleanColumn(ColumnType::parseBoolean);
+	}
 
 	/**
 	 * Convert this column into a {@link DateColumn} by applying the same logic as
@@ -158,9 +164,24 @@ public interface StringColumn extends Column<String> {
 	 * <p>
 	 * The resulting column will not be flagged as sorted or distinct.
 	 * 
-	 * @return A {@link DateColumn} created from this column in the obvious way.
+	 * @return A {@link DateColumn} parsed from this column.
 	 */
-	public DateColumn parseDate();
+	default DateColumn parseDate() {
+		return toDateColumn(ColumnType::parseDate);
+	}
+
+	/**
+	 * Convert this column into a {@link DateColumn} by applying the specified
+	 * {@link DateTimeFormatter} to each non-null element. Nulls are preserved
+	 * as-is.
+	 * <p>
+	 * The resulting column will not be flagged as sorted or distinct.
+	 * 
+	 * @return A {@link DateColumn} parsed from this column.
+	 */
+	default DateColumn parseDate(DateTimeFormatter formatter) {
+		return toDateColumn(text -> LocalDate.parse(text, formatter));
+	}
 
 	/**
 	 * Convert this column into a {@link DateTimeColumn} by applying the same logic
@@ -169,9 +190,24 @@ public interface StringColumn extends Column<String> {
 	 * <p>
 	 * The resulting column will not be flagged as sorted or distinct.
 	 * 
-	 * @return A {@link DateTimeColumn} created from this column in the obvious way.
+	 * @return A {@link DateTimeColumn} parsed from this column.
 	 */
-	public DateTimeColumn parseDateTime();
+	default DateTimeColumn parseDateTime() {
+		return toDateTimeColumn(LocalDateTime::parse);
+	}
+
+	/**
+	 * Convert this column into a {@link DateTimeColumn} by applying the specified
+	 * {@link DateTimeFormatter} to each non-null element. Nulls are preserved
+	 * as-is.
+	 * <p>
+	 * The resulting column will not be flagged as sorted or distinct.
+	 * 
+	 * @return A {@link DateTimeColumn} parsed from this column.
+	 */
+	default DateTimeColumn parseDateTime(DateTimeFormatter formatter) {
+		return toDateTimeColumn(text -> LocalDateTime.parse(text, formatter));
+	}
 
 	/**
 	 * Convert this column into a {@link DoubleColumn} by applying the same logic as
@@ -180,9 +216,11 @@ public interface StringColumn extends Column<String> {
 	 * <p>
 	 * The resulting column will not be flagged as sorted or distinct.
 	 * 
-	 * @return A {@link DoubleColumn} created from this column in the obvious way.
+	 * @return A {@link DoubleColumn} parsed from this column.
 	 */
-	public DoubleColumn parseDouble();
+	default DoubleColumn parseDouble() {
+		return toDoubleColumn(Double::parseDouble);
+	}
 
 	/**
 	 * Convert this column into a {@link FloatColumn} by applying the same logic as
@@ -191,9 +229,11 @@ public interface StringColumn extends Column<String> {
 	 * <p>
 	 * The resulting column will not be flagged as sorted or distinct.
 	 * 
-	 * @return A {@link FloatColumn} created from this column in the obvious way.
+	 * @return A {@link FloatColumn} parsed from this column.
 	 */
-	public FloatColumn parseFloat();
+	default FloatColumn parseFloat() {
+		return toFloatColumn(Float::parseFloat);
+	}
 
 	/**
 	 * Convert this column into a {@link IntColumn} by applying the same logic as in
@@ -202,9 +242,11 @@ public interface StringColumn extends Column<String> {
 	 * <p>
 	 * The resulting column will not be flagged as sorted or distinct.
 	 * 
-	 * @return A {@link IntColumn} created from this column in the obvious way.
+	 * @return A {@link IntColumn} parsed from this column.
 	 */
-	public IntColumn parseInt();
+	default IntColumn parseInt() {
+		return toIntColumn(Integer::parseInt);
+	}
 
 	/**
 	 * Convert this column into a {@link LongColumn} by applying the same logic as
@@ -213,9 +255,11 @@ public interface StringColumn extends Column<String> {
 	 * <p>
 	 * The resulting column will not be flagged as sorted or distinct.
 	 * 
-	 * @return A {@link LongColumn} created from this column in the obvious way.
+	 * @return A {@link LongColumn} parsed from this column.
 	 */
-	public LongColumn parseLong();
+	default LongColumn parseLong() {
+		return toLongColumn(Long::parseLong);
+	}
 
 	/**
 	 * Convert this column into a {@link ShortColumn} by applying the same logic as
@@ -224,9 +268,11 @@ public interface StringColumn extends Column<String> {
 	 * <p>
 	 * The resulting column will not be flagged as sorted or distinct.
 	 * 
-	 * @return A {@link ShortColumn} created from this column in the obvious way.
+	 * @return A {@link ShortColumn} parsed from this column.
 	 */
-	public ShortColumn parseShort();
+	default ShortColumn parseShort() {
+		return toShortColumn(Short::parseShort);
+	}
 
 	/**
 	 * Convert this column into a {@link ByteColumn} by applying the same logic as
@@ -235,9 +281,11 @@ public interface StringColumn extends Column<String> {
 	 * <p>
 	 * The resulting column will not be flagged as sorted or distinct.
 	 * 
-	 * @return A {@link ByteColumn} created from this column in the obvious way.
+	 * @return A {@link ByteColumn} parsed from this column.
 	 */
-	public ByteColumn parseByte();
+	default ByteColumn parseByte() {
+		return toByteColumn(Byte::parseByte);
+	}
 
 	/**
 	 * Convert this column into a {@link DecimalColumn} by applying the same logic
@@ -246,7 +294,14 @@ public interface StringColumn extends Column<String> {
 	 * <p>
 	 * The resulting column will not be flagged as sorted or distinct.
 	 * 
-	 * @return A {@link DecimalColumn} created from this column in the obvious way.
+	 * @return A {@link DecimalColumn} parsed from this column.
 	 */
-	public DecimalColumn parseDecimal();
+	default DecimalColumn parseDecimal() {
+		return toDecimalColumn(BigDecimal::new);
+	}
+
+	@Override
+	default StringColumn toStringColumn() {
+		return this;
+	}
 }

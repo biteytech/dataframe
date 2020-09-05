@@ -26,6 +26,11 @@ import java.util.Random;
 public class TestByteColumn extends TestColumn<Byte> {
 
 	private static final Random RAND = new Random(0);
+	
+	@Override
+	Column<Byte> parseColumn(StringColumn stringColumn) {
+		return stringColumn.parseByte();
+	}
 
 	@Override
 	TestSample<Byte> wrapSample(String label, Byte[] array, int characteristics) {

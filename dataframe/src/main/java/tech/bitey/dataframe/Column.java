@@ -24,11 +24,19 @@ import static java.util.Spliterator.SIZED;
 import static java.util.Spliterator.SORTED;
 import static java.util.Spliterator.SUBSIZED;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Spliterator;
 import java.util.Spliterators;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.function.ToDoubleFunction;
+import java.util.function.ToIntFunction;
+import java.util.function.ToLongFunction;
 
 /**
  * An immutable {@link java.util.List List} backed by nio buffers. Elements of
@@ -288,6 +296,149 @@ public interface Column<E> extends List<E> {
 	 *         allocated buffer.
 	 */
 	Column<E> copy();
+
+	/*------------------------------------------------------------
+	 *  Type Conversion Methods
+	 *------------------------------------------------------------*/
+
+	/**
+	 * Convert this column into a {@link BooleanColumn} by applying the specified
+	 * {@link Predicate} to each non-null element. Nulls are preserved as-is.
+	 * <p>
+	 * The resulting column will not be flagged as sorted or distinct.
+	 * 
+	 * @return A {@link BooleanColumn} created from this column using the specified
+	 *         {@code Predicate}.
+	 */
+	public BooleanColumn toBooleanColumn(Predicate<E> predicate);
+
+	/**
+	 * Convert this column into a {@link DateColumn} by applying the specified
+	 * {@link Function} to each non-null element. Nulls are preserved as-is, but
+	 * <u>the function must not return null</u>.
+	 * <p>
+	 * The resulting column will not be flagged as sorted or distinct.
+	 * 
+	 * @return A {@link DateColumn} created from this column using the specified
+	 *         {@code Function}.
+	 */
+	public DateColumn toDateColumn(Function<E, LocalDate> function);
+
+	/**
+	 * Convert this column into a {@link DateTimeColumn} by applying the specified
+	 * {@link Function} to each non-null element. Nulls are preserved as-is, but
+	 * <u>the function must not return null</u>.
+	 * <p>
+	 * The resulting column will not be flagged as sorted or distinct.
+	 * 
+	 * @return A {@link DateTimeColumn} created from this column using the specified
+	 *         {@code Function}.
+	 */
+	public DateTimeColumn toDateTimeColumn(Function<E, LocalDateTime> function);
+
+	/**
+	 * Convert this column into a {@link DoubleColumn} by applying the specified
+	 * {@link ToDoubleFunction} to each non-null element.
+	 * <p>
+	 * The resulting column will not be flagged as sorted or distinct.
+	 * 
+	 * @return A {@link DoubleColumn} created from this column using the specified
+	 *         {@code ToDoubleFunction}.
+	 */
+	public DoubleColumn toDoubleColumn(ToDoubleFunction<E> function);
+
+	/**
+	 * Convert this column into a {@link FloatColumn} by applying the specified
+	 * {@link ToFloatFunction} to each non-null element.
+	 * <p>
+	 * The resulting column will not be flagged as sorted or distinct.
+	 * 
+	 * @return A {@link FloatColumn} created from this column using the specified
+	 *         {@code ToFloatFunction}.
+	 */
+	public FloatColumn toFloatColumn(ToFloatFunction<E> function);
+
+	/**
+	 * Convert this column into a {@link IntColumn} by applying the specified
+	 * {@link ToIntFunction} to each non-null element.
+	 * <p>
+	 * The resulting column will not be flagged as sorted or distinct.
+	 * 
+	 * @return An {@link IntColumn} created from this column using the specified
+	 *         {@code ToIntFunction}.
+	 */
+	public IntColumn toIntColumn(ToIntFunction<E> function);
+
+	/**
+	 * Convert this column into a {@link LongColumn} by applying the specified
+	 * {@link ToLongFunction} to each non-null element.
+	 * <p>
+	 * The resulting column will not be flagged as sorted or distinct.
+	 * 
+	 * @return A {@link LongColumn} created from this column using the specified
+	 *         {@code ToLongFunction}.
+	 */
+	public LongColumn toLongColumn(ToLongFunction<E> function);
+
+	/**
+	 * Convert this column into a {@link ShortColumn} by applying the specified
+	 * {@link ToShortFunction} to each non-null element.
+	 * <p>
+	 * The resulting column will not be flagged as sorted or distinct.
+	 * 
+	 * @return A {@link ShortColumn} created from this column using the specified
+	 *         {@code ToShortFunction}.
+	 */
+	public ShortColumn toShortColumn(ToShortFunction<E> function);
+
+	/**
+	 * Convert this column into a {@link ByteColumn} by applying the specified
+	 * {@link ToByteFunction} to each non-null element.
+	 * <p>
+	 * The resulting column will not be flagged as sorted or distinct.
+	 * 
+	 * @return A {@link ByteColumn} created from this column using the specified
+	 *         {@code ToByteFunction}.
+	 */
+	public ByteColumn toByteColumn(ToByteFunction<E> function);
+
+	/**
+	 * Convert this column into a {@link DecimalColumn} by applying the specified
+	 * {@link Function} to each non-null element. Nulls are preserved as-is, but
+	 * <u>the function most not return null</u>.
+	 * <p>
+	 * The resulting column will not be flagged as sorted or distinct.
+	 * 
+	 * @return A {@link DecimalColumn} created from this column using the specified
+	 *         {@code Function}.
+	 */
+	public DecimalColumn toDecimalColumn(Function<E, BigDecimal> function);
+
+	/**
+	 * Convert this column into a {@link StringColumn} by applying the specified
+	 * {@link Function} to each non-null element. Nulls are preserved as-is, but
+	 * <u>the function most not return null</u>.
+	 * <p>
+	 * The resulting column will not be flagged as sorted or distinct.
+	 * 
+	 * @return A {@link StringColumn} created from this column using the specified
+	 *         {@code Function}.
+	 */
+	public StringColumn toStringColumn(Function<E, String> function);
+
+	/**
+	 * Convert this column into a {@link StringColumn} by applying
+	 * {@link Object#toString} to each non-null element. Nulls are preserved as-is,
+	 * but <u>the function most not return null</u>.
+	 * <p>
+	 * The resulting column will not be flagged as sorted or distinct.
+	 * 
+	 * @return A {@link StringColumn} created from this column using
+	 *         {@link Object#toString}.
+	 */
+	default StringColumn toStringColumn() {
+		return toStringColumn(Object::toString);
+	}
 
 	/*------------------------------------------------------------
 	 *  NavigableSet-inspired Methods

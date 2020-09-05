@@ -28,7 +28,7 @@ interface LongArrayPacker<E> {
 
 		@Override
 		public Long unpack(long packed) {
-			return new Long(packed);
+			return Long.valueOf(packed);
 		}
 	};
 

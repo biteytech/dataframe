@@ -33,6 +33,11 @@ import org.junit.jupiter.api.Test;
 public class TestStringColumn extends TestColumn<String> {
 
 	private static final Random RAND = new Random(0);
+	
+	@Override
+	Column<String> parseColumn(StringColumn stringColumn) {
+		return stringColumn;
+	}
 
 	@Override
 	TestSample<String> wrapSample(String label, String[] array, int characteristics) {

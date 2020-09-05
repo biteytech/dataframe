@@ -26,6 +26,11 @@ import java.util.Random;
 public class TestFloatColumn extends TestFloatingColumn<Float> {
 
 	private static final Random RAND = new Random(0);
+	
+	@Override
+	Column<Float> parseColumn(StringColumn stringColumn) {
+		return stringColumn.parseFloat();
+	}
 
 	@Override
 	TestSample<Float> wrapSample(String label, Float[] array, int characteristics) {
