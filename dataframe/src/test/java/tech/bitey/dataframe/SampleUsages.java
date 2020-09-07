@@ -1,11 +1,25 @@
 package tech.bitey.dataframe;
 
+import java.io.File;
+import java.nio.file.Files;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+
+import tech.bitey.dataframe.db.DateFromResultSet;
+import tech.bitey.dataframe.db.DoubleFromResultSet;
+import tech.bitey.dataframe.db.IntFromResultSet;
+import tech.bitey.dataframe.db.StringFromResultSet;
 
 public class SampleUsages {
 
@@ -86,11 +100,79 @@ public class SampleUsages {
 	/**
 	 * {@link Column Column} conversions.
 	 */
+	@Test
 	public void ex3() {
 
 		StringColumn s = StringColumn.of("1", "2", null, "3");
 
 		Assertions.assertEquals(s, s.parseInt().toStringColumn());
 		Assertions.assertEquals(s, s.toIntColumn(Integer::parseInt).toStringColumn(Object::toString));
+	}
+
+	/**
+	 * Creating {@link DataFrame DataFrames}.
+	 */
+	@Test
+	public void ex4() throws Exception {
+		// DataFrame from Columns
+		IntColumn c1 = IntColumn.of(100, 200, 300);
+		DateColumn c2 = DateColumn.of(LocalDate.of(2019, 1, 6), LocalDate.of(2019, 1, 23), LocalDate.of(2019, 2, 9));
+		StringColumn c3 = StringColumn.of("Jones", null, "Gill");
+		IntColumn c4 = IntColumn.of(95, 50, 36);
+		DoubleColumn c5 = DoubleColumn.of(1.99, 19.99, 4.99);
+
+		DataFrame df = DataFrameFactory.create(new Column<?>[] { c1, c2, c3, c4, c5 },
+				new String[] { "ORDER_ID", "ORDER_DATE", "SALESPERSON", "UNITS", "UNIT_COST" });
+
+		// DataFrame from csv
+		StringBuilder csv = new StringBuilder();
+		csv.append("ORDER_ID	ORDER_DATE	SALESPERSON	UNITS	UNIT_COST\n");
+		csv.append("100	1/6/2019	Jones	95	1.99\n");
+		csv.append("200	1/23/2019		50	19.99\n");
+		csv.append("300	2/9/2019	Gill	36	4.99\n");
+
+		File file = File.createTempFile("ex4", null);
+		file.deleteOnExit();
+		Files.write(file.toPath(), csv.toString().getBytes());
+
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("M/d/yyyy");
+		ReadCsvConfig config = new ReadCsvConfig(
+				Arrays.asList(ColumnType.INT, ColumnType.DATE, ColumnType.STRING, ColumnType.INT, ColumnType.DOUBLE),
+				Arrays.asList(null, text -> LocalDate.parse(text, formatter), null, null, null), '\t');
+		DataFrame df2 = DataFrameFactory.readCsvFrom(file, config);
+
+		Assertions.assertEquals(df, df2);
+
+		// DataFrame from SQL query
+		try (Connection conn = DriverManager.getConnection("jdbc:sqlite::memory:");
+				Statement stmt = conn.createStatement();) {
+
+			stmt.execute(
+					"create table EX4 (ORDER_ID INT, ORDER_DATE TEXT, SALESPERSON TEXT, UNITS INT, UNIT_COST DOUBLE)");
+
+			PreparedStatement ps = conn.prepareStatement("insert into EX4 values (?,?,?,?,?)");
+			ex4Insert(ps, 100, LocalDate.of(2019, 1, 6), "Jones", 95, 1.99);
+			ex4Insert(ps, 200, LocalDate.of(2019, 1, 23), null, 50, 19.99);
+			ex4Insert(ps, 300, LocalDate.of(2019, 2, 9), "Gill", 36, 4.99);
+
+			ResultSet rs = stmt.executeQuery("select * from EX4");
+			DataFrame df3 = DataFrameFactory.readFrom(rs,
+					new ReadFromDbConfig(Arrays.asList(IntFromResultSet.INT_FROM_INT,
+							DateFromResultSet.DATE_FROM_ISOSTRING, StringFromResultSet.STRING_FROM_STRING,
+							IntFromResultSet.INT_FROM_INT, DoubleFromResultSet.DOUBLE_FROM_DOUBLE), 1000));
+
+			Assertions.assertEquals(df, df3);
+		}
+	}
+
+	private static void ex4Insert(PreparedStatement ps, int c1, LocalDate c2, String c3, int c4, double c5)
+			throws Exception {
+		int i = 1;
+		ps.setInt(i++, c1);
+		ps.setString(i++, c2.toString());
+		ps.setString(i++, c3);
+		ps.setInt(i++, c4);
+		ps.setDouble(i++, c5);
+		ps.executeUpdate();
 	}
 }

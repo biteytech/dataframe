@@ -20,6 +20,7 @@ import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 import tech.bitey.dataframe.ColumnType;
 import tech.bitey.dataframe.DateColumnBuilder;
@@ -69,7 +70,50 @@ public enum DateFromResultSet implements IFromResultSet<LocalDate, DateColumnBui
 			else
 				builder.add(yyyymmdd / 10000, yyyymmdd / 100 % 100, yyyymmdd % 100);
 		}
+	},
+	/**
+	 * Reads a {@code yyyy-MM-dd} value from the {@code ResultSet} using
+	 * {@link ResultSet#getString(int)}.
+	 */
+	DATE_FROM_ISOSTRING {
+		@Override
+		public void get(ResultSet rs, int columnIndex, DateColumnBuilder builder) throws SQLException {
+
+			final String text = rs.getString(columnIndex);
+
+			if (text == null)
+				builder.addNull();
+			else
+				builder.add(LocalDate.parse(text));
+		}
 	};
+
+	/**
+	 * Reads a value from the {@code ResultSet} using
+	 * {@link ResultSet#getString(int)} and parses it using the specified
+	 * {@link DateTimeFormatter}.
+	 */
+	public static IFromResultSet<LocalDate, DateColumnBuilder> of(DateTimeFormatter formatter) throws SQLException {
+
+		return new IFromResultSet<LocalDate, DateColumnBuilder>() {
+
+			@Override
+			public void get(ResultSet rs, int columnIndex, DateColumnBuilder builder) throws SQLException {
+
+				final String text = rs.getString(columnIndex);
+
+				if (text == null)
+					builder.addNull();
+				else
+					builder.add(LocalDate.parse(text, formatter));
+			}
+
+			@Override
+			public ColumnType<LocalDate> getColumnType() {
+				return ColumnType.DATE;
+			}
+		};
+	}
 
 	@Override
 	public ColumnType<LocalDate> getColumnType() {

@@ -29,14 +29,18 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Function;
 
 /**
- * Configuration for reading a dataframe from a CSV file. The three configurable
+ * Configuration for reading a dataframe from a CSV file. The configurable
  * settings are:
  * <ul>
  * <li>Column types - this is mandatory as there is currently no logic to
  * auto-detect column types.
  * <li>Column names - required if and only if there is no header line.
+ * <li>Column parsers - optional, defaults to using
+ * {@link ColumnType#parse(String)} for each column. Elements can be null, in
+ * which case the default parsing will be applied for the corresponding column.
  * <li>Delimiter - defaults to comma
  * </ul>
  * 
@@ -46,19 +50,26 @@ public class ReadCsvConfig {
 
 	private final ColumnType<?>[] columnTypes;
 	private final String[] columnNames;
+	private final Function<String, ?>[] columnParsers;
 	private final char delim;
 
 	/**
 	 * Constructor for specifying all three configurable settings.
 	 * 
-	 * @param columnTypes - mandatory {@link ColumnType column types}. The size of
-	 *                    this list must match the number of fields in the CSV file.
-	 * @param columnNames - must be specified if and only if a header line is not
-	 *                    present in the CSV file.
-	 * @param delim       - any ASCII character which is not a letter, digit, double
-	 *                    quote, CR, or LF.
+	 * @param columnTypes   - mandatory {@link ColumnType column types}. The size of
+	 *                      this list must match the number of fields in the CSV
+	 *                      file.
+	 * @param columnNames   - must be specified if and only if a header line is not
+	 *                      present in the CSV file.
+	 * @param columnParsers - parsing logic for each column. Elements can be null,
+	 *                      in which case the default parsing will be applied for
+	 *                      the corresponding column.
+	 * @param delim         - any ASCII character which is not a letter, digit,
+	 *                      double quote, CR, or LF.
 	 */
-	public ReadCsvConfig(List<ColumnType<?>> columnTypes, List<String> columnNames, char delim) {
+	@SuppressWarnings("unchecked")
+	public ReadCsvConfig(List<ColumnType<?>> columnTypes, List<String> columnNames,
+			List<Function<String, ?>> columnParsers, char delim) {
 
 		checkNotNull(columnTypes, "columnTypes array cannot be null");
 		checkArgument(columnTypes.size() > 0, "columnTypes array cannot be empty");
@@ -67,13 +78,40 @@ public class ReadCsvConfig {
 			checkArgument(columnNames.size() == columnTypes.size(),
 					"columnTypes and columnNames must have the same length");
 
+		if (columnParsers != null)
+			checkArgument(columnParsers.size() == columnTypes.size(),
+					"columnParsers and columnNames must have the same length");
+
 		checkArgument(delim <= 0x7F && !isLetterOrDigit(delim) && delim != '"' && delim != '\r' && delim != '\n',
 				"delimiter must an ASCII character which is not a letter, digit, double quote, CR, or LF");
 
 		this.columnTypes = columnTypes.toArray(new ColumnType[0]);
 		this.columnNames = columnNames == null ? null : columnNames.toArray(new String[0]);
-		;
+		this.columnParsers = columnParsers == null ? new Function[columnTypes.size()]
+				: columnParsers.toArray(new Function[0]);
 		this.delim = delim;
+
+		for (int i = 0; i < this.columnParsers.length; i++)
+			if (this.columnParsers[i] == null)
+				this.columnParsers[i] = this.columnTypes[i]::parse;
+	}
+
+	/**
+	 * Constructor for specifying the column types and delimiter settings.
+	 * <p>
+	 * The CSV file must contain a header line since no column names are provided.
+	 * 
+	 * @param columnTypes   - mandatory {@link ColumnType column types}. The size of
+	 *                      this list must match the number of fields in the CSV
+	 *                      file.
+	 * @param columnParsers - parsing logic for each column. Elements can be null,
+	 *                      in which case the default parsing will be applied for
+	 *                      the corresponding column.
+	 * @param delim         - any ASCII character which is not a letter, digit,
+	 *                      double quote, CR, or LF.
+	 */
+	public ReadCsvConfig(List<ColumnType<?>> columnTypes, List<Function<String, ?>> columnParsers, char delim) {
+		this(columnTypes, null, columnParsers, delim);
 	}
 
 	/**
@@ -87,7 +125,7 @@ public class ReadCsvConfig {
 	 *                    quote, CR, or LF.
 	 */
 	public ReadCsvConfig(List<ColumnType<?>> columnTypes, char delim) {
-		this(columnTypes, null, delim);
+		this(columnTypes, null, null, delim);
 	}
 
 	/**
@@ -101,7 +139,7 @@ public class ReadCsvConfig {
 	 *                    present in the CSV file.
 	 */
 	public ReadCsvConfig(List<ColumnType<?>> columnTypes, List<String> columnNames) {
-		this(columnTypes, columnNames, ',');
+		this(columnTypes, columnNames, null, ',');
 	}
 
 	/**
@@ -114,7 +152,7 @@ public class ReadCsvConfig {
 	 *                    this list must match the number of fields in the CSV file.
 	 */
 	public ReadCsvConfig(List<ColumnType<?>> columnTypes) {
-		this(columnTypes, null, ',');
+		this(columnTypes, null, null, ',');
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -149,7 +187,7 @@ public class ReadCsvConfig {
 							if (fields[i] == null)
 								builders[i].addNull();
 							else {
-								Object value = builders[i].getType().parse(fields[i]);
+								Object value = columnParsers[i].apply(fields[i]);
 								builders[i].add(value);
 							}
 						} catch (Exception e) {

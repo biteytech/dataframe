@@ -20,6 +20,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 import tech.bitey.dataframe.ColumnType;
 import tech.bitey.dataframe.DateTimeColumnBuilder;
@@ -51,6 +52,34 @@ public enum DateTimeFromResultSet implements IFromResultSet<LocalDateTime, DateT
 			else
 				builder.add(ts.toLocalDateTime());
 		}
+	};
+
+	/**
+	 * Reads a value from the {@code ResultSet} using
+	 * {@link ResultSet#getString(int)} and parses it using the specified
+	 * {@link DateTimeFormatter}.
+	 */
+	public static IFromResultSet<LocalDateTime, DateTimeColumnBuilder> of(DateTimeFormatter formatter)
+			throws SQLException {
+
+		return new IFromResultSet<LocalDateTime, DateTimeColumnBuilder>() {
+
+			@Override
+			public void get(ResultSet rs, int columnIndex, DateTimeColumnBuilder builder) throws SQLException {
+
+				final String text = rs.getString(columnIndex);
+
+				if (text == null)
+					builder.addNull();
+				else
+					builder.add(LocalDateTime.parse(text, formatter));
+			}
+
+			@Override
+			public ColumnType<LocalDateTime> getColumnType() {
+				return ColumnType.DATETIME;
+			}
+		};
 	};
 
 	@Override
