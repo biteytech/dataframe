@@ -18,6 +18,7 @@ package tech.bitey.dataframe;
 
 import java.nio.ByteBuffer;
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.stream.Collector;
 
 /**
@@ -141,5 +142,16 @@ public interface DateTimeColumn extends Column<LocalDateTime> {
 	 */
 	public static Collector<LocalDateTime, ?, DateTimeColumn> collector() {
 		return collector(0);
+	}
+
+	/**
+	 * Returns a new {@code DateTimeColumn} containing the specified elements.
+	 * 
+	 * @param elements the elements to be included in the new column
+	 * 
+	 * @return a new {@code DateTimeColumn} containing the specified elements.
+	 */
+	public static DateTimeColumn of(Collection<LocalDateTime> c) {
+		return c.stream().collect(collector());
 	}
 }

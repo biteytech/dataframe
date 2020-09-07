@@ -21,12 +21,26 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Random;
+
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class TestDoubleColumn extends TestFloatingColumn<Double> {
 
 	private static final Random RAND = new Random(0);
-	
+
+	@Test
+	public void testStream() {
+		for (TestSample<Double> s : samples()) {
+			double[] expected = Arrays.stream(s.array()).filter(Objects::nonNull).mapToDouble(Double::doubleValue)
+					.toArray();
+			double[] actual = ((DoubleColumn) s.column()).doubleStream().toArray();
+			Assertions.assertArrayEquals(expected, actual);
+		}
+	}
+
 	@Override
 	Column<Double> parseColumn(StringColumn stringColumn) {
 		return stringColumn.parseDouble();

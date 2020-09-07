@@ -20,6 +20,7 @@ import static tech.bitey.bufferstuff.BufferBitSet.EMPTY_BITSET;
 import static tech.bitey.dataframe.NonNullColumn.NONNULL_CHARACTERISTICS;
 
 import java.nio.IntBuffer;
+import java.util.stream.IntStream;
 
 import tech.bitey.bufferstuff.BufferBitSet;
 
@@ -77,5 +78,10 @@ final class NullableIntColumn extends NullableIntArrayColumn<Integer, IntColumn,
 	@Override
 	boolean checkType(Object o) {
 		return o instanceof Integer;
+	}
+
+	@Override
+	public IntStream intStream() {
+		return subColumn.intStream();
 	}
 }

@@ -21,12 +21,25 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Random;
+
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class TestIntColumn extends TestColumn<Integer> {
 
 	private static final Random RAND = new Random(0);
-	
+
+	@Test
+	public void testStream() {
+		for (TestSample<Integer> s : samples()) {
+			int[] expected = Arrays.stream(s.array()).filter(Objects::nonNull).mapToInt(Integer::intValue).toArray();
+			int[] actual = ((IntColumn) s.column()).intStream().toArray();
+			Assertions.assertArrayEquals(expected, actual);
+		}
+	}
+
 	@Override
 	Column<Integer> parseColumn(StringColumn stringColumn) {
 		return stringColumn.parseInt();

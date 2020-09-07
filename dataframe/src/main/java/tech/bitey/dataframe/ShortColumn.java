@@ -17,6 +17,7 @@
 package tech.bitey.dataframe;
 
 import java.nio.ByteBuffer;
+import java.util.Collection;
 import java.util.stream.Collector;
 
 /**
@@ -150,5 +151,16 @@ public interface ShortColumn extends NumericColumn<Short> {
 	 */
 	public static Collector<Short, ?, ShortColumn> collector() {
 		return collector(0);
+	}
+
+	/**
+	 * Returns a new {@code ShortColumn} containing the specified elements.
+	 * 
+	 * @param elements the elements to be included in the new column
+	 * 
+	 * @return a new {@code ShortColumn} containing the specified elements.
+	 */
+	public static ShortColumn of(Collection<Short> c) {
+		return c.stream().collect(collector());
 	}
 }

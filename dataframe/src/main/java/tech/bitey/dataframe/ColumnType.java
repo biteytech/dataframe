@@ -50,7 +50,9 @@ import tech.bitey.bufferstuff.BufferBitSet;
  * <li>{@link #FLOAT}
  * <li>{@link #INT}
  * <li>{@link #LONG}
+ * <li>{@link #SHORT}
  * <li>{@link #STRING}
+ * <li>{@link #BYTE}
  * <li>{@link #DECIMAL}
  * </ul>
  * 

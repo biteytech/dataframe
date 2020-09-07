@@ -21,6 +21,7 @@ import java.nio.ByteBuffer;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Collection;
 import java.util.stream.Collector;
 
 /**
@@ -142,6 +143,17 @@ public interface StringColumn extends Column<String> {
 	 */
 	public static Collector<String, ?, StringColumn> collector() {
 		return collector(0);
+	}
+
+	/**
+	 * Returns a new {@code StringColumn} containing the specified elements.
+	 * 
+	 * @param elements the elements to be included in the new column
+	 * 
+	 * @return a new {@code StringColumn} containing the specified elements.
+	 */
+	public static StringColumn of(Collection<String> c) {
+		return c.stream().collect(collector());
 	}
 
 	/**

@@ -26,6 +26,9 @@ import java.nio.ByteBuffer;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.IntStream;
+
+import tech.bitey.bufferstuff.BufferUtils;
 
 final class NonNullIntColumn extends IntArrayColumn<Integer, IntColumn, NonNullIntColumn> implements IntColumn {
 
@@ -142,5 +145,10 @@ final class NonNullIntColumn extends IntArrayColumn<Integer, IntColumn, NonNullI
 	@Override
 	boolean checkType(Object o) {
 		return o instanceof Integer;
+	}
+
+	@Override
+	public IntStream intStream() {
+		return BufferUtils.stream(elements, offset, offset + size, characteristics);
 	}
 }

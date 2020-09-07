@@ -16,6 +16,7 @@
 
 package tech.bitey.dataframe;
 
+import java.util.Collection;
 import java.util.stream.Collector;
 
 import tech.bitey.bufferstuff.BufferBitSet;
@@ -73,5 +74,16 @@ public interface BooleanColumn extends Column<Boolean> {
 	public static Collector<Boolean, ?, BooleanColumn> collector() {
 		return Collector.of(BooleanColumn::builder, BooleanColumnBuilder::add, BooleanColumnBuilder::append,
 				BooleanColumnBuilder::build);
+	}
+
+	/**
+	 * Returns a new {@code BooleanColumn} containing the specified elements.
+	 * 
+	 * @param elements the elements to be included in the new column
+	 * 
+	 * @return a new {@code BooleanColumn} containing the specified elements.
+	 */
+	public static BooleanColumn of(Collection<Boolean> c) {
+		return c.stream().collect(collector());
 	}
 }

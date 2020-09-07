@@ -17,7 +17,9 @@
 package tech.bitey.dataframe;
 
 import java.nio.ByteBuffer;
+import java.util.Collection;
 import java.util.stream.Collector;
+import java.util.stream.LongStream;
 
 /**
  * A {@link Column} with element type {@link Long}.
@@ -75,6 +77,13 @@ public interface LongColumn extends NumericColumn<Long> {
 	 *                                   than {@link #size()}
 	 */
 	long getLong(int index);
+
+	/**
+	 * Primitive specialization of {@link Column#stream()}.
+	 * 
+	 * @return a primitive stream of the non-null elements in this {@link Column}.
+	 */
+	LongStream longStream();
 
 	/**
 	 * Returns a {@link LongColumnBuilder builder} with the specified
@@ -150,5 +159,16 @@ public interface LongColumn extends NumericColumn<Long> {
 	 */
 	public static Collector<Long, ?, LongColumn> collector() {
 		return collector(0);
+	}
+
+	/**
+	 * Returns a new {@code LongColumn} containing the specified elements.
+	 * 
+	 * @param elements the elements to be included in the new column
+	 * 
+	 * @return a new {@code LongColumn} containing the specified elements.
+	 */
+	public static LongColumn of(Collection<Long> c) {
+		return c.stream().collect(collector());
 	}
 }

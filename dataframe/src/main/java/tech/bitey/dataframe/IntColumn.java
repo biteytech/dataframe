@@ -17,7 +17,9 @@
 package tech.bitey.dataframe;
 
 import java.nio.ByteBuffer;
+import java.util.Collection;
 import java.util.stream.Collector;
+import java.util.stream.IntStream;
 
 /**
  * A {@link Column} with element type {@link Integer}.
@@ -75,6 +77,13 @@ public interface IntColumn extends NumericColumn<Integer> {
 	 *                                   than {@link #size()}
 	 */
 	int getInt(int index);
+
+	/**
+	 * Primitive specialization of {@link Column#stream()}.
+	 * 
+	 * @return a primitive stream of the non-null elements in this {@link Column}.
+	 */
+	IntStream intStream();
 
 	/**
 	 * Returns an {@link IntColumnBuilder builder} with the specified
@@ -150,5 +159,16 @@ public interface IntColumn extends NumericColumn<Integer> {
 	 */
 	public static Collector<Integer, ?, IntColumn> collector() {
 		return collector(0);
+	}
+
+	/**
+	 * Returns a new {@code IntColumn} containing the specified elements.
+	 * 
+	 * @param elements the elements to be included in the new column
+	 * 
+	 * @return a new {@code IntColumn} containing the specified elements.
+	 */
+	public static IntColumn of(Collection<Integer> c) {
+		return c.stream().collect(collector());
 	}
 }

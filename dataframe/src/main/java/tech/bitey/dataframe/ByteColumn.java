@@ -16,6 +16,7 @@
 
 package tech.bitey.dataframe;
 
+import java.util.Collection;
 import java.util.stream.Collector;
 
 /**
@@ -147,5 +148,16 @@ public interface ByteColumn extends NumericColumn<Byte> {
 	 */
 	public static Collector<Byte, ?, ByteColumn> collector() {
 		return collector(0);
+	}
+
+	/**
+	 * Returns a new {@code ByteColumn} containing the specified elements.
+	 * 
+	 * @param elements the elements to be included in the new column
+	 * 
+	 * @return a new {@code ByteColumn} containing the specified elements.
+	 */
+	public static ByteColumn of(Collection<Byte> c) {
+		return c.stream().collect(collector());
 	}
 }

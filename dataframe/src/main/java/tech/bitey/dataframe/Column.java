@@ -62,10 +62,8 @@ import java.util.function.ToLongFunction;
  * <td>FALSE</td>
  * <td>FALSE</td>
  * <td>FALSE</td>
- * <td>{@link Spliterator#ORDERED ORDERED}, {@link Spliterator#IMMUTABLE
- * IMMUTABLE}</td>
- * <td>O(n)<br>
- * No</td>
+ * <td></td>
+ * <td>O(n) / No</td>
  * </tr>
  * 
  * <tr>
@@ -73,11 +71,8 @@ import java.util.function.ToLongFunction;
  * <td>TRUE</td>
  * <td>FALSE</td>
  * <td>FALSE</td>
- * <td>{@link Spliterator#ORDERED ORDERED}, {@link Spliterator#IMMUTABLE
- * IMMUTABLE},<br>
- * {@link Spliterator#NONNULL NONNULL}</td>
- * <td>O(n)<br>
- * No</td>
+ * <td>{@link Spliterator#NONNULL NONNULL}</td>
+ * <td>O(n) / No</td>
  * </tr>
  * 
  * <tr>
@@ -85,11 +80,9 @@ import java.util.function.ToLongFunction;
  * <td>TRUE</td>
  * <td>TRUE</td>
  * <td>FALSE</td>
- * <td>{@link Spliterator#ORDERED ORDERED}, {@link Spliterator#IMMUTABLE
- * IMMUTABLE},<br>
- * {@link Spliterator#NONNULL NONNULL}, {@link Spliterator#SORTED SORTED}</td>
- * <td>O(log(n))<br>
- * Yes</td>
+ * <td>{@link Spliterator#NONNULL NONNULL}, {@link Spliterator#SORTED
+ * SORTED}</td>
+ * <td>O(log(n)) / Yes</td>
  * </tr>
  * 
  * <tr>
@@ -97,12 +90,9 @@ import java.util.function.ToLongFunction;
  * <td>TRUE</td>
  * <td>TRUE</td>
  * <td>TRUE</td>
- * <td>{@link Spliterator#ORDERED ORDERED}, {@link Spliterator#IMMUTABLE
- * IMMUTABLE},<br>
- * {@link Spliterator#NONNULL NONNULL}, {@link Spliterator#SORTED SORTED},<br>
+ * <td>{@link Spliterator#NONNULL NONNULL}, {@link Spliterator#SORTED SORTED},
  * {@link Spliterator#DISTINCT DISTINCT}</td>
- * <td>O(log(n))<br>
- * Yes</td>
+ * <td>O(log(n)) / Yes</td>
  * </tr>
  * </table>
  * <p>
@@ -110,9 +100,10 @@ import java.util.function.ToLongFunction;
  * <ul>
  * <li>The characteristics cannot be mixed and matched arbitrarily. Rather:
  * {@code DISTINCT} implies {@code SORTED} implies {@code NONNULL}.
- * <li>All columns report {@link Spliterator#SIZED SIZED} and
- * {@link Spliterator#SIZED SUBSIZED} in addition to the characteristics listed
- * above.
+ * <li>All columns report {@link Spliterator#SIZED SIZED},
+ * {@link Spliterator#SUBSIZED SUBSIZED}, {@link Spliterator#ORDERED ORDERED},
+ * and {@link Spliterator#IMMUTABLE IMMUTABLE} in addition to the
+ * characteristics listed above.
  * </ul>
  * 
  * @author biteytech@protonmail.com
@@ -238,17 +229,13 @@ public interface Column<E> extends List<E> {
 	Column<E> subColumn(int fromIndex, int toIndex);
 
 	/**
-	 * Creates a {@link Spliterator} over the elements in this list.
-	 * <p>
-	 * The {@code Spliterator} reports {@link Spliterator#SIZED SIZED},
-	 * {@link Spliterator#SUBSIZED SUBSIZED}, {@link Spliterator#ORDERED ORDERED},
-	 * and {@link Spliterator#IMMUTABLE IMMUTABLE}.
+	 * Creates a {@link Spliterator} over the elements in this column.
 	 *
-	 * @return a {@code Spliterator} over the elements in this column
+	 * @return a {@code Spliterator} over the elements in this column.
 	 */
 	@Override
 	default Spliterator<E> spliterator() {
-		return Spliterators.spliterator(this, BASE_CHARACTERISTICS);
+		return Spliterators.spliterator(this, characteristics());
 	}
 
 	/**

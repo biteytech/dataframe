@@ -20,6 +20,7 @@ import static tech.bitey.bufferstuff.BufferBitSet.EMPTY_BITSET;
 import static tech.bitey.dataframe.NonNullColumn.NONNULL_CHARACTERISTICS;
 
 import java.nio.IntBuffer;
+import java.util.stream.LongStream;
 
 import tech.bitey.bufferstuff.BufferBitSet;
 
@@ -77,5 +78,10 @@ final class NullableLongColumn extends NullableLongArrayColumn<Long, LongColumn,
 	@Override
 	boolean checkType(Object o) {
 		return o instanceof Long;
+	}
+
+	@Override
+	public LongStream longStream() {
+		return subColumn.longStream();
 	}
 }

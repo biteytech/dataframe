@@ -20,6 +20,7 @@ import static tech.bitey.bufferstuff.BufferBitSet.EMPTY_BITSET;
 import static tech.bitey.dataframe.NonNullColumn.NONNULL_CHARACTERISTICS;
 
 import java.nio.IntBuffer;
+import java.util.stream.DoubleStream;
 
 import tech.bitey.bufferstuff.BufferBitSet;
 
@@ -95,5 +96,10 @@ final class NullableDoubleColumn extends NullableColumn<Double, DoubleColumn, No
 				keepLeft.set(i - offset);
 			}
 		}
+	}
+
+	@Override
+	public DoubleStream doubleStream() {
+		return subColumn.doubleStream();
 	}
 }

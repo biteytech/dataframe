@@ -19,6 +19,7 @@ package tech.bitey.dataframe;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
+import java.util.Collection;
 import java.util.stream.Collector;
 
 /**
@@ -143,5 +144,16 @@ public interface DecimalColumn extends NumericColumn<BigDecimal> {
 	 */
 	public static Collector<BigDecimal, ?, DecimalColumn> collector() {
 		return collector(0);
+	}
+
+	/**
+	 * Returns a new {@code DecimalColumn} containing the specified elements.
+	 * 
+	 * @param elements the elements to be included in the new column
+	 * 
+	 * @return a new {@code DecimalColumn} containing the specified elements.
+	 */
+	public static DecimalColumn of(Collection<BigDecimal> c) {
+		return c.stream().collect(collector());
 	}
 }

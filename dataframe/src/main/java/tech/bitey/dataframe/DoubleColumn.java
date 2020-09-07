@@ -17,7 +17,9 @@
 package tech.bitey.dataframe;
 
 import java.nio.ByteBuffer;
+import java.util.Collection;
 import java.util.stream.Collector;
+import java.util.stream.DoubleStream;
 
 /**
  * A {@link Column} with element type {@link Double}.
@@ -75,6 +77,13 @@ public interface DoubleColumn extends NumericColumn<Double> {
 	 *                                   than {@link #size()}
 	 */
 	double getDouble(int index);
+
+	/**
+	 * Primitive specialization of {@link Column#stream()}.
+	 * 
+	 * @return a primitive stream of the non-null elements in this {@link Column}.
+	 */
+	DoubleStream doubleStream();
 
 	/**
 	 * Returns a {@link DoubleColumnBuilder builder} with the specified
@@ -150,5 +159,16 @@ public interface DoubleColumn extends NumericColumn<Double> {
 	 */
 	public static Collector<Double, ?, DoubleColumn> collector() {
 		return collector(0);
+	}
+
+	/**
+	 * Returns a new {@code DoubleColumn} containing the specified elements.
+	 * 
+	 * @param elements the elements to be included in the new column
+	 * 
+	 * @return a new {@code DoubleColumn} containing the specified elements.
+	 */
+	public static DoubleColumn of(Collection<Double> c) {
+		return c.stream().collect(collector());
 	}
 }

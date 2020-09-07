@@ -29,6 +29,7 @@ import java.nio.IntBuffer;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.DoubleStream;
 
 import tech.bitey.bufferstuff.BufferBitSet;
 import tech.bitey.bufferstuff.BufferSearch;
@@ -291,5 +292,10 @@ final class NonNullDoubleColumn extends NonNullSingleBufferColumn<Double, Double
 	@Override
 	int elementSize() {
 		return 8;
+	}
+
+	@Override
+	public DoubleStream doubleStream() {
+		return BufferUtils.stream(elements, offset, offset + size, characteristics);
 	}
 }

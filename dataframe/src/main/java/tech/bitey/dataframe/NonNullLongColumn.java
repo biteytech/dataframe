@@ -26,6 +26,9 @@ import java.nio.ByteBuffer;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.LongStream;
+
+import tech.bitey.bufferstuff.BufferUtils;
 
 final class NonNullLongColumn extends LongArrayColumn<Long, LongColumn, NonNullLongColumn> implements LongColumn {
 
@@ -138,5 +141,10 @@ final class NonNullLongColumn extends LongArrayColumn<Long, LongColumn, NonNullL
 	@Override
 	boolean checkType(Object o) {
 		return o instanceof Long;
+	}
+
+	@Override
+	public LongStream longStream() {
+		return BufferUtils.stream(elements, offset, offset + size, characteristics);
 	}
 }
