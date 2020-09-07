@@ -8,10 +8,14 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.time.LocalDate;
+import java.time.Month;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -163,6 +167,37 @@ public class SampleUsages {
 
 			Assertions.assertEquals(df, df3);
 		}
+	}
+
+	/**
+	 * Processing {@link DataFrame DataFrames}.
+	 */
+	@Test
+	public void ex5() {
+
+		IntColumn c1 = IntColumn.of(100, 200, 300);
+		DateColumn c2 = DateColumn.of(LocalDate.of(2019, 1, 6), LocalDate.of(2019, 1, 23), LocalDate.of(2019, 2, 9));
+		StringColumn c3 = StringColumn.of("Jones", null, "Gill");
+		IntColumn c4 = IntColumn.of(95, 50, 36);
+		DoubleColumn c5 = DoubleColumn.of(1.99, 19.99, 4.99);
+		DataFrame df = DataFrameFactory.create(new Column<?>[] { c1, c2, c3, c4, c5 },
+				new String[] { "ORDER_ID", "ORDER_DATE", "SALESPERSON", "UNITS", "UNIT_COST" });
+
+		// streaming Rows
+		Map<Month, Double> map1 = df.stream().collect(Collectors.groupingBy(row -> row.getDate("ORDER_DATE").getMonth(),
+				Collectors.summingDouble(row -> row.getInt("UNITS") * row.getDouble("UNIT_COST"))));
+
+		// using a Cursor
+		Map<Month, Double> map2 = new HashMap<>();
+		for (Cursor c = df.cursor(); c.hasNext(); c.next()) {
+			LocalDate date = c.getDate("ORDER_DATE");
+			double total = c.getInt("UNITS") * c.getDouble("UNIT_COST");
+
+			map2.merge(date.getMonth(), total, (t1, t2) -> t1 + t2);
+		}
+
+		Assertions.assertEquals(map1.keySet(), map2.keySet());
+		map1.keySet().forEach(key -> Assertions.assertEquals(map1.get(key), map2.get(key), 0.0000001));
 	}
 
 	private static void ex4Insert(PreparedStatement ps, int c1, LocalDate c2, String c3, int c4, double c5)
