@@ -28,7 +28,9 @@ public enum ColumnTypeCode {
 	T, // Short
 	Y, // Byte
 	S, // String
-	BD; // Decimal
+	BD, // Decimal
+	UU, // UUID
+	;
 
 	ColumnType<?> getType() {
 		switch (this) {
@@ -54,6 +56,8 @@ public enum ColumnTypeCode {
 			return ColumnType.STRING;
 		case BD:
 			return ColumnType.DECIMAL;
+		case UU:
+			return ColumnType.UUID;
 		}
 		throw new IllegalStateException();
 	}

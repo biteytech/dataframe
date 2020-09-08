@@ -40,7 +40,7 @@ abstract class SingleBufferColumnBuilder<E, F extends Buffer, C extends Column<E
 		super(characteristics);
 	}
 
-	ByteBuffer buffer = allocate(16);
+	ByteBuffer buffer = allocate(10);
 	F elements = asBuffer(buffer);
 
 	abstract F asBuffer(ByteBuffer buffer);
@@ -52,8 +52,9 @@ abstract class SingleBufferColumnBuilder<E, F extends Buffer, C extends Column<E
 	private void resetElementBuffer() {
 		ByteBuffer buffer = duplicate(this.buffer);
 		buffer.clear();
+		int position = elements.position();
 		elements = asBuffer(buffer);
-		elements.position(this.buffer.position() / elementSize());
+		elements.position(position);
 	}
 
 	private ByteBuffer allocate(int capacity) {
@@ -62,17 +63,17 @@ abstract class SingleBufferColumnBuilder<E, F extends Buffer, C extends Column<E
 
 	@Override
 	void ensureAdditionalCapacity(int additionalCapacity) {
-		ensureCapacity(elements.position() + additionalCapacity);
+		ensureCapacity(getNonNullSize() + additionalCapacity);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public B ensureCapacity(int minCapacity) {
-		if (elements.capacity() < minCapacity) {
+		if (getNonNullCapacity() < minCapacity) {
 
-			int expandedCapacity = expandedCapacity(elements.capacity(), minCapacity);
+			int expandedCapacity = expandedCapacity(getNonNullCapacity(), minCapacity);
 			ByteBuffer extended = allocate(expandedCapacity);
-			buffer.position(elements.position() * elementSize());
+			buffer.position(getNonNullSize() * elementSize());
 			buffer.flip();
 			extended.put(buffer);
 
@@ -106,11 +107,15 @@ abstract class SingleBufferColumnBuilder<E, F extends Buffer, C extends Column<E
 		return elements.position();
 	}
 
+	int getNonNullCapacity() {
+		return elements.capacity();
+	}
+
 	@Override
 	C buildNonNullColumn(int characteristics) {
 		ByteBuffer full = duplicate(buffer);
 		full.flip();
-		full.limit(elements.position() * elementSize());
+		full.limit(getNonNullSize() * elementSize());
 
 		ByteBuffer trim = allocate(getNonNullSize());
 		trim.put(full);

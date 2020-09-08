@@ -98,89 +98,12 @@ abstract class NonNullVarLenColumn<E extends Comparable<E>, I extends Column<E>,
 	}
 
 	int search(E value) {
-		return binarySearch(offset, offset + size, value);
+		return AbstractColumnSearch.binarySearch(this, offset, offset + size, value);
 	}
 
 	@Override
 	int search(E value, boolean first) {
-		if (isSorted()) {
-			int index = search(value);
-			if (isDistinct() || index < 0)
-				return index;
-			else if (first)
-				return binaryFindFirst(index, value);
-			else
-				return binaryFindLast(index, value);
-		} else
-			return indexOf(value, first) + offset;
-	}
-
-	private int binaryFindFirst(int fromIndex, E key) {
-
-		while (offset != fromIndex && getNoOffset(fromIndex - 1).equals(key)) {
-
-			int range = 1, rangeIndex;
-			do {
-				range <<= 1;
-				rangeIndex = fromIndex - range;
-			} while (offset <= rangeIndex && getNoOffset(rangeIndex).equals(key));
-
-			fromIndex -= range >> 1;
-		}
-
-		return fromIndex;
-	}
-
-	private int binaryFindLast(int fromIndex, E key) {
-
-		while (fromIndex != lastIndex() && getNoOffset(fromIndex + 1).equals(key)) {
-
-			int range = 1, rangeIndex;
-			do {
-				range <<= 1;
-				rangeIndex = fromIndex + range;
-			} while (rangeIndex <= lastIndex() && getNoOffset(rangeIndex).equals(key));
-
-			fromIndex += range >> 1;
-		}
-
-		return fromIndex;
-	}
-
-	/**
-	 * Searches the specified value using the binary search algorithm.
-	 * <p>
-	 * Adapted from {@code Arrays::binarySearch0}
-	 *
-	 * @param key the value to be searched for
-	 * @return index of the specified key, if it is contained in this column;
-	 *         otherwise, <tt>(-(<i>insertion point</i>) - 1)</tt>. The <i>insertion
-	 *         point</i> is defined as the point at which the key would be inserted
-	 *         into the array: the index of the first element greater than the key,
-	 *         or <tt>a.length</tt> if all elements in the array are less than the
-	 *         specified key. Note that this guarantees that the return value will
-	 *         be &gt;= 0 if and only if the key is found.
-	 */
-	private int binarySearch(int fromIndex, int toIndex, E key) {
-
-		int low = fromIndex;
-		int high = toIndex - 1;
-
-		while (low <= high) {
-			int mid = (low + high) >>> 1;
-
-			E midVal = getNoOffset(mid);
-
-			int cmp = midVal.compareTo(key);
-
-			if (cmp < 0)
-				low = mid + 1;
-			else if (cmp > 0)
-				high = mid - 1;
-			else
-				return mid; // key found
-		}
-		return -(low + 1); // key not found.
+		return AbstractColumnSearch.search(this, value, first);
 	}
 
 	@Override

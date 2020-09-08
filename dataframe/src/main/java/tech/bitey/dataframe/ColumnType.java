@@ -29,6 +29,7 @@ import static tech.bitey.dataframe.ColumnTypeCode.I;
 import static tech.bitey.dataframe.ColumnTypeCode.L;
 import static tech.bitey.dataframe.ColumnTypeCode.S;
 import static tech.bitey.dataframe.ColumnTypeCode.T;
+import static tech.bitey.dataframe.ColumnTypeCode.UU;
 import static tech.bitey.dataframe.ColumnTypeCode.Y;
 
 import java.io.IOException;
@@ -36,6 +37,7 @@ import java.math.BigDecimal;
 import java.nio.channels.ReadableByteChannel;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import tech.bitey.bufferstuff.BufferBitSet;
 
@@ -54,6 +56,7 @@ import tech.bitey.bufferstuff.BufferBitSet;
  * <li>{@link #STRING}
  * <li>{@link #BYTE}
  * <li>{@link #DECIMAL}
+ * <li>{@link #UUID}
  * </ul>
  * 
  * @author biteytech@protonmail.com
@@ -92,6 +95,9 @@ public class ColumnType<E> {
 
 	/** The type for {@link DecimalColumn} */
 	public static final ColumnType<BigDecimal> DECIMAL = new ColumnType<>(BD);
+
+	/** The type for {@link UuidColumn} */
+	public static final ColumnType<UUID> UUID = new ColumnType<>(UU);
 
 	private final ColumnTypeCode code;
 
@@ -158,6 +164,8 @@ public class ColumnType<E> {
 			return (ColumnBuilder<T>) StringColumn.builder(characteristic);
 		case BD:
 			return (ColumnBuilder<T>) DecimalColumn.builder(characteristic);
+		case UU:
+			return (ColumnBuilder<T>) UuidColumn.builder(characteristic);
 		}
 
 		throw new IllegalStateException();
@@ -260,6 +268,13 @@ public class ColumnType<E> {
 			else
 				return new NullableDecimalColumn(column, nonNulls, null, 0, size);
 		}
+		case UU: {
+			NonNullUuidColumn column = NonNullUuidColumn.empty(characteristics).readFrom(channel);
+			if (nonNulls == null)
+				return column;
+			else
+				return new NullableUuidColumn(column, nonNulls, null, 0, size);
+		}
 		}
 
 		throw new IllegalStateException();
@@ -325,6 +340,11 @@ public class ColumnType<E> {
 	 * <td>{@link BigDecimal}</td>
 	 * <td>{@link BigDecimal#BigDecimal(String)}</td>
 	 * </tr>
+	 * <tr>
+	 * <td>UUID</td>
+	 * <td>{@link UUID}</td>
+	 * <td>{@link UUID#fromString(String)}</td>
+	 * </tr>
 	 * </table>
 	 * 
 	 * @param string - the string to parse
@@ -355,6 +375,8 @@ public class ColumnType<E> {
 			return string;
 		case BD:
 			return new BigDecimal(string);
+		case UU:
+			return java.util.UUID.fromString(string);
 		}
 		throw new IllegalStateException();
 	}
@@ -369,5 +391,10 @@ public class ColumnType<E> {
 			return LocalDate.of(yyyymmdd / 10000, yyyymmdd % 10000 / 100, yyyymmdd % 100);
 		} else
 			return LocalDate.parse(string);
+	}
+
+	@Override
+	public String toString() {
+		return code.toString();
 	}
 }

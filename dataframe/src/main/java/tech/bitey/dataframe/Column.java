@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Spliterator;
 import java.util.Spliterators;
+import java.util.UUID;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.ToDoubleFunction;
@@ -426,6 +427,18 @@ public interface Column<E> extends List<E> {
 	default StringColumn toStringColumn() {
 		return toStringColumn(Object::toString);
 	}
+
+	/**
+	 * Convert this column into a {@link UuidColumn} by applying the specified
+	 * {@link Function} to each non-null element. Nulls are preserved as-is, but
+	 * <u>the function most not return null</u>.
+	 * <p>
+	 * The resulting column will not be flagged as sorted or distinct.
+	 * 
+	 * @return A {@link UuidColumn} created from this column using the specified
+	 *         {@code Function}.
+	 */
+	public UuidColumn toUuidColumn(Function<E, UUID> function);
 
 	/*------------------------------------------------------------
 	 *  NavigableSet-inspired Methods

@@ -32,6 +32,7 @@ import java.util.ListIterator;
 import java.util.NoSuchElementException;
 import java.util.Spliterator;
 import java.util.Spliterators;
+import java.util.UUID;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.ToDoubleFunction;
@@ -489,158 +490,172 @@ abstract class NonNullColumn<E, I extends Column<E>, C extends NonNullColumn<E, 
 	void validateBuffer(Buffer buffer) {
 		checkArgument(buffer.position() == 0, "buffer position must be zero");
 	}
-	
+
 	@Override
 	public NonNullBooleanColumn toBooleanColumn(Predicate<E> predicate) {
-		
+
 		BooleanColumnBuilder builder = new BooleanColumnBuilder();
 		builder.ensureCapacity(size);
-		
+
 		for (E element : this) {
 			boolean value = predicate.test(element);
 			builder.add(value);
 		}
 
-		return (NonNullBooleanColumn)builder.build();
+		return (NonNullBooleanColumn) builder.build();
 	}
-	
+
 	@Override
 	public NonNullDateColumn toDateColumn(Function<E, LocalDate> function) {
-		
+
 		DateColumnBuilder builder = new DateColumnBuilder(NONNULL_CHARACTERISTICS);
 		builder.ensureCapacity(size);
-		
+
 		for (E element : this) {
 			LocalDate value = function.apply(element);
 			builder.add(value);
 		}
 
-		return (NonNullDateColumn)builder.build();
+		return (NonNullDateColumn) builder.build();
 	}
-	
+
 	@Override
 	public NonNullDateTimeColumn toDateTimeColumn(Function<E, LocalDateTime> function) {
-		
+
 		DateTimeColumnBuilder builder = new DateTimeColumnBuilder(NONNULL_CHARACTERISTICS);
 		builder.ensureCapacity(size);
-		
+
 		for (E element : this) {
 			LocalDateTime value = function.apply(element);
 			builder.add(value);
 		}
 
-		return (NonNullDateTimeColumn)builder.build();
+		return (NonNullDateTimeColumn) builder.build();
 	}
-	
+
 	@Override
 	public NonNullDoubleColumn toDoubleColumn(ToDoubleFunction<E> function) {
-		
+
 		DoubleColumnBuilder builder = new DoubleColumnBuilder(NONNULL_CHARACTERISTICS);
 		builder.ensureCapacity(size);
-		
+
 		for (E element : this) {
 			double value = function.applyAsDouble(element);
 			builder.add(value);
 		}
 
-		return (NonNullDoubleColumn)builder.build();
+		return (NonNullDoubleColumn) builder.build();
 	}
-	
+
 	@Override
 	public NonNullFloatColumn toFloatColumn(ToFloatFunction<E> function) {
-		
+
 		FloatColumnBuilder builder = new FloatColumnBuilder(NONNULL_CHARACTERISTICS);
 		builder.ensureCapacity(size);
-		
+
 		for (E element : this) {
 			float value = function.applyAsFloat(element);
 			builder.add(value);
 		}
 
-		return (NonNullFloatColumn)builder.build();
+		return (NonNullFloatColumn) builder.build();
 	}
-	
+
 	@Override
 	public NonNullIntColumn toIntColumn(ToIntFunction<E> function) {
-		
+
 		IntColumnBuilder builder = new IntColumnBuilder(NONNULL_CHARACTERISTICS);
 		builder.ensureCapacity(size);
-		
+
 		for (E element : this) {
 			int value = function.applyAsInt(element);
 			builder.add(value);
 		}
 
-		return (NonNullIntColumn)builder.build();
+		return (NonNullIntColumn) builder.build();
 	}
-	
+
 	@Override
 	public NonNullLongColumn toLongColumn(ToLongFunction<E> function) {
-		
+
 		LongColumnBuilder builder = new LongColumnBuilder(NONNULL_CHARACTERISTICS);
 		builder.ensureCapacity(size);
-		
+
 		for (E element : this) {
 			long value = function.applyAsLong(element);
 			builder.add(value);
 		}
 
-		return (NonNullLongColumn)builder.build();
+		return (NonNullLongColumn) builder.build();
 	}
-	
+
 	@Override
 	public NonNullShortColumn toShortColumn(ToShortFunction<E> function) {
-		
+
 		ShortColumnBuilder builder = new ShortColumnBuilder(NONNULL_CHARACTERISTICS);
 		builder.ensureCapacity(size);
-		
+
 		for (E element : this) {
 			short value = function.applyAsShort(element);
 			builder.add(value);
 		}
 
-		return (NonNullShortColumn)builder.build();
+		return (NonNullShortColumn) builder.build();
 	}
-	
+
 	@Override
 	public NonNullByteColumn toByteColumn(ToByteFunction<E> function) {
-		
+
 		ByteColumnBuilder builder = new ByteColumnBuilder(NONNULL_CHARACTERISTICS);
 		builder.ensureCapacity(size);
-		
+
 		for (E element : this) {
 			byte value = function.applyAsByte(element);
 			builder.add(value);
 		}
 
-		return (NonNullByteColumn)builder.build();
+		return (NonNullByteColumn) builder.build();
 	}
-	
+
 	@Override
 	public NonNullDecimalColumn toDecimalColumn(Function<E, BigDecimal> function) {
-		
+
 		DecimalColumnBuilder builder = new DecimalColumnBuilder(NONNULL_CHARACTERISTICS);
 		builder.ensureCapacity(size);
-		
+
 		for (E element : this) {
 			BigDecimal value = function.apply(element);
 			builder.add(value);
 		}
 
-		return (NonNullDecimalColumn)builder.build();
+		return (NonNullDecimalColumn) builder.build();
 	}
-	
+
 	@Override
 	public NonNullStringColumn toStringColumn(Function<E, String> function) {
-		
+
 		StringColumnBuilder builder = new StringColumnBuilder(NONNULL_CHARACTERISTICS);
 		builder.ensureCapacity(size);
-		
+
 		for (E element : this) {
 			String value = function.apply(element);
 			builder.add(value);
 		}
 
-		return (NonNullStringColumn)builder.build();
+		return (NonNullStringColumn) builder.build();
+	}
+
+	@Override
+	public NonNullUuidColumn toUuidColumn(Function<E, UUID> function) {
+
+		UuidColumnBuilder builder = new UuidColumnBuilder(NONNULL_CHARACTERISTICS);
+		builder.ensureCapacity(size);
+
+		for (E element : this) {
+			UUID value = function.apply(element);
+			builder.add(value);
+		}
+
+		return (NonNullUuidColumn) builder.build();
 	}
 }

@@ -304,26 +304,26 @@ abstract class TestColumn<E extends Comparable<E>> {
 			Assertions.assertEquals(expected, actual, s + ", append(coerce==false), equals");
 		}
 	}
-	
+
 	/*------------------------------------------------------------
 	 *  Test Column Conversion Methods
 	 *------------------------------------------------------------*/
 	@Test
 	public void testColumnConversion() {
-		
-		for(TestSample<E> s : samples()) {
-			
+
+		for (TestSample<E> s : samples()) {
+
 			Column<E> expected = s.column();
-			
+
 			StringColumn stringColumn = expected.toStringColumn();
 			Column<E> actual = parseColumn(stringColumn);
-			
+
 			Assertions.assertEquals(expected, actual, s + ", column conversion, equals");
 		}
 	}
-	
+
 	abstract Column<E> parseColumn(StringColumn stringColumn);
-	
+
 	/*------------------------------------------------------------
 	 *  Generate Samples
 	 *------------------------------------------------------------*/

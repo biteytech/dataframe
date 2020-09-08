@@ -35,6 +35,7 @@ import tech.bitey.dataframe.db.IntToStatement;
 import tech.bitey.dataframe.db.LongToStatement;
 import tech.bitey.dataframe.db.ShortToStatement;
 import tech.bitey.dataframe.db.StringToStatement;
+import tech.bitey.dataframe.db.UuidToStatement;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class WriteToDbConfig {
@@ -106,6 +107,9 @@ public class WriteToDbConfig {
 					break;
 				case S:
 					toPsLogic[i] = StringToStatement.STRING_TO_STRING;
+					break;
+				case UU:
+					toPsLogic[i] = UuidToStatement.UUID_TO_STRING;
 					break;
 				}
 			}

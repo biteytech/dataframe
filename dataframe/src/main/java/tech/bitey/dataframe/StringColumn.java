@@ -22,6 +22,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Collection;
+import java.util.UUID;
 import java.util.stream.Collector;
 
 /**
@@ -310,6 +311,19 @@ public interface StringColumn extends Column<String> {
 	 */
 	default DecimalColumn parseDecimal() {
 		return toDecimalColumn(BigDecimal::new);
+	}
+
+	/**
+	 * Convert this column into a {@link UuidColumn} by applying the same logic as
+	 * in {@link ColumnType#parse(String)} to each non-null element. Nulls are
+	 * preserved as-is.
+	 * <p>
+	 * The resulting column will not be flagged as sorted or distinct.
+	 * 
+	 * @return A {@link UuidColumn} parsed from this column.
+	 */
+	default UuidColumn parseUuid() {
+		return toUuidColumn(UUID::fromString);
 	}
 
 	@Override

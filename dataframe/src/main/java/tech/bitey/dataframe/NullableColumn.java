@@ -29,6 +29,7 @@ import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
+import java.util.UUID;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.ToDoubleFunction;
@@ -397,65 +398,70 @@ abstract class NullableColumn<E, I extends Column<E>, C extends NonNullColumn<E,
 		nonNulls.writeTo(channel, offset, offset + size);
 		subColumn.writeTo(channel);
 	}
-	
+
 	/*------------------------------------------------------------
 	 *  Type Conversion Methods
 	 *------------------------------------------------------------*/
 	@Override
-	public BooleanColumn toBooleanColumn(Predicate<E> predicate) {		
+	public BooleanColumn toBooleanColumn(Predicate<E> predicate) {
 		return new NullableBooleanColumn(subColumn.toBooleanColumn(predicate), subNonNulls(), null, 0, size);
 	}
-	
+
 	@Override
-	public DateColumn toDateColumn(Function<E, LocalDate> function) {		
+	public DateColumn toDateColumn(Function<E, LocalDate> function) {
 		return new NullableDateColumn(subColumn.toDateColumn(function), subNonNulls(), null, 0, size);
 	}
-	
+
 	@Override
-	public DateTimeColumn toDateTimeColumn(Function<E, LocalDateTime> function) {		
+	public DateTimeColumn toDateTimeColumn(Function<E, LocalDateTime> function) {
 		return new NullableDateTimeColumn(subColumn.toDateTimeColumn(function), subNonNulls(), null, 0, size);
 	}
-	
+
 	@Override
-	public DoubleColumn toDoubleColumn(ToDoubleFunction<E> function) {		
+	public DoubleColumn toDoubleColumn(ToDoubleFunction<E> function) {
 		return new NullableDoubleColumn(subColumn.toDoubleColumn(function), subNonNulls(), null, 0, size);
 	}
-	
+
 	@Override
-	public FloatColumn toFloatColumn(ToFloatFunction<E> function) {		
+	public FloatColumn toFloatColumn(ToFloatFunction<E> function) {
 		return new NullableFloatColumn(subColumn.toFloatColumn(function), subNonNulls(), null, 0, size);
 	}
-	
+
 	@Override
-	public IntColumn toIntColumn(ToIntFunction<E> function) {		
+	public IntColumn toIntColumn(ToIntFunction<E> function) {
 		return new NullableIntColumn(subColumn.toIntColumn(function), subNonNulls(), null, 0, size);
 	}
-	
+
 	@Override
-	public LongColumn toLongColumn(ToLongFunction<E> function) {		
+	public LongColumn toLongColumn(ToLongFunction<E> function) {
 		return new NullableLongColumn(subColumn.toLongColumn(function), subNonNulls(), null, 0, size);
 	}
-	
+
 	@Override
-	public ShortColumn toShortColumn(ToShortFunction<E> function) {		
+	public ShortColumn toShortColumn(ToShortFunction<E> function) {
 		return new NullableShortColumn(subColumn.toShortColumn(function), subNonNulls(), null, 0, size);
 	}
-	
+
 	@Override
-	public ByteColumn toByteColumn(ToByteFunction<E> function) {		
+	public ByteColumn toByteColumn(ToByteFunction<E> function) {
 		return new NullableByteColumn(subColumn.toByteColumn(function), subNonNulls(), null, 0, size);
 	}
-	
+
 	@Override
-	public DecimalColumn toDecimalColumn(Function<E, BigDecimal> function) {		
+	public DecimalColumn toDecimalColumn(Function<E, BigDecimal> function) {
 		return new NullableDecimalColumn(subColumn.toDecimalColumn(function), subNonNulls(), null, 0, size);
 	}
-	
+
 	@Override
-	public StringColumn toStringColumn(Function<E, String> function) {		
+	public StringColumn toStringColumn(Function<E, String> function) {
 		return new NullableStringColumn(subColumn.toStringColumn(function), subNonNulls(), null, 0, size);
 	}
-	
+
+	@Override
+	public UuidColumn toUuidColumn(Function<E, UUID> function) {
+		return new NullableUuidColumn(subColumn.toUuidColumn(function), subNonNulls(), null, 0, size);
+	}
+
 	BufferBitSet subNonNulls() {
 		return nonNulls.get(offset, offset + size);
 	}

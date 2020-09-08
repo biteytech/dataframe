@@ -50,6 +50,7 @@ import tech.bitey.dataframe.db.IntFromResultSet;
 import tech.bitey.dataframe.db.LongFromResultSet;
 import tech.bitey.dataframe.db.ShortFromResultSet;
 import tech.bitey.dataframe.db.StringFromResultSet;
+import tech.bitey.dataframe.db.UuidFromResultSet;
 
 public class TestDataFrame {
 
@@ -67,7 +68,7 @@ public class TestDataFrame {
 
 		TestColumn[] columnTest = new TestColumn[] { new TestLongColumn(), new TestFloatColumn(),
 				new TestDoubleColumn(), new TestStringColumn(), new TestBooleanColumn(), new TestDecimalColumn(),
-				new TestShortColumn(), new TestByteColumn() };
+				new TestShortColumn(), new TestByteColumn(), new TestUuidColumn() };
 
 		for (TestColumn<?> tests : columnTest) {
 			tests.samples().forEach(s -> {
@@ -290,6 +291,10 @@ public class TestDataFrame {
 					case Y:
 						create.append("INT2");
 						fromRsLogic.add(ByteFromResultSet.BYTE_FROM_BYTE);
+						break;
+					case UU:
+						create.append("TEXT");
+						fromRsLogic.add(UuidFromResultSet.UUID_FROM_STRING);
 						break;
 					}
 
