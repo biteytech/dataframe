@@ -18,7 +18,7 @@ package tech.bitey.dataframe;
 
 import java.time.LocalDate;
 import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.NavigableMap;
 import java.util.function.DoubleBinaryOperator;
 import java.util.function.DoubleUnaryOperator;
 import java.util.function.Predicate;
@@ -85,8 +85,8 @@ public class DateSeriesImpl extends DataFrameImpl implements DateSeries {
 	}
 
 	@Override
-	public Map<LocalDate, Double> asMap() {
-		return toMap(1);
+	public NavigableMap<LocalDate, Double> asSeriesMap() {
+		return asMap(1);
 	}
 
 	@Override

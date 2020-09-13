@@ -43,7 +43,7 @@ public class TestDateSeries {
 		Map<LocalDate, Double> map = new HashMap<>();
 		for (int i = 0; i < 3; i++)
 			map.put(LocalDate.of(2017, 1, 1).plusYears(i), (i + 1) * 100d);
-		Assertions.assertEquals(map, ds1.asMap());
+		Assertions.assertEquals(map, ds1.asSeriesMap());
 
 		File file = File.createTempFile("ds1", "dat");
 		file.deleteOnExit();

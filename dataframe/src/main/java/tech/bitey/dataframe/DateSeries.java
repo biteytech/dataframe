@@ -17,7 +17,7 @@
 package tech.bitey.dataframe;
 
 import java.time.LocalDate;
-import java.util.Map;
+import java.util.NavigableMap;
 import java.util.function.DoubleBinaryOperator;
 import java.util.function.DoubleUnaryOperator;
 import java.util.function.Predicate;
@@ -64,11 +64,11 @@ public interface DateSeries extends DataFrame {
 	DateSeries transform(DateSeries series, DoubleBinaryOperator op);
 
 	/**
-	 * Returns an immutable {@link Map} view of this time series.
+	 * Returns an immutable {@link NavigableMap} view of this time series.
 	 * 
-	 * @return an immutable {@code Map} view of this time series.
+	 * @return an immutable {@code NavigableMap} view of this time series.
 	 */
-	Map<LocalDate, Double> asMap();
+	NavigableMap<LocalDate, Double> asSeriesMap();
 
 	/**
 	 * Returns the date for the point at the specified index.

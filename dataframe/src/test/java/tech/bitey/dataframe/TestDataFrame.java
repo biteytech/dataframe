@@ -32,6 +32,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.NavigableMap;
+import java.util.TreeMap;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -423,18 +425,34 @@ public class TestDataFrame {
 	}
 
 	@Test
-	public void testToMap() throws Exception {
+	public void testAsMap() throws Exception {
 
 		IntColumn df1KeyColumn = IntColumn.builder(DISTINCT).addAll(1, 3, 4, 5).build();
 		StringColumn df1ValueColumn = StringColumn.of("one", "three", "four", "five");
 		DataFrame df1 = DataFrameFactory.create(new Column<?>[] { df1KeyColumn, df1ValueColumn },
 				new String[] { "KEY", "VALUE" }, "KEY");
 
-		Map<Integer, String> expected = df1.stream().collect(Collectors.toMap(r -> r.get(0), r -> r.get(1)));
+		NavigableMap<Integer, String> expected1 = new TreeMap<>(
+				df1.stream().collect(Collectors.toMap(r -> r.get(0), r -> r.get(1))));
+		NavigableMap<Integer, String> actual1 = df1.asMap("VALUE");
+		Assertions.assertEquals(expected1, actual1);
+		Assertions.assertEquals(expected1.descendingKeySet(), actual1.descendingKeySet());
+		Assertions.assertEquals(expected1.descendingMap(), actual1.descendingMap());
+		Assertions.assertEquals(expected1.descendingMap().subMap(4, 2), actual1.descendingMap().subMap(4, 2));
+		Assertions.assertEquals(expected1.descendingMap().values().stream().collect(Collectors.toList()),
+				actual1.descendingMap().values().stream().collect(Collectors.toList()));
 
-		Map<Integer, String> actual = df1.toMap("VALUE");
-
-		Assertions.assertEquals(expected, actual);
+		NavigableMap<Integer, Row> expected2 = new TreeMap<>(
+				df1.stream().collect(Collectors.toMap(r -> r.get(0), r -> r)));
+		NavigableMap<Integer, Row> actual2 = df1.asMap();
+		Assertions.assertEquals(expected2, actual2);
+		Assertions.assertEquals(expected2.descendingKeySet(), actual2.descendingKeySet());
+		Assertions.assertEquals(expected2.descendingMap(), actual2.descendingMap());
+		Assertions.assertEquals(expected2.descendingMap().subMap(4, 2), actual2.descendingMap().subMap(4, 2));
+		Assertions.assertEquals(expected2.descendingMap().subMap(4, 2).toString(),
+				actual2.descendingMap().subMap(4, 2).toString());
+		Assertions.assertEquals(expected2.descendingMap().values().stream().collect(Collectors.toList()),
+				actual2.descendingMap().values().stream().collect(Collectors.toList()));
 	}
 
 	@Test

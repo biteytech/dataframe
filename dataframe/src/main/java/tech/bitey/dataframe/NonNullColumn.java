@@ -29,6 +29,7 @@ import java.nio.channels.ReadableByteChannel;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ListIterator;
+import java.util.NavigableSet;
 import java.util.NoSuchElementException;
 import java.util.Spliterator;
 import java.util.Spliterators;
@@ -243,17 +244,6 @@ abstract class NonNullColumn<E, I extends Column<E>, C extends NonNullColumn<E, 
 		return index < 0 ? -1 : index - offset;
 	}
 
-	int findIndexOrInsertionPoint(E value) {
-		int index = search(value, true);
-
-		if (index < 0) {
-			// index is (-(insertion point) - 1)
-			index = -(index + 1);
-		}
-
-		return index - offset;
-	}
-
 	@Override
 	public boolean contains(Object o) {
 		return o == null ? false : indexOf(o) != -1;
@@ -419,6 +409,12 @@ abstract class NonNullColumn<E, I extends Column<E>, C extends NonNullColumn<E, 
 			return idx + 1;
 	}
 
+	@Override
+	public NavigableSet<E> asSet() {
+		verifyDistinct();
+		return new ColumnBackedSet(this);
+	}
+
 	/*------------------------------------------------------------
 	 *                subColumn methods
 	 *------------------------------------------------------------*/
@@ -446,21 +442,18 @@ abstract class NonNullColumn<E, I extends Column<E>, C extends NonNullColumn<E, 
 
 	@Override
 	public C subColumnByValue(E fromElement, E toElement) {
-		return subColumnByValue(fromElement, true, toElement, true);
+		return subColumnByValue(fromElement, true, toElement, false);
 	}
 
 	@Override
 	public C head(E toElement, boolean inclusive) {
+		verifyDistinct();
 
-		if (isEmpty())
+		int tk = inclusive ? floorIndex(toElement) : lowerIndex(toElement);
+		if (tk == -1)
 			return empty();
 
-		final E from = first();
-
-		if (comparator().compare(toElement, from) < 0)
-			return empty();
-
-		return subColumnByValue(from, true, toElement, inclusive);
+		return subColumn(0, tk + 1 - offset);
 	}
 
 	@Override
@@ -470,16 +463,13 @@ abstract class NonNullColumn<E, I extends Column<E>, C extends NonNullColumn<E, 
 
 	@Override
 	public C tail(E fromElement, boolean inclusive) {
+		verifyDistinct();
 
-		if (isEmpty())
+		int fk = inclusive ? ceilingIndex(fromElement) : higherIndex(fromElement);
+		if (fk == -1)
 			return empty();
 
-		final E to = last();
-
-		if (comparator().compare(fromElement, to) > 0)
-			return empty();
-
-		return subColumnByValue(fromElement, inclusive, to, true);
+		return subColumn(fk - offset, size);
 	}
 
 	@Override

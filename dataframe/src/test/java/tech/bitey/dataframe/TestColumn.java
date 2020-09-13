@@ -144,7 +144,19 @@ abstract class TestColumn<E extends Comparable<E>> {
 			E last = set.last();
 
 			Assertions.assertEquals(new ArrayList<>(set.subSet(first, false, last, false)),
-					column.subColumnByValue(first, false, last, false), s + ", testSubSet");
+					column.subColumnByValue(first, false, last, false), s + ", testSubSetFF");
+
+			Assertions.assertEquals(new ArrayList<>(set.subSet(first, true, last, false)),
+					column.subColumnByValue(first, true, last, false), s + ", testSubSetTF");
+
+			Assertions.assertEquals(new ArrayList<>(set.subSet(first, false, last, true)),
+					column.subColumnByValue(first, false, last, true), s + ", testSubSetFT");
+
+			Assertions.assertEquals(new ArrayList<>(set.subSet(first, true, last, true)),
+					column.subColumnByValue(first, true, last, true), s + ", testSubSetTT");
+
+			Assertions.assertEquals(new ArrayList<>(set.subSet(first, last)), column.subColumnByValue(first, last),
+					s + ", testSubSet");
 		}
 	}
 
@@ -203,6 +215,38 @@ abstract class TestColumn<E extends Comparable<E>> {
 			for (E e : s.array())
 				Assertions.assertEquals(new ArrayList<>(set.headSet(e, true)), column.head(e, true),
 						s + ", testHeadInclusive, " + e);
+		}
+	}
+
+	@Test
+	public void testAsSet() {
+		for (TestSample<E> s : samples()) {
+			if (!s.column().isDistinct())
+				continue;
+
+			NavigableSet<E> expected = new TreeSet<>(asList(s.array()));
+			NavigableSet<E> actual = s.column().asSet();
+
+			Assertions.assertEquals(new ArrayList<>(expected), new ArrayList<>(actual), s + ", testAsSet, equals");
+			Assertions.assertEquals(new ArrayList<>(expected.descendingSet()), new ArrayList<>(actual.descendingSet()),
+					s + ", testAsSet, descending equals");
+
+			if (expected.size() < 2)
+				continue;
+
+			E first = expected.first();
+			E last = expected.last();
+
+			Assertions.assertEquals(new ArrayList<>(expected.subSet(first, last)),
+					new ArrayList<>(actual.subSet(first, last)), s + ", testAsSet, subSet1");
+			Assertions.assertEquals(new ArrayList<>(expected.subSet(first, false, last, false)),
+					new ArrayList<>(actual.subSet(first, false, last, false)), s + ", testAsSet, subSet2");
+
+			Assertions.assertEquals(new ArrayList<>(expected.descendingSet().subSet(last, first)),
+					new ArrayList<>(actual.descendingSet().subSet(last, first)), s + ", testAsSet, descending subSet1");
+			Assertions.assertEquals(new ArrayList<>(expected.descendingSet().subSet(last, false, first, false)),
+					new ArrayList<>(actual.descendingSet().subSet(last, false, first, false)),
+					s + ", testAsSet, descending subSet2");
 		}
 	}
 

@@ -47,6 +47,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.NavigableMap;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Set;
@@ -178,10 +179,10 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 	 *	Object, Collection, and List Methods
 	 *--------------------------------------------------------------------------------*/
 	@Override
-	public String toString() {		
+	public String toString() {
 		return DEFAULT_PRINTER.print(this);
 	}
-	
+
 	@Override
 	public String toString(int maxRows) {
 		checkArgument(maxRows >= 0, "maxRows cannot be negative");
@@ -232,21 +233,27 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 	}
 
 	@Override
-	public <K, V> Map<K, V> toMap(int columnIndex) {
-		return toMap(checkedColumn(columnIndex));
+	public <K, V> NavigableMap<K, V> asMap(int columnIndex) {
+		return asMap(checkedColumn(columnIndex));
 	}
 
 	@Override
-	public <K, V> Map<K, V> toMap(String columnName) {
-		return toMap(checkedColumn(columnName));
+	public <K, V> NavigableMap<K, V> asMap(String columnName) {
+		return asMap(checkedColumn(columnName));
 	}
 
-	private <K, V> Map<K, V> toMap(Column<?> valueColumn) {
+	private <K, V> NavigableMap<K, V> asMap(Column<?> valueColumn) {
 
-		Column<?> keyColumn = checkedKeyColumn("toMap");
+		Column<?> keyColumn = checkedKeyColumn("asMap");
 
-		Map map = new ColumnBackedMap<>(keyColumn, valueColumn);
+		NavigableMap map = new ColumnBackedMap<>(keyColumn, valueColumn);
 		return map;
+	}
+
+	@Override
+	public <K> NavigableMap<K, Row> asMap() {
+
+		return new DataFrameBackedMap<>(this);
 	}
 
 	@Override
@@ -706,34 +713,24 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 		return modifyColumns(column -> column.subColumn(fromIndex, toIndex));
 	}
 
-	private int indexOrInsertionPoint(NonNullColumn keyColumn, Object o) {
-
-		int index = keyColumn.findIndexOrInsertionPoint(o);
-
-		if (index < 0) {
-			// index is (-(insertion point) - 1)
-			index = -(index + 1);
-		}
-
-		return index;
-	}
-
 	@Override
-	public DataFrame headTo(Object toKey) {
+	public DataFrame headTo(Object toKey, boolean inclusive) {
+
 		NonNullColumn keyColumn = checkedKeyColumn("headTo");
 
-		int toIndex = indexOrInsertionPoint(keyColumn, toKey);
+		int toIndex = inclusive ? keyColumn.floorIndex(toKey) : keyColumn.lowerIndex(toKey);
 
-		return subFrame(0, toIndex);
+		return toIndex == -1 ? empty() : subFrame(0, toIndex + 1);
 	}
 
 	@Override
-	public DataFrame tailFrom(Object fromKey) {
+	public DataFrame tailFrom(Object fromKey, boolean inclusive) {
+
 		NonNullColumn keyColumn = checkedKeyColumn("tailFrom");
 
-		int fromIndex = indexOrInsertionPoint(keyColumn, fromKey);
+		int fromIndex = inclusive ? keyColumn.ceilingIndex(fromKey) : keyColumn.higherIndex(fromKey);
 
-		return subFrame(fromIndex, size());
+		return fromIndex == -1 ? empty() : subFrame(fromIndex, size());
 	}
 
 	@Override

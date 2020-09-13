@@ -16,9 +16,13 @@
 
 package tech.bitey.dataframe;
 
+import static java.util.Spliterator.DISTINCT;
 import static java.util.Spliterator.IMMUTABLE;
 import static java.util.Spliterator.NONNULL;
 import static java.util.Spliterator.ORDERED;
+import static java.util.Spliterator.SIZED;
+import static java.util.Spliterator.SORTED;
+import static java.util.Spliterator.SUBSIZED;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,7 +36,7 @@ import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.NavigableMap;
 import java.util.RandomAccess;
 import java.util.Spliterator;
 import java.util.Spliterators;
@@ -103,9 +107,13 @@ public interface DataFrame extends List<Row>, RandomAccess {
 	/*--------------------------------------------------------------------------------
 	 *	Miscellaneous Methods
 	 *--------------------------------------------------------------------------------*/
+	default int characteristics() {
+		return SIZED | SUBSIZED | ORDERED | IMMUTABLE | NONNULL | (hasKeyColumn() ? (SORTED | DISTINCT) : 0);
+	}
+
 	@Override
 	default Spliterator<Row> spliterator() {
-		return Spliterators.spliterator(this, ORDERED | IMMUTABLE | NONNULL);
+		return Spliterators.spliterator(this, characteristics());
 	}
 
 	/**
@@ -132,40 +140,59 @@ public interface DataFrame extends List<Row>, RandomAccess {
 	}
 
 	/**
-	 * Returns a map keyed by the elements in the key column, with values from the
-	 * column at the specified index. The map is an immutable view over the columns
-	 * (it does not copy the data).
+	 * Returns a {@link NavigableMap} keyed by the elements in the key column, with
+	 * values from the column at the specified index. The map is an immutable view
+	 * over the columns (it does not copy the data).
 	 * 
 	 * @param <K>         - the key type. Must match the key column type.
 	 * @param <V>         - the value type. Must match the specified column type.
 	 * 
 	 * @param columnIndex - index of a column in this dataframe
 	 * 
-	 * @return a map keyed by the elements in the key column, with values from the
-	 *         specified index.
+	 * @return a {@code NavigableMap} keyed by the elements in the key column, with
+	 *         values from the specified index.
 	 * 
-	 * @throws IndexOutOfBoundsException if {@code columnIndex} is negative or is
-	 *                                   not less than {@link #columnCount()}
+	 * @throws UnsupportedOperationException if this dataframe does not contain a
+	 *                                       key column
+	 * @throws IndexOutOfBoundsException     if {@code columnIndex} is negative or
+	 *                                       is not less than {@link #columnCount()}
 	 */
-	<K, V> Map<K, V> toMap(int columnIndex);
+	<K, V> NavigableMap<K, V> asMap(int columnIndex);
 
 	/**
-	 * Returns a map keyed by the elements in the key column, with values from the
-	 * column at the specified index. The map is an immutable view over the columns
-	 * (it does not copy the data).
+	 * Returns a {@link NavigableMap} keyed by the elements in the key column, with
+	 * values from the column at the specified index. The map is an immutable view
+	 * over the columns (it does not copy the data).
 	 * 
 	 * @param <K>        - the key type. Must match the key column type.
 	 * @param <V>        - the value type. Must match the specified column type.
 	 * 
 	 * @param columnName - name of a column in this dataframe
 	 * 
-	 * @return a map keyed by the elements in the key column, with values from the
-	 *         specified index.
+	 * @return a {@code NavigableMap} keyed by the elements in the key column, with
+	 *         values from the specified index.
 	 * 
-	 * @throws IllegalArgumentException if {@code columnName} is not a recognized
-	 *                                  column name in this dataframe
+	 * @throws UnsupportedOperationException if this dataframe does not contain a
+	 *                                       key column
+	 * @throws IllegalArgumentException      if {@code columnName} is not a
+	 *                                       recognized column name in this
+	 *                                       dataframe
 	 */
-	<K, V> Map<K, V> toMap(String columnName);
+	<K, V> NavigableMap<K, V> asMap(String columnName);
+
+	/**
+	 * Returns a {@link NavigableMap} view of this dataframe where the rows are
+	 * keyed by the corresponding values from the key column.
+	 * 
+	 * @param <K> - the key type. Must match the key column type.
+	 * 
+	 * @return a {@code NavigableMap} view of this dataframe where the rows are
+	 *         keyed by the corresponding values from the key column.
+	 * 
+	 * @throws UnsupportedOperationException if this dataframe does not contain a
+	 *                                       key column
+	 */
+	<K> NavigableMap<K, Row> asMap();
 
 	/**
 	 * Returns a {@link DateSeries} using the key column from this dataframe as the
@@ -979,7 +1006,9 @@ public interface DataFrame extends List<Row>, RandomAccess {
 	 *                                       this dataframe's key column type
 	 * @throws NullPointerException          if {@code toKey} is null
 	 */
-	DataFrame headTo(Object toKey);
+	default DataFrame headTo(Object toKey) {
+		return headTo(toKey, false);
+	}
 
 	/**
 	 * Returns a dataframe containing the rows whose key column values are greater
@@ -997,7 +1026,9 @@ public interface DataFrame extends List<Row>, RandomAccess {
 	 *                                       with this dataframe's key column type
 	 * @throws NullPointerException          if {@code fromKey} is null
 	 */
-	DataFrame tailFrom(Object fromKey);
+	default DataFrame tailFrom(Object fromKey) {
+		return tailFrom(fromKey, true);
+	}
 
 	/**
 	 * Returns a dataframe containing the rows whose key column values are greater
@@ -1020,6 +1051,44 @@ public interface DataFrame extends List<Row>, RandomAccess {
 	default DataFrame subFrameByValue(Object fromKey, Object toKey) {
 		return subFrameByValue(fromKey, true, toKey, false);
 	}
+
+	/**
+	 * Returns a dataframe containing the rows whose key column values are strictly
+	 * less than {@code toKey}.
+	 *
+	 * @param toKey     high endpoint of the key column values in the returned
+	 *                  dataframe
+	 * @param inclusive true if the high endpoint is to be included in the result
+	 * 
+	 * @return the rows from this dataframe whose key column values are strictly
+	 *         less than {@code toKey}.
+	 * 
+	 * @throws UnsupportedOperationException if this dataframe does not contain a
+	 *                                       key column
+	 * @throws ClassCastException            if {@code toKey} is not compatible with
+	 *                                       this dataframe's key column type
+	 * @throws NullPointerException          if {@code toKey} is null
+	 */
+	DataFrame headTo(Object toKey, boolean inclusive);
+
+	/**
+	 * Returns a dataframe containing the rows whose key column values are greater
+	 * than or equal to {@code fromKey}.
+	 *
+	 * @param fromKey   low endpoint of the key column values in the returned
+	 *                  dataframe
+	 * @param inclusive true if the low endpoint is to be included in the result
+	 * 
+	 * @return the rows from this dataframe whose key column values are greater than
+	 *         or equal to {@code fromKey}.
+	 * 
+	 * @throws UnsupportedOperationException if this dataframe does not contain a
+	 *                                       key column
+	 * @throws ClassCastException            if {@code fromKey} is not compatible
+	 *                                       with this dataframe's key column type
+	 * @throws NullPointerException          if {@code fromKey} is null
+	 */
+	DataFrame tailFrom(Object fromKey, boolean inclusive);
 
 	/**
 	 * Returns a dataframe containing the rows whose key column values are between

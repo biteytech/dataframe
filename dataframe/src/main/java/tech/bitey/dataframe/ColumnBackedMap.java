@@ -19,26 +19,20 @@ package tech.bitey.dataframe;
 import static tech.bitey.dataframe.DfPreconditions.checkArgument;
 import static tech.bitey.dataframe.DfPreconditions.checkNotNull;
 
-import java.util.AbstractMap;
-import java.util.AbstractSet;
 import java.util.Iterator;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Set;
 
-class ColumnBackedMap<K, V> extends AbstractMap<K, V> {
+class ColumnBackedMap<K, V> extends AbstractKeyBackedMap<K, V> {
 
-	private final Column<K> keyColumn;
 	private final Column<V> valueColumn;
 
 	ColumnBackedMap(Column<K> keyColumn, Column<V> valueColumn) {
+		super(keyColumn);
 
 		checkNotNull(keyColumn, "key column cannot be null");
 		checkNotNull(valueColumn, "value column cannot be null");
 		checkArgument(keyColumn.isDistinct(), "key column must be a unique index");
 		checkArgument(keyColumn.size() == valueColumn.size(), "key and value columns must have the same size");
 
-		this.keyColumn = keyColumn;
 		this.valueColumn = valueColumn;
 	}
 
@@ -49,21 +43,21 @@ class ColumnBackedMap<K, V> extends AbstractMap<K, V> {
 	}
 
 	@Override
-	public boolean containsKey(Object o) {
-		return keyColumn.indexOf(o) >= 0;
-	}
-
-	@Override
 	public boolean containsValue(Object o) {
-		return valueColumn.indexOf(o) >= 0;
+		return valueColumn.contains(o);
 	}
 
 	@Override
-	public int size() {
-		return keyColumn.size();
+	public Column<V> values() {
+		return valueColumn;
 	}
 
-	private class ColumnEntry implements Map.Entry<K, V> {
+	@Override
+	Entry<K, V> entry(int index) {
+		return new ColumnEntry(index);
+	}
+
+	private class ColumnEntry implements Entry<K, V> {
 
 		private final int index;
 
@@ -87,37 +81,70 @@ class ColumnBackedMap<K, V> extends AbstractMap<K, V> {
 		}
 	}
 
-	private class ColumnEntrySet extends AbstractSet<Map.Entry<K, V>> {
-		@SuppressWarnings({ "rawtypes", "unchecked" })
-		@Override
-		public Iterator<Map.Entry<K, V>> iterator() {
-			return new Iterator() {
+	@Override
+	public AbstractKeyBackedMap<K, V> subMap(K fromKey, boolean fromInclusive, K toKey, boolean toInclusive) {
 
-				int index = 0;
+		NonNullColumn<K, ?, ?> subKeyColumn = keyColumn.subColumnByValue(fromKey, fromInclusive, toKey, toInclusive);
 
-				@Override
-				public boolean hasNext() {
-					return index < size();
-				}
+		return subMap(subKeyColumn);
+	}
 
-				@Override
-				public ColumnEntry next() {
-					if (!hasNext())
-						throw new NoSuchElementException();
+	private AbstractKeyBackedMap<K, V> subMap(NonNullColumn<K, ?, ?> subKeyColumn) {
 
-					return new ColumnEntry(index++);
-				}
-			};
-		}
+		int offset = subKeyColumn.offset - keyColumn.offset;
 
-		@Override
-		public int size() {
-			return keyColumn.size();
-		}
+		Column<V> subValueColumn = valueColumn.subColumn(offset, offset + subKeyColumn.size);
+
+		return new ColumnBackedMap<>(subKeyColumn, subValueColumn);
 	}
 
 	@Override
-	public Set<Entry<K, V>> entrySet() {
-		return new ColumnEntrySet();
+	public AbstractKeyBackedMap<K, V> headMap(K toKey, boolean inclusive) {
+
+		NonNullColumn<K, ?, ?> subKeyColumn = keyColumn.head(toKey, inclusive);
+
+		return subMap(subKeyColumn);
+	}
+
+	@Override
+	public AbstractKeyBackedMap<K, V> tailMap(K fromKey, boolean inclusive) {
+
+		NonNullColumn<K, ?, ?> subKeyColumn = keyColumn.tail(fromKey, inclusive);
+
+		return subMap(subKeyColumn);
+	}
+
+	@Override
+	public AbstractKeyBackedMap<K, V> subMap(K fromKey, K toKey) {
+
+		NonNullColumn<K, ?, ?> subKeyColumn = keyColumn.subColumnByValue(fromKey, toKey);
+
+		return subMap(subKeyColumn);
+	}
+
+	@Override
+	public AbstractKeyBackedMap<K, V> headMap(K toKey) {
+
+		NonNullColumn<K, ?, ?> subKeyColumn = keyColumn.head(toKey);
+
+		return subMap(subKeyColumn);
+	}
+
+	@Override
+	public AbstractKeyBackedMap<K, V> tailMap(K fromKey) {
+
+		NonNullColumn<K, ?, ?> subKeyColumn = keyColumn.tail(fromKey);
+
+		return subMap(subKeyColumn);
+	}
+
+	@Override
+	Iterator<V> descendingValuesIterator() {
+		return ColumnBackedSet.descendingIterator(valueColumn);
+	}
+
+	@Override
+	int valuesCharacteristics() {
+		return valueColumn.characteristics();
 	}
 }

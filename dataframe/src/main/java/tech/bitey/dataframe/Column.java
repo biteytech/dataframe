@@ -29,6 +29,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
+import java.util.NavigableSet;
 import java.util.NoSuchElementException;
 import java.util.Spliterator;
 import java.util.Spliterators;
@@ -284,6 +285,17 @@ public interface Column<E> extends List<E> {
 	 *         allocated buffer.
 	 */
 	Column<E> copy();
+
+	/**
+	 * Returns a {@link NavigableSet} view of this column.
+	 * <p>
+	 * Column must be a unique index.
+	 * 
+	 * @return a {@code NavigableSet} view of this column.
+	 * 
+	 * @throws UnsupportedOperationException if {@link #isDistinct()} return false
+	 */
+	NavigableSet<E> asSet();
 
 	/*------------------------------------------------------------
 	 *  Type Conversion Methods

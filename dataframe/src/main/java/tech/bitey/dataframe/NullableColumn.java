@@ -28,6 +28,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.ListIterator;
+import java.util.NavigableSet;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 import java.util.function.Function;
@@ -518,6 +519,11 @@ abstract class NullableColumn<E, I extends Column<E>, C extends NonNullColumn<E,
 	@Override
 	public N tail(E fromElement) {
 		throw new UnsupportedOperationException("tail");
+	}
+
+	@Override
+	public NavigableSet<E> asSet() {
+		throw new UnsupportedOperationException("asSet");
 	}
 
 	@Override
