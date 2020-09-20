@@ -20,7 +20,6 @@ import static tech.bitey.bufferstuff.BufferBitSet.EMPTY_BITSET;
 import static tech.bitey.dataframe.NonNullColumn.NONNULL_CHARACTERISTICS;
 
 import java.math.BigDecimal;
-import java.nio.IntBuffer;
 
 import tech.bitey.bufferstuff.BufferBitSet;
 
@@ -31,7 +30,7 @@ final class NullableDecimalColumn
 	static final NullableDecimalColumn EMPTY = new NullableDecimalColumn(
 			NonNullDecimalColumn.EMPTY.get(NONNULL_CHARACTERISTICS), EMPTY_BITSET, null, 0, 0);
 
-	NullableDecimalColumn(NonNullDecimalColumn column, BufferBitSet nonNulls, IntBuffer nullCounts, int offset,
+	NullableDecimalColumn(NonNullDecimalColumn column, BufferBitSet nonNulls, NullCounts nullCounts, int offset,
 			int size) {
 		super(column, nonNulls, nullCounts, offset, size);
 	}

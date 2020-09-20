@@ -19,7 +19,6 @@ package tech.bitey.dataframe;
 import static tech.bitey.bufferstuff.BufferBitSet.EMPTY_BITSET;
 import static tech.bitey.dataframe.NonNullColumn.NONNULL_CHARACTERISTICS;
 
-import java.nio.IntBuffer;
 import java.util.UUID;
 
 import tech.bitey.bufferstuff.BufferBitSet;
@@ -30,7 +29,7 @@ final class NullableUuidColumn extends NullableColumn<UUID, UuidColumn, NonNullU
 	static final NullableUuidColumn EMPTY = new NullableUuidColumn(NonNullUuidColumn.EMPTY.get(NONNULL_CHARACTERISTICS),
 			EMPTY_BITSET, null, 0, 0);
 
-	NullableUuidColumn(NonNullUuidColumn column, BufferBitSet nonNulls, IntBuffer nullCounts, int offset, int size) {
+	NullableUuidColumn(NonNullUuidColumn column, BufferBitSet nonNulls, NullCounts nullCounts, int offset, int size) {
 		super(column, nonNulls, nullCounts, offset, size);
 	}
 

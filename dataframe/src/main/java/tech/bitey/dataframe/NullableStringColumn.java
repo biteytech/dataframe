@@ -19,8 +19,6 @@ package tech.bitey.dataframe;
 import static tech.bitey.bufferstuff.BufferBitSet.EMPTY_BITSET;
 import static tech.bitey.dataframe.NonNullColumn.NONNULL_CHARACTERISTICS;
 
-import java.nio.IntBuffer;
-
 import tech.bitey.bufferstuff.BufferBitSet;
 
 final class NullableStringColumn extends
@@ -29,7 +27,7 @@ final class NullableStringColumn extends
 	static final NullableStringColumn EMPTY = new NullableStringColumn(
 			NonNullStringColumn.EMPTY.get(NONNULL_CHARACTERISTICS), EMPTY_BITSET, null, 0, 0);
 
-	NullableStringColumn(NonNullStringColumn column, BufferBitSet nonNulls, IntBuffer nullCounts, int offset,
+	NullableStringColumn(NonNullStringColumn column, BufferBitSet nonNulls, NullCounts nullCounts, int offset,
 			int size) {
 		super(column, nonNulls, nullCounts, offset, size);
 	}

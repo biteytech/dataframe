@@ -22,7 +22,6 @@ import static tech.bitey.dataframe.DfPreconditions.checkPositionIndex;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.nio.IntBuffer;
 import java.nio.channels.WritableByteChannel;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -38,7 +37,6 @@ import java.util.function.ToIntFunction;
 import java.util.function.ToLongFunction;
 
 import tech.bitey.bufferstuff.BufferBitSet;
-import tech.bitey.bufferstuff.BufferUtils;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 abstract class NullableColumn<E, I extends Column<E>, C extends NonNullColumn<E, I, C>, N extends NullableColumn<E, I, C, N>>
@@ -47,9 +45,9 @@ abstract class NullableColumn<E, I extends Column<E>, C extends NonNullColumn<E,
 	final C column;
 	final C subColumn;
 	final BufferBitSet nonNulls;
-	final IntBuffer nullCounts;
+	final NullCounts nullCounts;
 
-	NullableColumn(C column, BufferBitSet nonNulls, IntBuffer nullCounts, int offset, int size) {
+	NullableColumn(C column, BufferBitSet nonNulls, NullCounts nullCounts, int offset, int size) {
 		super(offset, size);
 
 		if (column.view)
@@ -57,17 +55,7 @@ abstract class NullableColumn<E, I extends Column<E>, C extends NonNullColumn<E,
 
 		this.column = column;
 		this.nonNulls = nonNulls;
-
-		if (nullCounts == null) {
-			final int words = (size - 1) / 32 + 1;
-			this.nullCounts = BufferUtils.allocate((words + 1) * 4).asIntBuffer();
-			this.nullCounts.put(0, 0);
-			for (int i = 0, w = 1, count = 0; w <= words; w++) {
-				count += 32 - nonNulls.cardinality(i, i += 32);
-				this.nullCounts.put(w, count);
-			}
-		} else
-			this.nullCounts = nullCounts;
+		this.nullCounts = nullCounts == null ? new NullCounts(nonNulls, size) : nullCounts;
 
 		final int firstNonNullIndex = firstNonNullIndex();
 		if (firstNonNullIndex == -1)
@@ -120,12 +108,7 @@ abstract class NullableColumn<E, I extends Column<E>, C extends NonNullColumn<E,
 	}
 
 	int nonNullIndex(int index) {
-
-		// count null bits before index
-		final int word = (index - 1) / 32;
-		final int from = word << 5;
-
-		return from + nonNulls.cardinality(from, index) - nullCounts.get(word);
+		return nullCounts.nonNullIndex(index);
 	}
 
 	private int nullIndex(int index) {

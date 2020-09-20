@@ -18,8 +18,6 @@ package tech.bitey.dataframe;
 
 import static tech.bitey.bufferstuff.BufferBitSet.EMPTY_BITSET;
 
-import java.nio.IntBuffer;
-
 import tech.bitey.bufferstuff.BufferBitSet;
 
 final class NullableBooleanColumn extends
@@ -28,7 +26,7 @@ final class NullableBooleanColumn extends
 	static final NullableBooleanColumn EMPTY = new NullableBooleanColumn(NonNullBooleanColumn.EMPTY, EMPTY_BITSET, null,
 			0, 0);
 
-	NullableBooleanColumn(NonNullBooleanColumn column, BufferBitSet nonNulls, IntBuffer nullCounts, int offset,
+	NullableBooleanColumn(NonNullBooleanColumn column, BufferBitSet nonNulls, NullCounts nullCounts, int offset,
 			int size) {
 		super(column, nonNulls, nullCounts, offset, size);
 	}

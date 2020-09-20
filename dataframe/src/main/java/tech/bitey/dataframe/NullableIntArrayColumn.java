@@ -16,14 +16,12 @@
 
 package tech.bitey.dataframe;
 
-import java.nio.IntBuffer;
-
 import tech.bitey.bufferstuff.BufferBitSet;
 
 abstract class NullableIntArrayColumn<E, I extends Column<E>, C extends IntArrayColumn<E, I, C>, N extends NullableColumn<E, I, C, N>>
 		extends NullableColumn<E, I, C, N> {
 
-	NullableIntArrayColumn(C column, BufferBitSet nonNulls, IntBuffer nullCounts, int offset, int size) {
+	NullableIntArrayColumn(C column, BufferBitSet nonNulls, NullCounts nullCounts, int offset, int size) {
 		super(column, nonNulls, nullCounts, offset, size);
 	}
 

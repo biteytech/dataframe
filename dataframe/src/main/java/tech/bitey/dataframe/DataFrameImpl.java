@@ -1467,7 +1467,10 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 
 		@Override
 		public boolean equals(Object o) {
-			RowImpl rhs = (RowImpl) o;
+			if(!(o instanceof AbstractRow))
+				return false;
+			
+			AbstractRow rhs = (AbstractRow) o;
 			if (columnCount() != rhs.columnCount())
 				return false;
 

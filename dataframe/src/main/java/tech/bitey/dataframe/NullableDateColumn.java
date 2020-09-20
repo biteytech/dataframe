@@ -19,7 +19,6 @@ package tech.bitey.dataframe;
 import static tech.bitey.bufferstuff.BufferBitSet.EMPTY_BITSET;
 import static tech.bitey.dataframe.NonNullColumn.NONNULL_CHARACTERISTICS;
 
-import java.nio.IntBuffer;
 import java.time.LocalDate;
 
 import tech.bitey.bufferstuff.BufferBitSet;
@@ -30,7 +29,7 @@ final class NullableDateColumn extends
 	static final NullableDateColumn EMPTY = new NullableDateColumn(NonNullDateColumn.EMPTY.get(NONNULL_CHARACTERISTICS),
 			EMPTY_BITSET, null, 0, 0);
 
-	NullableDateColumn(NonNullDateColumn column, BufferBitSet nonNulls, IntBuffer nullCounts, int offset, int size) {
+	NullableDateColumn(NonNullDateColumn column, BufferBitSet nonNulls, NullCounts nullCounts, int offset, int size) {
 		super(column, nonNulls, nullCounts, offset, size);
 	}
 

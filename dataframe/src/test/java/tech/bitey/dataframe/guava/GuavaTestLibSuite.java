@@ -1,4 +1,4 @@
-package tech.bitey.dataframe;
+package tech.bitey.dataframe.guava;
 
 import static java.util.Spliterator.DISTINCT;
 import static java.util.Spliterator.NONNULL;
@@ -39,6 +39,11 @@ import com.google.common.collect.testing.testers.MapHashCodeTester;
 import com.google.common.collect.testing.testers.SetHashCodeTester;
 
 import junit.framework.TestSuite;
+import tech.bitey.dataframe.Column;
+import tech.bitey.dataframe.ColumnBuilder;
+import tech.bitey.dataframe.ColumnType;
+import tech.bitey.dataframe.DataFrame;
+import tech.bitey.dataframe.DataFrameFactory;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({ GuavaTestLibSuite.ColumnTests.class, GuavaTestLibSuite.ColumnMapTests.class })
