@@ -26,9 +26,11 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.NavigableMap;
 import java.util.NavigableSet;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.Spliterator;
@@ -105,7 +107,7 @@ abstract class AbstractKeyBackedMap<K, V> extends AbstractMap<K, V> implements N
 	@Override
 	public Entry<K, V> lowerEntry(K key) {
 		int index = keyColumn.lowerIndex(key);
-		return index == -1 ? null : entry(index);
+		return index == -1 ? null : entry(index - keyColumn.offset);
 	}
 
 	@Override
@@ -116,7 +118,7 @@ abstract class AbstractKeyBackedMap<K, V> extends AbstractMap<K, V> implements N
 	@Override
 	public Entry<K, V> floorEntry(K key) {
 		int index = keyColumn.floorIndex(key);
-		return index == -1 ? null : entry(index);
+		return index == -1 ? null : entry(index - keyColumn.offset);
 	}
 
 	@Override
@@ -127,7 +129,7 @@ abstract class AbstractKeyBackedMap<K, V> extends AbstractMap<K, V> implements N
 	@Override
 	public Entry<K, V> ceilingEntry(K key) {
 		int index = keyColumn.ceilingIndex(key);
-		return index == -1 ? null : entry(index);
+		return index == -1 ? null : entry(index - keyColumn.offset);
 	}
 
 	@Override
@@ -138,7 +140,7 @@ abstract class AbstractKeyBackedMap<K, V> extends AbstractMap<K, V> implements N
 	@Override
 	public Entry<K, V> higherEntry(K key) {
 		int index = keyColumn.higherIndex(key);
-		return index == -1 ? null : entry(index);
+		return index == -1 ? null : entry(index - keyColumn.offset);
 	}
 
 	@Override
@@ -201,6 +203,46 @@ abstract class AbstractKeyBackedMap<K, V> extends AbstractMap<K, V> implements N
 		@Override
 		public int size() {
 			return keyColumn.size();
+		}
+
+		@Override
+		public boolean removeAll(Collection<?> c) {
+			throw new UnsupportedOperationException("removeAll");
+		}
+	}
+
+	static abstract class AbstractEntry<K, V> implements Map.Entry<K, V> {
+
+		final int index;
+
+		AbstractEntry(int index) {
+			this.index = index;
+		}
+
+		@Override
+		public V setValue(V value) {
+			throw new UnsupportedOperationException("setValue");
+		}
+
+		@Override
+		public String toString() {
+			return getKey() + "=" + getValue();
+		}
+
+		@Override
+		public int hashCode() {
+			return Objects.hash(getKey(), getValue());
+		}
+
+		@Override
+		public boolean equals(Object o) {
+			if (!(o instanceof Map.Entry))
+				return false;
+
+			@SuppressWarnings("rawtypes")
+			Map.Entry e = (Map.Entry) o;
+
+			return getKey().equals(e.getKey()) && Objects.equals(getValue(), e.getValue());
 		}
 	}
 
@@ -284,6 +326,11 @@ abstract class AbstractKeyBackedMap<K, V> extends AbstractMap<K, V> implements N
 				@Override
 				public Spliterator<Entry<K, V>> spliterator() {
 					return Spliterators.spliterator(this, NonNullColumn.NONNULL_CHARACTERISTICS | DISTINCT);
+				}
+
+				@Override
+				public boolean removeAll(Collection<?> c) {
+					throw new UnsupportedOperationException("removeAll");
 				}
 			};
 		}

@@ -57,12 +57,10 @@ class ColumnBackedMap<K, V> extends AbstractKeyBackedMap<K, V> {
 		return new ColumnEntry(index);
 	}
 
-	private class ColumnEntry implements Entry<K, V> {
-
-		private final int index;
+	private class ColumnEntry extends AbstractEntry<K, V> {
 
 		private ColumnEntry(int index) {
-			this.index = index;
+			super(index);
 		}
 
 		@Override
@@ -73,11 +71,6 @@ class ColumnBackedMap<K, V> extends AbstractKeyBackedMap<K, V> {
 		@Override
 		public V getValue() {
 			return valueColumn.get(index);
-		}
-
-		@Override
-		public V setValue(V value) {
-			throw new UnsupportedOperationException("setValue");
 		}
 	}
 
@@ -91,11 +84,11 @@ class ColumnBackedMap<K, V> extends AbstractKeyBackedMap<K, V> {
 
 	private AbstractKeyBackedMap<K, V> subMap(NonNullColumn<K, ?, ?> subKeyColumn) {
 
-		int offset = subKeyColumn.offset - keyColumn.offset;
+		if (subKeyColumn.isEmpty())
+			return new ColumnBackedMap<>(subKeyColumn, valueColumn.subColumn(0, 0));
 
-		Column<V> subValueColumn = valueColumn.subColumn(offset, offset + subKeyColumn.size);
-
-		return new ColumnBackedMap<>(subKeyColumn, subValueColumn);
+		int idx = keyColumn.indexOf(subKeyColumn.first());
+		return new ColumnBackedMap<>(subKeyColumn, valueColumn.subColumn(idx, idx + subKeyColumn.size()));
 	}
 
 	@Override

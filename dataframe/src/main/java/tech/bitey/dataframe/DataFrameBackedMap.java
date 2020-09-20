@@ -46,12 +46,10 @@ class DataFrameBackedMap<K> extends AbstractKeyBackedMap<K, Row> {
 		return new DfEntry(index);
 	}
 
-	private class DfEntry implements Entry<K, Row> {
-
-		private final int index;
+	private class DfEntry extends AbstractEntry<K, Row> {
 
 		private DfEntry(int index) {
-			this.index = index;
+			super(index);
 		}
 
 		@Override
@@ -62,11 +60,6 @@ class DataFrameBackedMap<K> extends AbstractKeyBackedMap<K, Row> {
 		@Override
 		public Row getValue() {
 			return dataFrame.get(index);
-		}
-
-		@Override
-		public Row setValue(Row value) {
-			throw new UnsupportedOperationException("setValue");
 		}
 	}
 
