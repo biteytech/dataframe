@@ -16,7 +16,6 @@
 
 package tech.bitey.dataframe;
 
-import static java.math.BigDecimal.ONE;
 import static java.math.BigDecimal.ZERO;
 
 import java.math.BigDecimal;
@@ -33,7 +32,11 @@ public class TestDecimalColumn extends TestColumn<BigDecimal> {
 
 	private static final BigDecimal MIN_VALUE = BigDecimal.valueOf(Integer.MIN_VALUE);
 	private static final BigDecimal MAX_VALUE = BigDecimal.valueOf(Integer.MAX_VALUE);
-	
+
+	TestDecimalColumn() {
+		super(MIN_VALUE, MAX_VALUE, BigDecimal[]::new);
+	}
+
 	@Override
 	Column<BigDecimal> parseColumn(StringColumn stringColumn) {
 		return stringColumn.parseDecimal();
@@ -54,51 +57,6 @@ public class TestDecimalColumn extends TestColumn<BigDecimal> {
 	@Override
 	BigDecimal[] toArray(Collection<BigDecimal> samples) {
 		return samples.toArray(empty());
-	}
-
-	@Override
-	BigDecimal[] empty() {
-		return new BigDecimal[0];
-	}
-
-	@Override
-	BigDecimal[] singleNull() {
-		return new BigDecimal[] { null };
-	}
-
-	@Override
-	BigDecimal[] singleNonNull() {
-		return new BigDecimal[] { ZERO };
-	}
-
-	@Override
-	BigDecimal[] duoFirstNull() {
-		return new BigDecimal[] { null, ZERO };
-	}
-
-	@Override
-	BigDecimal[] duoBothNull() {
-		return new BigDecimal[] { null, null };
-	}
-
-	@Override
-	BigDecimal[] duoDistinct() {
-		return new BigDecimal[] { ZERO, ONE };
-	}
-
-	@Override
-	BigDecimal[] duoSame() {
-		return new BigDecimal[] { ZERO, ZERO };
-	}
-
-	@Override
-	BigDecimal[] minMax() {
-		return new BigDecimal[] { MIN_VALUE, MAX_VALUE };
-	}
-
-	@Override
-	BigDecimal[] allNull(int size) {
-		return new BigDecimal[size];
 	}
 
 	@Override

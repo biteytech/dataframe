@@ -31,6 +31,10 @@ public class TestLongColumn extends TestColumn<Long> {
 
 	private static final Random RAND = new Random(0);
 
+	TestLongColumn() {
+		super(Long.MIN_VALUE, Long.MAX_VALUE, Long[]::new);
+	}
+
 	@Test
 	public void testStream() {
 		for (TestSample<Long> s : samples()) {
@@ -59,51 +63,6 @@ public class TestLongColumn extends TestColumn<Long> {
 	@Override
 	Long[] toArray(Collection<Long> samples) {
 		return samples.toArray(empty());
-	}
-
-	@Override
-	Long[] empty() {
-		return new Long[0];
-	}
-
-	@Override
-	Long[] singleNull() {
-		return new Long[] { null };
-	}
-
-	@Override
-	Long[] singleNonNull() {
-		return new Long[] { 0L };
-	}
-
-	@Override
-	Long[] duoFirstNull() {
-		return new Long[] { null, 0L };
-	}
-
-	@Override
-	Long[] duoBothNull() {
-		return new Long[] { null, null };
-	}
-
-	@Override
-	Long[] duoDistinct() {
-		return new Long[] { 0L, 1L };
-	}
-
-	@Override
-	Long[] duoSame() {
-		return new Long[] { 0L, 0L };
-	}
-
-	@Override
-	Long[] minMax() {
-		return new Long[] { Long.MIN_VALUE, Long.MAX_VALUE };
-	}
-
-	@Override
-	Long[] allNull(int size) {
-		return new Long[size];
 	}
 
 	@Override

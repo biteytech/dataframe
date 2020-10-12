@@ -31,6 +31,10 @@ public class TestDoubleColumn extends TestFloatingColumn<Double> {
 
 	private static final Random RAND = new Random(0);
 
+	TestDoubleColumn() {
+		super(Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, Double[]::new);
+	}
+
 	@Test
 	public void testStream() {
 		for (TestSample<Double> s : samples()) {
@@ -75,51 +79,6 @@ public class TestDoubleColumn extends TestFloatingColumn<Double> {
 	@Override
 	Double[] nonFinite() {
 		return new Double[] { Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, Double.NaN };
-	}
-
-	@Override
-	Double[] empty() {
-		return new Double[0];
-	}
-
-	@Override
-	Double[] singleNull() {
-		return new Double[] { null };
-	}
-
-	@Override
-	Double[] singleNonNull() {
-		return new Double[] { 0D };
-	}
-
-	@Override
-	Double[] duoFirstNull() {
-		return new Double[] { null, 0D };
-	}
-
-	@Override
-	Double[] duoBothNull() {
-		return new Double[] { null, null };
-	}
-
-	@Override
-	Double[] duoDistinct() {
-		return new Double[] { 0D, 1D };
-	}
-
-	@Override
-	Double[] duoSame() {
-		return new Double[] { 0D, 0D };
-	}
-
-	@Override
-	Double[] minMax() {
-		return new Double[] { Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY };
-	}
-
-	@Override
-	Double[] allNull(int size) {
-		return new Double[size];
 	}
 
 	@Override

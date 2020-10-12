@@ -31,11 +31,21 @@ import java.util.NavigableSet;
 import java.util.Set;
 import java.util.Spliterator;
 import java.util.TreeSet;
+import java.util.function.IntFunction;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 abstract class TestColumn<E extends Comparable<E>> {
+
+	private final E min, max;
+	private final IntFunction<E[]> createArray;
+
+	TestColumn(E min, E max, IntFunction<E[]> createArray) {
+		this.min = min;
+		this.max = max;
+		this.createArray = createArray;
+	}
 
 	/*------------------------------------------------------------
 	 *  Test Collection Methods
@@ -474,7 +484,6 @@ abstract class TestColumn<E extends Comparable<E>> {
 		samples.add(wrapSample("singleNonNull", singleNonNull()));
 		samples.add(wrapSample("duoFirstNull", duoFirstNull()));
 		samples.add(wrapSample("duoBothNull", duoBothNull()));
-		samples.add(wrapSample("duoDistinct", duoDistinct()));
 		samples.add(wrapSample("duoSame", duoSame()));
 		samples.add(wrapSample("minMax", minMax()));
 
@@ -514,24 +523,47 @@ abstract class TestColumn<E extends Comparable<E>> {
 
 	abstract E[] notPresent();
 
-	// sample generators
-	abstract E[] empty();
+	E[] empty() {
+		return allNull(0);
+	}
 
-	abstract E[] singleNull();
+	E[] singleNull() {
+		return allNull(1);
+	}
 
-	abstract E[] singleNonNull();
+	E[] singleNonNull() {
+		E[] array = createArray.apply(1);
+		array[0] = min;
+		return array;
+	}
 
-	abstract E[] duoFirstNull();
+	E[] duoFirstNull() {
+		E[] array = createArray.apply(2);
+		array[1] = min;
+		return array;
+	}
 
-	abstract E[] duoBothNull();
+	E[] duoBothNull() {
+		return allNull(2);
+	}
 
-	abstract E[] duoDistinct();
+	E[] duoSame() {
+		E[] array = createArray.apply(2);
+		array[0] = min;
+		array[1] = min;
+		return array;
+	}
 
-	abstract E[] duoSame();
+	E[] minMax() {
+		E[] array = createArray.apply(2);
+		array[0] = min;
+		array[1] = max;
+		return array;
+	}
 
-	abstract E[] minMax();
-
-	abstract E[] allNull(int size);
+	E[] allNull(int size) {
+		return createArray.apply(size);
+	}
 
 	abstract E[] random(int size);
 

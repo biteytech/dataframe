@@ -1467,19 +1467,17 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 
 		@Override
 		public boolean equals(Object o) {
-			if(!(o instanceof AbstractRow))
+			if (!(o instanceof Row))
 				return false;
-			
-			AbstractRow rhs = (AbstractRow) o;
+
+			Row rhs = (Row) o;
 			if (columnCount() != rhs.columnCount())
 				return false;
 
-			for (int i = 0; i < columnCount(); i++) {
-				Object o1 = get(i);
-				Object o2 = rhs.get(i);
-				if (!(o1 == null ? o2 == null : o1.equals(o2)))
+			for (int i = 0; i < columnCount(); i++)
+				if (!Objects.equals(get(i), rhs.get(i)))
 					return false;
-			}
+
 			return true;
 		}
 	}

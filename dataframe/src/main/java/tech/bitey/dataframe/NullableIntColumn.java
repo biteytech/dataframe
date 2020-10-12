@@ -29,7 +29,7 @@ final class NullableIntColumn extends NullableIntArrayColumn<Integer, IntColumn,
 	static final NullableIntColumn EMPTY = new NullableIntColumn(NonNullIntColumn.EMPTY.get(NONNULL_CHARACTERISTICS),
 			EMPTY_BITSET, null, 0, 0);
 
-	NullableIntColumn(NonNullIntColumn column, BufferBitSet nonNulls, NullCounts nullCounts, int offset, int size) {
+	NullableIntColumn(NonNullIntColumn column, BufferBitSet nonNulls, INullCounts nullCounts, int offset, int size) {
 		super(column, nonNulls, nullCounts, offset, size);
 	}
 

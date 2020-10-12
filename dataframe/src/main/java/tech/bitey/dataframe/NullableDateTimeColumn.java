@@ -30,7 +30,7 @@ final class NullableDateTimeColumn
 	static final NullableDateTimeColumn EMPTY = new NullableDateTimeColumn(
 			NonNullDateTimeColumn.EMPTY.get(NONNULL_CHARACTERISTICS), EMPTY_BITSET, null, 0, 0);
 
-	NullableDateTimeColumn(NonNullDateTimeColumn column, BufferBitSet nonNulls, NullCounts nullCounts, int offset,
+	NullableDateTimeColumn(NonNullDateTimeColumn column, BufferBitSet nonNulls, INullCounts nullCounts, int offset,
 			int size) {
 		super(column, nonNulls, nullCounts, offset, size);
 	}

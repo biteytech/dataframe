@@ -21,7 +21,11 @@ import java.util.Collection;
 public class TestBooleanColumn extends TestColumn<Boolean> {
 
 	private TestIntColumn intColumn = new TestIntColumn();
-	
+
+	TestBooleanColumn() {
+		super(Boolean.FALSE, Boolean.TRUE, Boolean[]::new);
+	}
+
 	@Override
 	Column<Boolean> parseColumn(StringColumn stringColumn) {
 		return stringColumn.parseBoolean();
@@ -58,51 +62,6 @@ public class TestBooleanColumn extends TestColumn<Boolean> {
 				bools[i] = array[i] % 2 == 0 ? Boolean.FALSE : Boolean.TRUE;
 		}
 		return bools;
-	}
-
-	@Override
-	Boolean[] empty() {
-		return new Boolean[0];
-	}
-
-	@Override
-	Boolean[] singleNull() {
-		return fromInteger(intColumn.singleNull());
-	}
-
-	@Override
-	Boolean[] singleNonNull() {
-		return fromInteger(intColumn.singleNull());
-	}
-
-	@Override
-	Boolean[] duoFirstNull() {
-		return fromInteger(intColumn.duoFirstNull());
-	}
-
-	@Override
-	Boolean[] duoBothNull() {
-		return fromInteger(intColumn.duoBothNull());
-	}
-
-	@Override
-	Boolean[] duoDistinct() {
-		return fromInteger(intColumn.duoDistinct());
-	}
-
-	@Override
-	Boolean[] duoSame() {
-		return fromInteger(intColumn.duoSame());
-	}
-
-	@Override
-	Boolean[] minMax() {
-		return fromInteger(intColumn.minMax());
-	}
-
-	@Override
-	Boolean[] allNull(int size) {
-		return fromInteger(intColumn.allNull(size));
 	}
 
 	@Override

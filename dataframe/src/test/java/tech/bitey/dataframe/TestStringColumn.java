@@ -33,7 +33,11 @@ import org.junit.jupiter.api.Test;
 public class TestStringColumn extends TestColumn<String> {
 
 	private static final Random RAND = new Random(0);
-	
+
+	TestStringColumn() {
+		super("String.MIN_VALUE", "String.MAX_VALUE", String[]::new);
+	}
+
 	@Override
 	Column<String> parseColumn(StringColumn stringColumn) {
 		return stringColumn;
@@ -53,51 +57,6 @@ public class TestStringColumn extends TestColumn<String> {
 	@Override
 	String[] toArray(Collection<String> samples) {
 		return samples.toArray(empty());
-	}
-
-	@Override
-	String[] empty() {
-		return new String[0];
-	}
-
-	@Override
-	String[] singleNull() {
-		return new String[] { null };
-	}
-
-	@Override
-	String[] singleNonNull() {
-		return new String[] { "0" };
-	}
-
-	@Override
-	String[] duoFirstNull() {
-		return new String[] { null, "0" };
-	}
-
-	@Override
-	String[] duoBothNull() {
-		return new String[] { null, null };
-	}
-
-	@Override
-	String[] duoDistinct() {
-		return new String[] { "0", "1" };
-	}
-
-	@Override
-	String[] duoSame() {
-		return new String[] { "0", "0" };
-	}
-
-	@Override
-	String[] minMax() {
-		return new String[] { "String.MIN_VALUE", "String.MAX_VALUE" };
-	}
-
-	@Override
-	String[] allNull(int size) {
-		return new String[size];
 	}
 
 	@Override

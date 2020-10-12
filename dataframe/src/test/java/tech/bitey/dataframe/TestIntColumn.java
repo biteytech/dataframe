@@ -31,6 +31,10 @@ public class TestIntColumn extends TestColumn<Integer> {
 
 	private static final Random RAND = new Random(0);
 
+	TestIntColumn() {
+		super(Integer.MIN_VALUE, Integer.MAX_VALUE, Integer[]::new);
+	}
+
 	@Test
 	public void testStream() {
 		for (TestSample<Integer> s : samples()) {
@@ -59,51 +63,6 @@ public class TestIntColumn extends TestColumn<Integer> {
 	@Override
 	Integer[] toArray(Collection<Integer> samples) {
 		return samples.toArray(empty());
-	}
-
-	@Override
-	Integer[] empty() {
-		return new Integer[0];
-	}
-
-	@Override
-	Integer[] singleNull() {
-		return new Integer[] { null };
-	}
-
-	@Override
-	Integer[] singleNonNull() {
-		return new Integer[] { 0 };
-	}
-
-	@Override
-	Integer[] duoFirstNull() {
-		return new Integer[] { null, 0 };
-	}
-
-	@Override
-	Integer[] duoBothNull() {
-		return new Integer[] { null, null };
-	}
-
-	@Override
-	Integer[] duoDistinct() {
-		return new Integer[] { 0, 1 };
-	}
-
-	@Override
-	Integer[] duoSame() {
-		return new Integer[] { 0, 0 };
-	}
-
-	@Override
-	Integer[] minMax() {
-		return new Integer[] { Integer.MIN_VALUE, Integer.MAX_VALUE };
-	}
-
-	@Override
-	Integer[] allNull(int size) {
-		return new Integer[size];
 	}
 
 	@Override

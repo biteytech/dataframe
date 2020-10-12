@@ -26,7 +26,7 @@ final class NullableBooleanColumn extends
 	static final NullableBooleanColumn EMPTY = new NullableBooleanColumn(NonNullBooleanColumn.EMPTY, EMPTY_BITSET, null,
 			0, 0);
 
-	NullableBooleanColumn(NonNullBooleanColumn column, BufferBitSet nonNulls, NullCounts nullCounts, int offset,
+	NullableBooleanColumn(NonNullBooleanColumn column, BufferBitSet nonNulls, INullCounts nullCounts, int offset,
 			int size) {
 		super(column, nonNulls, nullCounts, offset, size);
 	}

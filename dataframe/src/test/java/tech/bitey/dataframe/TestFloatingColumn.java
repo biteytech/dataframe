@@ -17,8 +17,13 @@
 package tech.bitey.dataframe;
 
 import java.util.List;
+import java.util.function.IntFunction;
 
 abstract class TestFloatingColumn<E extends Comparable<E>> extends TestColumn<E> {
+
+	TestFloatingColumn(E min, E max, IntFunction<E[]> createArray) {
+		super(min, max, createArray);
+	}
 
 	@Override
 	List<TestSample<E>> baseSamples() {

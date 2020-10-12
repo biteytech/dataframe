@@ -30,7 +30,7 @@ final class NullableDecimalColumn
 	static final NullableDecimalColumn EMPTY = new NullableDecimalColumn(
 			NonNullDecimalColumn.EMPTY.get(NONNULL_CHARACTERISTICS), EMPTY_BITSET, null, 0, 0);
 
-	NullableDecimalColumn(NonNullDecimalColumn column, BufferBitSet nonNulls, NullCounts nullCounts, int offset,
+	NullableDecimalColumn(NonNullDecimalColumn column, BufferBitSet nonNulls, INullCounts nullCounts, int offset,
 			int size) {
 		super(column, nonNulls, nullCounts, offset, size);
 	}

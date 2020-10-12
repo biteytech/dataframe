@@ -29,7 +29,7 @@ final class NullableLongColumn extends NullableLongArrayColumn<Long, LongColumn,
 	static final NullableLongColumn EMPTY = new NullableLongColumn(NonNullLongColumn.EMPTY.get(NONNULL_CHARACTERISTICS),
 			EMPTY_BITSET, null, 0, 0);
 
-	NullableLongColumn(NonNullLongColumn column, BufferBitSet nonNulls, NullCounts nullCounts, int offset, int size) {
+	NullableLongColumn(NonNullLongColumn column, BufferBitSet nonNulls, INullCounts nullCounts, int offset, int size) {
 		super(column, nonNulls, nullCounts, offset, size);
 	}
 

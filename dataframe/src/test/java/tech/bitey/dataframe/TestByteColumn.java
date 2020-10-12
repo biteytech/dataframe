@@ -26,7 +26,11 @@ import java.util.Random;
 public class TestByteColumn extends TestColumn<Byte> {
 
 	private static final Random RAND = new Random(0);
-	
+
+	TestByteColumn() {
+		super(Byte.MIN_VALUE, Byte.MAX_VALUE, Byte[]::new);
+	}
+
 	@Override
 	Column<Byte> parseColumn(StringColumn stringColumn) {
 		return stringColumn.parseByte();
@@ -46,51 +50,6 @@ public class TestByteColumn extends TestColumn<Byte> {
 	@Override
 	Byte[] toArray(Collection<Byte> samples) {
 		return samples.toArray(empty());
-	}
-
-	@Override
-	Byte[] empty() {
-		return new Byte[0];
-	}
-
-	@Override
-	Byte[] singleNull() {
-		return new Byte[] { null };
-	}
-
-	@Override
-	Byte[] singleNonNull() {
-		return new Byte[] { 0 };
-	}
-
-	@Override
-	Byte[] duoFirstNull() {
-		return new Byte[] { null, 0 };
-	}
-
-	@Override
-	Byte[] duoBothNull() {
-		return new Byte[] { null, null };
-	}
-
-	@Override
-	Byte[] duoDistinct() {
-		return new Byte[] { 0, 1 };
-	}
-
-	@Override
-	Byte[] duoSame() {
-		return new Byte[] { 0, 0 };
-	}
-
-	@Override
-	Byte[] minMax() {
-		return new Byte[] { Byte.MIN_VALUE, Byte.MAX_VALUE };
-	}
-
-	@Override
-	Byte[] allNull(int size) {
-		return new Byte[size];
 	}
 
 	@Override

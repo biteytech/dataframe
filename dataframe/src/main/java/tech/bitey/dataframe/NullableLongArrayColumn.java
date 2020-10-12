@@ -21,7 +21,7 @@ import tech.bitey.bufferstuff.BufferBitSet;
 abstract class NullableLongArrayColumn<E, I extends Column<E>, C extends LongArrayColumn<E, I, C>, N extends NullableColumn<E, I, C, N>>
 		extends NullableColumn<E, I, C, N> {
 
-	NullableLongArrayColumn(C column, BufferBitSet nonNulls, NullCounts nullCounts, int offset, int size) {
+	NullableLongArrayColumn(C column, BufferBitSet nonNulls, INullCounts nullCounts, int offset, int size) {
 		super(column, nonNulls, nullCounts, offset, size);
 	}
 

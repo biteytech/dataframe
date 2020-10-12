@@ -29,7 +29,7 @@ final class NullableDoubleColumn extends NullableColumn<Double, DoubleColumn, No
 	static final NullableDoubleColumn EMPTY = new NullableDoubleColumn(
 			NonNullDoubleColumn.EMPTY.get(NONNULL_CHARACTERISTICS), EMPTY_BITSET, null, 0, 0);
 
-	NullableDoubleColumn(NonNullDoubleColumn column, BufferBitSet nonNulls, NullCounts nullCounts, int offset,
+	NullableDoubleColumn(NonNullDoubleColumn column, BufferBitSet nonNulls, INullCounts nullCounts, int offset,
 			int size) {
 		super(column, nonNulls, nullCounts, offset, size);
 	}

@@ -29,7 +29,7 @@ final class NullableDateColumn extends
 	static final NullableDateColumn EMPTY = new NullableDateColumn(NonNullDateColumn.EMPTY.get(NONNULL_CHARACTERISTICS),
 			EMPTY_BITSET, null, 0, 0);
 
-	NullableDateColumn(NonNullDateColumn column, BufferBitSet nonNulls, NullCounts nullCounts, int offset, int size) {
+	NullableDateColumn(NonNullDateColumn column, BufferBitSet nonNulls, INullCounts nullCounts, int offset, int size) {
 		super(column, nonNulls, nullCounts, offset, size);
 	}
 

@@ -26,7 +26,11 @@ import java.util.Random;
 public class TestShortColumn extends TestColumn<Short> {
 
 	private static final Random RAND = new Random(0);
-	
+
+	TestShortColumn() {
+		super(Short.MIN_VALUE, Short.MAX_VALUE, Short[]::new);
+	}
+
 	@Override
 	Column<Short> parseColumn(StringColumn stringColumn) {
 		return stringColumn.parseShort();
@@ -46,51 +50,6 @@ public class TestShortColumn extends TestColumn<Short> {
 	@Override
 	Short[] toArray(Collection<Short> samples) {
 		return samples.toArray(empty());
-	}
-
-	@Override
-	Short[] empty() {
-		return new Short[0];
-	}
-
-	@Override
-	Short[] singleNull() {
-		return new Short[] { null };
-	}
-
-	@Override
-	Short[] singleNonNull() {
-		return new Short[] { 0 };
-	}
-
-	@Override
-	Short[] duoFirstNull() {
-		return new Short[] { null, 0 };
-	}
-
-	@Override
-	Short[] duoBothNull() {
-		return new Short[] { null, null };
-	}
-
-	@Override
-	Short[] duoDistinct() {
-		return new Short[] { 0, 1 };
-	}
-
-	@Override
-	Short[] duoSame() {
-		return new Short[] { 0, 0 };
-	}
-
-	@Override
-	Short[] minMax() {
-		return new Short[] { Short.MIN_VALUE, Short.MAX_VALUE };
-	}
-
-	@Override
-	Short[] allNull(int size) {
-		return new Short[size];
 	}
 
 	@Override

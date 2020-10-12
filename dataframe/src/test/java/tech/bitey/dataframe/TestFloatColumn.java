@@ -26,7 +26,11 @@ import java.util.Random;
 public class TestFloatColumn extends TestFloatingColumn<Float> {
 
 	private static final Random RAND = new Random(0);
-	
+
+	TestFloatColumn() {
+		super(Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, Float[]::new);
+	}
+
 	@Override
 	Column<Float> parseColumn(StringColumn stringColumn) {
 		return stringColumn.parseFloat();
@@ -61,51 +65,6 @@ public class TestFloatColumn extends TestFloatingColumn<Float> {
 	@Override
 	Float[] nonFinite() {
 		return new Float[] { Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, Float.NaN };
-	}
-
-	@Override
-	Float[] empty() {
-		return new Float[0];
-	}
-
-	@Override
-	Float[] singleNull() {
-		return new Float[] { null };
-	}
-
-	@Override
-	Float[] singleNonNull() {
-		return new Float[] { 0F };
-	}
-
-	@Override
-	Float[] duoFirstNull() {
-		return new Float[] { null, 0F };
-	}
-
-	@Override
-	Float[] duoBothNull() {
-		return new Float[] { null, null };
-	}
-
-	@Override
-	Float[] duoDistinct() {
-		return new Float[] { 0F, 1F };
-	}
-
-	@Override
-	Float[] duoSame() {
-		return new Float[] { 0F, 0F };
-	}
-
-	@Override
-	Float[] minMax() {
-		return new Float[] { Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY };
-	}
-
-	@Override
-	Float[] allNull(int size) {
-		return new Float[size];
 	}
 
 	@Override

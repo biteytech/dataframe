@@ -45,9 +45,9 @@ abstract class NullableColumn<E, I extends Column<E>, C extends NonNullColumn<E,
 	final C column;
 	final C subColumn;
 	final BufferBitSet nonNulls;
-	final NullCounts nullCounts;
+	final INullCounts nullCounts;
 
-	NullableColumn(C column, BufferBitSet nonNulls, NullCounts nullCounts, int offset, int size) {
+	NullableColumn(C column, BufferBitSet nonNulls, INullCounts nullCounts, int offset, int size) {
 		super(offset, size);
 
 		if (column.view)
@@ -55,7 +55,7 @@ abstract class NullableColumn<E, I extends Column<E>, C extends NonNullColumn<E,
 
 		this.column = column;
 		this.nonNulls = nonNulls;
-		this.nullCounts = nullCounts == null ? new NullCounts(nonNulls, size) : nullCounts;
+		this.nullCounts = nullCounts == null ? INullCounts.of(nonNulls, size) : nullCounts;
 
 		final int firstNonNullIndex = firstNonNullIndex();
 		if (firstNonNullIndex == -1)

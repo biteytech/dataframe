@@ -23,6 +23,10 @@ public class TestUuidColumn extends TestColumn<UUID> {
 
 	private final TestLongColumn longCol = new TestLongColumn();
 
+	TestUuidColumn() {
+		super(wrap(Long.MIN_VALUE), wrap(Long.MAX_VALUE), UUID[]::new);
+	}
+
 	@Override
 	Column<UUID> parseColumn(StringColumn stringColumn) {
 		return stringColumn.parseUuid();
@@ -47,51 +51,6 @@ public class TestUuidColumn extends TestColumn<UUID> {
 	@Override
 	UUID[] notPresent() {
 		return wrap(longCol.notPresent());
-	}
-
-	@Override
-	UUID[] empty() {
-		return new UUID[0];
-	}
-
-	@Override
-	UUID[] singleNull() {
-		return new UUID[] { null };
-	}
-
-	@Override
-	UUID[] singleNonNull() {
-		return wrap(longCol.singleNonNull());
-	}
-
-	@Override
-	UUID[] duoFirstNull() {
-		return wrap(longCol.duoFirstNull());
-	}
-
-	@Override
-	UUID[] duoBothNull() {
-		return new UUID[] { null, null };
-	}
-
-	@Override
-	UUID[] duoDistinct() {
-		return wrap(longCol.duoDistinct());
-	}
-
-	@Override
-	UUID[] duoSame() {
-		return wrap(longCol.duoSame());
-	}
-
-	@Override
-	UUID[] minMax() {
-		return wrap(longCol.minMax());
-	}
-
-	@Override
-	UUID[] allNull(int size) {
-		return new UUID[size];
 	}
 
 	@Override
@@ -127,8 +86,11 @@ public class TestUuidColumn extends TestColumn<UUID> {
 	private static UUID[] wrap(Long[] longs) {
 		UUID[] uuids = new UUID[longs.length];
 		for (int i = 0; i < longs.length; i++)
-			if (longs[i] != null)
-				uuids[i] = new UUID(longs[i], longs[i]);
+			uuids[i] = wrap(longs[i]);
 		return uuids;
+	}
+
+	private static UUID wrap(Long l) {
+		return l == null ? null : new UUID(l, l);
 	}
 }

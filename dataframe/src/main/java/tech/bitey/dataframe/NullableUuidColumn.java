@@ -29,7 +29,7 @@ final class NullableUuidColumn extends NullableColumn<UUID, UuidColumn, NonNullU
 	static final NullableUuidColumn EMPTY = new NullableUuidColumn(NonNullUuidColumn.EMPTY.get(NONNULL_CHARACTERISTICS),
 			EMPTY_BITSET, null, 0, 0);
 
-	NullableUuidColumn(NonNullUuidColumn column, BufferBitSet nonNulls, NullCounts nullCounts, int offset, int size) {
+	NullableUuidColumn(NonNullUuidColumn column, BufferBitSet nonNulls, INullCounts nullCounts, int offset, int size) {
 		super(column, nonNulls, nullCounts, offset, size);
 	}
 
