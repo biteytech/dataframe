@@ -16,49 +16,19 @@
 
 package tech.bitey.dataframe;
 
-import static tech.bitey.bufferstuff.BufferBitSet.EMPTY_BITSET;
-
 import tech.bitey.bufferstuff.BufferBitSet;
 
 final class NullableBooleanColumn extends
 		NullableColumn<Boolean, BooleanColumn, NonNullBooleanColumn, NullableBooleanColumn> implements BooleanColumn {
 
-	static final NullableBooleanColumn EMPTY = new NullableBooleanColumn(NonNullBooleanColumn.EMPTY, EMPTY_BITSET, null,
-			0, 0);
-
-	NullableBooleanColumn(NonNullBooleanColumn column, BufferBitSet nonNulls, INullCounts nullCounts, int offset,
-			int size) {
-		super(column, nonNulls, nullCounts, offset, size);
-	}
-
-	@Override
-	NullableBooleanColumn subColumn0(int fromIndex, int toIndex) {
-		return new NullableBooleanColumn(column, nonNulls, nullCounts, fromIndex + offset, toIndex - fromIndex);
-	}
-
-	@Override
-	NullableBooleanColumn empty() {
-		return EMPTY;
+	NullableBooleanColumn(NonNullColumn<Boolean, BooleanColumn, NonNullBooleanColumn> column, BufferBitSet nonNulls,
+			INullCounts nullCounts, int offset, int size) {
+		super((NonNullBooleanColumn) column, nonNulls, nullCounts, offset, size);
 	}
 
 	@Override
 	public boolean getBoolean(int index) {
 		checkGetPrimitive(index);
 		return column.getBoolean(nonNullIndex(index + offset));
-	}
-
-	@Override
-	NullableBooleanColumn construct(NonNullBooleanColumn column, BufferBitSet nonNulls, int size) {
-		return new NullableBooleanColumn(column, nonNulls, null, 0, size);
-	}
-
-	@Override
-	boolean checkType(Object o) {
-		return o instanceof Boolean;
-	}
-
-	@Override
-	void intersectRightSorted(NonNullBooleanColumn rhs, IntColumnBuilder indices, BufferBitSet keepLeft) {
-		throw new UnsupportedOperationException();
 	}
 }

@@ -16,29 +16,20 @@
 
 package tech.bitey.dataframe;
 
-import static tech.bitey.bufferstuff.BufferBitSet.EMPTY_BITSET;
-import static tech.bitey.dataframe.NonNullColumn.NONNULL_CHARACTERISTICS;
-
 import tech.bitey.bufferstuff.BufferBitSet;
 
 final class NullableFloatColumn extends NullableColumn<Float, FloatColumn, NonNullFloatColumn, NullableFloatColumn>
 		implements FloatColumn {
 
-	static final NullableFloatColumn EMPTY = new NullableFloatColumn(
-			NonNullFloatColumn.EMPTY.get(NONNULL_CHARACTERISTICS), EMPTY_BITSET, null, 0, 0);
-
-	NullableFloatColumn(NonNullFloatColumn column, BufferBitSet nonNulls, INullCounts nullCounts, int offset, int size) {
-		super(column, nonNulls, nullCounts, offset, size);
+	NullableFloatColumn(NonNullColumn<Float, FloatColumn, NonNullFloatColumn> column, BufferBitSet nonNulls,
+			INullCounts nullCounts, int offset, int size) {
+		super((NonNullFloatColumn) column, nonNulls, nullCounts, offset, size);
 	}
 
 	@Override
-	NullableFloatColumn subColumn0(int fromIndex, int toIndex) {
-		return new NullableFloatColumn(column, nonNulls, nullCounts, fromIndex + offset, toIndex - fromIndex);
-	}
-
-	@Override
-	NullableFloatColumn empty() {
-		return EMPTY;
+	public float getFloat(int index) {
+		checkGetPrimitive(index);
+		return column.getFloat(nonNullIndex(index + offset));
 	}
 
 	@Override
@@ -59,38 +50,5 @@ final class NullableFloatColumn extends NullableColumn<Float, FloatColumn, NonNu
 	@Override
 	public double stddev(boolean population) {
 		return subColumn.stddev(population);
-	}
-
-	@Override
-	public float getFloat(int index) {
-		checkGetPrimitive(index);
-		return column.getFloat(nonNullIndex(index + offset));
-	}
-
-	@Override
-	NullableFloatColumn construct(NonNullFloatColumn column, BufferBitSet nonNulls, int size) {
-		return new NullableFloatColumn(column, nonNulls, null, 0, size);
-	}
-
-	@Override
-	boolean checkType(Object o) {
-		return o instanceof Float;
-	}
-
-	@Override
-	void intersectRightSorted(NonNullFloatColumn rhs, IntColumnBuilder indices, BufferBitSet keepLeft) {
-
-		for (int i = offset; i <= lastIndex(); i++) {
-
-			if (!nonNulls.get(i))
-				continue;
-
-			int rightIndex = rhs.search(column.at(nonNullIndex(i)));
-			if (rightIndex >= rhs.offset && rightIndex <= rhs.lastIndex()) {
-
-				indices.add(rightIndex - rhs.offset);
-				keepLeft.set(i - offset);
-			}
-		}
 	}
 }

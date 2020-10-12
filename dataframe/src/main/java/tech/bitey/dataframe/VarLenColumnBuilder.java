@@ -104,7 +104,7 @@ abstract class VarLenColumnBuilder<E extends Comparable<E>, C extends Column<E>,
 		characteristics |= SORTED | DISTINCT;
 	}
 
-	abstract C construct(ByteBuffer elements, ByteBuffer pointers, int characteristics);
+	abstract C construct(ByteBuffer elements, ByteBuffer pointers, int characteristics, int size);
 
 	@Override
 	C buildNonNullColumn(int characteristics) {
@@ -129,6 +129,6 @@ abstract class VarLenColumnBuilder<E extends Comparable<E>, C extends Column<E>,
 		pointers.flip();
 		elements.flip();
 
-		return construct(elements, pointers, characteristics);
+		return construct(elements, pointers, characteristics, packedList.size());
 	}
 }

@@ -16,39 +16,13 @@
 
 package tech.bitey.dataframe;
 
-import static tech.bitey.bufferstuff.BufferBitSet.EMPTY_BITSET;
-import static tech.bitey.dataframe.NonNullColumn.NONNULL_CHARACTERISTICS;
-
 import tech.bitey.bufferstuff.BufferBitSet;
 
 final class NullableStringColumn extends
 		NullableVarLenColumn<String, StringColumn, NonNullStringColumn, NullableStringColumn> implements StringColumn {
 
-	static final NullableStringColumn EMPTY = new NullableStringColumn(
-			NonNullStringColumn.EMPTY.get(NONNULL_CHARACTERISTICS), EMPTY_BITSET, null, 0, 0);
-
-	NullableStringColumn(NonNullStringColumn column, BufferBitSet nonNulls, INullCounts nullCounts, int offset,
-			int size) {
-		super(column, nonNulls, nullCounts, offset, size);
-	}
-
-	@Override
-	NullableStringColumn subColumn0(int fromIndex, int toIndex) {
-		return new NullableStringColumn(column, nonNulls, nullCounts, fromIndex + offset, toIndex - fromIndex);
-	}
-
-	@Override
-	NullableStringColumn empty() {
-		return EMPTY;
-	}
-
-	@Override
-	NullableStringColumn construct(NonNullStringColumn column, BufferBitSet nonNulls, int size) {
-		return new NullableStringColumn(column, nonNulls, null, 0, size);
-	}
-
-	@Override
-	boolean checkType(Object o) {
-		return o instanceof String;
+	NullableStringColumn(NonNullColumn<String, StringColumn, NonNullStringColumn> column, BufferBitSet nonNulls,
+			INullCounts nullCounts, int offset, int size) {
+		super((NonNullStringColumn) column, nonNulls, nullCounts, offset, size);
 	}
 }

@@ -16,9 +16,6 @@
 
 package tech.bitey.dataframe;
 
-import static tech.bitey.bufferstuff.BufferBitSet.EMPTY_BITSET;
-import static tech.bitey.dataframe.NonNullColumn.NONNULL_CHARACTERISTICS;
-
 import java.util.stream.LongStream;
 
 import tech.bitey.bufferstuff.BufferBitSet;
@@ -26,21 +23,20 @@ import tech.bitey.bufferstuff.BufferBitSet;
 final class NullableLongColumn extends NullableLongArrayColumn<Long, LongColumn, NonNullLongColumn, NullableLongColumn>
 		implements LongColumn {
 
-	static final NullableLongColumn EMPTY = new NullableLongColumn(NonNullLongColumn.EMPTY.get(NONNULL_CHARACTERISTICS),
-			EMPTY_BITSET, null, 0, 0);
-
-	NullableLongColumn(NonNullLongColumn column, BufferBitSet nonNulls, INullCounts nullCounts, int offset, int size) {
-		super(column, nonNulls, nullCounts, offset, size);
+	NullableLongColumn(NonNullColumn<Long, LongColumn, NonNullLongColumn> column, BufferBitSet nonNulls,
+			INullCounts nullCounts, int offset, int size) {
+		super((NonNullLongColumn) column, nonNulls, nullCounts, offset, size);
 	}
 
 	@Override
-	NullableLongColumn subColumn0(int fromIndex, int toIndex) {
-		return new NullableLongColumn(column, nonNulls, nullCounts, fromIndex + offset, toIndex - fromIndex);
+	public long getLong(int index) {
+		checkGetPrimitive(index);
+		return column.getLong(nonNullIndex(index + offset));
 	}
 
 	@Override
-	NullableLongColumn empty() {
-		return EMPTY;
+	public LongStream longStream() {
+		return subColumn.longStream();
 	}
 
 	@Override
@@ -61,26 +57,5 @@ final class NullableLongColumn extends NullableLongArrayColumn<Long, LongColumn,
 	@Override
 	public double stddev(boolean population) {
 		return subColumn.stddev(population);
-	}
-
-	@Override
-	public long getLong(int index) {
-		checkGetPrimitive(index);
-		return column.getLong(nonNullIndex(index + offset));
-	}
-
-	@Override
-	NullableLongColumn construct(NonNullLongColumn column, BufferBitSet nonNulls, int size) {
-		return new NullableLongColumn(column, nonNulls, null, 0, size);
-	}
-
-	@Override
-	boolean checkType(Object o) {
-		return o instanceof Long;
-	}
-
-	@Override
-	public LongStream longStream() {
-		return subColumn.longStream();
 	}
 }

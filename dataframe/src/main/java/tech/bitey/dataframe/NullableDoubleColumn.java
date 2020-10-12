@@ -16,9 +16,6 @@
 
 package tech.bitey.dataframe;
 
-import static tech.bitey.bufferstuff.BufferBitSet.EMPTY_BITSET;
-import static tech.bitey.dataframe.NonNullColumn.NONNULL_CHARACTERISTICS;
-
 import java.util.stream.DoubleStream;
 
 import tech.bitey.bufferstuff.BufferBitSet;
@@ -26,22 +23,20 @@ import tech.bitey.bufferstuff.BufferBitSet;
 final class NullableDoubleColumn extends NullableColumn<Double, DoubleColumn, NonNullDoubleColumn, NullableDoubleColumn>
 		implements DoubleColumn {
 
-	static final NullableDoubleColumn EMPTY = new NullableDoubleColumn(
-			NonNullDoubleColumn.EMPTY.get(NONNULL_CHARACTERISTICS), EMPTY_BITSET, null, 0, 0);
-
-	NullableDoubleColumn(NonNullDoubleColumn column, BufferBitSet nonNulls, INullCounts nullCounts, int offset,
-			int size) {
-		super(column, nonNulls, nullCounts, offset, size);
+	NullableDoubleColumn(NonNullColumn<Double, DoubleColumn, NonNullDoubleColumn> column, BufferBitSet nonNulls,
+			INullCounts nullCounts, int offset, int size) {
+		super((NonNullDoubleColumn) column, nonNulls, nullCounts, offset, size);
 	}
 
 	@Override
-	NullableDoubleColumn subColumn0(int fromIndex, int toIndex) {
-		return new NullableDoubleColumn(column, nonNulls, nullCounts, fromIndex + offset, toIndex - fromIndex);
+	public double getDouble(int index) {
+		checkGetPrimitive(index);
+		return column.getDouble(nonNullIndex(index + offset));
 	}
 
 	@Override
-	NullableDoubleColumn empty() {
-		return EMPTY;
+	public DoubleStream doubleStream() {
+		return subColumn.doubleStream();
 	}
 
 	@Override
@@ -62,43 +57,5 @@ final class NullableDoubleColumn extends NullableColumn<Double, DoubleColumn, No
 	@Override
 	public double stddev(boolean population) {
 		return subColumn.stddev(population);
-	}
-
-	@Override
-	public double getDouble(int index) {
-		checkGetPrimitive(index);
-		return column.getDouble(nonNullIndex(index + offset));
-	}
-
-	@Override
-	NullableDoubleColumn construct(NonNullDoubleColumn column, BufferBitSet nonNulls, int size) {
-		return new NullableDoubleColumn(column, nonNulls, null, 0, size);
-	}
-
-	@Override
-	boolean checkType(Object o) {
-		return o instanceof Double;
-	}
-
-	@Override
-	void intersectRightSorted(NonNullDoubleColumn rhs, IntColumnBuilder indices, BufferBitSet keepLeft) {
-
-		for (int i = offset; i <= lastIndex(); i++) {
-
-			if (!nonNulls.get(i))
-				continue;
-
-			int rightIndex = rhs.search(column.at(nonNullIndex(i)));
-			if (rightIndex >= rhs.offset && rightIndex <= rhs.lastIndex()) {
-
-				indices.add(rightIndex - rhs.offset);
-				keepLeft.set(i - offset);
-			}
-		}
-	}
-
-	@Override
-	public DoubleStream doubleStream() {
-		return subColumn.doubleStream();
 	}
 }

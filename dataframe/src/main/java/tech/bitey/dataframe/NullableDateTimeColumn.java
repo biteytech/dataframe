@@ -16,9 +16,6 @@
 
 package tech.bitey.dataframe;
 
-import static tech.bitey.bufferstuff.BufferBitSet.EMPTY_BITSET;
-import static tech.bitey.dataframe.NonNullColumn.NONNULL_CHARACTERISTICS;
-
 import java.time.LocalDateTime;
 
 import tech.bitey.bufferstuff.BufferBitSet;
@@ -27,31 +24,8 @@ final class NullableDateTimeColumn
 		extends NullableLongArrayColumn<LocalDateTime, DateTimeColumn, NonNullDateTimeColumn, NullableDateTimeColumn>
 		implements DateTimeColumn {
 
-	static final NullableDateTimeColumn EMPTY = new NullableDateTimeColumn(
-			NonNullDateTimeColumn.EMPTY.get(NONNULL_CHARACTERISTICS), EMPTY_BITSET, null, 0, 0);
-
-	NullableDateTimeColumn(NonNullDateTimeColumn column, BufferBitSet nonNulls, INullCounts nullCounts, int offset,
-			int size) {
-		super(column, nonNulls, nullCounts, offset, size);
-	}
-
-	@Override
-	NullableDateTimeColumn subColumn0(int fromIndex, int toIndex) {
-		return new NullableDateTimeColumn(column, nonNulls, nullCounts, fromIndex + offset, toIndex - fromIndex);
-	}
-
-	@Override
-	NullableDateTimeColumn empty() {
-		return EMPTY;
-	}
-
-	@Override
-	NullableDateTimeColumn construct(NonNullDateTimeColumn column, BufferBitSet nonNulls, int size) {
-		return new NullableDateTimeColumn(column, nonNulls, null, 0, size);
-	}
-
-	@Override
-	boolean checkType(Object o) {
-		return o instanceof LocalDateTime;
+	NullableDateTimeColumn(NonNullColumn<LocalDateTime, DateTimeColumn, NonNullDateTimeColumn> column,
+			BufferBitSet nonNulls, INullCounts nullCounts, int offset, int size) {
+		super((NonNullDateTimeColumn) column, nonNulls, nullCounts, offset, size);
 	}
 }

@@ -24,21 +24,4 @@ abstract class NullableIntArrayColumn<E, I extends Column<E>, C extends IntArray
 	NullableIntArrayColumn(C column, BufferBitSet nonNulls, INullCounts nullCounts, int offset, int size) {
 		super(column, nonNulls, nullCounts, offset, size);
 	}
-
-	@Override
-	void intersectRightSorted(C rhs, IntColumnBuilder indices, BufferBitSet keepLeft) {
-
-		for (int i = offset; i <= lastIndex(); i++) {
-
-			if (!nonNulls.get(i))
-				continue;
-
-			int rightIndex = rhs.search(column.at(nonNullIndex(i)));
-			if (rightIndex >= rhs.offset && rightIndex <= rhs.lastIndex()) {
-
-				indices.add(rightIndex - rhs.offset);
-				keepLeft.set(i - offset);
-			}
-		}
-	}
 }

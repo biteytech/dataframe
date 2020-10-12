@@ -280,6 +280,38 @@ public class ColumnType<E> {
 		throw new IllegalStateException();
 	}
 
+	@SuppressWarnings("rawtypes")
+	NullableColumnConstructor nullableConstructor() {
+		switch (getCode()) {
+		case B:
+			return NullableBooleanColumn::new;
+		case BD:
+			return NullableDecimalColumn::new;
+		case D:
+			return NullableDoubleColumn::new;
+		case DA:
+			return NullableDateColumn::new;
+		case DT:
+			return NullableDateTimeColumn::new;
+		case F:
+			return NullableFloatColumn::new;
+		case I:
+			return NullableIntColumn::new;
+		case L:
+			return NullableLongColumn::new;
+		case S:
+			return NullableStringColumn::new;
+		case T:
+			return NullableShortColumn::new;
+		case UU:
+			return NullableUuidColumn::new;
+		case Y:
+			return NullableByteColumn::new;
+		}
+
+		throw new IllegalStateException();
+	}
+
 	/**
 	 * Parse a string to an element according to the following logic:
 	 * 

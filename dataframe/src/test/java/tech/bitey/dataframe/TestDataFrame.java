@@ -378,6 +378,28 @@ public class TestDataFrame {
 	}
 
 	@Test
+	public void testOneToManyJoin() {
+
+		StringColumn c11 = StringColumn.builder(DISTINCT).add("A", "B", "C", "D").build();
+		IntColumn c21 = IntColumn.of(1, 2, 3, 4);
+		StringColumn c31 = StringColumn.of("one", "two", "three", "four");
+		DataFrame df1 = DataFrameFactory.create(new Column<?>[] { c11, c21, c31 }, new String[] { "C1", "C2", "C3" },
+				"C1");
+
+		StringColumn c12 = StringColumn.of(null, "D", "A", "B", "C", "C", null, "D");
+		IntColumn c22 = IntColumn.of(null, 4, 1, 2, 3, 3, null, 4);
+		DataFrame df2 = DataFrameFactory.create(new Column<?>[] { c12, c22 }, new String[] { "C1", "C2" });
+
+		DataFrame expected = df2.filterNulls();
+		expected = expected.withColumn("C3", StringColumn.of("four", "one", "two", "three", "three", "four"))
+				.withColumn("C2_2", expected.column(1));
+
+		DataFrame actual = df1.joinLeftOneToMany(df2, "C1");
+
+		Assertions.assertEquals(expected, actual);
+	}
+
+	@Test
 	public void testManyToOneJoin() {
 
 		StringColumn c11 = StringColumn.of(null, "A", "B", "C", null, "D");

@@ -61,7 +61,7 @@ public final class StringColumnBuilder extends VarLenColumnBuilder<String, Strin
 	}
 
 	@Override
-	StringColumn construct(ByteBuffer elements, ByteBuffer pointers, int characteristics) {
+	StringColumn construct(ByteBuffer elements, ByteBuffer pointers, int characteristics, int size) {
 		return new NonNullStringColumn(elements, pointers, 0, size, characteristics, false);
 	}
 }

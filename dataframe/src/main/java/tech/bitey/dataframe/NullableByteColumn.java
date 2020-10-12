@@ -16,29 +16,14 @@
 
 package tech.bitey.dataframe;
 
-import static tech.bitey.bufferstuff.BufferBitSet.EMPTY_BITSET;
-import static tech.bitey.dataframe.NonNullColumn.NONNULL_CHARACTERISTICS;
-
 import tech.bitey.bufferstuff.BufferBitSet;
 
 final class NullableByteColumn extends NullableByteArrayColumn<Byte, ByteColumn, NonNullByteColumn, NullableByteColumn>
 		implements ByteColumn {
 
-	static final NullableByteColumn EMPTY = new NullableByteColumn(NonNullByteColumn.EMPTY.get(NONNULL_CHARACTERISTICS),
-			EMPTY_BITSET, null, 0, 0);
-
-	NullableByteColumn(NonNullByteColumn column, BufferBitSet nonNulls, INullCounts nullCounts, int offset, int size) {
-		super(column, nonNulls, nullCounts, offset, size);
-	}
-
-	@Override
-	NullableByteColumn subColumn0(int fromIndex, int toIndex) {
-		return new NullableByteColumn(column, nonNulls, nullCounts, fromIndex + offset, toIndex - fromIndex);
-	}
-
-	@Override
-	NullableByteColumn empty() {
-		return EMPTY;
+	NullableByteColumn(NonNullColumn<Byte, ByteColumn, NonNullByteColumn> column, BufferBitSet nonNulls,
+			INullCounts nullCounts, int offset, int size) {
+		super((NonNullByteColumn) column, nonNulls, nullCounts, offset, size);
 	}
 
 	@Override
@@ -65,15 +50,5 @@ final class NullableByteColumn extends NullableByteArrayColumn<Byte, ByteColumn,
 	public byte getByte(int index) {
 		checkGetPrimitive(index);
 		return column.getByte(nonNullIndex(index + offset));
-	}
-
-	@Override
-	NullableByteColumn construct(NonNullByteColumn column, BufferBitSet nonNulls, int size) {
-		return new NullableByteColumn(column, nonNulls, null, 0, size);
-	}
-
-	@Override
-	boolean checkType(Object o) {
-		return o instanceof Byte;
 	}
 }

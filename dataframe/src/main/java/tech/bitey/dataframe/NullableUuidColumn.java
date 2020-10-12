@@ -16,9 +16,6 @@
 
 package tech.bitey.dataframe;
 
-import static tech.bitey.bufferstuff.BufferBitSet.EMPTY_BITSET;
-import static tech.bitey.dataframe.NonNullColumn.NONNULL_CHARACTERISTICS;
-
 import java.util.UUID;
 
 import tech.bitey.bufferstuff.BufferBitSet;
@@ -26,47 +23,8 @@ import tech.bitey.bufferstuff.BufferBitSet;
 final class NullableUuidColumn extends NullableColumn<UUID, UuidColumn, NonNullUuidColumn, NullableUuidColumn>
 		implements UuidColumn {
 
-	static final NullableUuidColumn EMPTY = new NullableUuidColumn(NonNullUuidColumn.EMPTY.get(NONNULL_CHARACTERISTICS),
-			EMPTY_BITSET, null, 0, 0);
-
-	NullableUuidColumn(NonNullUuidColumn column, BufferBitSet nonNulls, INullCounts nullCounts, int offset, int size) {
-		super(column, nonNulls, nullCounts, offset, size);
-	}
-
-	@Override
-	NullableUuidColumn subColumn0(int fromIndex, int toIndex) {
-		return new NullableUuidColumn(column, nonNulls, nullCounts, fromIndex + offset, toIndex - fromIndex);
-	}
-
-	@Override
-	NullableUuidColumn empty() {
-		return EMPTY;
-	}
-
-	@Override
-	NullableUuidColumn construct(NonNullUuidColumn column, BufferBitSet nonNulls, int size) {
-		return new NullableUuidColumn(column, nonNulls, null, 0, size);
-	}
-
-	@Override
-	boolean checkType(Object o) {
-		return o instanceof UUID;
-	}
-
-	@Override
-	void intersectRightSorted(NonNullUuidColumn rhs, IntColumnBuilder indices, BufferBitSet keepLeft) {
-
-		for (int i = offset; i <= lastIndex(); i++) {
-
-			if (!nonNulls.get(i))
-				continue;
-
-			int rightIndex = rhs.search(column.getNoOffset(nonNullIndex(i)));
-			if (rightIndex >= rhs.offset && rightIndex <= rhs.lastIndex()) {
-
-				indices.add(rightIndex - rhs.offset);
-				keepLeft.set(i - offset);
-			}
-		}
+	NullableUuidColumn(NonNullColumn<UUID, UuidColumn, NonNullUuidColumn> column, BufferBitSet nonNulls,
+			INullCounts nullCounts, int offset, int size) {
+		super((NonNullUuidColumn) column, nonNulls, nullCounts, offset, size);
 	}
 }

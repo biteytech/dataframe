@@ -62,7 +62,7 @@ public final class DecimalColumnBuilder extends VarLenColumnBuilder<BigDecimal, 
 	}
 
 	@Override
-	DecimalColumn construct(ByteBuffer elements, ByteBuffer pointers, int characteristics) {
+	DecimalColumn construct(ByteBuffer elements, ByteBuffer pointers, int characteristics, int size) {
 		return new NonNullDecimalColumn(elements, pointers, 0, size, characteristics, false);
 	}
 }

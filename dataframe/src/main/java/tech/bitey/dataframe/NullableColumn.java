@@ -17,6 +17,7 @@
 package tech.bitey.dataframe;
 
 import static java.nio.ByteOrder.BIG_ENDIAN;
+import static tech.bitey.bufferstuff.BufferBitSet.EMPTY_BITSET;
 import static tech.bitey.dataframe.DfPreconditions.checkElementIndex;
 import static tech.bitey.dataframe.DfPreconditions.checkPositionIndex;
 
@@ -26,7 +27,9 @@ import java.nio.channels.WritableByteChannel;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Comparator;
+import java.util.EnumMap;
 import java.util.ListIterator;
+import java.util.Map;
 import java.util.NavigableSet;
 import java.util.NoSuchElementException;
 import java.util.UUID;
@@ -41,6 +44,8 @@ import tech.bitey.bufferstuff.BufferBitSet;
 @SuppressWarnings({ "unchecked", "rawtypes" })
 abstract class NullableColumn<E, I extends Column<E>, C extends NonNullColumn<E, I, C>, N extends NullableColumn<E, I, C, N>>
 		extends AbstractColumn<E, I, N> {
+
+	static final Map<ColumnTypeCode, NullableColumn> EMPTY_MAP = new EnumMap<>(ColumnTypeCode.class);
 
 	final C column;
 	final C subColumn;
@@ -253,7 +258,15 @@ abstract class NullableColumn<E, I extends Column<E>, C extends NonNullColumn<E,
 		return 31 * result + subColumn.hashCode();
 	}
 
-	abstract N construct(C column, BufferBitSet nonNulls, int size);
+	N construct(C column, BufferBitSet nonNulls, int size) {
+		return (N) getType().nullableConstructor().create(column, nonNulls, null, 0, size);
+	}
+
+	@Override
+	N subColumn0(int fromIndex, int toIndex) {
+		return (N) getType().nullableConstructor().create(column, nonNulls, nullCounts, fromIndex + offset,
+				toIndex - fromIndex);
+	}
 
 	@Override
 	Column<E> applyFilter0(BufferBitSet keep, int cardinality) {
@@ -374,7 +387,21 @@ abstract class NullableColumn<E, I extends Column<E>, C extends NonNullColumn<E,
 		throw new UnsupportedOperationException("intersectLeftSorted");
 	}
 
-	abstract void intersectRightSorted(C rhs, IntColumnBuilder indices, BufferBitSet keepLeft);
+	void intersectRightSorted(C rhs, IntColumnBuilder indices, BufferBitSet keepLeft) {
+
+		for (int i = offset; i <= lastIndex(); i++) {
+
+			if (!nonNulls.get(i))
+				continue;
+
+			int rightIndex = rhs.search(column.getNoOffset(nonNullIndex(i)), true);
+			if (rightIndex >= rhs.offset && rightIndex <= rhs.lastIndex()) {
+
+				indices.add(rightIndex - rhs.offset);
+				keepLeft.set(i - offset);
+			}
+		}
+	}
 
 	@Override
 	void writeTo(WritableByteChannel channel) throws IOException {
@@ -512,5 +539,24 @@ abstract class NullableColumn<E, I extends Column<E>, C extends NonNullColumn<E,
 	@Override
 	public ColumnType getType() {
 		return column.getType();
+	}
+
+	@Override
+	boolean checkType(Object o) {
+		return column.checkType(o);
+	}
+
+	static {
+		for (ColumnTypeCode typeCode : ColumnTypeCode.values()) {
+			ColumnType type = typeCode.getType();
+			NullableColumn empty = type.nullableConstructor().create((NonNullColumn) type.builder().build(),
+					EMPTY_BITSET, null, 0, 0);
+			EMPTY_MAP.put(typeCode, empty);
+		}
+	}
+
+	@Override
+	N empty() {
+		return (N) EMPTY_MAP.get(getType().getCode());
 	}
 }
