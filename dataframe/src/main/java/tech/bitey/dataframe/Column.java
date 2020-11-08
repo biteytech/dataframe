@@ -45,8 +45,7 @@ import java.util.function.ToLongFunction;
  * type {@code E} are packed/unpacked to and from the buffers. There are four
  * variants for each element type, with different tradeoffs between performance
  * and functionality:
- * <table border=1 cellpadding=3>
- * <caption><b>Column Implementation Overview</b></caption>
+ * <table border=1>
  * <tr>
  * <th>Database<br>
  * Terminology</th>
@@ -217,16 +216,16 @@ public interface Column<E> extends List<E> {
 
 	/**
 	 * Returns a view of the portion of this column between the specified
-	 * <tt>fromIndex</tt>, inclusive, and <tt>toIndex</tt>, exclusive. (If
-	 * <tt>fromIndex</tt> and <tt>toIndex</tt> are equal, the returned list is
-	 * empty.) The returned column is backed by this column.
+	 * {@code fromIndex}, inclusive, and {@code toIndex}, exclusive. (If
+	 * {@code fromIndex} and {@code toIndex} are equal, the returned list is empty.)
+	 * The returned column is backed by this column.
 	 * 
 	 * @param fromIndex low endpoint (inclusive) of the subList
 	 * @param toIndex   high endpoint (exclusive) of the subList
 	 * @return a view of the specified range within this column
 	 * @throws IndexOutOfBoundsException for an illegal endpoint index value
-	 *                                   (<tt>fromIndex &lt; 0 || toIndex &gt; size ||
-	 *         fromIndex &gt; toIndex</tt>)
+	 *                                   ({@code fromIndex < 0 || toIndex > size ||
+	 *         fromIndex > toIndex}   )
 	 */
 	Column<E> subColumn(int fromIndex, int toIndex);
 

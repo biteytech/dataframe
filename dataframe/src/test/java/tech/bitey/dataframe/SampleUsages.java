@@ -140,9 +140,10 @@ public class SampleUsages {
 		Files.write(file.toPath(), csv.toString().getBytes());
 
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("M/d/yyyy");
-		ReadCsvConfig config = new ReadCsvConfig(
-				Arrays.asList(ColumnType.INT, ColumnType.DATE, ColumnType.STRING, ColumnType.INT, ColumnType.DOUBLE),
-				Arrays.asList(null, text -> LocalDate.parse(text, formatter), null, null, null), '\t');
+		ReadCsvConfig config = ReadCsvConfig.builder()
+				.columnTypes(ColumnType.INT, ColumnType.DATE, ColumnType.STRING, ColumnType.INT, ColumnType.DOUBLE)
+				.columnParsers(null, text -> LocalDate.parse(text, formatter), null, null, null).delim('\t').build();
+
 		DataFrame df2 = DataFrameFactory.readCsvFrom(file, config);
 
 		Assertions.assertEquals(df, df2);
@@ -161,9 +162,11 @@ public class SampleUsages {
 
 			ResultSet rs = stmt.executeQuery("select * from EX4");
 			DataFrame df3 = DataFrameFactory.readFrom(rs,
-					new ReadFromDbConfig(Arrays.asList(IntFromResultSet.INT_FROM_INT,
-							DateFromResultSet.DATE_FROM_ISOSTRING, StringFromResultSet.STRING_FROM_STRING,
-							IntFromResultSet.INT_FROM_INT, DoubleFromResultSet.DOUBLE_FROM_DOUBLE), 1000));
+					ReadFromDbConfig.builder()
+							.fromRsLogic(IntFromResultSet.INT_FROM_INT, DateFromResultSet.DATE_FROM_ISOSTRING,
+									StringFromResultSet.STRING_FROM_STRING, IntFromResultSet.INT_FROM_INT,
+									DoubleFromResultSet.DOUBLE_FROM_DOUBLE)
+							.build());
 
 			Assertions.assertEquals(df, df3);
 		}

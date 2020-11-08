@@ -1,4 +1,7 @@
 # dataframe
+
+[![Build Status](https://travis-ci.org/biteytech/dataframe.svg?branch=master)](https://travis-ci.org/biteytech/dataframe)
+
 Another dataframe library for Java, inspired by Tablesaw, built on nio buffers.
 
 To add a dependency on dataframe using Maven, use the following:

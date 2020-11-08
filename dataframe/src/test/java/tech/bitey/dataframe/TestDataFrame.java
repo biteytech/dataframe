@@ -27,7 +27,6 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -205,7 +204,8 @@ public class TestDataFrame {
 			file.deleteOnExit();
 
 			expected.writeCsvTo(file);
-			DataFrame actual = DataFrameFactory.readCsvFrom(file, new ReadCsvConfig(expected.columnTypes()));
+			DataFrame actual = DataFrameFactory.readCsvFrom(file,
+					ReadCsvConfig.builder().columnTypes(expected.columnTypes()).build());
 
 			Assertions.assertEquals(expected, actual, e.getKey() + ", read/write csv");
 		}
@@ -219,7 +219,8 @@ public class TestDataFrame {
 			file.deleteOnExit();
 			expected.writeCsvTo(file);
 
-			DataFrame actual = DataFrameFactory.readCsvFrom(file, new ReadCsvConfig(Arrays.asList(ColumnType.STRING)));
+			DataFrame actual = DataFrameFactory.readCsvFrom(file,
+					ReadCsvConfig.builder().columnTypes(ColumnType.STRING).build());
 
 			Assertions.assertEquals(expected, actual, "null vs empty, read/write csv");
 		}
@@ -311,10 +312,11 @@ public class TestDataFrame {
 				try (PreparedStatement ps = conn.prepareStatement(
 						"insert into " + tableName + " values (?" + DfStrings.repeat(",?", cc - 1) + ")");) {
 
-					expected.writeTo(ps, new WriteToDbConfig(null, 1000, true));
+					expected.writeTo(ps, WriteToDbConfig.DEFAULT_CONFIG);
 
 					ResultSet rs = stmt.executeQuery("select * from " + tableName);
-					DataFrame actual = DataFrameFactory.readFrom(rs, new ReadFromDbConfig(fromRsLogic, 1000));
+					DataFrame actual = DataFrameFactory.readFrom(rs,
+							ReadFromDbConfig.builder().fromRsLogic(fromRsLogic).build());
 					Assertions.assertEquals(expected, actual, e.getKey() + ", read/write db");
 				}
 			}

@@ -84,10 +84,10 @@ enum AbstractColumnSearch {
 	 * @param col the column to search
 	 * @param key the value to be searched for
 	 * @return index of the specified key, if it is contained in this column;
-	 *         otherwise, <tt>(-(<i>insertion point</i>) - 1)</tt>. The <i>insertion
+	 *         otherwise, {@code (-(<i>insertion point</i>) - 1)}. The <i>insertion
 	 *         point</i> is defined as the point at which the key would be inserted
 	 *         into the array: the index of the first element greater than the key,
-	 *         or <tt>a.length</tt> if all elements in the array are less than the
+	 *         or {@code a.length} if all elements in the array are less than the
 	 *         specified key. Note that this guarantees that the return value will
 	 *         be &gt;= 0 if and only if the key is found.
 	 */

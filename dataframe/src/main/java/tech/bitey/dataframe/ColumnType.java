@@ -315,8 +315,7 @@ public class ColumnType<E> {
 	/**
 	 * Parse a string to an element according to the following logic:
 	 * 
-	 * <table border=1 cellpadding=3>
-	 * <caption><b>Parsing Logic</b></caption>
+	 * <table border=1>
 	 * <tr>
 	 * <th>Column Type</th>
 	 * <th>Element Type</th>

@@ -974,15 +974,15 @@ public interface DataFrame extends List<Row>, RandomAccess {
 
 	/**
 	 * Returns a dataframe containing the rows between the specified
-	 * <tt>fromIndex</tt>, inclusive, and <tt>toIndex</tt>, exclusive (if
-	 * <tt>fromIndex</tt> and <tt>toIndex</tt> are equal, the returned dataframe is
+	 * {@code fromIndex}, inclusive, and {@code toIndex}, exclusive (if
+	 * {@code fromIndex} and {@code toIndex} are equal, the returned dataframe is
 	 * empty).
 	 * 
 	 * @param fromIndex - index of the lowest row (inclusive)
 	 * @param toIndex   - index of the highest row (exclusive)
 	 * 
 	 * @return a dataframe containing the rows between the specified
-	 *         <tt>fromIndex</tt>, inclusive, and <tt>toIndex</tt>, exclusive
+	 *         {@code fromIndex}, inclusive, and {@code toIndex}, exclusive
 	 * 
 	 * @throws IndexOutOfBoundsException if either index is negative or is greater
 	 *                                   than {@link #size()}, or if {@code toIndex}

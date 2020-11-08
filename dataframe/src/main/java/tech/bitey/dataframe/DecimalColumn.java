@@ -27,7 +27,7 @@ import java.util.stream.Collector;
  * <p>
  * Elements are stored in a {@link ByteBuffer} as a scale ({@code int}) and an
  * unscaled {@link BigInteger} ({@link BigInteger#toByteArray()}), where the
- * value is <tt>(unscaled &times; 10<sup>-scale</sup>)</tt>
+ * value is {@code (unscaled x 10^-scale)}
  * 
  * @author biteytech@protonmail.com
  */
