@@ -60,7 +60,7 @@ import tech.bitey.dataframe.db.IFromResultSet;
 @BeanDefinition(style = "minimal")
 public final class ReadFromDbConfig implements ImmutableBean {
 
-    @PropertyDefinition(validate = "notNull")
+    @PropertyDefinition(validate = "notEmpty")
     private final List<IFromResultSet<?, ?>> fromRsLogic;
 
     @PropertyDefinition
@@ -73,7 +73,6 @@ public final class ReadFromDbConfig implements ImmutableBean {
 
     @ImmutableValidator
     private void validate() {
-        checkArgument(!fromRsLogic.isEmpty(), "result set logic list cannot be empty");
         checkArgument(fetchSize >= 1, "fetch size must be strictly positive");
     }
 
@@ -146,7 +145,7 @@ public final class ReadFromDbConfig implements ImmutableBean {
     private ReadFromDbConfig(
             List<IFromResultSet<?, ?>> fromRsLogic,
             int fetchSize) {
-        JodaBeanUtils.notNull(fromRsLogic, "fromRsLogic");
+        JodaBeanUtils.notEmpty(fromRsLogic, "fromRsLogic");
         this.fromRsLogic = Collections.unmodifiableList(new ArrayList<>(fromRsLogic));
         this.fetchSize = fetchSize;
         validate();
@@ -160,7 +159,7 @@ public final class ReadFromDbConfig implements ImmutableBean {
     //-----------------------------------------------------------------------
     /**
      * Gets the fromRsLogic.
-     * @return the value of the property, not null
+     * @return the value of the property, not empty
      */
     public List<IFromResultSet<?, ?>> getFromRsLogic() {
         return fromRsLogic;
@@ -285,11 +284,11 @@ public final class ReadFromDbConfig implements ImmutableBean {
         //-----------------------------------------------------------------------
         /**
          * Sets the fromRsLogic.
-         * @param fromRsLogic  the new value, not null
+         * @param fromRsLogic  the new value, not empty
          * @return this, for chaining, not null
          */
         public Builder fromRsLogic(List<IFromResultSet<?, ?>> fromRsLogic) {
-            JodaBeanUtils.notNull(fromRsLogic, "fromRsLogic");
+            JodaBeanUtils.notEmpty(fromRsLogic, "fromRsLogic");
             this.fromRsLogic = fromRsLogic;
             return this;
         }
@@ -297,7 +296,7 @@ public final class ReadFromDbConfig implements ImmutableBean {
         /**
          * Sets the {@code fromRsLogic} property in the builder
          * from an array of objects.
-         * @param fromRsLogic  the new value, not null
+         * @param fromRsLogic  the new value, not empty
          * @return this, for chaining, not null
          */
         @SafeVarargs

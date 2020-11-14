@@ -67,7 +67,7 @@ public final class ReadCsvConfig implements ImmutableBean {
      * {@link ColumnType column types}. The size of this list must match the number
      * of fields in the CSV file.
      */
-    @PropertyDefinition(validate = "notNull")
+    @PropertyDefinition(validate = "notEmpty")
     private final List<ColumnType<?>> columnTypes;
 
     /**
@@ -98,8 +98,6 @@ public final class ReadCsvConfig implements ImmutableBean {
 
     @ImmutableValidator
     private void validate() {
-
-        checkArgument(columnTypes.size() > 0, "columnTypes array cannot be empty");
 
         if (columnNames != null)
             checkArgument(columnNames.size() == columnTypes.size(),
@@ -317,7 +315,7 @@ public final class ReadCsvConfig implements ImmutableBean {
             List<String> columnNames,
             List<Function<String, ?>> columnParsers,
             char delim) {
-        JodaBeanUtils.notNull(columnTypes, "columnTypes");
+        JodaBeanUtils.notEmpty(columnTypes, "columnTypes");
         this.columnTypes = Collections.unmodifiableList(new ArrayList<>(columnTypes));
         this.columnNames = (columnNames != null ? Collections.unmodifiableList(new ArrayList<>(columnNames)) : null);
         this.columnParsers = (columnParsers != null ? Collections.unmodifiableList(new ArrayList<>(columnParsers)) : null);
@@ -334,7 +332,7 @@ public final class ReadCsvConfig implements ImmutableBean {
     /**
      * Gets {@link ColumnType column types}. The size of this list must match the number
      * of fields in the CSV file.
-     * @return the value of the property, not null
+     * @return the value of the property, not empty
      */
     public List<ColumnType<?>> getColumnTypes() {
         return columnTypes;
@@ -503,11 +501,11 @@ public final class ReadCsvConfig implements ImmutableBean {
         /**
          * Sets {@link ColumnType column types}. The size of this list must match the number
          * of fields in the CSV file.
-         * @param columnTypes  the new value, not null
+         * @param columnTypes  the new value, not empty
          * @return this, for chaining, not null
          */
         public Builder columnTypes(List<ColumnType<?>> columnTypes) {
-            JodaBeanUtils.notNull(columnTypes, "columnTypes");
+            JodaBeanUtils.notEmpty(columnTypes, "columnTypes");
             this.columnTypes = columnTypes;
             return this;
         }
@@ -515,7 +513,7 @@ public final class ReadCsvConfig implements ImmutableBean {
         /**
          * Sets the {@code columnTypes} property in the builder
          * from an array of objects.
-         * @param columnTypes  the new value, not null
+         * @param columnTypes  the new value, not empty
          * @return this, for chaining, not null
          */
         @SafeVarargs
