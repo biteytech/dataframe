@@ -10,7 +10,7 @@ To add a dependency on dataframe using Maven, use the following:
 <dependency>
   <groupId>tech.bitey</groupId>
   <artifactId>dataframe</artifactId>
-  <version>0.3.9</version>
+  <version>0.4.0</version>
 </dependency>
 ```
 
