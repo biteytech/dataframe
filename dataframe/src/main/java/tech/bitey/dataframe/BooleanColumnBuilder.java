@@ -47,6 +47,21 @@ public final class BooleanColumnBuilder extends AbstractColumnBuilder<Boolean, B
 	private BufferBitSet elements = new BufferBitSet();
 
 	@Override
+	CharacteristicValidation getCharacteristicValidation() {
+		return CharacteristicValidation.NONE;
+	}
+
+	@Override
+	void checkCharacteristics() {
+		throw new UnsupportedOperationException("checkCharacteristics");
+	}
+
+	@Override
+	int compareToLast(Boolean element) {
+		throw new UnsupportedOperationException("compareToLast");
+	}
+
+	@Override
 	void addNonNull(Boolean element) {
 		add(element.booleanValue());
 	}
@@ -102,11 +117,6 @@ public final class BooleanColumnBuilder extends AbstractColumnBuilder<Boolean, B
 	@Override
 	int getNonNullSize() {
 		return nonNullSize;
-	}
-
-	@Override
-	void checkCharacteristics() {
-		throw new IllegalStateException();
 	}
 
 	@Override

@@ -16,15 +16,8 @@
 
 package tech.bitey.dataframe;
 
-import static java.util.Spliterator.DISTINCT;
-import static java.util.Spliterator.SORTED;
-import static tech.bitey.dataframe.DfPreconditions.checkArgument;
-
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.TreeSet;
 
 import tech.bitey.bufferstuff.BufferUtils;
 
@@ -32,9 +25,11 @@ import tech.bitey.bufferstuff.BufferUtils;
 abstract class VarLenColumnBuilder<E extends Comparable<E>, C extends Column<E>, B extends VarLenColumnBuilder<E, C, B>>
 		extends AbstractColumnBuilder<E, C, B> {
 
-	final ArrayList<E> elements = new ArrayList<>();
+	final ArrayList<byte[]> elements = new ArrayList<>();
 
 	final VarLenPacker<E> packer;
+
+	E last;
 
 	VarLenColumnBuilder(int characteristics, VarLenPacker<E> packer) {
 		super(characteristics);
@@ -43,9 +38,25 @@ abstract class VarLenColumnBuilder<E extends Comparable<E>, C extends Column<E>,
 	}
 
 	@Override
+	CharacteristicValidation getCharacteristicValidation() {
+		return CharacteristicValidation.OTR;
+	}
+
+	@Override
+	void checkCharacteristics() {
+		throw new UnsupportedOperationException("checkCharacteristics");
+	}
+
+	@Override
+	int compareToLast(E element) {
+		return last.compareTo(element);
+	}
+
+	@Override
 	void addNonNull(E element) {
-		elements.add(element);
+		elements.add(packer.pack(element));
 		size++;
+		last = element;
 	}
 
 	@Override
@@ -65,43 +76,10 @@ abstract class VarLenColumnBuilder<E extends Comparable<E>, C extends Column<E>,
 	}
 
 	@Override
-	void checkCharacteristics() {
-		if (elements.size() >= 2) {
-			E prev = elements.get(0);
-
-			if ((characteristics & DISTINCT) != 0) {
-				for (int i = 1; i < elements.size(); i++) {
-					E e = elements.get(i);
-					checkArgument(prev.compareTo(e) < 0, "column elements must be sorted and distinct");
-					prev = e;
-				}
-			} else if ((characteristics & SORTED) != 0) {
-				for (int i = 1; i < elements.size(); i++) {
-					E e = elements.get(i);
-					checkArgument(prev.compareTo(e) <= 0, "column elements must be sorted");
-					prev = e;
-				}
-			}
-		}
-	}
-
-	@Override
 	void append0(B tail) {
 		this.elements.addAll(tail.elements);
-	}
-
-	void sort() {
-		Collections.sort(elements);
-		characteristics |= SORTED;
-	}
-
-	void distinct() {
-		// TODO: make this more efficient
-		TreeSet<E> distinct = new TreeSet<>(elements);
-		elements.clear();
-		elements.addAll(distinct);
-		size = elements.size();
-		characteristics |= SORTED | DISTINCT;
+		if (sorted())
+			this.last = tail.last;
 	}
 
 	abstract C construct(ByteBuffer elements, ByteBuffer pointers, int characteristics, int size);
@@ -109,19 +87,13 @@ abstract class VarLenColumnBuilder<E extends Comparable<E>, C extends Column<E>,
 	@Override
 	C buildNonNullColumn(int characteristics) {
 
-		List<byte[]> packedList = new ArrayList<byte[]>(elements.size());
-		int byteLength = 0;
-		for (int i = 0; i < elements.size(); i++) {
-			byte[] packed = packer.pack(elements.get(i));
-			byteLength += packed.length;
-			packedList.add(packed);
-		}
+		int byteLength = elements.stream().mapToInt(b -> b.length).sum();
 
+		ByteBuffer pointers = BufferUtils.allocate(elements.size() * 4);
 		ByteBuffer elements = BufferUtils.allocate(byteLength);
-		ByteBuffer pointers = BufferUtils.allocate(packedList.size() * 4);
 
 		int pointer = 0;
-		for (byte[] packed : packedList) {
+		for (byte[] packed : this.elements) {
 			elements.put(packed);
 			pointers.putInt(pointer);
 			pointer += packed.length;
@@ -129,6 +101,6 @@ abstract class VarLenColumnBuilder<E extends Comparable<E>, C extends Column<E>,
 		pointers.flip();
 		elements.flip();
 
-		return construct(elements, pointers, characteristics, packedList.size());
+		return construct(elements, pointers, characteristics, this.elements.size());
 	}
 }

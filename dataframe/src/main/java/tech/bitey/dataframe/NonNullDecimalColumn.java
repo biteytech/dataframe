@@ -26,6 +26,7 @@ import java.nio.ByteBuffer;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Stream;
 
 final class NonNullDecimalColumn extends NonNullVarLenColumn<BigDecimal, DecimalColumn, NonNullDecimalColumn>
 		implements DecimalColumn {
@@ -77,18 +78,17 @@ final class NonNullDecimalColumn extends NonNullVarLenColumn<BigDecimal, Decimal
 
 	@Override
 	NonNullDecimalColumn toSorted0() {
-		DecimalColumnBuilder builder = new DecimalColumnBuilder(NONNULL);
-		builder.addAll(this);
-		builder.sort();
-		return (NonNullDecimalColumn) builder.build();
+		// TODO: make this more efficient
+		return (NonNullDecimalColumn) stream().sorted().collect(DecimalColumn.collector(NONNULL | SORTED));
 	}
 
 	@Override
 	NonNullDecimalColumn toDistinct0(boolean sort) {
-		DecimalColumnBuilder builder = new DecimalColumnBuilder(NONNULL);
-		builder.addAll(this);
-		builder.distinct();
-		return (NonNullDecimalColumn) builder.build();
+		// TODO: make this more efficient
+		Stream<BigDecimal> stream = stream();
+		if (sort)
+			stream = stream.sorted();
+		return (NonNullDecimalColumn) stream.distinct().collect(DecimalColumn.collector(NONNULL | SORTED | DISTINCT));
 	}
 
 	private double dat(int index) {

@@ -133,4 +133,28 @@ abstract class SingleBufferColumnBuilder<E, F extends Buffer, C extends Column<E
 		buffer.put(tailBuffer);
 		resetElementBuffer();
 	}
+
+	@Override
+	CharacteristicValidation getCharacteristicValidation() {
+		return CharacteristicValidation.BUILD;
+	}
+
+	@Override
+	int compareToLast(E element) {
+		throw new UnsupportedOperationException("compareToLast");
+	}
+
+	abstract boolean checkSorted();
+
+	abstract boolean checkDistinct();
+
+	@Override
+	void checkCharacteristics() {
+		if (sorted() && size >= 2) {
+			if (distinct())
+				checkState(checkDistinct(), "column elements must be sorted and distinct");
+			else
+				checkState(checkSorted(), "column elements must be sorted");
+		}
+	}
 }

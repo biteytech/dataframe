@@ -25,6 +25,7 @@ import java.nio.ByteBuffer;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Stream;
 
 final class NonNullStringColumn extends NonNullVarLenColumn<String, StringColumn, NonNullStringColumn>
 		implements StringColumn {
@@ -76,17 +77,16 @@ final class NonNullStringColumn extends NonNullVarLenColumn<String, StringColumn
 
 	@Override
 	NonNullStringColumn toSorted0() {
-		StringColumnBuilder builder = new StringColumnBuilder(NONNULL);
-		builder.addAll(this);
-		builder.sort();
-		return (NonNullStringColumn) builder.build();
+		// TODO: make this more efficient
+		return (NonNullStringColumn) stream().sorted().collect(StringColumn.collector(NONNULL | SORTED));
 	}
 
 	@Override
 	NonNullStringColumn toDistinct0(boolean sort) {
-		StringColumnBuilder builder = new StringColumnBuilder(NONNULL);
-		builder.addAll(this);
-		builder.distinct();
-		return (NonNullStringColumn) builder.build();
+		// TODO: make this more efficient
+		Stream<String> stream = stream();
+		if (sort)
+			stream = stream.sorted();
+		return (NonNullStringColumn) stream.distinct().collect(StringColumn.collector(NONNULL | SORTED | DISTINCT));
 	}
 }

@@ -16,10 +16,6 @@
 
 package tech.bitey.dataframe;
 
-import static java.util.Spliterator.DISTINCT;
-import static java.util.Spliterator.SORTED;
-import static tech.bitey.dataframe.DfPreconditions.checkState;
-
 import java.nio.ByteBuffer;
 import java.nio.LongBuffer;
 import java.util.Spliterator;
@@ -69,34 +65,21 @@ public final class UuidColumnBuilder
 	}
 
 	@Override
-	void checkCharacteristics() {
-		if ((characteristics & DISTINCT) != 0) {
-			checkState(checkDistinct(), "column elements must be sorted and distinct");
-		} else if ((characteristics & SORTED) != 0) {
-			checkState(checkSorted(), "column elements must be sorted");
-		}
-	}
+	boolean checkSorted() {
 
-	private boolean checkSorted() {
-		if (size < 2)
-			return true;
-
-		for (int i = 1; i < getNonNullSize(); i++) {
+		for (int i = 1; i < size; i++)
 			if (compareValuesAt(i - 1, i) > 0)
 				return false;
-		}
 
 		return true;
 	}
 
-	private boolean checkDistinct() {
-		if (size < 2)
-			return true;
+	@Override
+	boolean checkDistinct() {
 
-		for (int i = 1; i < getNonNullSize(); i++) {
+		for (int i = 1; i < size; i++)
 			if (compareValuesAt(i - 1, i) >= 0)
 				return false;
-		}
 
 		return true;
 	}

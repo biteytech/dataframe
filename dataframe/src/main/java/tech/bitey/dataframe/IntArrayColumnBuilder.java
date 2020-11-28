@@ -16,14 +16,10 @@
 
 package tech.bitey.dataframe;
 
-import static java.util.Spliterator.DISTINCT;
-import static java.util.Spliterator.SORTED;
-import static tech.bitey.bufferstuff.BufferUtils.isSorted;
-import static tech.bitey.bufferstuff.BufferUtils.isSortedAndDistinct;
-import static tech.bitey.dataframe.DfPreconditions.checkState;
-
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
+
+import tech.bitey.bufferstuff.BufferUtils;
 
 abstract class IntArrayColumnBuilder<E, C extends Column<E>, B extends IntArrayColumnBuilder<E, C, B>>
 		extends SingleBufferColumnBuilder<E, IntBuffer, C, B> {
@@ -43,13 +39,13 @@ abstract class IntArrayColumnBuilder<E, C extends Column<E>, B extends IntArrayC
 	}
 
 	@Override
-	void checkCharacteristics() {
-		if ((characteristics & DISTINCT) != 0) {
-			checkState(isSortedAndDistinct(elements, 0, elements.position()),
-					"column elements must be sorted and distinct");
-		} else if ((characteristics & SORTED) != 0) {
-			checkState(isSorted(elements, 0, elements.position()), "column elements must be sorted");
-		}
+	boolean checkSorted() {
+		return BufferUtils.isSorted(elements, 0, elements.position());
+	}
+
+	@Override
+	boolean checkDistinct() {
+		return BufferUtils.isSortedAndDistinct(elements, 0, elements.position());
 	}
 
 	@Override

@@ -27,6 +27,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.RandomAccess;
+import java.util.Spliterator;
 
 import tech.bitey.bufferstuff.BufferBitSet;
 
@@ -35,7 +36,11 @@ abstract class AbstractColumnBuilder<E, C extends Column<E>, B extends AbstractC
 
 	private static final int VALID_CHARACTERISTICS = NONNULL_CHARACTERISTICS | SORTED | DISTINCT;
 
-	int characteristics;
+	final int characteristics;
+
+	enum CharacteristicValidation {
+		NONE, OTR, BUILD
+	}
 
 	BufferBitSet nulls;
 
@@ -58,8 +63,6 @@ abstract class AbstractColumnBuilder<E, C extends Column<E>, B extends AbstractC
 
 	abstract int getNonNullSize();
 
-	abstract void checkCharacteristics();
-
 	abstract C buildNonNullColumn(int characteristics);
 
 	abstract C wrapNullableColumn(C column, BufferBitSet nonNulls);
@@ -67,18 +70,21 @@ abstract class AbstractColumnBuilder<E, C extends Column<E>, B extends AbstractC
 	abstract void append0(B tail);
 
 	B append(B tail) {
-		checkArgument(this.characteristics == tail.characteristics, "incompatible characteristics");
+		checkArgument((this.characteristics & tail.characteristics) == this.characteristics,
+				"incompatible characteristics");
 
-		if (tail.nulls != null) {
-			BufferBitSet bothNulls = tail.nulls.shiftRight(this.size);
-			if (this.nulls != null)
-				bothNulls.or(this.nulls);
-			this.nulls = bothNulls;
+		if (tail.size > 0) {
+			if (tail.nulls != null) {
+				BufferBitSet bothNulls = tail.nulls.shiftRight(this.size);
+				if (this.nulls != null)
+					bothNulls.or(this.nulls);
+				this.nulls = bothNulls;
+			}
+
+			append0(tail);
+
+			this.size += tail.size;
 		}
-
-		append0(tail);
-
-		this.size += tail.size;
 
 		@SuppressWarnings("unchecked")
 		B cast = (B) this;
@@ -96,10 +102,10 @@ abstract class AbstractColumnBuilder<E, C extends Column<E>, B extends AbstractC
 		if (getNonNullSize() == 0) {
 			column = emptyNonNull();
 		} else {
-			if (characteristics != Column.BASE_CHARACTERISTICS)
+			if (sorted() && getCharacteristicValidation() == CharacteristicValidation.BUILD)
 				checkCharacteristics();
 
-			column = buildNonNullColumn(characteristics | NONNULL);
+			column = buildNonNullColumn(characteristics);
 		}
 
 		if (nulls == null)
@@ -118,11 +124,17 @@ abstract class AbstractColumnBuilder<E, C extends Column<E>, B extends AbstractC
 
 	abstract void addNonNull(E element);
 
+	abstract int compareToLast(E element);
+
+	abstract void checkCharacteristics();
+
+	abstract CharacteristicValidation getCharacteristicValidation();
+
 	@Override
 	public B addNulls(int count) {
 		checkArgument(count >= 0, "count cannot be negative");
 
-		if ((characteristics & NONNULL) != 0)
+		if (nonNull())
 			throw new NullPointerException("cannot add null when NONNULL is set");
 
 		if (nulls == null)
@@ -145,6 +157,16 @@ abstract class AbstractColumnBuilder<E, C extends Column<E>, B extends AbstractC
 
 		if (element == null)
 			return addNull();
+
+		if (size > 0 && sorted() && getCharacteristicValidation() == CharacteristicValidation.OTR) {
+			// check that adding this element maintains SORTED/DISTINCT
+			int c = compareToLast(element);
+
+			if (distinct())
+				DfPreconditions.checkArgument(c < 0, "adding element would violate DISTINCT characteristic");
+			else
+				DfPreconditions.checkArgument(c <= 0, "adding element would violate SORTED characteristic");
+		}
 
 		addNonNull(element);
 
@@ -222,5 +244,17 @@ abstract class AbstractColumnBuilder<E, C extends Column<E>, B extends AbstractC
 	@Override
 	public int size() {
 		return size;
+	}
+
+	boolean nonNull() {
+		return (characteristics & NONNULL) != 0;
+	}
+
+	boolean sorted() {
+		return (characteristics & Spliterator.SORTED) != 0;
+	}
+
+	boolean distinct() {
+		return (characteristics & Spliterator.DISTINCT) != 0;
 	}
 }
