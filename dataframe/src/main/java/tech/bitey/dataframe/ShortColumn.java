@@ -27,7 +27,7 @@ import java.util.stream.Collector;
  * 
  * @author biteytech@protonmail.com
  */
-public interface ShortColumn extends NumericColumn<Short> {
+public interface ShortColumn extends Column<Short> {
 
 	@Override
 	ShortColumn subColumn(int fromIndex, int toIndex);

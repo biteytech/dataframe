@@ -28,7 +28,7 @@ import java.util.stream.IntStream;
  * 
  * @author biteytech@protonmail.com
  */
-public interface IntColumn extends NumericColumn<Integer> {
+public interface IntColumn extends Column<Integer> {
 
 	@Override
 	IntColumn subColumn(int fromIndex, int toIndex);

@@ -31,7 +31,7 @@ import java.util.stream.Collector;
  * 
  * @author biteytech@protonmail.com
  */
-public interface DecimalColumn extends NumericColumn<BigDecimal> {
+public interface DecimalColumn extends Column<BigDecimal> {
 
 	@Override
 	DecimalColumn subColumn(int fromIndex, int toIndex);

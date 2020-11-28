@@ -31,24 +31,4 @@ final class NullableFloatColumn extends NullableColumn<Float, FloatColumn, NonNu
 		checkGetPrimitive(index);
 		return column.getFloat(nonNullIndex(index + offset));
 	}
-
-	@Override
-	public double min() {
-		return subColumn.min();
-	}
-
-	@Override
-	public double max() {
-		return subColumn.max();
-	}
-
-	@Override
-	public double mean() {
-		return subColumn.mean();
-	}
-
-	@Override
-	public double stddev(boolean population) {
-		return subColumn.stddev(population);
-	}
 }

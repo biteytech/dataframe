@@ -24,7 +24,7 @@ import java.util.stream.Collector;
  * 
  * @author biteytech@protonmail.com
  */
-public interface ByteColumn extends NumericColumn<Byte> {
+public interface ByteColumn extends Column<Byte> {
 
 	@Override
 	ByteColumn subColumn(int fromIndex, int toIndex);

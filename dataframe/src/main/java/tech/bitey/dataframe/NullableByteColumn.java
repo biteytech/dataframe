@@ -27,26 +27,6 @@ final class NullableByteColumn extends NullableByteArrayColumn<Byte, ByteColumn,
 	}
 
 	@Override
-	public double min() {
-		return subColumn.min();
-	}
-
-	@Override
-	public double max() {
-		return subColumn.max();
-	}
-
-	@Override
-	public double mean() {
-		return subColumn.mean();
-	}
-
-	@Override
-	public double stddev(boolean population) {
-		return subColumn.stddev(population);
-	}
-
-	@Override
 	public byte getByte(int index) {
 		checkGetPrimitive(index);
 		return column.getByte(nonNullIndex(index + offset));

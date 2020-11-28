@@ -27,7 +27,7 @@ import java.util.stream.Collector;
  * 
  * @author biteytech@protonmail.com
  */
-public interface FloatColumn extends NumericColumn<Float> {
+public interface FloatColumn extends Column<Float> {
 
 	@Override
 	FloatColumn subColumn(int fromIndex, int toIndex);

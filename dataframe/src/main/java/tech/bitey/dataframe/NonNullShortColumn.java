@@ -73,69 +73,6 @@ final class NonNullShortColumn extends NonNullSingleBufferColumn<Short, ShortCol
 		return at(index);
 	}
 
-	@Override
-	public double min() {
-		if (size == 0)
-			return Double.NaN;
-		else if (isSorted())
-			return at(offset);
-
-		short min = at(offset);
-
-		for (int i = offset + 1; i <= lastIndex(); i++) {
-			short x = at(i);
-			if (x < min)
-				min = x;
-		}
-
-		return min;
-	}
-
-	@Override
-	public double max() {
-		if (size == 0)
-			return Double.NaN;
-		else if (isSorted())
-			return at(lastIndex());
-
-		short max = at(offset);
-
-		for (int i = offset + 1; i <= lastIndex(); i++) {
-			short x = at(i);
-			if (x > max)
-				max = x;
-		}
-
-		return max;
-	}
-
-	@Override
-	public double mean() {
-		if (size == 0)
-			return Double.NaN;
-
-		long sum = 0;
-		for (int i = offset; i <= lastIndex(); i++)
-			sum += at(i);
-		return sum / (double) size;
-	}
-
-	@Override
-	public double stddev(boolean population) {
-		if (size == 0 || (!population && size == 1))
-			return Double.NaN;
-
-		double μ = mean();
-
-		double numer = 0;
-		for (int i = offset; i <= lastIndex(); i++) {
-			double d = at(i) - μ;
-			numer += d * d;
-		}
-
-		return Math.sqrt(numer / (population ? size : size - 1));
-	}
-
 	int search(short value) {
 		return BufferSearch.binarySearch(elements, offset, offset + size, value);
 	}

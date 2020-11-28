@@ -28,7 +28,7 @@ import java.util.stream.LongStream;
  * 
  * @author biteytech@protonmail.com
  */
-public interface LongColumn extends NumericColumn<Long> {
+public interface LongColumn extends Column<Long> {
 
 	@Override
 	LongColumn subColumn(int fromIndex, int toIndex);

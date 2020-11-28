@@ -28,7 +28,7 @@ import java.util.stream.DoubleStream;
  * 
  * @author biteytech@protonmail.com
  */
-public interface DoubleColumn extends NumericColumn<Double> {
+public interface DoubleColumn extends Column<Double> {
 
 	@Override
 	DoubleColumn subColumn(int fromIndex, int toIndex);
