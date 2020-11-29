@@ -59,6 +59,7 @@ import java.util.function.ToLongFunction;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import tech.bitey.bufferstuff.BufferBitSet;
 
@@ -1045,6 +1046,78 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 			columns[i] = ((AbstractColumn) this.columns[i]).select(indices);
 
 		return new DataFrameImpl(columns, this.columnNames, null, columnToIndexMap);
+	}
+
+	@Override
+	public DataFrame groupBy(GroupByConfig config) {
+
+		// sort by 'group by' columns
+		DataFrame dfSelect = selectColumns(config.getGroupByNames());
+		IntColumn indices = IntColumn.of(dfSelect.stream().sorted().mapToInt(r -> r.rowIndex()));
+
+		// set up new column builders
+		final int dfScc = dfSelect.columnCount();
+		ColumnBuilder[] builders = new ColumnBuilder[dfScc + config.getDerivedNames().size()];
+		for (int i = 0; i < dfScc; i++)
+			builders[i] = dfSelect.column(i).getType().builder();
+		for (int i = dfScc; i < builders.length; i++)
+			builders[i] = config.getDerivedTypes().get(i - dfScc).builder();
+
+		// loop over groups
+		for (int begin = 0; begin < size();) {
+
+			int end = findGroupEnd(dfSelect, indices, begin);
+
+			// set group values
+			Row group = dfSelect.get(indices.getInt(begin));
+			for (int i = 0; i < dfScc; i++)
+				builders[i].add(group.get(i));
+
+			// apply reductions and set derived values
+			for (int i = 0; i < config.getReductions().size(); i++) {
+				GroupByReduction reduction = config.getReductions().get(i);
+				try (Stream<Row> rows = indices.subColumn(begin, end).intStream().mapToObj(this::get)) {
+					builders[i + dfScc].add(reduction.reduce(rows));
+				}
+			}
+
+			begin = end;
+		}
+
+		// create new df
+		String[] columnNames = new String[builders.length];
+		Column[] columns = new Column[builders.length];
+		for (int i = 0; i < dfScc; i++) {
+			columnNames[i] = dfSelect.columnName(i);
+			columns[i] = builders[i].build();
+		}
+		for (int i = dfScc; i < builders.length; i++) {
+			columnNames[i] = config.getDerivedNames().get(i - dfScc);
+			columns[i] = builders[i].build();
+		}
+
+		DataFrame grouped = DataFrameFactory.create(columns, columnNames);
+		return grouped;
+	}
+
+	private static int findGroupEnd(DataFrame dfSelect, IntColumn indices, int begin) {
+
+		final Row key = dfSelect.get(indices.getInt(begin));
+		final int maxIndex = dfSelect.size() - 1;
+		int fromIndex = begin;
+
+		while (fromIndex != maxIndex && key.equals(dfSelect.get(indices.getInt(fromIndex + 1)))) {
+
+			int range = 1, rangeIndex;
+			do {
+				range <<= 1;
+				rangeIndex = fromIndex + range;
+			} while (rangeIndex <= maxIndex && key.equals(dfSelect.get(indices.getInt(rangeIndex))));
+
+			fromIndex += range >> 1;
+		}
+
+		return fromIndex + 1;
 	}
 
 	/*--------------------------------------------------------------------------------

@@ -567,6 +567,37 @@ public class TestDataFrame {
 		Assertions.assertEquals(expected, actual);
 	}
 
+	@Test
+	public void testGroupBy() {
+
+		StringColumn a = StringColumn.of("D", "A", "D", "B", "B", "C", "A", "C", "D");
+		IntColumn b = IntColumn.of(3, 2, 1, 1, 2, 2, 1, 1, 2);
+		IntColumn c = IntColumn.of(9, 2, 7, 3, 4, 6, 1, 5, 8);
+
+		DataFrame data = DataFrameConfig.builder().columns(a, b, c).columnNames("C1", "C2", "C3").build().create();
+
+		// C1, sum(C2) group by C1
+		Assertions.assertEquals(
+				DataFrameConfig.builder().columnNames("C1", "SUM")
+						.columns(StringColumn.of("A", "B", "C", "D"), IntColumn.of(3, 3, 3, 6)).build().create(),
+				data.groupBy(GroupByConfig.builder().groupByNames("C1").derivedNames("SUM").derivedTypes(ColumnType.INT)
+						.reductions(s -> s.mapToInt(r -> r.getInt("C2")).sum()).build()));
+
+		// C1 group by C1
+		Assertions.assertEquals(DataFrameConfig.builder().columnNames("C1").columns(StringColumn.of("A", "B", "C", "D"))
+				.build().create(), data.groupBy(GroupByConfig.builder().groupByNames("C1").build()));
+
+		// C1, C2, C3 group by C1, C2, C3
+		Assertions.assertEquals(data.sort("C1", "C2"),
+				data.groupBy(GroupByConfig.builder().groupByNames("C1", "C2", "C3").build()));
+
+		// C1, C2, max(C3) group by C1, C2
+		Assertions.assertEquals(data.sort("C1", "C2"),
+				data.groupBy(
+						GroupByConfig.builder().groupByNames("C1", "C2").derivedNames("C3").derivedTypes(ColumnType.INT)
+								.reductions(s -> s.mapToInt(r -> r.getInt("C3")).max().getAsInt()).build()));
+	}
+
 	private static LocalDate fromInt(int yyyymmdd) {
 		return LocalDate.of(yyyymmdd / 10000, yyyymmdd % 10000 / 100, yyyymmdd % 100);
 	}

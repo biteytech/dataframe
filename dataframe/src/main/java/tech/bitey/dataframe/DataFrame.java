@@ -1352,6 +1352,15 @@ public interface DataFrame extends List<Row>, RandomAccess {
 	 */
 	DataFrame sort(String... columnNames);
 
+	/**
+	 * Perform a group by operation on this dataframe.
+	 * 
+	 * @param config - the {@link GroupByConfig}
+	 * 
+	 * @return a new dataframe grouped according to the specified config.
+	 */
+	DataFrame groupBy(GroupByConfig config);
+
 	/*--------------------------------------------------------------------------------
 	 *	Export Methods
 	 *--------------------------------------------------------------------------------*/
