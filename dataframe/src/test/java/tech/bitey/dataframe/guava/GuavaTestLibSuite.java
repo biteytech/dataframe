@@ -24,6 +24,7 @@ import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -111,6 +112,9 @@ public class GuavaTestLibSuite {
 			new TestIngredients<>(ColumnType.DATE, LocalDate[]::new, DATES),
 			new TestIngredients<>(ColumnType.DATETIME, LocalDateTime[]::new,
 					Arrays.stream(DATES).map(LocalDate::atStartOfDay).toArray(LocalDateTime[]::new)),
+			new TestIngredients<>(ColumnType.TIME, LocalTime[]::new, LocalTime.MIN, LocalTime.MIN.plusNanos(1),
+					LocalTime.of(1, 0), LocalTime.of(1, 1), LocalTime.of(8, 8), LocalTime.NOON.minusNanos(1),
+					LocalTime.NOON.plusNanos(1), LocalTime.MAX.minusNanos(1), LocalTime.MAX),
 			new TestIngredients<>(ColumnType.UUID, UUID[]::new, new UUID(0L, Long.MIN_VALUE), new UUID(0L, 0L),
 					new UUID(0L, 2L), new UUID(0L, 1L), new UUID(0L, 3L), new UUID(0L, 4L), new UUID(0L, 5L),
 					new UUID(0L, 6L), new UUID(0L, Long.MAX_VALUE)) };

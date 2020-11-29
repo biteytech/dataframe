@@ -29,6 +29,7 @@ import static tech.bitey.dataframe.ColumnTypeCode.I;
 import static tech.bitey.dataframe.ColumnTypeCode.L;
 import static tech.bitey.dataframe.ColumnTypeCode.S;
 import static tech.bitey.dataframe.ColumnTypeCode.T;
+import static tech.bitey.dataframe.ColumnTypeCode.TI;
 import static tech.bitey.dataframe.ColumnTypeCode.UU;
 import static tech.bitey.dataframe.ColumnTypeCode.Y;
 
@@ -37,6 +38,7 @@ import java.math.BigDecimal;
 import java.nio.channels.ReadableByteChannel;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.UUID;
 
 import tech.bitey.bufferstuff.BufferBitSet;
@@ -48,6 +50,7 @@ import tech.bitey.bufferstuff.BufferBitSet;
  * <li>{@link #BOOLEAN}
  * <li>{@link #DATE}
  * <li>{@link #DATETIME}
+ * <li>{@link #TIME}
  * <li>{@link #DOUBLE}
  * <li>{@link #FLOAT}
  * <li>{@link #INT}
@@ -71,6 +74,9 @@ public class ColumnType<E extends Comparable<? super E>> {
 
 	/** The type for {@link DateTimeColumn} */
 	public static final ColumnType<LocalDateTime> DATETIME = new ColumnType<>(DT);
+
+	/** The type for {@link DateTimeColumn} */
+	public static final ColumnType<LocalTime> TIME = new ColumnType<>(TI);
 
 	/** The type for {@link DoubleColumn} */
 	public static final ColumnType<Double> DOUBLE = new ColumnType<>(D);
@@ -148,6 +154,8 @@ public class ColumnType<E extends Comparable<? super E>> {
 			return (ColumnBuilder) DateColumn.builder(characteristic);
 		case DT:
 			return (ColumnBuilder) DateTimeColumn.builder(characteristic);
+		case TI:
+			return (ColumnBuilder) TimeColumn.builder(characteristic);
 		case D:
 			return (ColumnBuilder) DoubleColumn.builder(characteristic);
 		case F:
@@ -211,6 +219,13 @@ public class ColumnType<E extends Comparable<? super E>> {
 				return column;
 			else
 				return new NullableDateTimeColumn(column, nonNulls, null, 0, size);
+		}
+		case TI: {
+			NonNullTimeColumn column = NonNullTimeColumn.empty(characteristics).readFrom(channel);
+			if (nonNulls == null)
+				return column;
+			else
+				return new NullableTimeColumn(column, nonNulls, null, 0, size);
 		}
 		case D: {
 			NonNullDoubleColumn column = NonNullDoubleColumn.empty(characteristics).readFrom(channel);
@@ -293,6 +308,8 @@ public class ColumnType<E extends Comparable<? super E>> {
 			return NullableDateColumn::new;
 		case DT:
 			return NullableDateTimeColumn::new;
+		case TI:
+			return NullableTimeColumn::new;
 		case F:
 			return NullableFloatColumn::new;
 		case I:
@@ -340,6 +357,11 @@ public class ColumnType<E extends Comparable<? super E>> {
 	 * <td>DATETIME</td>
 	 * <td>{@link LocalDateTime}</td>
 	 * <td>{@link LocalDateTime#parse(CharSequence)}</td>
+	 * </tr>
+	 * <tr>
+	 * <td>TIME</td>
+	 * <td>{@link LocalTime}</td>
+	 * <td>{@link LocalTime#parse(CharSequence)}</td>
 	 * </tr>
 	 * <tr>
 	 * <td>DOUBLE</td>
@@ -390,6 +412,8 @@ public class ColumnType<E extends Comparable<? super E>> {
 			return parseDate(string);
 		case DT:
 			return LocalDateTime.parse(string);
+		case TI:
+			return LocalTime.parse(string);
 		case D:
 			return Double.valueOf(string);
 		case F:

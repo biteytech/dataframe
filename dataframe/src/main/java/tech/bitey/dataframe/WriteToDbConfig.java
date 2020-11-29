@@ -54,6 +54,7 @@ import tech.bitey.dataframe.db.IntToStatement;
 import tech.bitey.dataframe.db.LongToStatement;
 import tech.bitey.dataframe.db.ShortToStatement;
 import tech.bitey.dataframe.db.StringToStatement;
+import tech.bitey.dataframe.db.TimeToStatement;
 import tech.bitey.dataframe.db.UuidToStatement;
 
 /**
@@ -120,6 +121,9 @@ public final class WriteToDbConfig implements ImmutableBean {
                     break;
                 case DT:
                     toPsLogic[i] = DateTimeToStatement.DATETIME_TO_TIMESTAMP;
+                    break;
+                case TI:
+                    toPsLogic[i] = TimeToStatement.TIME_TO_STRING;
                     break;
                 case BD:
                     toPsLogic[i] = DecimalToStatement.BIGDECIMAL_TO_BIGDECIMAL;

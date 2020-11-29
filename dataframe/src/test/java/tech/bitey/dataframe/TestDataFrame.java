@@ -51,6 +51,7 @@ import tech.bitey.dataframe.db.IntFromResultSet;
 import tech.bitey.dataframe.db.LongFromResultSet;
 import tech.bitey.dataframe.db.ShortFromResultSet;
 import tech.bitey.dataframe.db.StringFromResultSet;
+import tech.bitey.dataframe.db.TimeFromResultSet;
 import tech.bitey.dataframe.db.UuidFromResultSet;
 
 public class TestDataFrame {
@@ -263,6 +264,10 @@ public class TestDataFrame {
 					case DT:
 						create.append("TEXT");
 						fromRsLogic.add(DateTimeFromResultSet.DATETIME_FROM_TIMESTAMP);
+						break;
+					case TI:
+						create.append("TEXT");
+						fromRsLogic.add(TimeFromResultSet.TIME_FROM_STRING);
 						break;
 					case S:
 						create.append("TEXT");

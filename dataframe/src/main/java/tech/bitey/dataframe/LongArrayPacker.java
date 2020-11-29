@@ -17,6 +17,7 @@
 package tech.bitey.dataframe;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 interface LongArrayPacker<E> {
 
@@ -53,6 +54,27 @@ interface LongArrayPacker<E> {
 					(int) ((packed & 0xFC000000L) >> 26), // minute
 					(int) ((packed & 0x3F00000L) >> 20), // second
 					(int) ((packed & 0xFFFFF) * 1000) // nanoOfSecond
+			);
+		}
+	};
+
+	final LongArrayPacker<LocalTime> LOCAL_TIME = new LongArrayPacker<LocalTime>() {
+		@Override
+		public long pack(LocalTime value) {
+
+			long packed = (long) value.getHour() << 42 | (long) value.getMinute() << 36 | (long) value.getSecond() << 30
+					| value.getNano();
+
+			return packed;
+		}
+
+		@Override
+		public LocalTime unpack(long packed) {
+
+			return LocalTime.of((int) ((packed & 0x7C0000000000L) >> 42), // hour
+					(int) ((packed & 0x3F000000000L) >> 36), // minute
+					(int) ((packed & 0xFC0000000L) >> 30), // second
+					(int) ((packed & 0x3FFFFFFF)) // nanoOfSecond
 			);
 		}
 	};

@@ -55,7 +55,7 @@ public enum UuidFromResultSet implements IFromResultSet<UUID, UuidColumnBuilder>
 	 * Reads a {@link UUID} value from the {@code ResultSet} using
 	 * {@link ResultSet#getBytes(int)}.
 	 */
-	DATE_FROM_INT {
+	UUID_FROM_BYTES {
 		@Override
 		public void get(ResultSet rs, int columnIndex, UuidColumnBuilder builder) throws SQLException {
 
