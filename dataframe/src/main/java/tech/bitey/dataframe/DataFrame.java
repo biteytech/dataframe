@@ -1340,6 +1340,18 @@ public interface DataFrame extends List<Row>, RandomAccess {
 	 */
 	DataFrame join(DataFrame df, String[] leftColumnNames, String[] rightColumnNames);
 
+	/**
+	 * Sort this dataframe by the specified columns, in the order provided.
+	 * 
+	 * @param columnNames - the columns to sort by
+	 * 
+	 * @return a new dataframe sorted by the specified columns
+	 * 
+	 * @throws IllegalArgumentException if the list of columns is empty, or if any
+	 *                                  of the column names are not recognized.
+	 */
+	DataFrame sort(String... columnNames);
+
 	/*--------------------------------------------------------------------------------
 	 *	Export Methods
 	 *--------------------------------------------------------------------------------*/

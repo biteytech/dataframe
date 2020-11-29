@@ -88,7 +88,7 @@ public interface Row {
 	 * @throws ClassCastException        if the column type does not match the
 	 *                                   return type.
 	 */
-	<T> T get(int columnIndex);
+	<T extends Comparable<? super T>> T get(int columnIndex);
 
 	/**
 	 * Returns the value for this row in the specified {@link Column}.
@@ -105,7 +105,7 @@ public interface Row {
 	 * @throws ClassCastException       if the column type does not match the return
 	 *                                  type.
 	 */
-	<T> T get(String columnName);
+	<T extends Comparable<? super T>> T get(String columnName);
 
 	/**
 	 * {@code boolean} primitive specialization of {@link #get(int)}.

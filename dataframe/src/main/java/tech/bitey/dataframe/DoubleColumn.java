@@ -16,6 +16,8 @@
 
 package tech.bitey.dataframe;
 
+import static java.util.Spliterator.NONNULL;
+
 import java.nio.ByteBuffer;
 import java.util.Collection;
 import java.util.stream.Collector;
@@ -170,5 +172,16 @@ public interface DoubleColumn extends Column<Double> {
 	 */
 	public static DoubleColumn of(Collection<Double> c) {
 		return c.stream().collect(collector());
+	}
+
+	/**
+	 * Returns a new {@code DoubleColumn} containing the specified elements.
+	 * 
+	 * @param stream the elements to be included in the new column
+	 * 
+	 * @return a new {@code DoubleColumn} containing the specified elements.
+	 */
+	public static DoubleColumn of(DoubleStream stream) {
+		return stream.collect(() -> builder(NONNULL), (b, v) -> b.add(v), (a, b) -> a.append(b)).build();
 	}
 }

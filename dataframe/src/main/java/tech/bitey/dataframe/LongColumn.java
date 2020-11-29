@@ -16,6 +16,8 @@
 
 package tech.bitey.dataframe;
 
+import static java.util.Spliterator.NONNULL;
+
 import java.nio.ByteBuffer;
 import java.util.Collection;
 import java.util.stream.Collector;
@@ -170,5 +172,16 @@ public interface LongColumn extends Column<Long> {
 	 */
 	public static LongColumn of(Collection<Long> c) {
 		return c.stream().collect(collector());
+	}
+
+	/**
+	 * Returns a new {@code LongColumn} containing the specified elements.
+	 * 
+	 * @param stream the elements to be included in the new column
+	 * 
+	 * @return a new {@code LongColumn} containing the specified elements.
+	 */
+	public static LongColumn of(LongStream stream) {
+		return stream.collect(() -> builder(NONNULL), (b, v) -> b.add(v), (a, b) -> a.append(b)).build();
 	}
 }

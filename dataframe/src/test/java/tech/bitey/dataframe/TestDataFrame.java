@@ -120,6 +120,7 @@ public class TestDataFrame {
 		}
 	}
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Test
 	public void testCursorVsIterator() {
 		for (Map.Entry<String, DataFrame> e : DF_MAP.entrySet()) {
@@ -134,7 +135,7 @@ public class TestDataFrame {
 				Assertions.assertEquals(cursor.columnCount(), row.columnCount(), test);
 				Assertions.assertEquals(cursor.columnCount(), df.columnCount(), test);
 				for (int i = 0; i < df.columnCount(); i++)
-					Assertions.assertEquals(cursor.<Object>get(i), row.<Object>get(i), test);
+					Assertions.assertEquals(cursor.<Comparable>get(i), row.<Comparable>get(i), test);
 			}
 			Assertions.assertFalse(iter.hasNext(), test);
 		}
@@ -547,6 +548,23 @@ public class TestDataFrame {
 			DataFrame df = DataFrameFactory.create(unsorted, names);
 			Assertions.assertEquals(expected.withKeyColumn(i), df.indexOrganize(i));
 		}
+	}
+
+	@Test
+	public void testSort() {
+		StringColumn a = StringColumn.of("D", "A", "D", "B", "B", "C", "A", "C", "D");
+		IntColumn b = IntColumn.of(3, 2, 1, 1, 2, 2, 1, 1, 2);
+		IntColumn c = IntColumn.of(9, 2, 7, 3, 4, 6, 1, 5, 8);
+
+		DataFrame unsorted = DataFrameFactory.create(new Column<?>[] { a, b, c }, new String[] { "C1", "C2", "C3" });
+
+		DataFrame expected = DataFrameFactory.create(
+				new Column<?>[] { a.toSorted(), IntColumn.of(1, 2, 1, 2, 1, 2, 1, 2, 3), c.toSorted() },
+				new String[] { "C1", "C2", "C3" });
+
+		DataFrame actual = unsorted.sort("C1", "C2");
+
+		Assertions.assertEquals(expected, actual);
 	}
 
 	private static LocalDate fromInt(int yyyymmdd) {

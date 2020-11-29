@@ -1035,6 +1035,18 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 		return new DataFrameImpl(columns, columnNames, null);
 	}
 
+	@Override
+	public DataFrame sort(String... columnNames) {
+
+		IntColumn indices = IntColumn.of(selectColumns(columnNames).stream().sorted().mapToInt(r -> r.rowIndex()));
+
+		Column[] columns = new Column[this.columns.length];
+		for (int i = 0; i < columns.length; i++)
+			columns[i] = ((AbstractColumn) this.columns[i]).select(indices);
+
+		return new DataFrameImpl(columns, this.columnNames, null, columnToIndexMap);
+	}
+
 	/*--------------------------------------------------------------------------------
 	 *	Export Methods
 	 *--------------------------------------------------------------------------------*/
@@ -1318,12 +1330,12 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 		}
 
 		@Override
-		public <T> T get(int columnIndex) {
+		public <T extends Comparable<? super T>> T get(int columnIndex) {
 			return DataFrameImpl.this.get(rowIndex(), columnIndex);
 		}
 
 		@Override
-		public <T> T get(String columnName) {
+		public <T extends Comparable<? super T>> T get(String columnName) {
 			return DataFrameImpl.this.get(rowIndex(), columnName);
 		}
 
@@ -1443,7 +1455,7 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 		}
 	}
 
-	private class RowImpl extends AbstractRow {
+	private class RowImpl extends AbstractRow implements Comparable<RowImpl> {
 
 		private final int rowIndex;
 
@@ -1482,6 +1494,17 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 					return false;
 
 			return true;
+		}
+
+		@Override
+		public int compareTo(RowImpl rhs) {
+			for (int i = 0; i < columnCount(); i++) {
+				int d = get(i).compareTo(rhs.get(i));
+				if (d != 0)
+					return d;
+			}
+
+			return 0;
 		}
 	}
 
