@@ -26,7 +26,6 @@ import java.math.BigDecimal;
 import java.nio.channels.WritableByteChannel;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.ListIterator;
 import java.util.Map;
@@ -42,7 +41,7 @@ import java.util.function.ToLongFunction;
 import tech.bitey.bufferstuff.BufferBitSet;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
-abstract class NullableColumn<E, I extends Column<E>, C extends NonNullColumn<E, I, C>, N extends NullableColumn<E, I, C, N>>
+abstract class NullableColumn<E extends Comparable<? super E>, I extends Column<E>, C extends NonNullColumn<E, I, C>, N extends NullableColumn<E, I, C, N>>
 		extends AbstractColumn<E, I, N> {
 
 	static final Map<ColumnTypeCode, NullableColumn> EMPTY_MAP = new EnumMap<>(ColumnTypeCode.class);
@@ -220,11 +219,6 @@ abstract class NullableColumn<E, I extends Column<E>, C extends NonNullColumn<E,
 				return index - offset - 1;
 			}
 		};
-	}
-
-	@Override
-	public Comparator<? super E> comparator() {
-		return column.comparator();
 	}
 
 	@Override

@@ -18,7 +18,7 @@ package tech.bitey.dataframe;
 
 import tech.bitey.bufferstuff.BufferBitSet;
 
-abstract class NullableLongArrayColumn<E, I extends Column<E>, C extends LongArrayColumn<E, I, C>, N extends NullableColumn<E, I, C, N>>
+abstract class NullableLongArrayColumn<E extends Comparable<? super E>, I extends Column<E>, C extends LongArrayColumn<E, I, C>, N extends NullableColumn<E, I, C, N>>
 		extends NullableColumn<E, I, C, N> {
 
 	NullableLongArrayColumn(C column, BufferBitSet nonNulls, INullCounts nullCounts, int offset, int size) {

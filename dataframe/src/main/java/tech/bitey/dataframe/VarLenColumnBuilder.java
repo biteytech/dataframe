@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import tech.bitey.bufferstuff.BufferUtils;
 
 @SuppressWarnings("unchecked")
-abstract class VarLenColumnBuilder<E extends Comparable<E>, C extends Column<E>, B extends VarLenColumnBuilder<E, C, B>>
+abstract class VarLenColumnBuilder<E extends Comparable<? super E>, C extends Column<E>, B extends VarLenColumnBuilder<E, C, B>>
 		extends AbstractColumnBuilder<E, C, B> {
 
 	final ArrayList<byte[]> elements = new ArrayList<>();

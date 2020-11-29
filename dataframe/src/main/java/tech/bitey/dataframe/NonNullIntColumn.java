@@ -23,7 +23,6 @@ import static tech.bitey.dataframe.DfPreconditions.checkElementIndex;
 import static tech.bitey.dataframe.IntArrayPacker.INTEGER;
 
 import java.nio.ByteBuffer;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.IntStream;
@@ -61,11 +60,6 @@ final class NonNullIntColumn extends IntArrayColumn<Integer, IntColumn, NonNullI
 	@Override
 	NonNullIntColumn empty() {
 		return EMPTY.get(characteristics);
-	}
-
-	@Override
-	public Comparator<Integer> comparator() {
-		return Integer::compareTo;
 	}
 
 	@Override

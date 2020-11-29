@@ -21,7 +21,8 @@ import static tech.bitey.dataframe.DfPreconditions.checkNotNull;
 
 import java.util.Iterator;
 
-class ColumnBackedMap<K, V> extends AbstractKeyBackedMap<K, V> {
+class ColumnBackedMap<K extends Comparable<? super K>, V extends Comparable<? super V>>
+		extends AbstractKeyBackedMap<K, V> {
 
 	private final Column<V> valueColumn;
 

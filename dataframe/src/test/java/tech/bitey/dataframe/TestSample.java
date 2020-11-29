@@ -19,7 +19,7 @@ package tech.bitey.dataframe;
 import java.util.Arrays;
 import java.util.Objects;
 
-public class TestSample<E> {
+public class TestSample<E extends Comparable<? super E>> {
 
 	private final String label;
 	private final E[] array;

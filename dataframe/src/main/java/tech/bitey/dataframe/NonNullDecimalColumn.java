@@ -23,7 +23,6 @@ import static tech.bitey.bufferstuff.BufferUtils.EMPTY_BUFFER;
 
 import java.math.BigDecimal;
 import java.nio.ByteBuffer;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -59,11 +58,6 @@ final class NonNullDecimalColumn extends NonNullVarLenColumn<BigDecimal, Decimal
 	@Override
 	NonNullDecimalColumn empty() {
 		return EMPTY.get(characteristics);
-	}
-
-	@Override
-	public Comparator<BigDecimal> comparator() {
-		return BigDecimal::compareTo;
 	}
 
 	@Override

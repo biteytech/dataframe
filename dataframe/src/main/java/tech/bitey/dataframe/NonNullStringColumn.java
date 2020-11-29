@@ -22,7 +22,6 @@ import static java.util.Spliterator.SORTED;
 import static tech.bitey.bufferstuff.BufferUtils.EMPTY_BUFFER;
 
 import java.nio.ByteBuffer;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -58,11 +57,6 @@ final class NonNullStringColumn extends NonNullVarLenColumn<String, StringColumn
 	@Override
 	NonNullStringColumn empty() {
 		return EMPTY.get(characteristics);
-	}
-
-	@Override
-	public Comparator<String> comparator() {
-		return String::compareTo;
 	}
 
 	@Override

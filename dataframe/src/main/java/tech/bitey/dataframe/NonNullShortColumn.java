@@ -26,7 +26,6 @@ import static tech.bitey.dataframe.DfPreconditions.checkElementIndex;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -127,11 +126,6 @@ final class NonNullShortColumn extends NonNullSingleBufferColumn<Short, ShortCol
 	@Override
 	NonNullShortColumn empty() {
 		return EMPTY.get(characteristics);
-	}
-
-	@Override
-	public Comparator<Short> comparator() {
-		return Short::compareTo;
 	}
 
 	@Override

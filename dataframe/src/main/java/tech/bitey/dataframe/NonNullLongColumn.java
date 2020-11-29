@@ -23,7 +23,6 @@ import static tech.bitey.dataframe.DfPreconditions.checkElementIndex;
 import static tech.bitey.dataframe.LongArrayPacker.LONG;
 
 import java.nio.ByteBuffer;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.LongStream;
@@ -57,11 +56,6 @@ final class NonNullLongColumn extends LongArrayColumn<Long, LongColumn, NonNullL
 	@Override
 	NonNullLongColumn empty() {
 		return EMPTY.get(characteristics);
-	}
-
-	@Override
-	public Comparator<Long> comparator() {
-		return Long::compareTo;
 	}
 
 	@Override

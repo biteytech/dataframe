@@ -368,8 +368,8 @@ public class TestDataFrame {
 			throws Exception {
 
 		Column keyColumn = df.column(0);
-		Object from = keyColumn.first();
-		Object to = keyColumn.last();
+		Comparable from = keyColumn.first();
+		Comparable to = keyColumn.last();
 
 		Column subColumn = keyColumn.subColumnByValue(from, fromInclusive, to, toInclusive);
 

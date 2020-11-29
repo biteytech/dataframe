@@ -233,16 +233,19 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 	}
 
 	@Override
-	public <K, V> NavigableMap<K, V> asMap(int columnIndex) {
+	public <K extends Comparable<? super K>, V extends Comparable<? super V>> NavigableMap<K, V> asMap(
+			int columnIndex) {
 		return asMap(checkedColumn(columnIndex));
 	}
 
 	@Override
-	public <K, V> NavigableMap<K, V> asMap(String columnName) {
+	public <K extends Comparable<? super K>, V extends Comparable<? super V>> NavigableMap<K, V> asMap(
+			String columnName) {
 		return asMap(checkedColumn(columnName));
 	}
 
-	private <K, V> NavigableMap<K, V> asMap(Column<?> valueColumn) {
+	private <K extends Comparable<? super K>, V extends Comparable<? super V>> NavigableMap<K, V> asMap(
+			Column<?> valueColumn) {
 
 		Column<?> keyColumn = checkedKeyColumn("asMap");
 
@@ -251,7 +254,7 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 	}
 
 	@Override
-	public <K> NavigableMap<K, Row> asMap() {
+	public <K extends Comparable<? super K>> NavigableMap<K, Row> asMap() {
 
 		return new DataFrameBackedMap<>(this);
 	}
@@ -492,7 +495,7 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 	}
 
 	@Override
-	public <T> Column<T> column(int columnIndex) {
+	public <T extends Comparable<? super T>> Column<T> column(int columnIndex) {
 		return (Column<T>) checkedColumn(columnIndex);
 	}
 
@@ -547,7 +550,7 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 	}
 
 	@Override
-	public <T> Column<T> column(String columnName) {
+	public <T extends Comparable<? super T>> Column<T> column(String columnName) {
 		return (Column<T>) checkedColumn(columnName);
 	}
 
@@ -602,7 +605,7 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 	}
 
 	@Override
-	public <T> Column<T> deriveColumn(ColumnType<T> type, Function<Row, T> function) {
+	public <T extends Comparable<? super T>> Column<T> deriveColumn(ColumnType<T> type, Function<Row, T> function) {
 
 		ColumnBuilder<T> builder = type.builder();
 		builder.ensureCapacity(size());
@@ -714,7 +717,7 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 	}
 
 	@Override
-	public DataFrame headTo(Object toKey, boolean inclusive) {
+	public DataFrame headTo(Comparable toKey, boolean inclusive) {
 
 		NonNullColumn keyColumn = checkedKeyColumn("headTo");
 
@@ -724,7 +727,7 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 	}
 
 	@Override
-	public DataFrame tailFrom(Object fromKey, boolean inclusive) {
+	public DataFrame tailFrom(Comparable fromKey, boolean inclusive) {
 
 		NonNullColumn keyColumn = checkedKeyColumn("tailFrom");
 
@@ -734,7 +737,7 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 	}
 
 	@Override
-	public DataFrame subFrameByValue(Object fromKey, boolean fromInclusive, Object toKey, boolean toInclusive) {
+	public DataFrame subFrameByValue(Comparable fromKey, boolean fromInclusive, Comparable toKey, boolean toInclusive) {
 		NonNullColumn keyColumn = checkedKeyColumn("subFrameByValue");
 
 		NonNullColumn subColumn = keyColumn.subColumnByValue(fromKey, fromInclusive, toKey, toInclusive);

@@ -157,7 +157,7 @@ public interface DataFrame extends List<Row>, RandomAccess {
 	 * @throws IndexOutOfBoundsException     if {@code columnIndex} is negative or
 	 *                                       is not less than {@link #columnCount()}
 	 */
-	<K, V> NavigableMap<K, V> asMap(int columnIndex);
+	<K extends Comparable<? super K>, V extends Comparable<? super V>> NavigableMap<K, V> asMap(int columnIndex);
 
 	/**
 	 * Returns a {@link NavigableMap} keyed by the elements in the key column, with
@@ -178,7 +178,7 @@ public interface DataFrame extends List<Row>, RandomAccess {
 	 *                                       recognized column name in this
 	 *                                       dataframe
 	 */
-	<K, V> NavigableMap<K, V> asMap(String columnName);
+	<K extends Comparable<? super K>, V extends Comparable<? super V>> NavigableMap<K, V> asMap(String columnName);
 
 	/**
 	 * Returns a {@link NavigableMap} view of this dataframe where the rows are
@@ -192,7 +192,7 @@ public interface DataFrame extends List<Row>, RandomAccess {
 	 * @throws UnsupportedOperationException if this dataframe does not contain a
 	 *                                       key column
 	 */
-	<K> NavigableMap<K, Row> asMap();
+	<K extends Comparable<? super K>> NavigableMap<K, Row> asMap();
 
 	/**
 	 * Returns a {@link DateSeries} using the key column from this dataframe as the
@@ -527,7 +527,7 @@ public interface DataFrame extends List<Row>, RandomAccess {
 	 * @throws ClassCastException        if the column type does not match the
 	 *                                   return type.
 	 */
-	<T> Column<T> column(int columnIndex);
+	<T extends Comparable<? super T>> Column<T> column(int columnIndex);
 
 	/**
 	 * Returns the {@link StringColumn} at the specified index.
@@ -677,7 +677,7 @@ public interface DataFrame extends List<Row>, RandomAccess {
 	 * @throws ClassCastException       if the column type does not match the return
 	 *                                  type.
 	 */
-	<T> Column<T> column(String columnName);
+	<T extends Comparable<? super T>> Column<T> column(String columnName);
 
 	/**
 	 * Returns the specified {@link StringColumn}
@@ -826,7 +826,7 @@ public interface DataFrame extends List<Row>, RandomAccess {
 	 * 
 	 * @throws ClassCastException if the column type does not match the return type.
 	 */
-	<T> Column<T> deriveColumn(ColumnType<T> type, Function<Row, T> function);
+	<T extends Comparable<? super T>> Column<T> deriveColumn(ColumnType<T> type, Function<Row, T> function);
 
 	/**
 	 * Derive a new {@link IntColumn} from the rows of this dataframe. The new
@@ -1006,7 +1006,7 @@ public interface DataFrame extends List<Row>, RandomAccess {
 	 *                                       this dataframe's key column type
 	 * @throws NullPointerException          if {@code toKey} is null
 	 */
-	default DataFrame headTo(Object toKey) {
+	default DataFrame headTo(Comparable<?> toKey) {
 		return headTo(toKey, false);
 	}
 
@@ -1026,7 +1026,7 @@ public interface DataFrame extends List<Row>, RandomAccess {
 	 *                                       with this dataframe's key column type
 	 * @throws NullPointerException          if {@code fromKey} is null
 	 */
-	default DataFrame tailFrom(Object fromKey) {
+	default DataFrame tailFrom(Comparable<?> fromKey) {
 		return tailFrom(fromKey, true);
 	}
 
@@ -1048,7 +1048,7 @@ public interface DataFrame extends List<Row>, RandomAccess {
 	 *                                       this dataframe's key column type
 	 * @throws NullPointerException          if either key is null
 	 */
-	default DataFrame subFrameByValue(Object fromKey, Object toKey) {
+	default DataFrame subFrameByValue(Comparable<?> fromKey, Comparable<?> toKey) {
 		return subFrameByValue(fromKey, true, toKey, false);
 	}
 
@@ -1069,7 +1069,7 @@ public interface DataFrame extends List<Row>, RandomAccess {
 	 *                                       this dataframe's key column type
 	 * @throws NullPointerException          if {@code toKey} is null
 	 */
-	DataFrame headTo(Object toKey, boolean inclusive);
+	DataFrame headTo(Comparable<?> toKey, boolean inclusive);
 
 	/**
 	 * Returns a dataframe containing the rows whose key column values are greater
@@ -1088,7 +1088,7 @@ public interface DataFrame extends List<Row>, RandomAccess {
 	 *                                       with this dataframe's key column type
 	 * @throws NullPointerException          if {@code fromKey} is null
 	 */
-	DataFrame tailFrom(Object fromKey, boolean inclusive);
+	DataFrame tailFrom(Comparable<?> fromKey, boolean inclusive);
 
 	/**
 	 * Returns a dataframe containing the rows whose key column values are between
@@ -1113,7 +1113,7 @@ public interface DataFrame extends List<Row>, RandomAccess {
 	 *                                       this dataframe's key column type
 	 * @throws NullPointerException          if either key is null
 	 */
-	DataFrame subFrameByValue(Object fromKey, boolean fromInclusive, Object toKey, boolean toInclusive);
+	DataFrame subFrameByValue(Comparable<?> fromKey, boolean fromInclusive, Comparable<?> toKey, boolean toInclusive);
 
 	/**
 	 * Returns a dataframe containing the rows which pass the specified

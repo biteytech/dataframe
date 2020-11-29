@@ -61,7 +61,7 @@ import tech.bitey.bufferstuff.BufferBitSet;
  * 
  * @author biteytech@protonmail.com
  */
-public class ColumnType<E> {
+public class ColumnType<E extends Comparable<? super E>> {
 
 	/** The type for {@link BooleanColumn} */
 	public static final ColumnType<Boolean> BOOLEAN = new ColumnType<>(B);
@@ -116,7 +116,7 @@ public class ColumnType<E> {
 	 * 
 	 * @return a {@link ColumnBuilder builder} for this column type.
 	 */
-	public <T> ColumnBuilder<T> builder() {
+	public <T extends Comparable<? super T>> ColumnBuilder<T> builder() {
 		return builder(0);
 	}
 
@@ -139,33 +139,33 @@ public class ColumnType<E> {
 	 * 
 	 * @throws IllegalArgumentException if {@code characteristic} is not valid
 	 */
-	@SuppressWarnings("unchecked")
-	public <T> ColumnBuilder<T> builder(int characteristic) {
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public <T extends Comparable<? super T>> ColumnBuilder<T> builder(int characteristic) {
 		switch (getCode()) {
 		case B:
-			return (ColumnBuilder<T>) BooleanColumn.builder();
+			return (ColumnBuilder) BooleanColumn.builder();
 		case DA:
-			return (ColumnBuilder<T>) DateColumn.builder(characteristic);
+			return (ColumnBuilder) DateColumn.builder(characteristic);
 		case DT:
-			return (ColumnBuilder<T>) DateTimeColumn.builder(characteristic);
+			return (ColumnBuilder) DateTimeColumn.builder(characteristic);
 		case D:
-			return (ColumnBuilder<T>) DoubleColumn.builder(characteristic);
+			return (ColumnBuilder) DoubleColumn.builder(characteristic);
 		case F:
-			return (ColumnBuilder<T>) FloatColumn.builder(characteristic);
+			return (ColumnBuilder) FloatColumn.builder(characteristic);
 		case I:
-			return (ColumnBuilder<T>) IntColumn.builder(characteristic);
+			return (ColumnBuilder) IntColumn.builder(characteristic);
 		case L:
-			return (ColumnBuilder<T>) LongColumn.builder(characteristic);
+			return (ColumnBuilder) LongColumn.builder(characteristic);
 		case T:
-			return (ColumnBuilder<T>) ShortColumn.builder(characteristic);
+			return (ColumnBuilder) ShortColumn.builder(characteristic);
 		case Y:
-			return (ColumnBuilder<T>) ByteColumn.builder(characteristic);
+			return (ColumnBuilder) ByteColumn.builder(characteristic);
 		case S:
-			return (ColumnBuilder<T>) StringColumn.builder(characteristic);
+			return (ColumnBuilder) StringColumn.builder(characteristic);
 		case BD:
-			return (ColumnBuilder<T>) DecimalColumn.builder(characteristic);
+			return (ColumnBuilder) DecimalColumn.builder(characteristic);
 		case UU:
-			return (ColumnBuilder<T>) UuidColumn.builder(characteristic);
+			return (ColumnBuilder) UuidColumn.builder(characteristic);
 		}
 
 		throw new IllegalStateException();

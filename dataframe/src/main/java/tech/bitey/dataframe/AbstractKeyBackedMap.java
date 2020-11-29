@@ -36,7 +36,8 @@ import java.util.SortedMap;
 import java.util.Spliterator;
 import java.util.Spliterators;
 
-abstract class AbstractKeyBackedMap<K, V> extends AbstractMap<K, V> implements NavigableMap<K, V> {
+abstract class AbstractKeyBackedMap<K extends Comparable<? super K>, V> extends AbstractMap<K, V>
+		implements NavigableMap<K, V> {
 
 	final NonNullColumn<K, ?, ?> keyColumn;
 
@@ -91,7 +92,7 @@ abstract class AbstractKeyBackedMap<K, V> extends AbstractMap<K, V> implements N
 
 	@Override
 	public Comparator<? super K> comparator() {
-		return keyColumn.comparator();
+		return null;
 	}
 
 	@Override
@@ -246,7 +247,8 @@ abstract class AbstractKeyBackedMap<K, V> extends AbstractMap<K, V> implements N
 		}
 	}
 
-	private static class DescAbstractKeyBackedMap<K, V> extends AbstractMap<K, V> implements NavigableMap<K, V> {
+	private static class DescAbstractKeyBackedMap<K extends Comparable<? super K>, V> extends AbstractMap<K, V>
+			implements NavigableMap<K, V> {
 
 		private final AbstractKeyBackedMap<K, V> asc;
 

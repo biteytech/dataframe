@@ -29,7 +29,7 @@ import java.util.SortedSet;
 import java.util.Spliterator;
 import java.util.Spliterators;
 
-class ColumnBackedSet<E> extends AbstractSet<E> implements NavigableSet<E> {
+class ColumnBackedSet<E extends Comparable<? super E>> extends AbstractSet<E> implements NavigableSet<E> {
 
 	private final Column<E> delegate;
 
@@ -39,7 +39,7 @@ class ColumnBackedSet<E> extends AbstractSet<E> implements NavigableSet<E> {
 
 	@Override
 	public Comparator<? super E> comparator() {
-		return delegate.comparator();
+		return null;
 	}
 
 	@Override
@@ -169,7 +169,8 @@ class ColumnBackedSet<E> extends AbstractSet<E> implements NavigableSet<E> {
 		throw new UnsupportedOperationException("pollLast");
 	}
 
-	private static class DescColumnBackedSet<E> extends AbstractSet<E> implements NavigableSet<E> {
+	private static class DescColumnBackedSet<E extends Comparable<? super E>> extends AbstractSet<E>
+			implements NavigableSet<E> {
 
 		private final ColumnBackedSet<E> asc;
 

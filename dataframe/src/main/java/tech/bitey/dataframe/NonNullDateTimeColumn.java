@@ -23,7 +23,6 @@ import static tech.bitey.dataframe.LongArrayPacker.LOCAL_DATE_TIME;
 
 import java.nio.ByteBuffer;
 import java.time.LocalDateTime;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -55,11 +54,6 @@ final class NonNullDateTimeColumn extends LongArrayColumn<LocalDateTime, DateTim
 	@Override
 	NonNullDateTimeColumn empty() {
 		return EMPTY.get(characteristics);
-	}
-
-	@Override
-	public Comparator<LocalDateTime> comparator() {
-		return LocalDateTime::compareTo;
 	}
 
 	@Override

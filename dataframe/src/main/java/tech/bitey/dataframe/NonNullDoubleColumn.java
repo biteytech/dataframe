@@ -26,7 +26,6 @@ import static tech.bitey.dataframe.DfPreconditions.checkElementIndex;
 import java.nio.ByteBuffer;
 import java.nio.DoubleBuffer;
 import java.nio.IntBuffer;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.DoubleStream;
@@ -128,11 +127,6 @@ final class NonNullDoubleColumn extends NonNullSingleBufferColumn<Double, Double
 	@Override
 	NonNullDoubleColumn empty() {
 		return EMPTY.get(characteristics);
-	}
-
-	@Override
-	public Comparator<Double> comparator() {
-		return Double::compareTo;
 	}
 
 	@Override

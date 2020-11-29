@@ -20,7 +20,7 @@ import java.nio.ByteBuffer;
 
 import tech.bitey.bufferstuff.BufferUtils;
 
-abstract class ByteArrayColumnBuilder<E, C extends Column<E>, B extends ByteArrayColumnBuilder<E, C, B>>
+abstract class ByteArrayColumnBuilder<E extends Comparable<? super E>, C extends Column<E>, B extends ByteArrayColumnBuilder<E, C, B>>
 		extends SingleBufferColumnBuilder<E, ByteBuffer, C, B> {
 
 	private final ByteArrayPacker<E> packer;

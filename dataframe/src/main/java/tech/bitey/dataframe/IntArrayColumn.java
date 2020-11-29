@@ -28,7 +28,7 @@ import tech.bitey.bufferstuff.BufferSearch;
 import tech.bitey.bufferstuff.BufferSort;
 import tech.bitey.bufferstuff.BufferUtils;
 
-abstract class IntArrayColumn<E, I extends Column<E>, C extends IntArrayColumn<E, I, C>>
+abstract class IntArrayColumn<E extends Comparable<? super E>, I extends Column<E>, C extends IntArrayColumn<E, I, C>>
 		extends NonNullSingleBufferColumn<E, I, C> {
 
 	final IntArrayPacker<E> packer;

@@ -26,7 +26,6 @@ import static tech.bitey.dataframe.DfPreconditions.checkElementIndex;
 import java.io.IOException;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
-import java.util.Comparator;
 
 import tech.bitey.bufferstuff.BufferBitSet;
 
@@ -80,11 +79,6 @@ final class NonNullBooleanColumn extends NonNullColumn<Boolean, BooleanColumn, N
 	@Override
 	NonNullBooleanColumn empty() {
 		return EMPTY;
-	}
-
-	@Override
-	public Comparator<Boolean> comparator() {
-		return Boolean::compareTo;
 	}
 
 	@Override

@@ -24,7 +24,7 @@ import java.nio.ByteBuffer;
 
 import tech.bitey.bufferstuff.BufferUtils;
 
-abstract class SingleBufferColumnBuilder<E, F extends Buffer, C extends Column<E>, B extends SingleBufferColumnBuilder<E, F, C, B>>
+abstract class SingleBufferColumnBuilder<E extends Comparable<? super E>, F extends Buffer, C extends Column<E>, B extends SingleBufferColumnBuilder<E, F, C, B>>
 		extends AbstractColumnBuilder<E, C, B> {
 
 	/**

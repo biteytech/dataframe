@@ -42,8 +42,8 @@ import java.util.Set;
 import tech.bitey.bufferstuff.BufferBitSet;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
-abstract class AbstractColumn<E, I extends Column<E>, C extends AbstractColumn<E, I, C>> extends AbstractCollection<E>
-		implements Column<E>, RandomAccess {
+abstract class AbstractColumn<E extends Comparable<? super E>, I extends Column<E>, C extends AbstractColumn<E, I, C>>
+		extends AbstractCollection<E> implements Column<E>, RandomAccess {
 
 	final int offset;
 	final int size;
@@ -117,10 +117,10 @@ abstract class AbstractColumn<E, I extends Column<E>, C extends AbstractColumn<E
 			return (I) this;
 		} else {
 			if (isDistinct()) {
-				checkArgument(comparator().compare(last(), tail.first()) < 0,
+				checkArgument(last().compareTo(tail.first()) < 0,
 						"last item of this column must be less than first item of provided column");
 			} else if (isSorted()) {
-				checkArgument(comparator().compare(last(), tail.first()) <= 0,
+				checkArgument(last().compareTo(tail.first()) <= 0,
 						"last item of this column must be <= first item of provided column");
 			}
 
@@ -262,7 +262,7 @@ abstract class AbstractColumn<E, I extends Column<E>, C extends AbstractColumn<E
 		return toArray(a, this);
 	}
 
-	static <T, E> T[] toArray(T[] a, Column<E> column) {
+	static <T, E extends Comparable<? super E>> T[] toArray(T[] a, Column<E> column) {
 
 		final int size = column.size();
 		final Iterator<E> iter = column.iterator();

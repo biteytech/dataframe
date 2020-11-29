@@ -21,7 +21,7 @@ import java.nio.IntBuffer;
 
 import tech.bitey.bufferstuff.BufferUtils;
 
-abstract class IntArrayColumnBuilder<E, C extends Column<E>, B extends IntArrayColumnBuilder<E, C, B>>
+abstract class IntArrayColumnBuilder<E extends Comparable<? super E>, C extends Column<E>, B extends IntArrayColumnBuilder<E, C, B>>
 		extends SingleBufferColumnBuilder<E, IntBuffer, C, B> {
 
 	private final IntArrayPacker<E> packer;

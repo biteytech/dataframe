@@ -83,7 +83,7 @@ public final class ReadCsvConfig implements ImmutableBean {
      * the corresponding column.
      */
     @PropertyDefinition
-    private final List<Function<String, ?>> columnParsers;
+    private final List<Function<String, Comparable<?>>> columnParsers;
 
     /**
      * any ASCII character which is not a letter, digit, double quote, CR, or LF
@@ -133,11 +133,14 @@ public final class ReadCsvConfig implements ImmutableBean {
                 columnNames = this.columnNames.toArray(new String[0]);
             }
 
-            final Function<String, ?>[] columnParsers = this.columnParsers == null ? new Function[columnTypes.size()]
+            final Function<String, Comparable<?>>[] columnParsers = this.columnParsers == null
+                    ? new Function[columnTypes.size()]
                     : this.columnParsers.toArray(new Function[0]);
             for (int i = 0; i < columnParsers.length; i++)
-                if (columnParsers[i] == null)
-                    columnParsers[i] = columnTypes.get(i)::parse;
+                if (columnParsers[i] == null) {
+                    ColumnType<?> ct = columnTypes.get(i);
+                    columnParsers[i] = s -> (Comparable) ct.parse(s);
+                }
 
             for (String[] fields; (fields = nextRecord(in, rno, lineno, false)) != null; rno++) {
                 try {
@@ -149,7 +152,7 @@ public final class ReadCsvConfig implements ImmutableBean {
                             if (fields[i] == null)
                                 builders[i].addNull();
                             else {
-                                Object value = columnParsers[i].apply(fields[i]);
+                                Comparable value = columnParsers[i].apply(fields[i]);
                                 builders[i].add(value);
                             }
                         } catch (Exception e) {
@@ -313,7 +316,7 @@ public final class ReadCsvConfig implements ImmutableBean {
     private ReadCsvConfig(
             List<ColumnType<?>> columnTypes,
             List<String> columnNames,
-            List<Function<String, ?>> columnParsers,
+            List<Function<String, Comparable<?>>> columnParsers,
             char delim) {
         JodaBeanUtils.notEmpty(columnTypes, "columnTypes");
         this.columnTypes = Collections.unmodifiableList(new ArrayList<>(columnTypes));
@@ -355,7 +358,7 @@ public final class ReadCsvConfig implements ImmutableBean {
      * the corresponding column.
      * @return the value of the property
      */
-    public List<Function<String, ?>> getColumnParsers() {
+    public List<Function<String, Comparable<?>>> getColumnParsers() {
         return columnParsers;
     }
 
@@ -422,7 +425,7 @@ public final class ReadCsvConfig implements ImmutableBean {
 
         private List<ColumnType<?>> columnTypes = Collections.emptyList();
         private List<String> columnNames;
-        private List<Function<String, ?>> columnParsers;
+        private List<Function<String, Comparable<?>>> columnParsers;
         private char delim;
 
         /**
@@ -471,7 +474,7 @@ public final class ReadCsvConfig implements ImmutableBean {
                     this.columnNames = (List<String>) newValue;
                     break;
                 case 9945086:  // columnParsers
-                    this.columnParsers = (List<Function<String, ?>>) newValue;
+                    this.columnParsers = (List<Function<String, Comparable<?>>>) newValue;
                     break;
                 case 95468143:  // delim
                     this.delim = (Character) newValue;
@@ -549,7 +552,7 @@ public final class ReadCsvConfig implements ImmutableBean {
          * @param columnParsers  the new value
          * @return this, for chaining, not null
          */
-        public Builder columnParsers(List<Function<String, ?>> columnParsers) {
+        public Builder columnParsers(List<Function<String, Comparable<?>>> columnParsers) {
             this.columnParsers = columnParsers;
             return this;
         }
@@ -561,7 +564,7 @@ public final class ReadCsvConfig implements ImmutableBean {
          * @return this, for chaining, not null
          */
         @SafeVarargs
-        public final Builder columnParsers(Function<String, ?>... columnParsers) {
+        public final Builder columnParsers(Function<String, Comparable<?>>... columnParsers) {
             return columnParsers(Arrays.asList(columnParsers));
         }
 

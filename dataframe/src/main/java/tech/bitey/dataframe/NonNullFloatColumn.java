@@ -26,7 +26,6 @@ import static tech.bitey.dataframe.DfPreconditions.checkElementIndex;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -127,11 +126,6 @@ final class NonNullFloatColumn extends NonNullSingleBufferColumn<Float, FloatCol
 	@Override
 	NonNullFloatColumn empty() {
 		return EMPTY.get(characteristics);
-	}
-
-	@Override
-	public Comparator<Float> comparator() {
-		return Float::compareTo;
 	}
 
 	@Override

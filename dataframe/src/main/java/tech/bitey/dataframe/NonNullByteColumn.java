@@ -22,7 +22,6 @@ import static tech.bitey.bufferstuff.BufferUtils.EMPTY_BUFFER;
 import static tech.bitey.dataframe.DfPreconditions.checkElementIndex;
 
 import java.nio.ByteBuffer;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -53,11 +52,6 @@ final class NonNullByteColumn extends ByteArrayColumn<Byte, ByteColumn, NonNullB
 	@Override
 	NonNullByteColumn empty() {
 		return EMPTY.get(characteristics);
-	}
-
-	@Override
-	public Comparator<Byte> comparator() {
-		return Byte::compareTo;
 	}
 
 	@Override

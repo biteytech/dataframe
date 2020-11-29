@@ -21,7 +21,7 @@ import java.nio.LongBuffer;
 
 import tech.bitey.bufferstuff.BufferUtils;
 
-abstract class LongArrayColumnBuilder<E, C extends Column<E>, B extends LongArrayColumnBuilder<E, C, B>>
+abstract class LongArrayColumnBuilder<E extends Comparable<? super E>, C extends Column<E>, B extends LongArrayColumnBuilder<E, C, B>>
 		extends SingleBufferColumnBuilder<E, LongBuffer, C, B> {
 
 	private final LongArrayPacker<E> packer;

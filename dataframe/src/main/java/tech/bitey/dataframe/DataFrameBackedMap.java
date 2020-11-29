@@ -18,7 +18,7 @@ package tech.bitey.dataframe;
 
 import java.util.Iterator;
 
-class DataFrameBackedMap<K> extends AbstractKeyBackedMap<K, Row> {
+class DataFrameBackedMap<K extends Comparable<? super K>> extends AbstractKeyBackedMap<K, Row> {
 
 	private final DataFrame dataFrame;
 

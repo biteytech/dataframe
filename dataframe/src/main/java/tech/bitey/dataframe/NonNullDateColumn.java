@@ -24,7 +24,6 @@ import static tech.bitey.dataframe.IntArrayPacker.LOCAL_DATE;
 
 import java.nio.ByteBuffer;
 import java.time.LocalDate;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -55,11 +54,6 @@ final class NonNullDateColumn extends IntArrayColumn<LocalDate, DateColumn, NonN
 	@Override
 	NonNullDateColumn empty() {
 		return EMPTY.get(characteristics);
-	}
-
-	@Override
-	public Comparator<LocalDate> comparator() {
-		return LocalDate::compareTo;
 	}
 
 	@Override

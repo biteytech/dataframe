@@ -27,7 +27,6 @@ import static java.util.Spliterator.SUBSIZED;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Comparator;
 import java.util.List;
 import java.util.NavigableSet;
 import java.util.NoSuchElementException;
@@ -111,7 +110,7 @@ import java.util.function.ToLongFunction;
  *
  * @param <E> the type of elements in this list
  */
-public interface Column<E> extends List<E> {
+public interface Column<E extends Comparable<? super E>> extends List<E> {
 
 	static int BASE_CHARACTERISTICS = SIZED | SUBSIZED | IMMUTABLE | ORDERED;
 
@@ -454,13 +453,6 @@ public interface Column<E> extends List<E> {
 	/*------------------------------------------------------------
 	 *  NavigableSet-inspired Methods
 	 *------------------------------------------------------------*/
-	/**
-	 * Returns the comparator used to order the elements in this column.
-	 *
-	 * @return the comparator used to order the elements in this column.
-	 */
-	Comparator<? super E> comparator();
-
 	/**
 	 * Returns the first (lowest) element in this column.
 	 *

@@ -27,7 +27,7 @@ import java.nio.channels.WritableByteChannel;
 
 import tech.bitey.bufferstuff.BufferUtils;
 
-abstract class NonNullSingleBufferColumn<E, I extends Column<E>, C extends NonNullSingleBufferColumn<E, I, C>>
+abstract class NonNullSingleBufferColumn<E extends Comparable<? super E>, I extends Column<E>, C extends NonNullSingleBufferColumn<E, I, C>>
 		extends NonNullColumn<E, I, C> {
 
 	final ByteBuffer buffer;

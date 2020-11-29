@@ -72,7 +72,7 @@ public class GuavaTestLibSuite {
 	private static final Method MAP_TEST_HASH_CODE_NULL = suppressMethod(MapHashCodeTester.class,
 			"testHashCode_containingNullValue");
 
-	private static class TestIngredients<E> {
+	private static class TestIngredients<E extends Comparable<? super E>> {
 		final ColumnType<E> type;
 		final IntFunction<E[]> newArray;
 		final E[] s;

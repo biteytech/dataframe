@@ -24,7 +24,6 @@ import static tech.bitey.bufferstuff.BufferUtils.EMPTY_BUFFER;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.nio.LongBuffer;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -127,11 +126,6 @@ final class NonNullUuidColumn extends NonNullSingleBufferColumn<UUID, UuidColumn
 	@Override
 	NonNullUuidColumn empty() {
 		return EMPTY.get(characteristics);
-	}
-
-	@Override
-	public Comparator<UUID> comparator() {
-		return UUID::compareTo;
 	}
 
 	@Override
