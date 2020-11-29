@@ -144,6 +144,11 @@ public class SampleUsages {
 		DataFrame df = DataFrameFactory.create(new Column<?>[] { c1, c2, c3, c4, c5 },
 				new String[] { "ORDER_ID", "ORDER_DATE", "SALESPERSON", "UNITS", "UNIT_COST" });
 
+		DataFrame df0 = DataFrameConfig.builder().columns(c1, c2, c3, c4, c5)
+				.columnNames("ORDER_ID", "ORDER_DATE", "SALESPERSON", "UNITS", "UNIT_COST").build().create();
+
+		Assertions.assertEquals(df, df0);
+
 		// DataFrame from csv
 		StringBuilder csv = new StringBuilder();
 		csv.append("ORDER_ID	ORDER_DATE	SALESPERSON	UNITS	UNIT_COST\n");

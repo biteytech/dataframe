@@ -556,11 +556,11 @@ public class TestDataFrame {
 		IntColumn b = IntColumn.of(3, 2, 1, 1, 2, 2, 1, 1, 2);
 		IntColumn c = IntColumn.of(9, 2, 7, 3, 4, 6, 1, 5, 8);
 
-		DataFrame unsorted = DataFrameFactory.create(new Column<?>[] { a, b, c }, new String[] { "C1", "C2", "C3" });
+		DataFrame unsorted = DataFrameConfig.builder().columns(a, b, c).columnNames("C1", "C2", "C3").build().create();
 
-		DataFrame expected = DataFrameFactory.create(
-				new Column<?>[] { a.toSorted(), IntColumn.of(1, 2, 1, 2, 1, 2, 1, 2, 3), c.toSorted() },
-				new String[] { "C1", "C2", "C3" });
+		DataFrame expected = DataFrameConfig.builder()
+				.columns(a.toSorted(), IntColumn.of(1, 2, 1, 2, 1, 2, 1, 2, 3), c.toSorted())
+				.columnNames("C1", "C2", "C3").build().create();
 
 		DataFrame actual = unsorted.sort("C1", "C2");
 
