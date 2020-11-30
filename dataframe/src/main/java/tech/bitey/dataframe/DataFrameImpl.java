@@ -248,9 +248,9 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 	private <K extends Comparable<? super K>, V extends Comparable<? super V>> NavigableMap<K, V> asMap(
 			Column<?> valueColumn) {
 
-		Column<?> keyColumn = checkedKeyColumn("asMap");
+		Column keyColumn = checkedKeyColumn("asMap");
 
-		NavigableMap map = new ColumnBackedMap<>(keyColumn, valueColumn);
+		NavigableMap map = new ColumnBackedMap(keyColumn, valueColumn);
 		return map;
 	}
 
@@ -795,11 +795,11 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 
 		checkArgument(columnCount() == df.columnCount(), "mismatched column counts");
 
-		Column<?>[] columns = new Column[columnCount()];
+		Column[] columns = new Column[columnCount()];
 		for (int i = 0; i < columnCount(); i++) {
 			checkArgument(columnType(i) == df.columnType(i), "mismatched column types");
 
-			columns[i] = this.columns[i].append(df.column(i), coerce);
+			columns[i] = this.columns[i].append((Column) df.column(i), coerce);
 		}
 
 		Integer keyIndex = this.keyIndex;
