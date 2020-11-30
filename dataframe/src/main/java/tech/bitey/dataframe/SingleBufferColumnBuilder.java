@@ -124,14 +124,12 @@ abstract class SingleBufferColumnBuilder<E extends Comparable<? super E>, F exte
 		return buildNonNullColumn(trim, characteristics);
 	}
 
+	abstract void append00(F elements);
+
 	@Override
 	void append0(B tail) {
 		ensureAdditionalCapacity(tail.getNonNullSize());
-
-		ByteBuffer tailBuffer = duplicate(tail.buffer);
-		tailBuffer.flip();
-		buffer.put(tailBuffer);
-		resetElementBuffer();
+		append00(tail.elements);
 	}
 
 	@Override

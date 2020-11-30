@@ -119,4 +119,11 @@ public final class ShortColumnBuilder
 	int elementSize() {
 		return 2;
 	}
+
+	@Override
+	void append00(ShortBuffer elements) {
+		ShortBuffer tail = elements.duplicate();
+		tail.flip();
+		this.elements.put(tail);
+	}
 }

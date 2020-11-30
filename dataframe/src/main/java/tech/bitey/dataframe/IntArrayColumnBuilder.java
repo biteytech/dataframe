@@ -57,4 +57,11 @@ abstract class IntArrayColumnBuilder<E extends Comparable<? super E>, C extends 
 	int elementSize() {
 		return 4;
 	}
+
+	@Override
+	void append00(IntBuffer elements) {
+		IntBuffer tail = elements.duplicate();
+		tail.flip();
+		this.elements.put(tail);
+	}
 }

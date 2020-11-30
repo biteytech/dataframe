@@ -91,4 +91,11 @@ public final class ByteColumnBuilder extends ByteArrayColumnBuilder<Byte, ByteCo
 	public ColumnType<Byte> getType() {
 		return ColumnType.BYTE;
 	}
+
+	@Override
+	void append00(ByteBuffer elements) {
+		ByteBuffer tail = elements.duplicate();
+		tail.flip();
+		this.elements.put(tail);
+	}
 }

@@ -57,4 +57,11 @@ abstract class LongArrayColumnBuilder<E extends Comparable<? super E>, C extends
 	int elementSize() {
 		return 8;
 	}
+
+	@Override
+	void append00(LongBuffer elements) {
+		LongBuffer tail = elements.duplicate();
+		tail.flip();
+		this.elements.put(tail);
+	}
 }

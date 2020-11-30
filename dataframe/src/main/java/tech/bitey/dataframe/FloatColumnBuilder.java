@@ -119,4 +119,11 @@ public final class FloatColumnBuilder
 	int elementSize() {
 		return 4;
 	}
+
+	@Override
+	void append00(FloatBuffer elements) {
+		FloatBuffer tail = elements.duplicate();
+		tail.flip();
+		this.elements.put(tail);
+	}
 }

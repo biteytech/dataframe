@@ -119,4 +119,11 @@ public final class DoubleColumnBuilder
 	int elementSize() {
 		return 8;
 	}
+
+	@Override
+	void append00(DoubleBuffer elements) {
+		DoubleBuffer tail = elements.duplicate();
+		tail.flip();
+		this.elements.put(tail);
+	}
 }

@@ -131,4 +131,11 @@ public final class UuidColumnBuilder
 	int getNonNullCapacity() {
 		return elements.capacity() / 2;
 	}
+
+	@Override
+	void append00(LongBuffer elements) {
+		LongBuffer tail = elements.duplicate();
+		tail.flip();
+		this.elements.put(tail);
+	}
 }
