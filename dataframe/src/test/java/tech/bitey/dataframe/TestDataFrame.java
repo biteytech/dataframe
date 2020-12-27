@@ -511,8 +511,8 @@ public class TestDataFrame {
 		DataFrame df3 = DataFrameFactory.create(new Column<?>[] { c5, c6 }, new String[] { "C1", "C2" });
 		try {
 			df3.indexOrganize(0);
-			throw new RuntimeException("expecting IllegalStateException");
-		} catch (IllegalStateException e) {
+			throw new RuntimeException("expecting Exception");
+		} catch (Exception e) {
 			// ok
 		}
 	}

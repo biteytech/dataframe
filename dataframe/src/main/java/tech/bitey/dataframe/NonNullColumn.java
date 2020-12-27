@@ -83,8 +83,6 @@ abstract class NonNullColumn<E extends Comparable<? super E>, I extends Column<E
 
 	abstract C readFrom(ReadableByteChannel channel) throws IOException;
 
-	abstract IntColumn sortIndices(C distinct);
-
 	@Override
 	public C toHeap() {
 		if (isSorted())
@@ -127,19 +125,6 @@ abstract class NonNullColumn<E extends Comparable<? super E>, I extends Column<E
 			return withCharacteristics(characteristics | SORTED | DISTINCT);
 		else
 			return toDistinct0(false);
-	}
-
-	/*
-	 * Object[0] -> distinct column Object[1] -> sorted indices
-	 */
-	Object[] toDistinctWithIndices() {
-
-		C distinct = toDistinct();
-		DfPreconditions.checkState(distinct.size() == size(), "elements must already be distinct elements");
-
-		IntColumn indices = sortIndices(distinct);
-
-		return new Object[] { distinct, indices };
 	}
 
 	/*

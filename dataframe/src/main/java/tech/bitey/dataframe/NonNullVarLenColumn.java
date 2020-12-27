@@ -349,17 +349,4 @@ abstract class NonNullVarLenColumn<E extends Comparable<E>, I extends Column<E>,
 
 		return construct(elements, rawPointers, 0, size, characteristics, false);
 	}
-
-	@Override
-	IntColumn sortIndices(C distinct) {
-		ByteBuffer buffer = BufferUtils.allocate(size() * 4);
-		IntBuffer indices = buffer.asIntBuffer();
-
-		for (int i = offset, j = 0; i <= lastIndex(); i++, j++) {
-			int index = distinct.search(getNoOffset(i));
-			indices.put(index, j);
-		}
-
-		return NonNullIntColumn.sortIndices(buffer);
-	}
 }

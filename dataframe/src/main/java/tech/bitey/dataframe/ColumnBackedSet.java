@@ -99,7 +99,7 @@ class ColumnBackedSet<E extends Comparable<? super E>> extends AbstractSet<E> im
 
 	@Override
 	public Spliterator<E> spliterator() {
-		return Spliterators.spliterator(this, delegate.characteristics());
+		return delegate.spliterator();
 	}
 
 	@Override

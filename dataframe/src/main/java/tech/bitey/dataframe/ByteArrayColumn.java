@@ -20,7 +20,6 @@ import static java.util.Spliterator.NONNULL;
 import static tech.bitey.bufferstuff.BufferUtils.isSortedAndDistinct;
 
 import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
 
 import tech.bitey.bufferstuff.BufferBitSet;
 import tech.bitey.bufferstuff.BufferSearch;
@@ -152,19 +151,6 @@ abstract class ByteArrayColumn<E extends Comparable<? super E>, I extends Column
 				keepRight.set(i - rhs.offset);
 			}
 		}
-	}
-
-	@Override
-	IntColumn sortIndices(C distinct) {
-		ByteBuffer buffer = BufferUtils.allocate(size() * 4);
-		IntBuffer indices = buffer.asIntBuffer();
-
-		for (int i = offset, j = 0; i <= lastIndex(); i++, j++) {
-			int index = distinct.search(at(i));
-			indices.put(index, j);
-		}
-
-		return NonNullIntColumn.sortIndices(buffer);
 	}
 
 	@Override

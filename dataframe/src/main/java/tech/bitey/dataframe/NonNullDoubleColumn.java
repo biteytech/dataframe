@@ -25,7 +25,6 @@ import static tech.bitey.dataframe.DfPreconditions.checkElementIndex;
 
 import java.nio.ByteBuffer;
 import java.nio.DoubleBuffer;
-import java.nio.IntBuffer;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.DoubleStream;
@@ -196,19 +195,6 @@ final class NonNullDoubleColumn extends NonNullSingleBufferColumn<Double, Double
 	@Override
 	boolean checkType(Object o) {
 		return o instanceof Double;
-	}
-
-	@Override
-	IntColumn sortIndices(NonNullDoubleColumn distinct) {
-		ByteBuffer buffer = BufferUtils.allocate(size() * 4);
-		IntBuffer indices = buffer.asIntBuffer();
-
-		for (int i = offset, j = 0; i <= lastIndex(); i++, j++) {
-			int index = distinct.search(at(i));
-			indices.put(index, j);
-		}
-
-		return NonNullIntColumn.sortIndices(buffer);
 	}
 
 	@Override

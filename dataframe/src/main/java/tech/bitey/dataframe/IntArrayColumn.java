@@ -155,19 +155,6 @@ abstract class IntArrayColumn<E extends Comparable<? super E>, I extends Column<
 	}
 
 	@Override
-	IntColumn sortIndices(C distinct) {
-		ByteBuffer buffer = BufferUtils.allocate(size() * 4);
-		IntBuffer indices = buffer.asIntBuffer();
-
-		for (int i = offset, j = 0; i <= lastIndex(); i++, j++) {
-			int index = distinct.search(at(i));
-			indices.put(index, j);
-		}
-
-		return NonNullIntColumn.sortIndices(buffer);
-	}
-
-	@Override
 	int elementSize() {
 		return 4;
 	}

@@ -404,7 +404,7 @@ public class ColumnType<E extends Comparable<? super E>> {
 	 * 
 	 * @return the parsed element
 	 */
-	public Object parse(String string) {
+	public Comparable<?> parse(String string) {
 		switch (getCode()) {
 		case B:
 			return Boolean.valueOf(parseBoolean(string));

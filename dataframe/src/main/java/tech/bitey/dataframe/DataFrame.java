@@ -194,39 +194,6 @@ public interface DataFrame extends List<Row>, RandomAccess {
 	 */
 	<K extends Comparable<? super K>> NavigableMap<K, Row> asMap();
 
-	/**
-	 * Returns a {@link DateSeries} using the key column from this dataframe as the
-	 * date column in the time series, and using the specified column as the values
-	 * column in the time series.
-	 * 
-	 * @param columnIndex - index of a non-null {@link DoubleColumn} in this
-	 *                    dataframe
-	 * 
-	 * @return a {@code DateSeries} built from columns in this dataframe.
-	 * 
-	 * @throws IllegalStateException if this dataframe does not have a key column of
-	 *                               {@link ColumnType#DATE}, or the specified
-	 *                               column is not a non-null column of
-	 *                               {@link ColumnType#DOUBLE}.
-	 */
-	DateSeries toDateSeries(int columnIndex);
-
-	/**
-	 * Returns a {@link DateSeries} using the key column from this dataframe as the
-	 * date column in the time series, and using the specified column as the values
-	 * column in the time series.
-	 * 
-	 * @param columnName - name of a non-null {@link DoubleColumn} in this dataframe
-	 * 
-	 * @return a {@code DateSeries} built from columns in this dataframe.
-	 * 
-	 * @throws IllegalStateException if this dataframe does not have a key column of
-	 *                               {@link ColumnType#DATE}, or the specified
-	 *                               column is not a non-null column of
-	 *                               {@link ColumnType#DOUBLE}.
-	 */
-	DateSeries toDateSeries(String columnName);
-
 	/*--------------------------------------------------------------------------------
 	 *	Key Column Methods
 	 *--------------------------------------------------------------------------------*/

@@ -22,14 +22,12 @@ import static java.util.Spliterator.SORTED;
 import static tech.bitey.bufferstuff.BufferUtils.EMPTY_BUFFER;
 
 import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
 import java.nio.LongBuffer;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
 import tech.bitey.bufferstuff.BufferBitSet;
-import tech.bitey.bufferstuff.BufferUtils;
 
 final class NonNullUuidColumn extends NonNullSingleBufferColumn<UUID, UuidColumn, NonNullUuidColumn>
 		implements UuidColumn {
@@ -205,19 +203,6 @@ final class NonNullUuidColumn extends NonNullSingleBufferColumn<UUID, UuidColumn
 	@Override
 	boolean checkType(Object o) {
 		return o instanceof UUID;
-	}
-
-	@Override
-	IntColumn sortIndices(NonNullUuidColumn distinct) {
-		ByteBuffer buffer = BufferUtils.allocate(size() * 4);
-		IntBuffer indices = buffer.asIntBuffer();
-
-		for (int i = offset, j = 0; i <= lastIndex(); i++, j++) {
-			int index = distinct.search(getNoOffset(i));
-			indices.put(index, j);
-		}
-
-		return NonNullIntColumn.sortIndices(buffer);
 	}
 
 	@Override

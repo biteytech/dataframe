@@ -20,11 +20,12 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.nio.file.StandardOpenOption.CREATE;
 import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
 import static java.nio.file.StandardOpenOption.WRITE;
+import static java.util.Spliterator.DISTINCT;
+import static java.util.Spliterator.SORTED;
 import static tech.bitey.dataframe.DfPreconditions.checkArgument;
 import static tech.bitey.dataframe.DfPreconditions.checkElementIndex;
 import static tech.bitey.dataframe.DfPreconditions.checkNotNull;
 import static tech.bitey.dataframe.DfPreconditions.checkPositionIndex;
-import static tech.bitey.dataframe.DfPreconditions.checkState;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -59,6 +60,7 @@ import java.util.function.ToLongFunction;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import tech.bitey.bufferstuff.BufferBitSet;
@@ -78,28 +80,8 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 	final Map<String, Integer> columnToIndexMap;
 
 	/*--------------------------------------------------------------------------------
-	 *	Constructors
+	 *	Constructor & Factory Methods
 	 *--------------------------------------------------------------------------------*/
-	private DataFrameImpl(Column<?>[] columns, String[] columnNames, Integer keyIndex,
-			Map<String, Integer> columnToIndexMap) {
-
-		this.columns = columns;
-		this.columnNames = columnNames;
-		this.keyIndex = keyIndex;
-		this.columnToIndexMap = columnToIndexMap;
-	}
-
-	private DataFrameImpl(Column<?>[] columns, String[] columnNames, Integer keyIndex) {
-
-		this.columns = columns;
-		this.columnNames = columnNames;
-		this.keyIndex = keyIndex;
-
-		columnToIndexMap = new HashMap<>();
-		for (int i = 0; i < columnNames.length; i++)
-			columnToIndexMap.put(columnNames[i], i);
-	}
-
 	DataFrameImpl(LinkedHashMap<String, Column<?>> columnMap, String keyColumnName) {
 
 		checkNotNull(columnMap, "columnMap cannot be null");
@@ -134,6 +116,17 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 		int size = columns[0].size();
 		for (i = 1; i < columns.length; i++)
 			checkArgument(columns[i].size() == size, "all columns must have the same size");
+	}
+
+	private static DataFrameImpl create(Column<?>[] columns, String[] columnNames, Integer keyIndex) {
+
+		LinkedHashMap<String, Column<?>> columnMap = new LinkedHashMap<>();
+		for (int i = 0; i < columnNames.length; i++)
+			columnMap.put(columnNames[i], columns[i]);
+
+		String keyColumnName = keyIndex == null ? null : columnNames[keyIndex];
+
+		return new DataFrameImpl(columnMap, keyColumnName);
 	}
 
 	/*--------------------------------------------------------------------------------
@@ -260,27 +253,6 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 		return new DataFrameBackedMap<>(this);
 	}
 
-	@Override
-	public DateSeries toDateSeries(int columnIndex) {
-		return toDateSeries(checkedColumn(columnIndex), columnNames[columnIndex]);
-	}
-
-	@Override
-	public DateSeries toDateSeries(String columnName) {
-		return toDateSeries(checkedColumn(columnName), columnName);
-	}
-
-	private DateSeries toDateSeries(Column<?> values, String valueColumnName) {
-		checkState(hasKeyColumn(), "dataframe must have a key column");
-		checkState(keyColumnType() == ColumnType.DATE, "key column must have type DATE");
-
-		checkState(values.getType() == ColumnType.DOUBLE, "values column must have type DOUBLE");
-		checkState(values.isNonnull(), "values column must be non-null");
-
-		return new DateSeriesImpl((NonNullDateColumn) columns[keyIndex], columnNames[keyIndex],
-				(NonNullDoubleColumn) values, valueColumnName);
-	}
-
 	/*--------------------------------------------------------------------------------
 	 *	Key Column Methods
 	 *--------------------------------------------------------------------------------*/
@@ -322,7 +294,7 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 		checkArgument(columns[keyIndex].isDistinct(),
 				"column must be a unique index (isDistinct) to act as a key column");
 
-		return new DataFrameImpl(columns, columnNames, keyIndex, columnToIndexMap);
+		return create(columns, columnNames, keyIndex);
 	}
 
 	@Override
@@ -330,24 +302,19 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 
 		Column column = checkedColumn(columnIndex);
 
-		if (column.isSorted())
+		if (column.isDistinct())
 			return withKeyColumn(columnIndex);
 
 		checkArgument(column.isNonnull(), "cannot create key column from nullable column");
 
-		Object[] pair = ((NonNullColumn) column).toDistinctWithIndices();
-		Column distinct = (Column) pair[0];
-		IntColumn indices = (IntColumn) pair[1];
+		String keyColumnName = columnNames[columnIndex];
+		DataFrame sorted = sort(keyColumnName);
 
-		Column[] columns = new Column[this.columns.length];
-		for (int i = 0; i < columns.length; i++) {
-			if (i == columnIndex)
-				columns[i] = distinct;
-			else
-				columns[i] = ((AbstractColumn) this.columns[i]).select(indices);
-		}
+		NonNullColumn keyColumn = (NonNullColumn) sorted.column(columnIndex);
+		checkArgument(keyColumn.checkDistinct(), "key column is not distinct after sorting");
 
-		return new DataFrameImpl(columns, columnNames, columnIndex, columnToIndexMap);
+		keyColumn = keyColumn.withCharacteristics(keyColumn.characteristics | SORTED | DISTINCT);
+		return sorted.withColumn(keyColumnName, keyColumn).withKeyColumn(keyColumnName);
 	}
 
 	@Override
@@ -691,7 +658,7 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 		else if (sampleSize == size())
 			return this;
 
-		return filter(BufferBitSet.random(sampleSize, size()));
+		return filter(BufferBitSet.random(sampleSize, size()), sampleSize);
 	}
 
 	@Override
@@ -806,7 +773,7 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 		if (coerce && keyIndex != null && !columns[keyIndex].isDistinct())
 			keyIndex = null;
 
-		return new DataFrameImpl(columns, columnNames, keyIndex, columnToIndexMap);
+		return create(columns, columnNames, keyIndex);
 	}
 
 	@Override
@@ -834,7 +801,7 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 				columns[j++ + columnCount()] = ((AbstractColumn) rhs.columns[i]).applyFilter(keepRight, cardinality);
 		}
 
-		return new DataFrameImpl(columns, columnNames, keyIndex);
+		return create(columns, columnNames, keyIndex);
 	}
 
 	private static String nextColumnName(Set<String> names, String name) {
@@ -895,7 +862,7 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 
 		String[] columnNames = jointColumnNames(df, df.keyColumnIndex());
 
-		return new DataFrameImpl(columnList.toArray(new Column<?>[0]), columnNames, null);
+		return create(columnList.toArray(new Column<?>[0]), columnNames, null);
 	}
 
 	private static class JoinSingleIndexResult {
@@ -934,7 +901,7 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 				columns[j++ + columnCount()] = rhs.columns[i];
 		}
 
-		DataFrameImpl result = new DataFrameImpl(columns, columnNames, null);
+		DataFrameImpl result = create(columns, columnNames, null);
 		return new JoinSingleIndexResult(result, indices);
 	}
 
@@ -948,9 +915,9 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 		BufferBitSet unmatchedLeft = new BufferBitSet();
 		unmatchedLeft.set(0, this.size());
 		for (int i = 0; i < indices.size(); i++)
-			unmatchedLeft.set(indices.getInt(i), false);
+			unmatchedLeft.clear(indices.getInt(i));
 
-		if (unmatchedLeft.cardinality() == 0)
+		if (unmatchedLeft.isEmpty())
 			return inner;
 
 		DataFrameImpl left = this.filter(unmatchedLeft);
@@ -965,7 +932,7 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 				columns[j++ + columnCount()] = rhs.columns[i].getType().nullColumn(left.size());
 		}
 
-		left = new DataFrameImpl(columns, inner.columnNames, null);
+		left = create(columns, inner.columnNames, null);
 
 		return inner.append(left, true);
 	}
@@ -991,7 +958,7 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 			checkArgument(columns[leftColumnIndices[i]].getType() == rhs.columns[rightColumnIndices[i]].getType(),
 					"mismatched key column types");
 
-		IntColumn indices;
+		IntColumn indices; // not a BufferBitSet because one-to-many
 		BufferBitSet keepRight = new BufferBitSet();
 
 		{
@@ -1033,7 +1000,7 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 			}
 		}
 
-		return new DataFrameImpl(columns, columnNames, null);
+		return create(columns, columnNames, null);
 	}
 
 	@Override
@@ -1041,11 +1008,7 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 
 		IntColumn indices = IntColumn.of(selectColumns(columnNames).stream().sorted().mapToInt(r -> r.rowIndex()));
 
-		Column[] columns = new Column[this.columns.length];
-		for (int i = 0; i < columns.length; i++)
-			columns[i] = ((AbstractColumn) this.columns[i]).select(indices);
-
-		return new DataFrameImpl(columns, this.columnNames, null, columnToIndexMap);
+		return select(indices);
 	}
 
 	@Override
@@ -1346,17 +1309,24 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 
 		Column<?>[] columns = new Column[columnCount()];
 
-		for (int i = 0; i < columns.length; i++) {
+		IntStream.range(0, columns.length).forEach(i -> {
 			AbstractColumn column = (AbstractColumn) this.columns[i];
 			columns[i] = transformation.apply(column);
-		}
+		});
 
-		return new DataFrameImpl(columns, columnNames, keyIndex, columnToIndexMap);
+		Integer keyIndex = this.keyIndex;
+		if (keyIndex != null && !columns[keyIndex].isDistinct())
+			keyIndex = null;
+
+		return create(columns, columnNames, keyIndex);
 	}
 
 	private DataFrameImpl filter(BufferBitSet keep) {
+		return filter(keep, keep.cardinality());
+	}
 
-		final int cardinality = keep.cardinality();
+	private DataFrameImpl filter(BufferBitSet keep, int cardinality) {
+
 		if (cardinality == 0)
 			return (DataFrameImpl) empty();
 		else if (cardinality == size())

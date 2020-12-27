@@ -25,7 +25,6 @@ import static tech.bitey.dataframe.DfPreconditions.checkElementIndex;
 
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
-import java.nio.IntBuffer;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -195,19 +194,6 @@ final class NonNullFloatColumn extends NonNullSingleBufferColumn<Float, FloatCol
 	@Override
 	boolean checkType(Object o) {
 		return o instanceof Float;
-	}
-
-	@Override
-	IntColumn sortIndices(NonNullFloatColumn distinct) {
-		ByteBuffer buffer = BufferUtils.allocate(size() * 4);
-		IntBuffer indices = buffer.asIntBuffer();
-
-		for (int i = offset, j = 0; i <= lastIndex(); i++, j++) {
-			int index = distinct.search(at(i));
-			indices.put(index, j);
-		}
-
-		return NonNullIntColumn.sortIndices(buffer);
 	}
 
 	@Override

@@ -24,7 +24,6 @@ import static tech.bitey.bufferstuff.BufferUtils.isSortedAndDistinct;
 import static tech.bitey.dataframe.DfPreconditions.checkElementIndex;
 
 import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
 import java.util.HashMap;
 import java.util.Map;
@@ -194,19 +193,6 @@ final class NonNullShortColumn extends NonNullSingleBufferColumn<Short, ShortCol
 	@Override
 	boolean checkType(Object o) {
 		return o instanceof Short;
-	}
-
-	@Override
-	IntColumn sortIndices(NonNullShortColumn distinct) {
-		ByteBuffer buffer = BufferUtils.allocate(size() * 4);
-		IntBuffer indices = buffer.asIntBuffer();
-
-		for (int i = offset, j = 0; i <= lastIndex(); i++, j++) {
-			int index = distinct.search(at(i));
-			indices.put(index, j);
-		}
-
-		return NonNullIntColumn.sortIndices(buffer);
 	}
 
 	@Override
