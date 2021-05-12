@@ -18,8 +18,8 @@ package tech.bitey.dataframe;
 
 import static java.nio.ByteOrder.BIG_ENDIAN;
 import static tech.bitey.bufferstuff.BufferBitSet.EMPTY_BITSET;
-import static tech.bitey.dataframe.DfPreconditions.checkElementIndex;
-import static tech.bitey.dataframe.DfPreconditions.checkPositionIndex;
+import static tech.bitey.dataframe.Pr.checkElementIndex;
+import static tech.bitey.dataframe.Pr.checkPositionIndex;
 
 import java.io.IOException;
 import java.math.BigDecimal;

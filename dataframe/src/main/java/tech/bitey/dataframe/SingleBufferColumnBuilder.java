@@ -17,7 +17,7 @@
 package tech.bitey.dataframe;
 
 import static tech.bitey.bufferstuff.BufferUtils.duplicate;
-import static tech.bitey.dataframe.DfPreconditions.checkState;
+import static tech.bitey.dataframe.Pr.checkState;
 
 import java.nio.Buffer;
 import java.nio.ByteBuffer;

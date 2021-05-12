@@ -21,7 +21,7 @@ import static java.util.Spliterator.NONNULL;
 import static java.util.Spliterator.SORTED;
 import static tech.bitey.bufferstuff.BufferUtils.EMPTY_BUFFER;
 import static tech.bitey.bufferstuff.BufferUtils.isSortedAndDistinct;
-import static tech.bitey.dataframe.DfPreconditions.checkElementIndex;
+import static tech.bitey.dataframe.Pr.checkElementIndex;
 
 import java.nio.ByteBuffer;
 import java.nio.ShortBuffer;

@@ -16,8 +16,8 @@
 
 package tech.bitey.dataframe;
 
-import static tech.bitey.dataframe.DfPreconditions.checkArgument;
-import static tech.bitey.dataframe.DfPreconditions.checkNotNull;
+import static tech.bitey.dataframe.Pr.checkArgument;
+import static tech.bitey.dataframe.Pr.checkNotNull;
 
 import java.util.Iterator;
 

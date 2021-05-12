@@ -19,8 +19,8 @@ package tech.bitey.dataframe;
 import static java.util.Spliterator.DISTINCT;
 import static java.util.Spliterator.NONNULL;
 import static java.util.Spliterator.SORTED;
-import static tech.bitey.dataframe.DfPreconditions.checkArgument;
-import static tech.bitey.dataframe.DfPreconditions.checkPositionIndex;
+import static tech.bitey.dataframe.Pr.checkArgument;
+import static tech.bitey.dataframe.Pr.checkPositionIndex;
 
 import java.io.IOException;
 import java.math.BigDecimal;

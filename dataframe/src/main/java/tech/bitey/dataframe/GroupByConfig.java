@@ -59,9 +59,9 @@ public final class GroupByConfig implements ImmutableBean {
     @ImmutableValidator
     private void validate() {
 
-        DfPreconditions.checkState(derivedNames.size() == derivedTypes.size(),
+        Pr.checkState(derivedNames.size() == derivedTypes.size(),
                 "derivedNames.size() != derivedTypes.size()");
-        DfPreconditions.checkState(derivedNames.size() == reductions.size(),
+        Pr.checkState(derivedNames.size() == reductions.size(),
                 "derivedNames.size() != reductions.size()");
     }
 

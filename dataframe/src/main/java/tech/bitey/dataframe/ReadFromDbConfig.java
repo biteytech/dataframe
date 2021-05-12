@@ -16,8 +16,8 @@
 
 package tech.bitey.dataframe;
 
-import static tech.bitey.dataframe.DfPreconditions.checkArgument;
-import static tech.bitey.dataframe.DfPreconditions.checkState;
+import static tech.bitey.dataframe.Pr.checkArgument;
+import static tech.bitey.dataframe.Pr.checkState;
 
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;

@@ -16,7 +16,6 @@
 
 package tech.bitey.dataframe;
 
-import static tech.bitey.dataframe.DfStrings.isNullOrEmpty;
 import static tech.bitey.dataframe.DfStrings.repeat;
 
 import java.math.BigDecimal;
@@ -289,6 +288,9 @@ class DataFramePrinter {
 			}
 			return abbrevMarker + str.substring(str.length() - (maxWidth - abbrevMarkerLength));
 		}
+	}
 
+	private static boolean isNullOrEmpty(String string) {
+		return string == null || string.isEmpty();
 	}
 }

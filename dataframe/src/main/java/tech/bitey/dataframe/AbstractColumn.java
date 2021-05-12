@@ -18,9 +18,9 @@ package tech.bitey.dataframe;
 
 import static java.nio.ByteOrder.BIG_ENDIAN;
 import static java.nio.ByteOrder.LITTLE_ENDIAN;
-import static tech.bitey.dataframe.DfPreconditions.checkArgument;
-import static tech.bitey.dataframe.DfPreconditions.checkElementIndex;
-import static tech.bitey.dataframe.DfPreconditions.checkPositionIndexes;
+import static tech.bitey.dataframe.Pr.checkArgument;
+import static tech.bitey.dataframe.Pr.checkElementIndex;
+import static tech.bitey.dataframe.Pr.checkPositionIndexes;
 
 import java.io.IOException;
 import java.lang.reflect.Array;

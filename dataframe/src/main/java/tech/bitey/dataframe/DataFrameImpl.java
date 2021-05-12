@@ -22,10 +22,10 @@ import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
 import static java.nio.file.StandardOpenOption.WRITE;
 import static java.util.Spliterator.DISTINCT;
 import static java.util.Spliterator.SORTED;
-import static tech.bitey.dataframe.DfPreconditions.checkArgument;
-import static tech.bitey.dataframe.DfPreconditions.checkElementIndex;
-import static tech.bitey.dataframe.DfPreconditions.checkNotNull;
-import static tech.bitey.dataframe.DfPreconditions.checkPositionIndex;
+import static tech.bitey.dataframe.Pr.checkArgument;
+import static tech.bitey.dataframe.Pr.checkElementIndex;
+import static tech.bitey.dataframe.Pr.checkNotNull;
+import static tech.bitey.dataframe.Pr.checkPositionIndex;
 
 import java.io.BufferedOutputStream;
 import java.io.File;

@@ -20,7 +20,7 @@ import static java.util.Spliterator.DISTINCT;
 import static java.util.Spliterator.NONNULL;
 import static java.util.Spliterator.SORTED;
 import static tech.bitey.dataframe.Column.BASE_CHARACTERISTICS;
-import static tech.bitey.dataframe.DfPreconditions.checkArgument;
+import static tech.bitey.dataframe.Pr.checkArgument;
 import static tech.bitey.dataframe.NonNullColumn.NONNULL_CHARACTERISTICS;
 
 import java.util.Collection;
@@ -163,9 +163,9 @@ abstract class AbstractColumnBuilder<E extends Comparable<? super E>, C extends 
 			int c = compareToLast(element);
 
 			if (distinct())
-				DfPreconditions.checkArgument(c < 0, "adding element would violate DISTINCT characteristic");
+				Pr.checkArgument(c < 0, "adding element would violate DISTINCT characteristic");
 			else
-				DfPreconditions.checkArgument(c <= 0, "adding element would violate SORTED characteristic");
+				Pr.checkArgument(c <= 0, "adding element would violate SORTED characteristic");
 		}
 
 		addNonNull(element);

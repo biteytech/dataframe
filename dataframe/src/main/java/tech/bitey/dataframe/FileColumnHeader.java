@@ -16,7 +16,7 @@
 
 package tech.bitey.dataframe;
 
-import static tech.bitey.dataframe.DfPreconditions.checkState;
+import static tech.bitey.dataframe.Pr.checkState;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;

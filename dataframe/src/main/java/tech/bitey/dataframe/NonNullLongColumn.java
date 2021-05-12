@@ -19,7 +19,7 @@ package tech.bitey.dataframe;
 import static java.util.Spliterator.DISTINCT;
 import static java.util.Spliterator.SORTED;
 import static tech.bitey.bufferstuff.BufferUtils.EMPTY_BUFFER;
-import static tech.bitey.dataframe.DfPreconditions.checkElementIndex;
+import static tech.bitey.dataframe.Pr.checkElementIndex;
 import static tech.bitey.dataframe.LongArrayPacker.LONG;
 
 import java.nio.ByteBuffer;

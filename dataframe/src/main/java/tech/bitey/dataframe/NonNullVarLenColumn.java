@@ -18,7 +18,6 @@ package tech.bitey.dataframe;
 
 import static java.util.Spliterator.NONNULL;
 import static tech.bitey.bufferstuff.BufferUtils.EMPTY_BUFFER;
-import static tech.bitey.dataframe.DfPreconditions.checkState;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -329,7 +328,7 @@ abstract class NonNullVarLenColumn<E extends Comparable<E>, I extends Column<E>,
 	@Override
 	C readFrom(ReadableByteChannel channel) throws IOException {
 
-		checkState(isEmpty());
+		Pr.checkState(isEmpty(), "readFrom can only be called on empty column");
 
 		ByteOrder order = readByteOrder(channel);
 		int size = readInt(channel, order);
