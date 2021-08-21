@@ -198,9 +198,9 @@ public final class GroupByConfig implements ImmutableBean {
     public String toString() {
         StringBuilder buf = new StringBuilder(160);
         buf.append("GroupByConfig{");
-        buf.append("groupByNames").append('=').append(groupByNames).append(',').append(' ');
-        buf.append("derivedNames").append('=').append(derivedNames).append(',').append(' ');
-        buf.append("derivedTypes").append('=').append(derivedTypes).append(',').append(' ');
+        buf.append("groupByNames").append('=').append(JodaBeanUtils.toString(groupByNames)).append(',').append(' ');
+        buf.append("derivedNames").append('=').append(JodaBeanUtils.toString(derivedNames)).append(',').append(' ');
+        buf.append("derivedTypes").append('=').append(JodaBeanUtils.toString(derivedTypes)).append(',').append(' ');
         buf.append("reductions").append('=').append(JodaBeanUtils.toString(reductions));
         buf.append('}');
         return buf.toString();

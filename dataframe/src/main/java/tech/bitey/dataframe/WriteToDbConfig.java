@@ -287,8 +287,8 @@ public final class WriteToDbConfig implements ImmutableBean {
     public String toString() {
         StringBuilder buf = new StringBuilder(128);
         buf.append("WriteToDbConfig{");
-        buf.append("toPsLogic").append('=').append(toPsLogic).append(',').append(' ');
-        buf.append("batchSize").append('=').append(batchSize).append(',').append(' ');
+        buf.append("toPsLogic").append('=').append(JodaBeanUtils.toString(toPsLogic)).append(',').append(' ');
+        buf.append("batchSize").append('=').append(JodaBeanUtils.toString(batchSize)).append(',').append(' ');
         buf.append("commit").append('=').append(JodaBeanUtils.toString(commit));
         buf.append('}');
         return buf.toString();

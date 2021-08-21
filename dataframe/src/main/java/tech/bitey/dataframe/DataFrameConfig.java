@@ -163,8 +163,8 @@ public final class DataFrameConfig implements ImmutableBean {
     public String toString() {
         StringBuilder buf = new StringBuilder(128);
         buf.append("DataFrameConfig{");
-        buf.append("columns").append('=').append(columns).append(',').append(' ');
-        buf.append("columnNames").append('=').append(columnNames).append(',').append(' ');
+        buf.append("columns").append('=').append(JodaBeanUtils.toString(columns)).append(',').append(' ');
+        buf.append("columnNames").append('=').append(JodaBeanUtils.toString(columnNames)).append(',').append(' ');
         buf.append("keyColumnName").append('=').append(JodaBeanUtils.toString(keyColumnName));
         buf.append('}');
         return buf.toString();

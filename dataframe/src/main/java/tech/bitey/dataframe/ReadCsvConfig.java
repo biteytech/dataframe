@@ -409,9 +409,9 @@ public final class ReadCsvConfig implements ImmutableBean {
     public String toString() {
         StringBuilder buf = new StringBuilder(160);
         buf.append("ReadCsvConfig{");
-        buf.append("columnTypes").append('=').append(columnTypes).append(',').append(' ');
-        buf.append("columnNames").append('=').append(columnNames).append(',').append(' ');
-        buf.append("columnParsers").append('=').append(columnParsers).append(',').append(' ');
+        buf.append("columnTypes").append('=').append(JodaBeanUtils.toString(columnTypes)).append(',').append(' ');
+        buf.append("columnNames").append('=').append(JodaBeanUtils.toString(columnNames)).append(',').append(' ');
+        buf.append("columnParsers").append('=').append(JodaBeanUtils.toString(columnParsers)).append(',').append(' ');
         buf.append("delim").append('=').append(JodaBeanUtils.toString(delim));
         buf.append('}');
         return buf.toString();

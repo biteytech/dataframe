@@ -208,7 +208,7 @@ public final class ReadFromDbConfig implements ImmutableBean {
     public String toString() {
         StringBuilder buf = new StringBuilder(96);
         buf.append("ReadFromDbConfig{");
-        buf.append("fromRsLogic").append('=').append(fromRsLogic).append(',').append(' ');
+        buf.append("fromRsLogic").append('=').append(JodaBeanUtils.toString(fromRsLogic)).append(',').append(' ');
         buf.append("fetchSize").append('=').append(JodaBeanUtils.toString(fetchSize));
         buf.append('}');
         return buf.toString();
