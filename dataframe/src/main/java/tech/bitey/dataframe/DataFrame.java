@@ -577,6 +577,19 @@ public interface DataFrame extends List<Row>, RandomAccess {
 	ShortColumn shortColumn(int columnIndex);
 
 	/**
+	 * Returns the {@link ByteColumn} at the specified index.
+	 * 
+	 * @param columnIndex - index of the column
+	 * 
+	 * @return the column at the specified index
+	 * 
+	 * @throws IndexOutOfBoundsException if {@code columnIndex} is negative or is
+	 *                                   not less than {@link #columnCount()}
+	 * @throws ClassCastException        if the column is not a {@code ByteColumn}
+	 */
+	ByteColumn byteColumn(int columnIndex);
+
+	/**
 	 * Returns the {@link DoubleColumn} at the specified index.
 	 * 
 	 * @param columnIndex - index of the column
@@ -723,6 +736,19 @@ public interface DataFrame extends List<Row>, RandomAccess {
 	 * @throws ClassCastException       if the column is not a {@code ShortColumn}
 	 */
 	ShortColumn shortColumn(String columnName);
+
+	/**
+	 * Returns the specified {@link ByteColumn}
+	 * 
+	 * @param columnName - column name
+	 * 
+	 * @return the specified column
+	 * 
+	 * @throws IllegalArgumentException if {@code columnName} is not a recognized
+	 *                                  column name in this dataframe.
+	 * @throws ClassCastException       if the column is not a {@code ByteColumn}
+	 */
+	ByteColumn byteColumn(String columnName);
 
 	/**
 	 * Returns the specified {@link DoubleColumn}
@@ -1809,6 +1835,78 @@ public interface DataFrame extends List<Row>, RandomAccess {
 	 */
 	default long getOrDefaultShort(int rowIndex, String columnName, short defaultValue) {
 		return isNull(rowIndex, columnName) ? defaultValue : getShort(rowIndex, columnName);
+	}
+
+	/**
+	 * {@code byte} primitive specialization of {@link #get(int,int)}.
+	 * 
+	 * @param rowIndex    - the row index
+	 * @param columnIndex - index of the column in this {@link DataFrame}.
+	 * 
+	 * @return the value for the specified row in the specified {@code ByteColumn}.
+	 * 
+	 * @throws IndexOutOfBoundsException if {@code rowIndex} is negative or is not
+	 *                                   less than {@link #size()}
+	 * @throws IndexOutOfBoundsException if {@code columnIndex} is negative or is
+	 *                                   not less than {@link #columnCount()}
+	 * @throws ClassCastException        if the column is not a {@link ByteColumn}
+	 */
+	byte getByte(int rowIndex, int columnIndex);
+
+	/**
+	 * {@code byte} primitive specialization of {@link #get(int,String)}.
+	 * 
+	 * @param rowIndex   - the row index
+	 * @param columnName - name of the column in this {@link DataFrame}.
+	 * 
+	 * @return the value for the specified row in the specified {@code ByteColumn}.
+	 * 
+	 * @throws IllegalArgumentException if {@code columnName} is not a recognized
+	 *                                  column name in this dataframe.
+	 * @throws ClassCastException       if the column is not a {@link ByteColumn}
+	 */
+	byte getByte(int rowIndex, String columnName);
+
+	/**
+	 * Returns the value for the specified row in the specified {@link ByteColumn},
+	 * or the specified {@code defaultValue} if the value is null.
+	 * 
+	 * @param rowIndex     - the row index
+	 * @param columnIndex  - index of the column in this {@link DataFrame}.
+	 * @param defaultValue - the value to return instead of null
+	 * 
+	 * @return the value for the specified row in the specified {@code ByteColumn},
+	 *         or the specified {@code defaultValue} if the value is null.
+	 * 
+	 * @throws IndexOutOfBoundsException if {@code rowIndex} is negative or is not
+	 *                                   less than {@link #size()}
+	 * @throws IndexOutOfBoundsException if {@code columnIndex} is negative or is
+	 *                                   not less than {@link #columnCount()}
+	 * @throws ClassCastException        if the column is not an {@link ByteColumn}
+	 */
+	default long getOrDefaultByte(int rowIndex, int columnIndex, byte defaultValue) {
+		return isNull(rowIndex, columnIndex) ? defaultValue : getByte(rowIndex, columnIndex);
+	}
+
+	/**
+	 * Returns the value for the specified row in the specified {@link ByteColumn},
+	 * or the specified {@code defaultValue} if the value is null.
+	 * 
+	 * @param rowIndex     - the row index
+	 * @param columnName   - name of the column in this {@link DataFrame}.
+	 * @param defaultValue - the value to return instead of null
+	 * 
+	 * @return the value for the specified row in the specified {@code ByteColumn},
+	 *         or the specified {@code defaultValue} if the value is null.
+	 * 
+	 * @throws IndexOutOfBoundsException if {@code rowIndex} is negative or is not
+	 *                                   less than {@link #size()}
+	 * @throws IllegalArgumentException  if {@code columnName} is not a recognized
+	 *                                   column name in this dataframe.
+	 * @throws ClassCastException        if the column is not an {@link ByteColumn}
+	 */
+	default long getOrDefaultByte(int rowIndex, String columnName, byte defaultValue) {
+		return isNull(rowIndex, columnName) ? defaultValue : getByte(rowIndex, columnName);
 	}
 
 	/**

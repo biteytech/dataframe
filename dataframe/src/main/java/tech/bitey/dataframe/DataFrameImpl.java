@@ -498,6 +498,11 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 	}
 
 	@Override
+	public ByteColumn byteColumn(int columnIndex) {
+		return (ByteColumn) checkedColumn(columnIndex);
+	}
+
+	@Override
 	public DoubleColumn doubleColumn(int columnIndex) {
 		return (DoubleColumn) checkedColumn(columnIndex);
 	}
@@ -550,6 +555,11 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 	@Override
 	public ShortColumn shortColumn(String columnName) {
 		return (ShortColumn) checkedColumn(columnName);
+	}
+
+	@Override
+	public ByteColumn byteColumn(String columnName) {
+		return (ByteColumn) checkedColumn(columnName);
 	}
 
 	@Override
@@ -1250,6 +1260,16 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 	@Override
 	public short getShort(int rowIndex, String columnName) {
 		return shortColumn(columnName).getShort(rowIndex);
+	}
+
+	@Override
+	public byte getByte(int rowIndex, int columnIndex) {
+		return byteColumn(columnIndex).getByte(rowIndex);
+	}
+
+	@Override
+	public byte getByte(int rowIndex, String columnName) {
+		return byteColumn(columnName).getByte(rowIndex);
 	}
 
 	@Override
