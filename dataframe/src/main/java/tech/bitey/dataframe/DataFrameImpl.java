@@ -39,6 +39,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -52,6 +53,7 @@ import java.util.NavigableMap;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Set;
+import java.util.UUID;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.ToDoubleFunction;
@@ -523,6 +525,16 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 	}
 
 	@Override
+	public TimeColumn timeColumn(int columnIndex) {
+		return (TimeColumn) checkedColumn(columnIndex);
+	}
+
+	@Override
+	public UuidColumn uuidColumn(int columnIndex) {
+		return (UuidColumn) checkedColumn(columnIndex);
+	}
+
+	@Override
 	public <T extends Comparable<? super T>> Column<T> column(String columnName) {
 		return (Column<T>) checkedColumn(columnName);
 	}
@@ -580,6 +592,16 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 	@Override
 	public DateTimeColumn dateTimeColumn(String columnName) {
 		return (DateTimeColumn) checkedColumn(columnName);
+	}
+
+	@Override
+	public TimeColumn timeColumn(String columnName) {
+		return (TimeColumn) checkedColumn(columnName);
+	}
+
+	@Override
+	public UuidColumn uuidColumn(String columnName) {
+		return (UuidColumn) checkedColumn(columnName);
 	}
 
 	@Override
@@ -1320,6 +1342,26 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 	@Override
 	public LocalDateTime getDateTime(int rowIndex, String columnName) {
 		return dateTimeColumn(columnName).get(rowIndex);
+	}
+
+	@Override
+	public LocalTime getTime(int rowIndex, int columnIndex) {
+		return timeColumn(columnIndex).get(rowIndex);
+	}
+
+	@Override
+	public LocalTime getTime(int rowIndex, String columnName) {
+		return timeColumn(columnName).get(rowIndex);
+	}
+
+	@Override
+	public UUID getUuid(int rowIndex, int columnIndex) {
+		return uuidColumn(columnIndex).get(rowIndex);
+	}
+
+	@Override
+	public UUID getUuid(int rowIndex, String columnName) {
+		return uuidColumn(columnName).get(rowIndex);
 	}
 
 	/*--------------------------------------------------------------------------------

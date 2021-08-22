@@ -33,6 +33,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -40,6 +41,7 @@ import java.util.NavigableMap;
 import java.util.RandomAccess;
 import java.util.Spliterator;
 import java.util.Spliterators;
+import java.util.UUID;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.ToDoubleFunction;
@@ -643,6 +645,32 @@ public interface DataFrame extends List<Row>, RandomAccess {
 	DateTimeColumn dateTimeColumn(int columnIndex);
 
 	/**
+	 * Returns the {@link TimeColumn} at the specified index.
+	 * 
+	 * @param columnIndex - index of the column
+	 * 
+	 * @return the column at the specified index
+	 * 
+	 * @throws IndexOutOfBoundsException if {@code columnIndex} is negative or is
+	 *                                   not less than {@link #columnCount()}
+	 * @throws ClassCastException        if the column is not a {@code TimeColumn}
+	 */
+	TimeColumn timeColumn(int columnIndex);
+
+	/**
+	 * Returns the {@link UuidColumn} at the specified index.
+	 * 
+	 * @param columnIndex - index of the column
+	 * 
+	 * @return the column at the specified index
+	 * 
+	 * @throws IndexOutOfBoundsException if {@code columnIndex} is negative or is
+	 *                                   not less than {@link #columnCount()}
+	 * @throws ClassCastException        if the column is not a {@code UuidColumn}
+	 */
+	UuidColumn uuidColumn(int columnIndex);
+
+	/**
 	 * Returns the specified {@link Column}
 	 * 
 	 * @param columnName - column name
@@ -790,6 +818,19 @@ public interface DataFrame extends List<Row>, RandomAccess {
 	DateColumn dateColumn(String columnName);
 
 	/**
+	 * Returns the specified {@link TimeColumn}
+	 * 
+	 * @param columnName - column name
+	 * 
+	 * @return the specified column
+	 * 
+	 * @throws IllegalArgumentException if {@code columnName} is not a recognized
+	 *                                  column name in this dataframe.
+	 * @throws ClassCastException       if the column is not a {@code TimeColumn}
+	 */
+	TimeColumn timeColumn(String columnName);
+
+	/**
 	 * Returns the specified {@link DateTimeColumn}
 	 * 
 	 * @param columnName - column name
@@ -802,6 +843,19 @@ public interface DataFrame extends List<Row>, RandomAccess {
 	 *                                  {@code DateTimeColumn}
 	 */
 	DateTimeColumn dateTimeColumn(String columnName);
+
+	/**
+	 * Returns the specified {@link UuidColumn}
+	 * 
+	 * @param columnName - column name
+	 * 
+	 * @return the specified column
+	 * 
+	 * @throws IllegalArgumentException if {@code columnName} is not a recognized
+	 *                                  column name in this dataframe.
+	 * @throws ClassCastException       if the column is not a {@code UuidColumn}
+	 */
+	UuidColumn uuidColumn(String columnName);
 
 	/**
 	 * Derive a new {@link Column} from the rows of this dataframe. The new column
@@ -2167,4 +2221,68 @@ public interface DataFrame extends List<Row>, RandomAccess {
 	 *                                   {@code DateTimeColumn}
 	 */
 	LocalDateTime getDateTime(int rowIndex, String columnName);
+
+	/**
+	 * Returns the value for the specified row in the specified {@link TimeColumn}.
+	 * 
+	 * @param rowIndex    - the row index
+	 * @param columnIndex - index of the column in this {@link DataFrame}.
+	 * 
+	 * @return the value for the specified row in the specified {@code TimeColumn}.
+	 * 
+	 * @throws IndexOutOfBoundsException if {@code rowIndex} is negative or is not
+	 *                                   less than {@link #size()}
+	 * @throws IndexOutOfBoundsException if {@code columnIndex} is negative or is
+	 *                                   not less than {@link #columnCount()}
+	 * @throws ClassCastException        if the column is not a {@code TimeColumn}
+	 */
+	LocalTime getTime(int rowIndex, int columnIndex);
+
+	/**
+	 * Returns the value for the specified row in the specified {@link TimeColumn}.
+	 * 
+	 * @param rowIndex   - the row index
+	 * @param columnName - name of the column in this {@link DataFrame}.
+	 * 
+	 * @return the value for the specified row in the specified {@code TimeColumn}.
+	 * 
+	 * @throws IndexOutOfBoundsException if {@code rowIndex} is negative or is not
+	 *                                   less than {@link #size()}
+	 * @throws IllegalArgumentException  if {@code columnName} is not a recognized
+	 *                                   column name in this dataframe.
+	 * @throws ClassCastException        if the column is not a {@code TimeColumn}
+	 */
+	LocalTime getTime(int rowIndex, String columnName);
+
+	/**
+	 * Returns the value for the specified row in the specified {@link UuidColumn}.
+	 * 
+	 * @param rowIndex    - the row index
+	 * @param columnIndex - index of the column in this {@link DataFrame}.
+	 * 
+	 * @return the value for the specified row in the specified {@code UuidColumn}.
+	 * 
+	 * @throws IndexOutOfBoundsException if {@code rowIndex} is negative or is not
+	 *                                   less than {@link #size()}
+	 * @throws IndexOutOfBoundsException if {@code columnIndex} is negative or is
+	 *                                   not less than {@link #columnCount()}
+	 * @throws ClassCastException        if the column is not a {@code UuidColumn}
+	 */
+	UUID getUuid(int rowIndex, int columnIndex);
+
+	/**
+	 * Returns the value for the specified row in the specified {@link UuidColumn}.
+	 * 
+	 * @param rowIndex   - the row index
+	 * @param columnName - name of the column in this {@link DataFrame}.
+	 * 
+	 * @return the value for the specified row in the specified {@code UuidColumn}.
+	 * 
+	 * @throws IndexOutOfBoundsException if {@code rowIndex} is negative or is not
+	 *                                   less than {@link #size()}
+	 * @throws IllegalArgumentException  if {@code columnName} is not a recognized
+	 *                                   column name in this dataframe.
+	 * @throws ClassCastException        if the column is not a {@code UuidColumn}
+	 */
+	UUID getUuid(int rowIndex, String columnName);
 }
