@@ -36,6 +36,7 @@ import java.math.BigDecimal;
 import java.nio.channels.FileChannel;
 import java.nio.channels.WritableByteChannel;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -253,6 +254,12 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 	public <K extends Comparable<? super K>> NavigableMap<K, Row> asMap() {
 
 		return new DataFrameBackedMap<>(this);
+	}
+
+	@Override
+	public ResultSet asResultSet() {
+
+		return new DataFrameResultSet(this);
 	}
 
 	/*--------------------------------------------------------------------------------

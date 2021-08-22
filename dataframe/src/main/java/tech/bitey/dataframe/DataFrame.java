@@ -30,6 +30,7 @@ import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.nio.channels.WritableByteChannel;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -195,6 +196,13 @@ public interface DataFrame extends List<Row>, RandomAccess {
 	 *                                       key column
 	 */
 	<K extends Comparable<? super K>> NavigableMap<K, Row> asMap();
+
+	/**
+	 * Returns a {@link ResultSet} backed by this dataframe.
+	 * 
+	 * @return a {@link ResultSet} backed by this dataframe.
+	 */
+	ResultSet asResultSet();
 
 	/*--------------------------------------------------------------------------------
 	 *	Key Column Methods

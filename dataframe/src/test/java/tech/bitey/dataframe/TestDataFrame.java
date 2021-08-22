@@ -24,8 +24,11 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Timestamp;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -601,6 +604,51 @@ public class TestDataFrame {
 				data.groupBy(
 						GroupByConfig.builder().groupByNames("C1", "C2").derivedNames("C3").derivedTypes(ColumnType.INT)
 								.reductions(s -> s.mapToInt(r -> r.getInt("C3")).max().getAsInt()).build()));
+	}
+
+	@Test
+	public void testAsResultSet() throws SQLException {
+
+		StringColumn a = StringColumn.of("D", "A", null, null, "D", null, "B", "B", "C", "A", "C", "D");
+		IntColumn b = IntColumn.of(3, 2, null, null, 1, null, 1, 2, 2, 1, 1, 2);
+		DateTimeColumn c = b.toDateTimeColumn(i -> i == null ? null : LocalDateTime.now().plusDays(i));
+		DecimalColumn d = b.toDecimalColumn(i -> i == null ? null : BigDecimal.valueOf(i));
+
+		ResultSet rs = DataFrameConfig.builder().columns(a, b, c, d).columnNames("A", "B", "C", "D").build().create()
+				.asResultSet();
+
+		try {
+			rs.getString(1);
+			throw new RuntimeException("expected exception1");
+		} catch (SQLException e) {
+			/* good */
+		}
+
+		int i;
+		for (i = 0; rs.next(); i++) {
+			Assertions.assertEquals(a.get(i), rs.getString("A"));
+			Assertions.assertEquals(a.isNull(i), rs.wasNull());
+
+			Integer bx = b.get(i);
+			Assertions.assertEquals(bx == null ? 0 : bx, rs.getInt("B"));
+			Assertions.assertEquals(b.isNull(i), rs.wasNull());
+
+			Timestamp ts = rs.getTimestamp("C");
+			Assertions.assertEquals(c.get(i), ts == null ? null : ts.toLocalDateTime());
+			Assertions.assertEquals(c.isNull(i), rs.wasNull());
+
+			Assertions.assertEquals(d.get(i), rs.getBigDecimal("D"));
+			Assertions.assertEquals(d.isNull(i), rs.wasNull());
+		}
+
+		try {
+			rs.getString(1);
+			throw new RuntimeException("expected exception2");
+		} catch (SQLException e) {
+			/* good */
+		}
+
+		Assertions.assertEquals(a.size(), i);
 	}
 
 	private static LocalDate fromInt(int yyyymmdd) {
