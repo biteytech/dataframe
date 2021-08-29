@@ -31,6 +31,7 @@ public enum ColumnTypeCode {
 	S, // String
 	BD, // Decimal
 	UU, // UUID
+	NS, // Normal String
 	;
 
 	ColumnType<?> getType() {
@@ -61,6 +62,8 @@ public enum ColumnTypeCode {
 			return ColumnType.DECIMAL;
 		case UU:
 			return ColumnType.UUID;
+		case NS:
+			return ColumnType.NSTRING;
 		}
 		throw new IllegalStateException();
 	}

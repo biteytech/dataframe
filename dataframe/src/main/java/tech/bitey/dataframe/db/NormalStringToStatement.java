@@ -19,13 +19,14 @@ package tech.bitey.dataframe.db;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import tech.bitey.dataframe.StringColumn;
+import tech.bitey.dataframe.NormalStringColumn;
 
-public enum StringToStatement implements IToPreparedStatement<StringColumn> {
+public enum NormalStringToStatement implements IToPreparedStatement<NormalStringColumn> {
 	STRING_TO_STRING {
 
 		@Override
-		public void set(StringColumn column, int rowIndex, PreparedStatement ps, int paramIndex) throws SQLException {
+		public void set(NormalStringColumn column, int rowIndex, PreparedStatement ps, int paramIndex)
+				throws SQLException {
 
 			String value = column.get(rowIndex);
 
@@ -36,7 +37,8 @@ public enum StringToStatement implements IToPreparedStatement<StringColumn> {
 	STRING_TO_NSTRING {
 
 		@Override
-		public void set(StringColumn column, int rowIndex, PreparedStatement ps, int paramIndex) throws SQLException {
+		public void set(NormalStringColumn column, int rowIndex, PreparedStatement ps, int paramIndex)
+				throws SQLException {
 
 			String value = column.get(rowIndex);
 

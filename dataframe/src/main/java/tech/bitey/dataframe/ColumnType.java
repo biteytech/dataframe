@@ -27,6 +27,7 @@ import static tech.bitey.dataframe.ColumnTypeCode.DT;
 import static tech.bitey.dataframe.ColumnTypeCode.F;
 import static tech.bitey.dataframe.ColumnTypeCode.I;
 import static tech.bitey.dataframe.ColumnTypeCode.L;
+import static tech.bitey.dataframe.ColumnTypeCode.NS;
 import static tech.bitey.dataframe.ColumnTypeCode.S;
 import static tech.bitey.dataframe.ColumnTypeCode.T;
 import static tech.bitey.dataframe.ColumnTypeCode.TI;
@@ -35,10 +36,14 @@ import static tech.bitey.dataframe.ColumnTypeCode.Y;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.nio.ByteBuffer;
 import java.nio.channels.ReadableByteChannel;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import tech.bitey.bufferstuff.BufferBitSet;
@@ -60,6 +65,7 @@ import tech.bitey.bufferstuff.BufferBitSet;
  * <li>{@link #BYTE}
  * <li>{@link #DECIMAL}
  * <li>{@link #UUID}
+ * <li>{@link #NSTRING}
  * </ul>
  * 
  * @author biteytech@protonmail.com
@@ -105,13 +111,16 @@ public class ColumnType<E extends Comparable<? super E>> {
 	/** The type for {@link UuidColumn} */
 	public static final ColumnType<UUID> UUID = new ColumnType<>(UU);
 
+	/** The type for {@link NormalStringColumn} */
+	public static final ColumnType<String> NSTRING = new ColumnType<>(NS);
+
 	private final ColumnTypeCode code;
 
 	private ColumnType(ColumnTypeCode code) {
 		this.code = code;
 	}
 
-	ColumnTypeCode getCode() {
+	public ColumnTypeCode getCode() {
 		return code;
 	}
 
@@ -174,6 +183,8 @@ public class ColumnType<E extends Comparable<? super E>> {
 			return (ColumnBuilder) DecimalColumn.builder(characteristic);
 		case UU:
 			return (ColumnBuilder) UuidColumn.builder(characteristic);
+		case NS:
+			return (ColumnBuilder) NormalStringColumn.builder();
 		}
 
 		throw new IllegalStateException();
@@ -193,7 +204,7 @@ public class ColumnType<E extends Comparable<? super E>> {
 	Column<?> readFrom(ReadableByteChannel channel, int characteristics) throws IOException {
 		BufferBitSet nonNulls = null;
 		int size = 0;
-		if (!((characteristics & NONNULL) != 0)) {
+		if (getCode() != NS && !((characteristics & NONNULL) != 0)) {
 			size = readInt(channel, BIG_ENDIAN);
 			nonNulls = BufferBitSet.readFrom(channel);
 		}
@@ -290,6 +301,22 @@ public class ColumnType<E extends Comparable<? super E>> {
 			else
 				return new NullableUuidColumn(column, nonNulls, null, 0, size);
 		}
+		case NS: {
+			ByteColumn bytes = (ByteColumn) Y.getType().readFrom(channel, characteristics);
+
+			Map<String, Integer> indices = new HashMap<>();
+			int count = readInt(channel, BIG_ENDIAN);
+			for (int i = 0; i < count; i++) {
+
+				ByteBuffer buf = ByteBuffer.allocate(readInt(channel, BIG_ENDIAN));
+				channel.read(buf);
+				String value = new String(buf.array(), StandardCharsets.UTF_8);
+
+				indices.put(value, i);
+			}
+
+			return new NormalStringColumnImpl(bytes, indices, 0, bytes.size());
+		}
 		}
 
 		throw new IllegalStateException();
@@ -324,6 +351,8 @@ public class ColumnType<E extends Comparable<? super E>> {
 			return NullableUuidColumn::new;
 		case Y:
 			return NullableByteColumn::new;
+		case NS:
+			// should never be called
 		}
 
 		throw new IllegalStateException();
@@ -427,6 +456,7 @@ public class ColumnType<E extends Comparable<? super E>> {
 		case Y:
 			return Byte.valueOf(string);
 		case S:
+		case NS:
 			return string;
 		case BD:
 			return new BigDecimal(string);

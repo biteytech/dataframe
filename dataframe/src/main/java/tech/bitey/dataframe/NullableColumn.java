@@ -542,6 +542,10 @@ abstract class NullableColumn<E extends Comparable<? super E>, I extends Column<
 
 	static {
 		for (ColumnTypeCode typeCode : ColumnTypeCode.values()) {
+
+			if (typeCode == ColumnTypeCode.NS)
+				continue;
+
 			ColumnType type = typeCode.getType();
 			NullableColumn empty = type.nullableConstructor().create((NonNullColumn) type.builder().build(),
 					EMPTY_BITSET, null, 0, 0);

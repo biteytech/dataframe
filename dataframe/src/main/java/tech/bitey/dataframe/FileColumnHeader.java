@@ -23,14 +23,12 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Spliterator;
 
 class FileColumnHeader {
 
 	private static final ByteOrder ORDER = ByteOrder.BIG_ENDIAN;
-
-	private static final Charset CHARSET = Charset.forName("UTF-8");
 
 	private final byte[] columnName;
 	private final byte[] columnType;
@@ -38,8 +36,8 @@ class FileColumnHeader {
 
 	FileColumnHeader(DataFrame df, int columnIndex) {
 
-		this.columnName = df.columnName(columnIndex).getBytes(CHARSET);
-		this.columnType = df.columnType(columnIndex).getCode().name().getBytes(CHARSET);
+		this.columnName = df.columnName(columnIndex).getBytes(StandardCharsets.UTF_8);
+		this.columnType = df.columnType(columnIndex).getCode().name().getBytes(StandardCharsets.UTF_8);
 		this.characteristics = df.column(columnIndex).characteristics();
 	}
 
@@ -101,11 +99,11 @@ class FileColumnHeader {
 	}
 
 	String getColumnName() {
-		return new String(columnName, CHARSET);
+		return new String(columnName, StandardCharsets.UTF_8);
 	}
 
 	ColumnType<?> getColumnType() {
-		return ColumnTypeCode.valueOf(new String(columnType, CHARSET)).getType();
+		return ColumnTypeCode.valueOf(new String(columnType, StandardCharsets.UTF_8)).getType();
 	}
 
 	int getCharacteristics() {

@@ -59,6 +59,7 @@ import junit.framework.TestSuite;
 import tech.bitey.dataframe.Column;
 import tech.bitey.dataframe.ColumnBuilder;
 import tech.bitey.dataframe.ColumnType;
+import tech.bitey.dataframe.ColumnTypeCode;
 import tech.bitey.dataframe.DataFrame;
 import tech.bitey.dataframe.DataFrameFactory;
 
@@ -93,6 +94,8 @@ public class GuavaTestLibSuite {
 
 	private static final TestIngredients<?>[] INGREDIENTS = new TestIngredients<?>[] {
 			new TestIngredients<>(ColumnType.STRING, String[]::new, "!! a", "!! b", "b", "a", "c", "d", "e", "~~ a",
+					"~~ b"),
+			new TestIngredients<>(ColumnType.NSTRING, String[]::new, "!! a", "!! b", "b", "a", "c", "d", "e", "~~ a",
 					"~~ b"),
 			new TestIngredients<>(ColumnType.BYTE, Byte[]::new, Byte.MIN_VALUE, (byte) 0, (byte) 2, (byte) 1, (byte) 3,
 					(byte) 4, (byte) 5, (byte) 6, Byte.MAX_VALUE),
@@ -155,71 +158,74 @@ public class GuavaTestLibSuite {
 				.withFeatures(CollectionFeature.ALLOWS_NULL_QUERIES).suppressing(LIST_TEST_HASH_CODE)
 				.createTestSuite());
 
-		suite.addTest(
-				ListTestSuiteBuilder.using(new TestColumnAsListGenerator<>(type, samples, newArray, NONNULL | SORTED))
-						.named(type + " - SORTED").withFeatures(CollectionSize.ANY)
-						.withFeatures(CollectionFeature.ALLOWS_NULL_QUERIES).suppressing(LIST_TEST_HASH_CODE)
-						.createTestSuite());
+		if (ingredients.type.getCode() != ColumnTypeCode.NS) {
+			suite.addTest(ListTestSuiteBuilder
+					.using(new TestColumnAsListGenerator<>(type, samples, newArray, NONNULL | SORTED))
+					.named(type + " - SORTED").withFeatures(CollectionSize.ANY)
+					.withFeatures(CollectionFeature.ALLOWS_NULL_QUERIES).suppressing(LIST_TEST_HASH_CODE)
+					.createTestSuite());
 
-		suite.addTest(ListTestSuiteBuilder
-				.using(new TestColumnAsListGenerator<>(type, samples, newArray, NONNULL | SORTED | DISTINCT))
-				.named(type + " - DISTINCT").withFeatures(CollectionSize.ANY)
-				.withFeatures(CollectionFeature.ALLOWS_NULL_QUERIES, CollectionFeature.REJECTS_DUPLICATES_AT_CREATION)
-				.suppressing(LIST_TEST_HASH_CODE, LIST_TEST_EQUALS_SET).createTestSuite());
+			suite.addTest(ListTestSuiteBuilder
+					.using(new TestColumnAsListGenerator<>(type, samples, newArray, NONNULL | SORTED | DISTINCT))
+					.named(type + " - DISTINCT").withFeatures(CollectionSize.ANY)
+					.withFeatures(CollectionFeature.ALLOWS_NULL_QUERIES,
+							CollectionFeature.REJECTS_DUPLICATES_AT_CREATION)
+					.suppressing(LIST_TEST_HASH_CODE, LIST_TEST_EQUALS_SET).createTestSuite());
 
-		suite.addTest(NavigableSetTestSuiteBuilder.using(new TestSortedSetGenerator<E>() {
-			@Override
-			public SampleElements<E> samples() {
-				return samples;
-			}
-
-			@Override
-			public E[] createArray(int length) {
-				return newArray.apply(length);
-			}
-
-			@Override
-			public Iterable<E> order(List<E> insertionOrder) {
-				Collections.sort(insertionOrder);
-				return insertionOrder;
-			}
-
-			@Override
-			public NavigableSet<E> create(Object... elements) {
-
-				ColumnBuilder<E> builder = type.builder(NONNULL);
-
-				for (Object o : elements) {
-					@SuppressWarnings("unchecked")
-					E e = (E) o;
-					builder.add(e);
+			suite.addTest(NavigableSetTestSuiteBuilder.using(new TestSortedSetGenerator<E>() {
+				@Override
+				public SampleElements<E> samples() {
+					return samples;
 				}
 
-				return builder.build().toDistinct().asSet();
-			}
+				@Override
+				public E[] createArray(int length) {
+					return newArray.apply(length);
+				}
 
-			@Override
-			public E belowSamplesLesser() {
-				return belowLesser;
-			}
+				@Override
+				public Iterable<E> order(List<E> insertionOrder) {
+					Collections.sort(insertionOrder);
+					return insertionOrder;
+				}
 
-			@Override
-			public E belowSamplesGreater() {
-				return belowGreater;
-			}
+				@Override
+				public NavigableSet<E> create(Object... elements) {
 
-			@Override
-			public E aboveSamplesLesser() {
-				return aboveLesser;
-			}
+					ColumnBuilder<E> builder = type.builder(NONNULL);
 
-			@Override
-			public E aboveSamplesGreater() {
-				return aboveGreater;
-			}
+					for (Object o : elements) {
+						@SuppressWarnings("unchecked")
+						E e = (E) o;
+						builder.add(e);
+					}
 
-		}).named(type + " - AS_SET").withFeatures(CollectionSize.ANY)
-				.withFeatures(CollectionFeature.ALLOWS_NULL_QUERIES).createTestSuite());
+					return builder.build().toDistinct().asSet();
+				}
+
+				@Override
+				public E belowSamplesLesser() {
+					return belowLesser;
+				}
+
+				@Override
+				public E belowSamplesGreater() {
+					return belowGreater;
+				}
+
+				@Override
+				public E aboveSamplesLesser() {
+					return aboveLesser;
+				}
+
+				@Override
+				public E aboveSamplesGreater() {
+					return aboveGreater;
+				}
+
+			}).named(type + " - AS_SET").withFeatures(CollectionSize.ANY)
+					.withFeatures(CollectionFeature.ALLOWS_NULL_QUERIES).createTestSuite());
+		}
 	}
 
 	private static class TestColumnAsListGenerator<E extends Comparable<? super E>> implements TestListGenerator<E> {
@@ -282,7 +288,8 @@ public class GuavaTestLibSuite {
 			TestSuite suite = new TestSuite("ColumnMapTests");
 
 			for (TestIngredients i : INGREDIENTS)
-				addColumnMapTests(suite, i);
+				if (i.type.getCode() != ColumnTypeCode.NS)
+					addColumnMapTests(suite, i);
 
 			return suite;
 		}

@@ -467,6 +467,10 @@ abstract class NonNullColumn<E extends Comparable<? super E>, I extends Column<E
 		checkArgument(buffer.position() == 0, "buffer position must be zero");
 	}
 
+	/*------------------------------------------------------------
+	 *                Column conversion methods
+	 *------------------------------------------------------------*/
+
 	@Override
 	public NonNullBooleanColumn toBooleanColumn(Predicate<E> predicate) {
 

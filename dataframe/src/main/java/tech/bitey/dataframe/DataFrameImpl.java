@@ -776,8 +776,17 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 
 		for (int i = 0; i < columns.length; i++) {
 			if (!columns[i].isNonnull()) {
-				NullableColumn n = (NullableColumn) columns[i];
-				BufferBitSet nonNulls = n.nonNulls.get(n.offset, n.offset + n.size);
+
+				final BufferBitSet nonNulls;
+				if (columns[i].getType() == ColumnType.NSTRING) {
+					NormalStringColumnImpl c = (NormalStringColumnImpl) columns[i];
+					NullableColumn n = (NullableColumn) c.bytes;
+					nonNulls = n.nonNulls.get(c.offset, c.offset + c.size);
+				} else {
+					NullableColumn n = (NullableColumn) columns[i];
+					nonNulls = n.nonNulls.get(n.offset, n.offset + n.size);
+				}
+
 				if (keep == null)
 					keep = nonNulls;
 				else

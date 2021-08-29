@@ -16,146 +16,106 @@
 
 package tech.bitey.dataframe;
 
+import java.io.File;
 import java.math.BigDecimal;
-import java.nio.ByteBuffer;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
+import java.util.function.Function;
 import java.util.stream.Collector;
 
 /**
  * A {@link Column} with element type {@link String}.
  * <p>
- * Elements are stored as UTF-8 encoded bytes in a {@link ByteBuffer}.
+ * Elements are normalized by assigning a {@code byte} value to each distinct
+ * element. So there can only be up to 256 distinct elements per column.
+ * <p>
+ * Does not support index operations (e.g. {@link #toSorted()},
+ * {@link #toDistinct()}, etc.)
  * 
  * @author biteytech@protonmail.com
  */
-public interface StringColumn extends Column<String> {
+public interface NormalStringColumn extends Column<String> {
 
 	@Override
-	StringColumn subColumn(int fromIndex, int toIndex);
+	NormalStringColumn subColumn(int fromIndex, int toIndex);
 
 	@Override
-	StringColumn subColumnByValue(String fromElement, boolean fromInclusive, String toElement, boolean toInclusive);
+	NormalStringColumn subColumnByValue(String fromElement, boolean fromInclusive, String toElement,
+			boolean toInclusive);
 
 	@Override
-	StringColumn subColumnByValue(String fromElement, String toElement);
+	NormalStringColumn subColumnByValue(String fromElement, String toElement);
 
 	@Override
-	StringColumn head(String toElement, boolean inclusive);
+	NormalStringColumn head(String toElement, boolean inclusive);
 
 	@Override
-	StringColumn head(String toElement);
+	NormalStringColumn head(String toElement);
 
 	@Override
-	StringColumn tail(String fromElement, boolean inclusive);
+	NormalStringColumn tail(String fromElement, boolean inclusive);
 
 	@Override
-	StringColumn tail(String fromElement);
+	NormalStringColumn tail(String fromElement);
 
 	@Override
-	StringColumn toHeap();
+	NormalStringColumn toHeap();
 
 	@Override
-	StringColumn toSorted();
+	NormalStringColumn toSorted();
 
 	@Override
-	StringColumn toDistinct();
+	NormalStringColumn toDistinct();
 
 	@Override
-	StringColumn append(Column<String> tail);
+	NormalStringColumn append(Column<String> tail);
 
 	@Override
-	StringColumn copy();
+	NormalStringColumn copy();
 
 	/**
-	 * Returns an {@link StringColumnBuilder builder} with the specified
-	 * characteristic.
-	 * 
-	 * @param characteristic - one of:
-	 *                       <ul>
-	 *                       <li>{@code 0} (zero) - no constraints on the elements
-	 *                       to be added to the column
-	 *                       <li>{@link java.util.Spliterator#NONNULL NONNULL}
-	 *                       <li>{@link java.util.Spliterator#SORTED SORTED}
-	 *                       <li>{@link java.util.Spliterator#DISTINCT DISTINCT}
-	 *                       </ul>
-	 * 
-	 * @return a new {@link StringColumnBuilder}
-	 * 
-	 * @throws IllegalArgumentException if {@code characteristic} is not valid
-	 */
-	public static StringColumnBuilder builder(int characteristic) {
-		return new StringColumnBuilder(characteristic);
-	}
-
-	/**
-	 * Returns a new {@link StringColumnBuilder}
+	 * Returns a new {@link NormalStringColumnBuilder}
 	 * <p>
 	 * Equivalent to {@link #builder(int) builder(0)}
 	 * 
-	 * @return a new {@link StringColumnBuilder}
+	 * @return a new {@link NormalStringColumnBuilder}
 	 */
-	public static StringColumnBuilder builder() {
-		return new StringColumnBuilder(0);
+	public static NormalStringColumnBuilder builder() {
+		return new NormalStringColumnBuilder();
 	}
 
 	/**
-	 * Returns a new {@code StringColumn} containing the specified elements.
+	 * Returns a new {@code NormalStringColumn} containing the specified elements.
 	 * 
 	 * @param elements the elements to be included in the new column
 	 * 
-	 * @return a new {@code StringColumn} containing the specified elements.
+	 * @return a new {@code NormalStringColumn} containing the specified elements.
 	 */
-	public static StringColumn of(String... elements) {
+	public static NormalStringColumn of(String... elements) {
 		return builder().addAll(elements).build();
 	}
 
 	/**
-	 * Collects a stream of {@code Strings} into a new {@code StringColumn} with the
-	 * specified characteristic.
+	 * Collects a stream of {@code Strings} into a new {@code NormalStringColumn}.
 	 * 
-	 * @param characteristic - one of:
-	 *                       <ul>
-	 *                       <li>{@code 0} (zero) - no constraints on the elements
-	 *                       to be added to the column
-	 *                       <li>{@link java.util.Spliterator#NONNULL NONNULL}
-	 *                       <li>{@link java.util.Spliterator#SORTED SORTED}
-	 *                       <li>{@link java.util.Spliterator#DISTINCT DISTINCT}
-	 *                       </ul>
-	 * 
-	 * @return a new {@link StringColumn}
-	 * 
-	 * @throws IllegalArgumentException if {@code characteristic} is not valid
+	 * @return a new {@link NormalStringColumn}
 	 */
-	public static Collector<String, ?, StringColumn> collector(int characteristic) {
-		return Collector.of(() -> builder(characteristic), StringColumnBuilder::add, StringColumnBuilder::append,
-				StringColumnBuilder::build);
+	public static Collector<String, ?, NormalStringColumn> collector() {
+		return Collector.of(NormalStringColumn::builder, NormalStringColumnBuilder::add,
+				NormalStringColumnBuilder::append, NormalStringColumnBuilder::build);
 	}
 
 	/**
-	 * Collects a stream of {@code Strings} into a new {@code StringColumn}.
-	 * <p>
-	 * Equivalent to {@link #collector(int) collector(0)}
-	 * 
-	 * @return a new {@link StringColumn}
-	 */
-	public static Collector<String, ?, StringColumn> collector() {
-		return collector(0);
-	}
-
-	/**
-	 * Returns a new {@code StringColumn} containing the specified elements.
+	 * Returns a new {@code NormalStringColumn} containing the specified elements.
 	 * 
 	 * @param elements the elements to be included in the new column
 	 * 
-	 * @return a new {@code StringColumn} containing the specified elements.
+	 * @return a new {@code NormalStringColumn} containing the specified elements.
 	 */
-	public static StringColumn of(Collection<String> c) {
+	public static NormalStringColumn of(Collection<String> c) {
 		return c.stream().collect(collector());
 	}
 
@@ -328,54 +288,26 @@ public interface StringColumn extends Column<String> {
 		return toUuidColumn(UUID::fromString);
 	}
 
-	/**
-	 * Convert this column into a {@link NormalStringColumn} by passing this column
-	 * to a {@link NormalStringColumnBuilder}.
-	 * 
-	 * @return A {@link NormalStringColumnBuilder} with the same elements as this
-	 *         column.
-	 */
-	default NormalStringColumn toNormalStringColumn() {
-		return new NormalStringColumnBuilder().addAll(this).build();
-	}
-
-	/**
-	 * Convert this column into a {@link NormalStringColumn} if it contains at most
-	 * 256 distinct elements and the resulting column takes up not more than
-	 * approximately {@code threshold%} of the space of this column.
-	 * 
-	 * @param threshold a value > 0 and <= 1. For example, 0.2 means that a
-	 *                  NormalStringColumn will only be returned if it's less than
-	 *                  5x smaller than this column.
-	 * 
-	 * @return either this column, or a new {@code NormalStringColumn}
-	 */
-	default Column<String> normalize(double threshold) {
-
-		Pr.checkArgument(threshold > 0 && threshold <= 1, "threshold must be > 0 and <= 1");
-
-		Map<String, Integer> counts = new HashMap<>();
-		int totalLength = 0, nonNullSize = 0;
-		for (String value : this) {
-			if (value != null) {
-				totalLength += value.length();
-				counts.compute(value, (k, v) -> v == null ? 1 : v + 1);
-				nonNullSize++;
-			}
-			if (counts.size() > 256)
-				return this;
-		}
-
-		int normalLength = nonNullSize + counts.keySet().stream().mapToInt(String::length).sum();
-
-		if (normalLength < totalLength * threshold)
-			return toNormalStringColumn();
-		else
-			return this;
-	}
-
 	@Override
 	default StringColumn toStringColumn() {
-		return this;
+		return toStringColumn(Function.identity());
+	}
+
+	public static void main(String[] args) throws Exception {
+		NormalStringColumn column = builder().add(null, "a", "a", null, "c", "b", "c", null).build();
+		column = column.subColumn(2, column.size() - 2);
+		System.out.println(column);
+
+		NormalStringColumn copy = column.copy();
+		System.out.println(copy);
+		System.out.println(column.equals(copy));
+
+		DataFrame df = DataFrameFactory.create(new Column<?>[] { column, copy }, new String[] { "C1", "C2" });
+		System.out.println(df.filterNulls());
+
+		File file = new File("/home/lior/Desktop/test.dat");
+		df.writeTo(file);
+		DataFrame df2 = DataFrameFactory.readFrom(file);
+		System.out.println(df.equals(df2));
 	}
 }

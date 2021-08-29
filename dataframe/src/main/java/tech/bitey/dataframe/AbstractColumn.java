@@ -197,10 +197,9 @@ abstract class AbstractColumn<E extends Comparable<? super E>, I extends Column<
 
 	@Override
 	public boolean equals(Object o) {
-		if (o == this)
+		if (o == this) {
 			return true;
-
-		if (o instanceof Column) {
+		} else if (o instanceof Column) {
 			AbstractColumn rhs = (AbstractColumn) o;
 			if (getType() != rhs.getType() || size != rhs.size)
 				return false;
@@ -241,8 +240,9 @@ abstract class AbstractColumn<E extends Comparable<? super E>, I extends Column<
 			} catch (NullPointerException unused) {
 				return false;
 			}
-		} else
+		} else {
 			return false;
+		}
 	}
 
 	@Override

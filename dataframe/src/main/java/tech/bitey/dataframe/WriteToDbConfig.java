@@ -52,6 +52,7 @@ import tech.bitey.dataframe.db.IFromResultSet;
 import tech.bitey.dataframe.db.IToPreparedStatement;
 import tech.bitey.dataframe.db.IntToStatement;
 import tech.bitey.dataframe.db.LongToStatement;
+import tech.bitey.dataframe.db.NormalStringToStatement;
 import tech.bitey.dataframe.db.ShortToStatement;
 import tech.bitey.dataframe.db.StringToStatement;
 import tech.bitey.dataframe.db.TimeToStatement;
@@ -151,6 +152,9 @@ public final class WriteToDbConfig implements ImmutableBean {
                     break;
                 case UU:
                     toPsLogic[i] = UuidToStatement.UUID_TO_STRING;
+                    break;
+                case NS:
+                    toPsLogic[i] = NormalStringToStatement.STRING_TO_STRING;
                     break;
                 }
             }
