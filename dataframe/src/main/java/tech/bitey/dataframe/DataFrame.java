@@ -429,6 +429,103 @@ public interface DataFrame extends List<Row>, RandomAccess {
 	DataFrame withColumns(DataFrame df);
 
 	/**
+	 * Returns a new dataframe which is a shallow copy of this one, but with the
+	 * derived column and column name. If a column already exists with the same
+	 * name, it will be replaced.
+	 * 
+	 * @param columnName - name of the column to be added or replaced
+	 * @param type       - the new column's {@link ColumnType type}
+	 * @param function   - the function used to compute column elements from
+	 *                   dataframe rows
+	 * 
+	 * @param <T>        - the column element type. Must be compatible with the
+	 *                   column type. No attempt is made to convert between types
+	 *                   beyond a cast.
+	 * 
+	 * @return a new dataframe with the specified column and column name
+	 * 
+	 * @throws ClassCastException if the column type does not match the return type.
+	 */
+	default <T extends Comparable<? super T>> DataFrame withDerivedColumn(String columnName, ColumnType<T> type,
+			Function<Row, T> function) {
+		return withColumn(columnName, deriveColumn(type, function));
+	}
+
+	/**
+	 * Returns a new dataframe which is a shallow copy of this one, but with the
+	 * derived column and column name. If a column already exists with the same
+	 * name, it will be replaced.
+	 * 
+	 * @param columnName - name of the column to be added or replaced
+	 * @param function   - the function used to compute column elements from
+	 *                   dataframe rows
+	 * 
+	 * @return a new dataframe with the specified column and column name
+	 */
+	default DataFrame withDerivedColumn(String columnName, ToIntFunction<Row> function) {
+		return withColumn(columnName, deriveColumn(function));
+	}
+
+	/**
+	 * Returns a new dataframe which is a shallow copy of this one, but with the
+	 * derived column and column name. If a column already exists with the same
+	 * name, it will be replaced.
+	 * 
+	 * @param columnName - name of the column to be added or replaced
+	 * @param function   - the function used to compute column elements from
+	 *                   dataframe rows
+	 * 
+	 * @return a new dataframe with the specified column and column name
+	 */
+	default DataFrame withDerivedColumn(String columnName, ToLongFunction<Row> function) {
+		return withColumn(columnName, deriveColumn(function));
+	}
+
+	/**
+	 * Derive a new {@link DoubleColumn} from the rows of this dataframe. The new
+	 * column will have the same size as this dataframe, and each element will have
+	 * been derived from the corresponding row.
+	 * 
+	 * @param function - the function used to compute column elements from dataframe
+	 *                 rows
+	 * 
+	 * @return a new dataframe with the specified column and column name
+	 */
+	default DataFrame withDerivedColumn(String columnName, ToDoubleFunction<Row> function) {
+		return withColumn(columnName, deriveColumn(function));
+	}
+
+	/**
+	 * Returns a new dataframe which is a shallow copy of this one, but with the
+	 * derived column and column name. If a column already exists with the same
+	 * name, it will be replaced.
+	 * 
+	 * @param columnName - name of the column to be added or replaced
+	 * @param function   - the function used to compute column elements from
+	 *                   dataframe rows
+	 * 
+	 * @return a new dataframe with the specified column and column name
+	 */
+	default DataFrame withDerivedColumn(String columnName, ToFloatFunction<Row> function) {
+		return withColumn(columnName, deriveColumn(function));
+	}
+
+	/**
+	 * Returns a new dataframe which is a shallow copy of this one, but with the
+	 * derived column and column name. If a column already exists with the same
+	 * name, it will be replaced.
+	 * 
+	 * @param columnName - name of the column to be added or replaced
+	 * @param function   - the function used to compute column elements from
+	 *                   dataframe rows
+	 * 
+	 * @return a new dataframe with the specified column and column name
+	 */
+	default DataFrame withDerivedColumn(String columnName, Predicate<Row> function) {
+		return withColumn(columnName, deriveColumn(function));
+	}
+
+	/**
 	 * Returns a new dataframe which contains only the specified columns, in the
 	 * specified order.
 	 * 

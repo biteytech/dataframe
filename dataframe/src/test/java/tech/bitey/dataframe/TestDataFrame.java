@@ -656,6 +656,21 @@ public class TestDataFrame {
 		Assertions.assertEquals(a.size(), i);
 	}
 
+	@Test
+	public void withDerivedColumn() {
+		IntColumn a = IntColumn.of(1, 2, null, 3);
+		StringColumn b = a.toStringColumn();
+
+		DataFrame expected = DataFrameFactory.create(List.of(a, b), List.of("A", "B"));
+		DataFrame actual = DataFrameFactory.create(List.of(a), List.of("A")).withDerivedColumn("B", ColumnType.STRING,
+				r -> r.get("A") == null ? null : r.get("A").toString());
+		Assertions.assertEquals(expected, actual);
+
+		for (Row r : expected)
+			for (int i = 0; i < r.columnCount(); i++)
+				Assertions.assertEquals(expected.columnName(i), r.columnName(i));
+	}
+
 	private static LocalDate fromInt(int yyyymmdd) {
 		return LocalDate.of(yyyymmdd / 10000, yyyymmdd % 10000 / 100, yyyymmdd % 100);
 	}

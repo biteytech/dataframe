@@ -49,6 +49,18 @@ public interface Row {
 	int columnCount();
 
 	/**
+	 * Returns the column name at the specified index.
+	 * 
+	 * @param columnIndex - the column index
+	 * 
+	 * @return the column name at the specified index.
+	 * 
+	 * @throws IndexOutOfBoundsException if {@code columnIndex} is negative or is
+	 *                                   not less than {@link #columnCount()}
+	 */
+	String columnName(int columnIndex);
+
+	/**
 	 * Returns true if the value is null in the specified {@link Column}.
 	 * 
 	 * @param columnIndex - index of the column in the parent {@link DataFrame}.

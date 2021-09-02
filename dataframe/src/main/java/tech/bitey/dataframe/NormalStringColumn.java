@@ -16,7 +16,6 @@
 
 package tech.bitey.dataframe;
 
-import java.io.File;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -291,23 +290,5 @@ public interface NormalStringColumn extends Column<String> {
 	@Override
 	default StringColumn toStringColumn() {
 		return toStringColumn(Function.identity());
-	}
-
-	public static void main(String[] args) throws Exception {
-		NormalStringColumn column = builder().add(null, "a", "a", null, "c", "b", "c", null).build();
-		column = column.subColumn(2, column.size() - 2);
-		System.out.println(column);
-
-		NormalStringColumn copy = column.copy();
-		System.out.println(copy);
-		System.out.println(column.equals(copy));
-
-		DataFrame df = DataFrameFactory.create(new Column<?>[] { column, copy }, new String[] { "C1", "C2" });
-		System.out.println(df.filterNulls());
-
-		File file = new File("/home/lior/Desktop/test.dat");
-		df.writeTo(file);
-		DataFrame df2 = DataFrameFactory.readFrom(file);
-		System.out.println(df.equals(df2));
 	}
 }

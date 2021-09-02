@@ -1441,6 +1441,11 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 		}
 
 		@Override
+		public String columnName(int columnIndex) {
+			return DataFrameImpl.this.columnName(columnIndex);
+		}
+
+		@Override
 		public boolean isNull(int columnIndex) {
 			return DataFrameImpl.this.isNull(rowIndex(), columnIndex);
 		}
