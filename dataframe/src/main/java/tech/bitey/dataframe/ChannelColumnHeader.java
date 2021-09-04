@@ -16,6 +16,8 @@
 
 package tech.bitey.dataframe;
 
+import static tech.bitey.bufferstuff.BufferUtils.readFully;
+import static tech.bitey.bufferstuff.BufferUtils.writeFully;
 import static tech.bitey.dataframe.Pr.checkState;
 
 import java.io.IOException;
@@ -26,7 +28,7 @@ import java.nio.channels.WritableByteChannel;
 import java.nio.charset.StandardCharsets;
 import java.util.Spliterator;
 
-class FileColumnHeader {
+class ChannelColumnHeader {
 
 	private static final ByteOrder ORDER = ByteOrder.BIG_ENDIAN;
 
@@ -34,34 +36,34 @@ class FileColumnHeader {
 	private final byte[] columnType;
 	private final int characteristics;
 
-	FileColumnHeader(DataFrame df, int columnIndex) {
+	ChannelColumnHeader(DataFrame df, int columnIndex) {
 
 		this.columnName = df.columnName(columnIndex).getBytes(StandardCharsets.UTF_8);
 		this.columnType = df.columnType(columnIndex).getCode().name().getBytes(StandardCharsets.UTF_8);
 		this.characteristics = df.column(columnIndex).characteristics();
 	}
 
-	FileColumnHeader(ReadableByteChannel fileChannel) throws IOException {
+	ChannelColumnHeader(ReadableByteChannel channel) throws IOException {
 
 		ByteBuffer i = allocate(4);
-		fileChannel.read(i);
+		readFully(channel, i);
 		columnName = new byte[i.getInt(0)];
-		fileChannel.read(ByteBuffer.wrap(columnName));
+		readFully(channel, ByteBuffer.wrap(columnName));
 
 		i.clear();
-		fileChannel.read(i);
+		readFully(channel, i);
 		columnType = new byte[i.getInt(0)];
-		fileChannel.read(ByteBuffer.wrap(columnType));
+		readFully(channel, ByteBuffer.wrap(columnType));
 
 		i.clear();
-		fileChannel.read(i);
+		readFully(channel, i);
 		characteristics = i.getInt(0);
 
 		checkState((characteristics & AbstractColumn.BASE_CHARACTERISTICS) == AbstractColumn.BASE_CHARACTERISTICS,
 				"bad characteristics: " + characteristics);
 	}
 
-	void writeTo(WritableByteChannel fileChannel) throws IOException {
+	void writeTo(WritableByteChannel channel) throws IOException {
 
 		ByteBuffer b = allocate(4 + columnName.length + 4 + columnType.length + 8);
 
@@ -73,7 +75,7 @@ class FileColumnHeader {
 
 		b.flip();
 
-		fileChannel.write(b);
+		writeFully(channel, b);
 	}
 
 	private ByteBuffer allocate(int capacity) {

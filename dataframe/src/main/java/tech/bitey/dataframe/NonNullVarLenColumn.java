@@ -18,6 +18,8 @@ package tech.bitey.dataframe;
 
 import static java.util.Spliterator.NONNULL;
 import static tech.bitey.bufferstuff.BufferUtils.EMPTY_BUFFER;
+import static tech.bitey.bufferstuff.BufferUtils.readFully;
+import static tech.bitey.bufferstuff.BufferUtils.writeFully;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -317,10 +319,10 @@ abstract class NonNullVarLenColumn<E extends Comparable<E>, I extends Column<E>,
 		writeInt(channel, order, size);
 
 		if (size > 0) {
-			channel.write(BufferUtils.slice(rawPointers, offset * 4, (offset + size) * 4));
+			writeFully(channel, BufferUtils.slice(rawPointers, offset * 4, (offset + size) * 4));
 
 			writeInt(channel, order, end(lastIndex()) - pat(offset));
-			channel.write(BufferUtils.slice(elements, pat(offset), end(lastIndex())));
+			writeFully(channel, BufferUtils.slice(elements, pat(offset), end(lastIndex())));
 		}
 	}
 
@@ -337,13 +339,13 @@ abstract class NonNullVarLenColumn<E extends Comparable<E>, I extends Column<E>,
 			return (C) this;
 
 		ByteBuffer rawPointers = BufferUtils.allocate(size * 4, order);
-		channel.read(rawPointers);
+		readFully(channel, rawPointers);
 		rawPointers.flip();
 		zero(rawPointers, size);
 
 		int length = readInt(channel, order);
 		ByteBuffer elements = BufferUtils.allocate(length, order);
-		channel.read(elements);
+		readFully(channel, elements);
 		elements.flip();
 
 		return construct(elements, rawPointers, 0, size, characteristics, false);

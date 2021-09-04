@@ -18,6 +18,8 @@ package tech.bitey.dataframe;
 
 import static java.util.Spliterator.DISTINCT;
 import static java.util.Spliterator.SORTED;
+import static tech.bitey.bufferstuff.BufferUtils.readFully;
+import static tech.bitey.bufferstuff.BufferUtils.writeFully;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -119,7 +121,7 @@ abstract class NonNullSingleBufferColumn<E extends Comparable<? super E>, I exte
 	void writeTo(WritableByteChannel channel) throws IOException {
 		writeByteOrder(channel, buffer.order());
 		writeInt(channel, buffer.order(), size);
-		channel.write(slice0());
+		writeFully(channel, slice0());
 	}
 
 	@Override
@@ -128,7 +130,7 @@ abstract class NonNullSingleBufferColumn<E extends Comparable<? super E>, I exte
 		int size = readInt(channel, order);
 
 		ByteBuffer buffer = BufferUtils.allocate(size * elementSize(), order);
-		channel.read(buffer);
+		readFully(channel, buffer);
 		buffer.flip();
 
 		return construct(buffer, 0, size, characteristics, false);

@@ -16,6 +16,8 @@
 
 package tech.bitey.dataframe;
 
+import static tech.bitey.bufferstuff.BufferUtils.readFully;
+import static tech.bitey.bufferstuff.BufferUtils.writeFully;
 import static tech.bitey.dataframe.Pr.checkState;
 
 import java.io.IOException;
@@ -24,7 +26,7 @@ import java.nio.ByteOrder;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 
-class FileDataFrameHeader {
+class ChannelDataFrameHeader {
 
 	private static final long MAGIC_NUMBER = ((long) 'd') << 56 | ((long) 'a') << 48 | ((long) 't') << 40
 			| ((long) 'a') << 32 | 'f' << 24 | 'r' << 16 | 'a' << 8 | 'm';
@@ -38,7 +40,7 @@ class FileDataFrameHeader {
 	private final int columnCount;
 	private final int keyIndex;
 
-	FileDataFrameHeader(DataFrame df) {
+	ChannelDataFrameHeader(DataFrame df) {
 		this.magicNumber = MAGIC_NUMBER;
 		this.version = VERSION;
 
@@ -46,10 +48,10 @@ class FileDataFrameHeader {
 		this.keyIndex = df.hasKeyColumn() ? df.keyColumnIndex() : -1;
 	}
 
-	FileDataFrameHeader(ReadableByteChannel fileChannel) throws IOException {
+	ChannelDataFrameHeader(ReadableByteChannel channel) throws IOException {
 
 		ByteBuffer b = allocate();
-		fileChannel.read(b);
+		readFully(channel, b);
 		b.flip();
 
 		magicNumber = b.getLong();
@@ -65,7 +67,7 @@ class FileDataFrameHeader {
 		checkState(keyIndex >= -1 && keyIndex < columnCount, "keyIndex must be >= -1 and < column count: " + keyIndex);
 	}
 
-	void writeTo(WritableByteChannel fileChannel) throws IOException {
+	void writeTo(WritableByteChannel channel) throws IOException {
 
 		ByteBuffer b = allocate();
 
@@ -76,7 +78,7 @@ class FileDataFrameHeader {
 
 		b.flip();
 
-		fileChannel.write(b);
+		writeFully(channel, b);
 	}
 
 	private ByteBuffer allocate() {

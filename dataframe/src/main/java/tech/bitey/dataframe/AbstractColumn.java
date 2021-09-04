@@ -18,6 +18,8 @@ package tech.bitey.dataframe;
 
 import static java.nio.ByteOrder.BIG_ENDIAN;
 import static java.nio.ByteOrder.LITTLE_ENDIAN;
+import static tech.bitey.bufferstuff.BufferUtils.readFully;
+import static tech.bitey.bufferstuff.BufferUtils.writeFully;
 import static tech.bitey.dataframe.Pr.checkArgument;
 import static tech.bitey.dataframe.Pr.checkElementIndex;
 import static tech.bitey.dataframe.Pr.checkPositionIndexes;
@@ -311,24 +313,24 @@ abstract class AbstractColumn<E extends Comparable<? super E>, I extends Column<
 	abstract void writeTo(WritableByteChannel channel) throws IOException;
 
 	static void writeByteOrder(WritableByteChannel channel, ByteOrder order) throws IOException {
-		channel.write(ByteBuffer.wrap(new byte[] { (byte) (order == BIG_ENDIAN ? 'B' : 'L') }));
+		writeFully(channel, ByteBuffer.wrap(new byte[] { (byte) (order == BIG_ENDIAN ? 'B' : 'L') }));
 	}
 
 	static ByteOrder readByteOrder(ReadableByteChannel channel) throws IOException {
 		byte[] b = new byte[1];
-		channel.read(ByteBuffer.wrap(b));
+		readFully(channel, ByteBuffer.wrap(b));
 		return b[0] == (byte) 'B' ? BIG_ENDIAN : LITTLE_ENDIAN;
 	}
 
 	static void writeInt(WritableByteChannel channel, ByteOrder order, int value) throws IOException {
 		ByteBuffer b = ByteBuffer.allocate(4).order(order);
 		b.putInt(0, value);
-		channel.write(b);
+		writeFully(channel, b);
 	}
 
 	static int readInt(ReadableByteChannel channel, ByteOrder order) throws IOException {
 		ByteBuffer b = ByteBuffer.allocate(4).order(order);
-		channel.read(b);
+		readFully(channel, b);
 		return b.getInt(0);
 	}
 

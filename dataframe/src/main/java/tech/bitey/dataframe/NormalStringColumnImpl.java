@@ -17,6 +17,7 @@
 package tech.bitey.dataframe;
 
 import static java.nio.ByteOrder.BIG_ENDIAN;
+import static tech.bitey.bufferstuff.BufferUtils.writeFully;
 import static tech.bitey.dataframe.NonNullColumn.NONNULL_CHARACTERISTICS;
 import static tech.bitey.dataframe.Pr.checkPositionIndex;
 
@@ -232,7 +233,7 @@ public class NormalStringColumnImpl extends AbstractColumn<String, NormalStringC
 		writeInt(channel, BIG_ENDIAN, values.length);
 		for (int i = 0; i < values.length; i++) {
 			writeInt(channel, BIG_ENDIAN, values[i].length());
-			channel.write(ByteBuffer.wrap(values[i].getBytes(StandardCharsets.UTF_8)));
+			writeFully(channel, ByteBuffer.wrap(values[i].getBytes(StandardCharsets.UTF_8)));
 		}
 	}
 

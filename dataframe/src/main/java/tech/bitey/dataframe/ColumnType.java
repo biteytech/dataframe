@@ -18,6 +18,7 @@ package tech.bitey.dataframe;
 
 import static java.nio.ByteOrder.BIG_ENDIAN;
 import static java.util.Spliterator.NONNULL;
+import static tech.bitey.bufferstuff.BufferUtils.readFully;
 import static tech.bitey.dataframe.AbstractColumn.readInt;
 import static tech.bitey.dataframe.ColumnTypeCode.B;
 import static tech.bitey.dataframe.ColumnTypeCode.BD;
@@ -309,7 +310,7 @@ public class ColumnType<E extends Comparable<? super E>> {
 			for (int i = 0; i < count; i++) {
 
 				ByteBuffer buf = ByteBuffer.allocate(readInt(channel, BIG_ENDIAN));
-				channel.read(buf);
+				readFully(channel, buf);
 				String value = new String(buf.array(), StandardCharsets.UTF_8);
 
 				indices.put(value, i);

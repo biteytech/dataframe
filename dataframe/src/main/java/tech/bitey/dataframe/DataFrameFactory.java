@@ -228,14 +228,14 @@ public enum DataFrameFactory {
 	 */
 	public static DataFrame readFrom(ReadableByteChannel channel) throws IOException {
 
-		FileDataFrameHeader dfHeader = new FileDataFrameHeader(channel);
+		ChannelDataFrameHeader dfHeader = new ChannelDataFrameHeader(channel);
 		final int cc = dfHeader.getColumnCount();
 
 		String[] columnNames = new String[cc];
 		ColumnType<?>[] columnTypes = new ColumnType[cc];
 		int[] characteristics = new int[cc];
 		for (int i = 0; i < cc; i++) {
-			FileColumnHeader columnHeader = new FileColumnHeader(channel);
+			ChannelColumnHeader columnHeader = new ChannelColumnHeader(channel);
 			columnNames[i] = columnHeader.getColumnName();
 			columnTypes[i] = columnHeader.getColumnType();
 			characteristics[i] = columnHeader.getCharacteristics();

@@ -1144,11 +1144,11 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 
 	@Override
 	public void writeTo(WritableByteChannel channel) throws IOException {
-		FileDataFrameHeader dfHeader = new FileDataFrameHeader(this);
+		ChannelDataFrameHeader dfHeader = new ChannelDataFrameHeader(this);
 		dfHeader.writeTo(channel);
 
 		for (int i = 0; i < columnCount(); i++) {
-			FileColumnHeader columnHeader = new FileColumnHeader(this, i);
+			ChannelColumnHeader columnHeader = new ChannelColumnHeader(this, i);
 			columnHeader.writeTo(channel);
 		}
 
