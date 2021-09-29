@@ -33,11 +33,15 @@ interface LongArrayPacker<E> {
 		}
 	};
 
+	/**
+	 * Years can range from -131072 (-2^17) to 131071 (2^17-1). Microsecond
+	 * precision (last 3 digits of nanosecond field are always 0).
+	 */
 	final LongArrayPacker<LocalDateTime> LOCAL_DATE_TIME = new LongArrayPacker<LocalDateTime>() {
 		@Override
 		public long pack(LocalDateTime value) {
 
-			long packed = (long) value.getYear() << 47 | (long) value.getMonthValue() << 43
+			long packed = (long) value.getYear() << 46 | (long) value.getMonthValue() << 42
 					| (long) value.getDayOfMonth() << 37 | (long) value.getHour() << 32 | (long) value.getMinute() << 26
 					| value.getSecond() << 20 | value.getNano() / 1000;
 
@@ -47,9 +51,9 @@ interface LongArrayPacker<E> {
 		@Override
 		public LocalDateTime unpack(long packed) {
 
-			return LocalDateTime.of((int) ((packed & 0x7FF800000000000L) >> 47), // year
-					(int) ((packed & 0x780000000000L) >> 43), // month
-					(int) ((packed & 0x7E000000000L) >> 37), // dayOfMonth
+			return LocalDateTime.of((int) (packed >> 46), // year
+					(int) ((packed & 0x3C0000000000L) >> 42), // month
+					(int) ((packed & 0x3E000000000L) >> 37), // dayOfMonth
 					(int) ((packed & 0x1F00000000L) >> 32), // hour
 					(int) ((packed & 0xFC000000L) >> 26), // minute
 					(int) ((packed & 0x3F00000L) >> 20), // second
@@ -71,7 +75,7 @@ interface LongArrayPacker<E> {
 		@Override
 		public LocalTime unpack(long packed) {
 
-			return LocalTime.of((int) ((packed & 0x7C0000000000L) >> 42), // hour
+			return LocalTime.of((int) (packed >> 42), // hour
 					(int) ((packed & 0x3F000000000L) >> 36), // minute
 					(int) ((packed & 0xFC0000000L) >> 30), // second
 					(int) ((packed & 0x3FFFFFFF)) // nanoOfSecond

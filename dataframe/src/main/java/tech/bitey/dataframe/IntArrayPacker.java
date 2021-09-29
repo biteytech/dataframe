@@ -42,7 +42,7 @@ interface IntArrayPacker<E> {
 
 		@Override
 		public LocalDate unpack(int packed) {
-			return LocalDate.of(packed >>> 16, (packed & 0xFF00) >>> 8, packed & 0xFF);
+			return LocalDate.of(packed >> 9, (packed & 0x1E0) >> 5, packed & 0x1F);
 		}
 	};
 
@@ -51,6 +51,6 @@ interface IntArrayPacker<E> {
 	E unpack(int packed);
 
 	public static int packDate(int year, int month, int day) {
-		return year << 16 | month << 8 | day;
+		return year << 9 | month << 5 | day;
 	}
 }

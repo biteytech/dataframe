@@ -25,6 +25,8 @@ import java.util.stream.Collector;
  * A {@link Column} with element type {@link LocalDate}.
  * <p>
  * Each date is stored encoded as an {@code int} in a {@link ByteBuffer}.
+ * <p>
+ * Years can range from {@code -4194304 (-2^22)} to {@code 4194303 (2^22-1)}.
  * 
  * @author biteytech@protonmail.com
  */

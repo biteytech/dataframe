@@ -25,6 +25,12 @@ import java.util.stream.Collector;
  * A {@link Column} with element type {@link LocalDateTime}.
  * <p>
  * Each element is stored encoded as a {@code long} in a {@link ByteBuffer}.
+ * <p>
+ * Years can range from {@code -131072 (-2^17)} to {@code 131071 (2^17-1)}.
+ * <p>
+ * Stored with microsecond precision. The last 3 digits of
+ * {@link LocalDateTime#getNano()} for a {@code LocalDateTime} retrieved from a
+ * {@code DateTimeColumn} will always be 0.
  * 
  * @author biteytech@protonmail.com
  */
