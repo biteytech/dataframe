@@ -166,7 +166,7 @@ public interface DoubleColumn extends Column<Double> {
 	/**
 	 * Returns a new {@code DoubleColumn} containing the specified elements.
 	 * 
-	 * @param elements the elements to be included in the new column
+	 * @param c the elements to be included in the new column
 	 * 
 	 * @return a new {@code DoubleColumn} containing the specified elements.
 	 */

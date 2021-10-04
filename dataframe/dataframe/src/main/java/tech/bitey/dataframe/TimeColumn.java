@@ -145,7 +145,7 @@ public interface TimeColumn extends Column<LocalTime> {
 	/**
 	 * Returns a new {@code TimeColumn} containing the specified elements.
 	 * 
-	 * @param elements the elements to be included in the new column
+	 * @param c the elements to be included in the new column
 	 * 
 	 * @return a new {@code TimeColumn} containing the specified elements.
 	 */

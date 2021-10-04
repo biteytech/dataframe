@@ -166,7 +166,7 @@ public interface IntColumn extends Column<Integer> {
 	/**
 	 * Returns a new {@code IntColumn} containing the specified elements.
 	 * 
-	 * @param elements the elements to be included in the new column
+	 * @param c the elements to be included in the new column
 	 * 
 	 * @return a new {@code IntColumn} containing the specified elements.
 	 */

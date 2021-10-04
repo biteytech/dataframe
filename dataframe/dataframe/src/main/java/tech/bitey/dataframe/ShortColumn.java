@@ -156,7 +156,7 @@ public interface ShortColumn extends Column<Short> {
 	/**
 	 * Returns a new {@code ShortColumn} containing the specified elements.
 	 * 
-	 * @param elements the elements to be included in the new column
+	 * @param c the elements to be included in the new column
 	 * 
 	 * @return a new {@code ShortColumn} containing the specified elements.
 	 */

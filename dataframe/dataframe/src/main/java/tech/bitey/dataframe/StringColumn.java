@@ -151,7 +151,7 @@ public interface StringColumn extends Column<String> {
 	/**
 	 * Returns a new {@code StringColumn} containing the specified elements.
 	 * 
-	 * @param elements the elements to be included in the new column
+	 * @param c the elements to be included in the new column
 	 * 
 	 * @return a new {@code StringColumn} containing the specified elements.
 	 */
@@ -344,7 +344,7 @@ public interface StringColumn extends Column<String> {
 	 * 256 distinct elements and the resulting column takes up not more than
 	 * approximately {@code threshold%} of the space of this column.
 	 * 
-	 * @param threshold a value > 0 and <= 1. For example, 0.2 means that a
+	 * @param threshold a value &gt; 0 and &lt;= 1. For example, 0.2 means that a
 	 *                  NormalStringColumn will only be returned if it's less than
 	 *                  5x smaller than this column.
 	 * 

@@ -149,7 +149,7 @@ public interface DecimalColumn extends Column<BigDecimal> {
 	/**
 	 * Returns a new {@code DecimalColumn} containing the specified elements.
 	 * 
-	 * @param elements the elements to be included in the new column
+	 * @param c the elements to be included in the new column
 	 * 
 	 * @return a new {@code DecimalColumn} containing the specified elements.
 	 */

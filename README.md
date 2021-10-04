@@ -11,7 +11,7 @@ To add a dependency on dataframe using Maven, use the following:
 <dependency>
   <groupId>tech.bitey</groupId>
   <artifactId>dataframe</artifactId>
-  <version>1.0.0</version>
+  <version>1.1.0</version>
 </dependency>
 ```
 
@@ -42,4 +42,5 @@ Requires Java 11 or higher.
 * Custom column types are not supported
 * ResultSet view does not support ResultSetMetaData
 
-### [Sample Usages](dataframe/src/test/java/tech/bitey/dataframe/SampleUsages.java)
+### [Sample Usages](dataframe/dataframe-test/src/test/java/tech/bitey/dataframe/test/SampleUsages.java)
+
