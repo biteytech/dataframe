@@ -1,0 +1,31 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>tech.bitey</groupId>
+		<artifactId>dataframe-parent</artifactId>
+		<version>1.1.0</version>
+	</parent>
+
+	<artifactId>dataframe</artifactId>
+
+	<name>${project.groupId}:${project.artifactId}</name>
+	<description>Another dataframe library for Java, inspired by Tablesaw, built on nio buffers</description>
+
+	<dependencies>
+		<dependency>
+			<groupId>tech.bitey</groupId>
+			<artifactId>bufferstuff</artifactId>
+			<version>${dataframe.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.joda</groupId>
+			<artifactId>joda-beans</artifactId>
+			<version>2.8.1</version>
+		</dependency>
+	</dependencies>
+
+</project>
