@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package tech.bitey.dataframe;
+package tech.bitey.dataframe.test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,6 +26,10 @@ import java.util.Random;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+
+import tech.bitey.dataframe.Column;
+import tech.bitey.dataframe.IntColumn;
+import tech.bitey.dataframe.StringColumn;
 
 public class TestIntColumn extends TestColumn<Integer> {
 

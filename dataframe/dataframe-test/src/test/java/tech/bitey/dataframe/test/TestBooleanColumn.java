@@ -14,9 +14,13 @@
  * limitations under the License.
  */
 
-package tech.bitey.dataframe;
+package tech.bitey.dataframe.test;
 
 import java.util.Collection;
+
+import tech.bitey.dataframe.BooleanColumn;
+import tech.bitey.dataframe.Column;
+import tech.bitey.dataframe.StringColumn;
 
 public class TestBooleanColumn extends TestColumn<Boolean> {
 

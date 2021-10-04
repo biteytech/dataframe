@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package tech.bitey.dataframe;
+package tech.bitey.dataframe.test;
 
 import static java.util.Spliterator.DISTINCT;
 
@@ -42,6 +42,26 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import tech.bitey.dataframe.ByteColumn;
+import tech.bitey.dataframe.Column;
+import tech.bitey.dataframe.ColumnType;
+import tech.bitey.dataframe.Cursor;
+import tech.bitey.dataframe.DataFrame;
+import tech.bitey.dataframe.DataFrameConfig;
+import tech.bitey.dataframe.DataFrameFactory;
+import tech.bitey.dataframe.DateColumn;
+import tech.bitey.dataframe.DateTimeColumn;
+import tech.bitey.dataframe.DecimalColumn;
+import tech.bitey.dataframe.DoubleColumn;
+import tech.bitey.dataframe.FloatColumn;
+import tech.bitey.dataframe.GroupByConfig;
+import tech.bitey.dataframe.IntColumn;
+import tech.bitey.dataframe.ReadCsvConfig;
+import tech.bitey.dataframe.ReadFromDbConfig;
+import tech.bitey.dataframe.Row;
+import tech.bitey.dataframe.ShortColumn;
+import tech.bitey.dataframe.StringColumn;
+import tech.bitey.dataframe.WriteToDbConfig;
 import tech.bitey.dataframe.db.BooleanFromResultSet;
 import tech.bitey.dataframe.db.ByteFromResultSet;
 import tech.bitey.dataframe.db.DateFromResultSet;
@@ -323,8 +343,12 @@ public class TestDataFrame {
 
 				stmt.execute(create.toString());
 
-				try (PreparedStatement ps = conn.prepareStatement(
-						"insert into " + tableName + " values (?" + DfStrings.repeat(",?", cc - 1) + ")");) {
+				StringBuilder insert = new StringBuilder();
+				insert.append("insert into " + tableName + " values (?");
+				for (int i = 0; i < cc - 1; i++)
+					insert.append(",?");
+				insert.append(")");
+				try (PreparedStatement ps = conn.prepareStatement(insert.toString())) {
 
 					expected.writeTo(ps, WriteToDbConfig.DEFAULT_CONFIG);
 

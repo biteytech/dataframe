@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package tech.bitey.dataframe;
+package tech.bitey.dataframe.test;
 
 import static java.util.Arrays.asList;
 
@@ -35,6 +35,9 @@ import java.util.function.IntFunction;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+
+import tech.bitey.dataframe.Column;
+import tech.bitey.dataframe.StringColumn;
 
 abstract class TestColumn<E extends Comparable<E>> {
 

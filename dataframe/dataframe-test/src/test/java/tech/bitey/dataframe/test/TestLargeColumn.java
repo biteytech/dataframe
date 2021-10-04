@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
-package tech.bitey.dataframe;
+package tech.bitey.dataframe.test;
 
 import java.util.Arrays;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+
+import tech.bitey.dataframe.IntColumn;
 
 public class TestLargeColumn {
 

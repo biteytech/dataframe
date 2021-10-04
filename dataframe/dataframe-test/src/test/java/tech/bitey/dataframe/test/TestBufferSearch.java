@@ -1,4 +1,4 @@
-package tech.bitey.bufferstuff;
+package tech.bitey.dataframe.test;
 
 import java.nio.ByteBuffer;
 import java.nio.DoubleBuffer;
@@ -10,6 +10,8 @@ import java.util.Arrays;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+
+import tech.bitey.bufferstuff.BufferSearch;
 
 public class TestBufferSearch {
 

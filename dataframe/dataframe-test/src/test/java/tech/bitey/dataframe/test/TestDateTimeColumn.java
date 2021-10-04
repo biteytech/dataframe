@@ -1,9 +1,11 @@
-package tech.bitey.dataframe;
+package tech.bitey.dataframe.test;
 
 import java.time.LocalDateTime;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+
+import tech.bitey.dataframe.DateTimeColumn;
 
 public class TestDateTimeColumn {
 

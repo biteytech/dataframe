@@ -1,4 +1,4 @@
-package tech.bitey.bufferstuff;
+package tech.bitey.dataframe.test;
 
 import static java.nio.ByteOrder.BIG_ENDIAN;
 import static java.nio.ByteOrder.LITTLE_ENDIAN;
@@ -16,6 +16,8 @@ import java.util.Iterator;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+
+import tech.bitey.bufferstuff.BufferUtils;
 
 public class TestBufferUtils {
 
@@ -665,29 +667,5 @@ public class TestBufferUtils {
 		double actual = BufferUtils.stream(buf).parallel().sum();
 
 		Assertions.assertEquals(expected, actual);
-	}
-
-	// ======================================================================================
-
-	@Test
-	public void rangeCheck() {
-		try {
-			BufferUtils.rangeCheck(10, 5, 3);
-			throw new RuntimeException("Expected IllegalArgumentException");
-		} catch (IllegalArgumentException e) {
-			// good
-		}
-		try {
-			BufferUtils.rangeCheck(10, -1, 3);
-			throw new RuntimeException("Expected IndexOutOfBoundsException");
-		} catch (IndexOutOfBoundsException e) {
-			// good
-		}
-		try {
-			BufferUtils.rangeCheck(10, 5, 11);
-			throw new RuntimeException("Expected IndexOutOfBoundsException");
-		} catch (IndexOutOfBoundsException e) {
-			// good
-		}
 	}
 }

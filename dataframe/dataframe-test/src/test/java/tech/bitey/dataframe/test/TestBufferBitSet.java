@@ -1,4 +1,4 @@
-package tech.bitey.bufferstuff;
+package tech.bitey.dataframe.test;
 
 import static java.nio.file.StandardOpenOption.CREATE;
 import static java.nio.file.StandardOpenOption.READ;
@@ -21,6 +21,8 @@ import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+
+import tech.bitey.bufferstuff.BufferBitSet;
 
 public class TestBufferBitSet {
 

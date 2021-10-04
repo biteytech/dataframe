@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package tech.bitey.dataframe;
+package tech.bitey.dataframe.test;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -36,6 +36,18 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import tech.bitey.dataframe.Column;
+import tech.bitey.dataframe.ColumnType;
+import tech.bitey.dataframe.Cursor;
+import tech.bitey.dataframe.DataFrame;
+import tech.bitey.dataframe.DataFrameConfig;
+import tech.bitey.dataframe.DataFrameFactory;
+import tech.bitey.dataframe.DateColumn;
+import tech.bitey.dataframe.DoubleColumn;
+import tech.bitey.dataframe.IntColumn;
+import tech.bitey.dataframe.ReadCsvConfig;
+import tech.bitey.dataframe.ReadFromDbConfig;
+import tech.bitey.dataframe.StringColumn;
 import tech.bitey.dataframe.db.DateFromResultSet;
 import tech.bitey.dataframe.db.DoubleFromResultSet;
 import tech.bitey.dataframe.db.IntFromResultSet;

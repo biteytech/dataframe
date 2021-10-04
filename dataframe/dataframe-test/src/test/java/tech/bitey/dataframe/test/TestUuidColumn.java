@@ -14,10 +14,14 @@
  * limitations under the License.
  */
 
-package tech.bitey.dataframe;
+package tech.bitey.dataframe.test;
 
 import java.util.Collection;
 import java.util.UUID;
+
+import tech.bitey.dataframe.Column;
+import tech.bitey.dataframe.StringColumn;
+import tech.bitey.dataframe.UuidColumn;
 
 public class TestUuidColumn extends TestColumn<UUID> {
 

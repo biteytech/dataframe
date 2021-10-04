@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package tech.bitey.dataframe;
+package tech.bitey.dataframe.test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -29,6 +29,20 @@ import java.util.List;
 import java.util.Random;
 
 import org.junit.jupiter.api.Test;
+
+import tech.bitey.dataframe.BooleanColumn;
+import tech.bitey.dataframe.ByteColumn;
+import tech.bitey.dataframe.Column;
+import tech.bitey.dataframe.DateColumn;
+import tech.bitey.dataframe.DateTimeColumn;
+import tech.bitey.dataframe.DecimalColumn;
+import tech.bitey.dataframe.DoubleColumn;
+import tech.bitey.dataframe.FloatColumn;
+import tech.bitey.dataframe.IntColumn;
+import tech.bitey.dataframe.LongColumn;
+import tech.bitey.dataframe.NormalStringColumn;
+import tech.bitey.dataframe.ShortColumn;
+import tech.bitey.dataframe.StringColumn;
 
 public class TestNormalStringColumn extends TestColumn<String> {
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package tech.bitey.dataframe;
+package tech.bitey.dataframe.test;
 
 import static java.math.BigDecimal.ZERO;
 
@@ -25,6 +25,10 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
+
+import tech.bitey.dataframe.Column;
+import tech.bitey.dataframe.DecimalColumn;
+import tech.bitey.dataframe.StringColumn;
 
 public class TestDecimalColumn extends TestColumn<BigDecimal> {
 

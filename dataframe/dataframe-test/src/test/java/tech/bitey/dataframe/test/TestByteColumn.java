@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package tech.bitey.dataframe;
+package tech.bitey.dataframe.test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,6 +22,10 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
+
+import tech.bitey.dataframe.ByteColumn;
+import tech.bitey.dataframe.Column;
+import tech.bitey.dataframe.StringColumn;
 
 public class TestByteColumn extends TestColumn<Byte> {
 

@@ -416,7 +416,7 @@ public class BufferSort {
 	 * first). The sort is:
 	 * <ul>
 	 * <li>in-place
-	 * <li>{@code O(n)} in the worst case. However, insertion sort has more overhead
+	 * <li>{@code O(n)} in the worst case. However, radix sort has more overhead
 	 * than heat sort, and is only faster for large ranges.
 	 * </ul>
 	 *
@@ -462,7 +462,7 @@ public class BufferSort {
 	 * first). The sort is:
 	 * <ul>
 	 * <li>in-place
-	 * <li>{@code O(n)} in the worst case. However, insertion sort has more overhead
+	 * <li>{@code O(n)} in the worst case. However, radix sort has more overhead
 	 * than heat sort, and is only faster for large ranges.
 	 * </ul>
 	 *

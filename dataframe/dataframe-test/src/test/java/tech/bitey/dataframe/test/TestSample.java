@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
-package tech.bitey.dataframe;
+package tech.bitey.dataframe.test;
 
 import java.util.Arrays;
 import java.util.Objects;
+
+import tech.bitey.dataframe.Column;
 
 public class TestSample<E extends Comparable<? super E>> {
 

@@ -245,7 +245,21 @@ public class BufferBitSet implements Cloneable {
 		return random(n, size, random);
 	}
 
-	static BufferBitSet random(int n, int size, Random random) {
+	/**
+	 * Returns a new {@link BufferBitSet} with {@code n} bits set randomly in the
+	 * range zero to {@code size} (exclusive).
+	 * 
+	 * @param n      - the number of bits to set
+	 * @param size   - bits are set within the range zero to size (exclusive)
+	 * @param random - the random number generator
+	 * 
+	 * @return a new bitset with n bits set randomly in the range zero to size
+	 *         (exclusive)
+	 * 
+	 * @throws IllegalArgumentException if {@code size < 0}
+	 * @throws IllegalArgumentException if {@code n < 0 || n > size}
+	 */
+	public static BufferBitSet random(int n, int size, Random random) {
 		if (size < 0)
 			throw new IllegalArgumentException("size must be > 1");
 		if (n < 0 || n > size)

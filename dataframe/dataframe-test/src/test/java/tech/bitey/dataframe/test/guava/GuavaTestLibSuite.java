@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package tech.bitey.dataframe.guava;
+package tech.bitey.dataframe.test.guava;
 
 import static java.util.Spliterator.DISTINCT;
 import static java.util.Spliterator.NONNULL;
