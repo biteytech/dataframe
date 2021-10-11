@@ -296,9 +296,8 @@ public interface Column<E extends Comparable<? super E>> extends List<E> {
 	NavigableSet<E> asSet();
 
 	/*------------------------------------------------------------
-	 *  Type Conversion Methods
+	 *  Type Transformation Methods
 	 *------------------------------------------------------------*/
-
 	/**
 	 * Convert this column into a {@link BooleanColumn} by applying the specified
 	 * {@link Predicate} to each non-null element. Nulls are preserved as-is.
@@ -449,6 +448,40 @@ public interface Column<E extends Comparable<? super E>> extends List<E> {
 	 *         {@code Function}.
 	 */
 	public UuidColumn toUuidColumn(Function<E, UUID> function);
+
+	/*------------------------------------------------------------
+	 *  Other Transformation Methods
+	 *------------------------------------------------------------*/
+	/**
+	 * Returns a new column derived by testing each value with the specified
+	 * predicate and replacing with {@code null} when predicate returns
+	 * {@code true}.
+	 * 
+	 * @param predicate the {@link Predicate} used to test for values which should
+	 *                  be {@code null}
+	 * 
+	 * @return a new column derived by testing each value with the specified
+	 *         predicate and replacing with {@code null} when predicate returns
+	 *         {@code true}.
+	 */
+	Column<E> clean(Predicate<E> predicate);
+
+//	/**
+//	 * Returns a new column derived by testing each value with the specified
+//	 * predicate and removing values when the predicate returns {@code false}.
+//	 * {@code null} values are never passed to the predicate for testing, instead
+//	 * the {@code keepNulls} parameter determines whether all nulls are kept as-is,
+//	 * or if all nulls are removed.
+//	 * 
+//	 * @param predicate the {@link Predicate} used to test for values which should
+//	 *                  be kept.
+//	 * @param keepNulls {@code true} means keep all {@code null} values as-is.
+//	 *                  {@code false} means drop all {@code null} values.
+//	 * 
+//	 * @return a new column derived by testing each value with the specified
+//	 *         predicate.
+//	 */
+//	Column<E> filter(Predicate<E> predicate, boolean keepNulls);
 
 	/*------------------------------------------------------------
 	 *  NavigableSet-inspired Methods
@@ -626,21 +659,4 @@ public interface Column<E extends Comparable<? super E>> extends List<E> {
 	 *         or equal to {@code fromElement}
 	 */
 	Column<E> tail(E fromElement);
-
-	/*------------------------------------------------------------
-	 *  Utility Methods
-	 *------------------------------------------------------------*/
-	/**
-	 * Returns a new column derived by testing each value with the specified
-	 * predicate and replacing with {@code null} when predicate returns
-	 * {@code true}.
-	 * 
-	 * @param predicate the {@link Predicate} used to test for values which should
-	 *                  be {@code null}
-	 * 
-	 * @return a new column derived by testing each value with the specified
-	 *         predicate and replacing with {@code null} when predicate returns
-	 *         {@code true}.
-	 */
-	Column<E> clean(Predicate<E> predicate);
 }

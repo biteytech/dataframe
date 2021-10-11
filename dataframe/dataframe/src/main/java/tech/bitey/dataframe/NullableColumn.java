@@ -185,7 +185,7 @@ abstract class NullableColumn<E extends Comparable<? super E>, I extends Column<
 					throw new NoSuchElementException("called next when hasNext is false");
 
 				if (nonNulls.get(index))
-					return column.get(nonNullIndex(index++));
+					return column.getNoOffset(nonNullIndex(index++));
 				else {
 					index++;
 					return null;
@@ -203,7 +203,7 @@ abstract class NullableColumn<E extends Comparable<? super E>, I extends Column<
 					throw new NoSuchElementException("called previous when hasPrevious is false");
 
 				if (nonNulls.get(--index))
-					return column.get(nonNullIndex(index));
+					return column.getNoOffset(nonNullIndex(index));
 				else {
 					return null;
 				}
@@ -224,16 +224,16 @@ abstract class NullableColumn<E extends Comparable<? super E>, I extends Column<
 	@Override
 	boolean equals0(NullableColumn rhs) {
 
+		if (subColumn.size() != rhs.subColumn.size())
+			return false;
+
 		// check that values and nulls are in the same place
-		int count = 0;
-		for (int i = offset, j = rhs.offset; i <= lastIndex(); i++, j++) {
+		for (int i = offset, j = rhs.offset; i <= lastIndex(); i++, j++)
 			if (nonNulls.get(i) != rhs.nonNulls.get(j))
 				return false;
-			count += nonNulls.get(i) ? 1 : 0;
-		}
 
-		if (count > 0)
-			return column.equals0((C) rhs.column, firstNonNullIndex(), rhs.firstNonNullIndex(), count);
+		if (!subColumn.isEmpty())
+			return subColumn.equals0((C) rhs.subColumn);
 		else
 			return true; // all nulls
 	}
@@ -265,30 +265,33 @@ abstract class NullableColumn<E extends Comparable<? super E>, I extends Column<
 	@Override
 	Column<E> applyFilter0(BufferBitSet keep, int cardinality) {
 
-		if (keep.equals(nonNulls))
-			return column;
+		BufferBitSet keepValues = new BufferBitSet(); // non-null values to keep from subColumn
+		int nonNullCardinality = 0; // count of non-null values from subColumn
+		BufferBitSet filteredNonNulls = new BufferBitSet(); // new nonNulls BitSet after filtering by keep
 
-		BufferBitSet filteredNonNulls = new BufferBitSet();
-		BufferBitSet keepNonNulls = new BufferBitSet();
+		for (int i = offset, j = 0, k = 0; i <= lastIndex(); i++) {
 
-		int nullCount = 0;
-		for (int i = offset, j = 0; i <= lastIndex(); i++) {
-			if (keep.get(i - offset)) {
-				if (nonNulls.get(i)) {
-					filteredNonNulls.set(j);
-					keepNonNulls.set(nonNullIndex(i));
-				} else
-					nullCount++;
-				j++;
+			boolean isNonNull = nonNulls.get(i);
+			boolean isKeep = keep.get(i - offset);
+
+			if (isNonNull && isKeep) {
+				keepValues.set(j);
+				nonNullCardinality++;
+				filteredNonNulls.set(k);
 			}
+
+			if (isNonNull)
+				j++;
+			if (isKeep)
+				k++;
 		}
 
-		C column = (C) this.column.applyFilter(keepNonNulls, keepNonNulls.cardinality());
+		C column = (C) this.subColumn.applyFilter(keepValues, nonNullCardinality);
 
-		if (nullCount == 0)
+		if (nonNullCardinality == cardinality)
 			return column;
 		else
-			return construct(column, filteredNonNulls, column.size() + nullCount);
+			return construct(column, filteredNonNulls, cardinality);
 	}
 
 	@Override
