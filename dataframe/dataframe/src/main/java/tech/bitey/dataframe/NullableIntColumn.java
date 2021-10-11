@@ -16,6 +16,7 @@
 
 package tech.bitey.dataframe;
 
+import java.util.function.IntPredicate;
 import java.util.stream.IntStream;
 
 import tech.bitey.bufferstuff.BufferBitSet;
@@ -37,5 +38,26 @@ final class NullableIntColumn extends NullableIntArrayColumn<Integer, IntColumn,
 	@Override
 	public IntStream intStream() {
 		return subColumn.intStream();
+	}
+
+	@Override
+	public IntColumn cleanInt(IntPredicate predicate) {
+
+		BufferBitSet cleanNonNulls = new BufferBitSet();
+		IntColumn cleaned = subColumn.cleanInt(predicate, cleanNonNulls);
+
+		if (cleaned == subColumn)
+			return this;
+		else if (cleaned.isEmpty())
+			return construct((NonNullIntColumn) cleaned, cleanNonNulls, size);
+
+		NullableIntColumn nullableCleaned = (NullableIntColumn) cleaned;
+
+		BufferBitSet nonNulls = new BufferBitSet();
+		for (int i = offset, j = 0; i <= lastIndex(); i++)
+			if (this.nonNulls.get(i) && nullableCleaned.nonNulls.get(j++))
+				nonNulls.set(i - offset);
+
+		return construct(nullableCleaned.column, nonNulls, size);
 	}
 }

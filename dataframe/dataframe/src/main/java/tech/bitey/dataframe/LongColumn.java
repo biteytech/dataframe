@@ -20,6 +20,8 @@ import static java.util.Spliterator.NONNULL;
 
 import java.nio.ByteBuffer;
 import java.util.Collection;
+import java.util.function.LongPredicate;
+import java.util.function.Predicate;
 import java.util.stream.Collector;
 import java.util.stream.LongStream;
 
@@ -67,6 +69,23 @@ public interface LongColumn extends Column<Long> {
 
 	@Override
 	LongColumn copy();
+
+	@Override
+	LongColumn clean(Predicate<Long> predicate);
+
+	/**
+	 * Returns a new column derived by testing each value with the specified
+	 * {@link LongPredicate} and replacing with {@code null} when the predicate
+	 * returns {@code true}.
+	 * 
+	 * @param predicate the {@code LongPredicate} used to test for values which
+	 *                  should be {@code null}
+	 * 
+	 * @return a new column derived by testing each value with the specified
+	 *         {@code LongPredicate} and replacing with {@code null} when the
+	 *         predicate returns {@code true}.
+	 */
+	LongColumn cleanLong(LongPredicate predicate);
 
 	/**
 	 * Primitive specialization of {@link Column#get(int)}.

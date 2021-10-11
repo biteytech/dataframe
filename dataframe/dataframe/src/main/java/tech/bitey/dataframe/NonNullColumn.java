@@ -638,4 +638,30 @@ abstract class NonNullColumn<E extends Comparable<? super E>, I extends Column<E
 
 		return (NonNullUuidColumn) builder.build();
 	}
+
+	@Override
+	public I clean(Predicate<E> predicate) {
+
+		return clean(predicate, new BufferBitSet());
+	}
+
+	I clean(Predicate<E> predicate, BufferBitSet nonNulls) {
+
+		int cardinality = 0, i = 0;
+
+		for (E e : this) {
+			if (!predicate.test(e)) {
+				nonNulls.set(i);
+				cardinality++;
+			}
+			i++;
+		}
+
+		if (cardinality == size())
+			return (I) this;
+		else {
+			C filtered = (C) applyFilter0(nonNulls, cardinality);
+			return (I) getType().nullableConstructor().create(filtered, nonNulls, null, 0, size());
+		}
+	}
 }

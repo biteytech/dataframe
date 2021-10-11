@@ -16,6 +16,7 @@
 
 package tech.bitey.dataframe;
 
+import java.util.function.LongPredicate;
 import java.util.stream.LongStream;
 
 import tech.bitey.bufferstuff.BufferBitSet;
@@ -37,5 +38,26 @@ final class NullableLongColumn extends NullableLongArrayColumn<Long, LongColumn,
 	@Override
 	public LongStream longStream() {
 		return subColumn.longStream();
+	}
+
+	@Override
+	public LongColumn cleanLong(LongPredicate predicate) {
+
+		BufferBitSet cleanNonNulls = new BufferBitSet();
+		LongColumn cleaned = subColumn.cleanLong(predicate, cleanNonNulls);
+
+		if (cleaned == subColumn)
+			return this;
+		else if (cleaned.isEmpty())
+			return construct((NonNullLongColumn) cleaned, cleanNonNulls, size);
+
+		NullableLongColumn nullableCleaned = (NullableLongColumn) cleaned;
+
+		BufferBitSet nonNulls = new BufferBitSet();
+		for (int i = offset, j = 0; i <= lastIndex(); i++)
+			if (this.nonNulls.get(i) && nullableCleaned.nonNulls.get(j++))
+				nonNulls.set(i - offset);
+
+		return construct(nullableCleaned.column, nonNulls, size);
 	}
 }

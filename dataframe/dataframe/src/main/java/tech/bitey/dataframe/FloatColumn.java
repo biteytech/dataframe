@@ -18,6 +18,7 @@ package tech.bitey.dataframe;
 
 import java.nio.ByteBuffer;
 import java.util.Collection;
+import java.util.function.Predicate;
 import java.util.stream.Collector;
 
 /**
@@ -64,6 +65,9 @@ public interface FloatColumn extends Column<Float> {
 
 	@Override
 	FloatColumn copy();
+
+	@Override
+	FloatColumn clean(Predicate<Float> predicate);
 
 	/**
 	 * Primitive specialization of {@link Column#get(int)}.

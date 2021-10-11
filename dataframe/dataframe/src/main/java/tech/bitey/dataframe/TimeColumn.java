@@ -19,6 +19,7 @@ package tech.bitey.dataframe;
 import java.nio.ByteBuffer;
 import java.time.LocalTime;
 import java.util.Collection;
+import java.util.function.Predicate;
 import java.util.stream.Collector;
 
 /**
@@ -65,6 +66,9 @@ public interface TimeColumn extends Column<LocalTime> {
 
 	@Override
 	TimeColumn copy();
+
+	@Override
+	TimeColumn clean(Predicate<LocalTime> predicate);
 
 	/**
 	 * Returns a {@link TimeColumnBuilder builder} with the specified

@@ -20,6 +20,8 @@ import static java.util.Spliterator.NONNULL;
 
 import java.nio.ByteBuffer;
 import java.util.Collection;
+import java.util.function.IntPredicate;
+import java.util.function.Predicate;
 import java.util.stream.Collector;
 import java.util.stream.IntStream;
 
@@ -67,6 +69,23 @@ public interface IntColumn extends Column<Integer> {
 
 	@Override
 	IntColumn copy();
+
+	@Override
+	IntColumn clean(Predicate<Integer> predicate);
+
+	/**
+	 * Returns a new column derived by testing each value with the specified
+	 * {@link IntPredicate} and replacing with {@code null} when the predicate
+	 * returns {@code true}.
+	 * 
+	 * @param predicate the {@code IntPredicate} used to test for values which
+	 *                  should be {@code null}
+	 * 
+	 * @return a new column derived by testing each value with the specified
+	 *         {@code IntPredicate} and replacing with {@code null} when the
+	 *         predicate returns {@code true}.
+	 */
+	IntColumn cleanInt(IntPredicate predicate);
 
 	/**
 	 * Primitive specialization of {@link Column#get(int)}.

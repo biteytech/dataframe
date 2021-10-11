@@ -626,4 +626,21 @@ public interface Column<E extends Comparable<? super E>> extends List<E> {
 	 *         or equal to {@code fromElement}
 	 */
 	Column<E> tail(E fromElement);
+
+	/*------------------------------------------------------------
+	 *  Utility Methods
+	 *------------------------------------------------------------*/
+	/**
+	 * Returns a new column derived by testing each value with the specified
+	 * predicate and replacing with {@code null} when predicate returns
+	 * {@code true}.
+	 * 
+	 * @param predicate the {@link Predicate} used to test for values which should
+	 *                  be {@code null}
+	 * 
+	 * @return a new column derived by testing each value with the specified
+	 *         predicate and replacing with {@code null} when predicate returns
+	 *         {@code true}.
+	 */
+	Column<E> clean(Predicate<E> predicate);
 }

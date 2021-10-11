@@ -19,6 +19,7 @@ package tech.bitey.dataframe;
 import java.nio.ByteBuffer;
 import java.util.Collection;
 import java.util.UUID;
+import java.util.function.Predicate;
 import java.util.stream.Collector;
 
 /**
@@ -65,6 +66,9 @@ public interface UuidColumn extends Column<UUID> {
 
 	@Override
 	UuidColumn copy();
+
+	@Override
+	UuidColumn clean(Predicate<UUID> predicate);
 
 	/**
 	 * Returns a {@link UuidColumnBuilder builder} with the specified

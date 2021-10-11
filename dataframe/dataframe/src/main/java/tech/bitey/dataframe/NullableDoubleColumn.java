@@ -16,6 +16,7 @@
 
 package tech.bitey.dataframe;
 
+import java.util.function.DoublePredicate;
 import java.util.stream.DoubleStream;
 
 import tech.bitey.bufferstuff.BufferBitSet;
@@ -37,5 +38,26 @@ final class NullableDoubleColumn extends NullableColumn<Double, DoubleColumn, No
 	@Override
 	public DoubleStream doubleStream() {
 		return subColumn.doubleStream();
+	}
+
+	@Override
+	public DoubleColumn cleanDouble(DoublePredicate predicate) {
+
+		BufferBitSet cleanNonNulls = new BufferBitSet();
+		DoubleColumn cleaned = subColumn.cleanDouble(predicate, cleanNonNulls);
+
+		if (cleaned == subColumn)
+			return this;
+		else if (cleaned.isEmpty())
+			return construct((NonNullDoubleColumn) cleaned, cleanNonNulls, size);
+
+		NullableDoubleColumn nullableCleaned = (NullableDoubleColumn) cleaned;
+
+		BufferBitSet nonNulls = new BufferBitSet();
+		for (int i = offset, j = 0; i <= lastIndex(); i++)
+			if (this.nonNulls.get(i) && nullableCleaned.nonNulls.get(j++))
+				nonNulls.set(i - offset);
+
+		return construct(nullableCleaned.column, nonNulls, size);
 	}
 }

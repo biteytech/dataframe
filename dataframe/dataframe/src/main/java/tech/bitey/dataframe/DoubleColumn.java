@@ -20,6 +20,8 @@ import static java.util.Spliterator.NONNULL;
 
 import java.nio.ByteBuffer;
 import java.util.Collection;
+import java.util.function.DoublePredicate;
+import java.util.function.Predicate;
 import java.util.stream.Collector;
 import java.util.stream.DoubleStream;
 
@@ -67,6 +69,34 @@ public interface DoubleColumn extends Column<Double> {
 
 	@Override
 	DoubleColumn copy();
+
+	@Override
+	DoubleColumn clean(Predicate<Double> predicate);
+
+	/**
+	 * Returns a new column derived by testing each value with the specified
+	 * {@link DoublePredicate} and replacing with {@code null} when the predicate
+	 * returns {@code true}.
+	 * 
+	 * @param predicate the {@code DoublePredicate} used to test for values which
+	 *                  should be {@code null}
+	 * 
+	 * @return a new column derived by testing each value with the specified
+	 *         {@code DoublePredicate} and replacing with {@code null} when the
+	 *         predicate returns {@code true}.
+	 */
+	DoubleColumn cleanDouble(DoublePredicate predicate);
+
+	/**
+	 * Returns a new column derived by replacing each occurrence of {@code NaN} with
+	 * {@code null}.
+	 * 
+	 * @return a new column derived by replacing each occurrence of {@code NaN} with
+	 *         {@code null}.
+	 */
+	default DoubleColumn cleanNaN() {
+		return cleanDouble(Double::isNaN);
+	}
 
 	/**
 	 * Primitive specialization of {@link Column#get(int)}.

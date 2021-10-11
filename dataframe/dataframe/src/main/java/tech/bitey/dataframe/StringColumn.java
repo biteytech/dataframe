@@ -25,6 +25,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Predicate;
 import java.util.stream.Collector;
 
 /**
@@ -71,6 +72,9 @@ public interface StringColumn extends Column<String> {
 
 	@Override
 	StringColumn copy();
+
+	@Override
+	StringColumn clean(Predicate<String> predicate);
 
 	/**
 	 * Returns an {@link StringColumnBuilder builder} with the specified

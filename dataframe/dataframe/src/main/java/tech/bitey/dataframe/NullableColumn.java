@@ -292,6 +292,27 @@ abstract class NullableColumn<E extends Comparable<? super E>, I extends Column<
 	}
 
 	@Override
+	public N clean(Predicate<E> predicate) {
+
+		BufferBitSet cleanNonNulls = new BufferBitSet();
+		I cleaned = subColumn.clean(predicate, cleanNonNulls);
+
+		if (cleaned == subColumn)
+			return (N) this;
+		else if (cleaned.isEmpty())
+			return construct((C) cleaned, cleanNonNulls, size);
+
+		N nullableCleaned = (N) cleaned;
+
+		BufferBitSet nonNulls = new BufferBitSet();
+		for (int i = offset, j = 0; i <= lastIndex(); i++)
+			if (this.nonNulls.get(i) && nullableCleaned.nonNulls.get(j++))
+				nonNulls.set(i - offset);
+
+		return construct(nullableCleaned.column, nonNulls, size);
+	}
+
+	@Override
 	Column<E> select0(IntColumn indices) {
 
 		BufferBitSet decodedNonNulls = new BufferBitSet();

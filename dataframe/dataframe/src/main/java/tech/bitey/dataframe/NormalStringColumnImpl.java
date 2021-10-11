@@ -542,4 +542,9 @@ public class NormalStringColumnImpl extends AbstractColumn<String, NormalStringC
 
 		return builder.build();
 	}
+
+	@Override
+	public Column<String> clean(Predicate<String> predicate) {
+		throw new UnsupportedOperationException("clean");
+	}
 }

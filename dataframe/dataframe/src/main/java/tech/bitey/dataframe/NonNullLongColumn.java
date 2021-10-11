@@ -19,14 +19,16 @@ package tech.bitey.dataframe;
 import static java.util.Spliterator.DISTINCT;
 import static java.util.Spliterator.SORTED;
 import static tech.bitey.bufferstuff.BufferUtils.EMPTY_BUFFER;
-import static tech.bitey.dataframe.Pr.checkElementIndex;
 import static tech.bitey.dataframe.LongArrayPacker.LONG;
+import static tech.bitey.dataframe.Pr.checkElementIndex;
 
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.LongPredicate;
 import java.util.stream.LongStream;
 
+import tech.bitey.bufferstuff.BufferBitSet;
 import tech.bitey.bufferstuff.BufferUtils;
 
 final class NonNullLongColumn extends LongArrayColumn<Long, LongColumn, NonNullLongColumn> implements LongColumn {
@@ -77,5 +79,30 @@ final class NonNullLongColumn extends LongArrayColumn<Long, LongColumn, NonNullL
 	@Override
 	public LongStream longStream() {
 		return BufferUtils.stream(elements, offset, offset + size, characteristics);
+	}
+
+	@Override
+	public LongColumn cleanLong(LongPredicate predicate) {
+
+		return cleanLong(predicate, new BufferBitSet());
+	}
+
+	LongColumn cleanLong(LongPredicate predicate, BufferBitSet nonNulls) {
+
+		int cardinality = 0, i = 0;
+
+		for (i = 0; i < size(); i++) {
+			if (!predicate.test(at(i + offset))) {
+				nonNulls.set(i);
+				cardinality++;
+			}
+		}
+
+		if (cardinality == size())
+			return this;
+		else {
+			NonNullLongColumn filtered = applyFilter0(nonNulls, cardinality);
+			return new NullableLongColumn(filtered, nonNulls, null, 0, size());
+		}
 	}
 }

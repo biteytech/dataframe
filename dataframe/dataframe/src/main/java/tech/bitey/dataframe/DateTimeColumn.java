@@ -19,6 +19,7 @@ package tech.bitey.dataframe;
 import java.nio.ByteBuffer;
 import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.function.Predicate;
 import java.util.stream.Collector;
 
 /**
@@ -72,6 +73,9 @@ public interface DateTimeColumn extends Column<LocalDateTime> {
 
 	@Override
 	DateTimeColumn copy();
+
+	@Override
+	DateTimeColumn clean(Predicate<LocalDateTime> predicate);
 
 	/**
 	 * Returns a {@link DateTimeColumnBuilder builder} with the specified

@@ -20,6 +20,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.util.Collection;
+import java.util.function.Predicate;
 import java.util.stream.Collector;
 
 /**
@@ -69,6 +70,9 @@ public interface DecimalColumn extends Column<BigDecimal> {
 
 	@Override
 	DecimalColumn copy();
+
+	@Override
+	DecimalColumn clean(Predicate<BigDecimal> predicate);
 
 	/**
 	 * Returns a {@link DecimalColumnBuilder builder} with the specified

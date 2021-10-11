@@ -17,6 +17,7 @@
 package tech.bitey.dataframe;
 
 import java.util.Collection;
+import java.util.function.Predicate;
 import java.util.stream.Collector;
 
 /**
@@ -61,6 +62,9 @@ public interface ByteColumn extends Column<Byte> {
 
 	@Override
 	ByteColumn copy();
+
+	@Override
+	ByteColumn clean(Predicate<Byte> predicate);
 
 	/**
 	 * Primitive specialization of {@link Column#get(int)}.

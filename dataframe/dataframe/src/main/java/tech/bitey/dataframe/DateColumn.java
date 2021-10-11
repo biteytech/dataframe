@@ -19,6 +19,7 @@ package tech.bitey.dataframe;
 import java.nio.ByteBuffer;
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.function.Predicate;
 import java.util.stream.Collector;
 
 /**
@@ -67,6 +68,9 @@ public interface DateColumn extends Column<LocalDate> {
 
 	@Override
 	DateColumn copy();
+
+	@Override
+	DateColumn clean(Predicate<LocalDate> predicate);
 
 	int yyyymmdd(int index);
 

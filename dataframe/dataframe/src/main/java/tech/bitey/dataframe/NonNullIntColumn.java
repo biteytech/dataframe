@@ -19,14 +19,16 @@ package tech.bitey.dataframe;
 import static java.util.Spliterator.DISTINCT;
 import static java.util.Spliterator.SORTED;
 import static tech.bitey.bufferstuff.BufferUtils.EMPTY_BUFFER;
-import static tech.bitey.dataframe.Pr.checkElementIndex;
 import static tech.bitey.dataframe.IntArrayPacker.INTEGER;
+import static tech.bitey.dataframe.Pr.checkElementIndex;
 
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.IntPredicate;
 import java.util.stream.IntStream;
 
+import tech.bitey.bufferstuff.BufferBitSet;
 import tech.bitey.bufferstuff.BufferUtils;
 
 final class NonNullIntColumn extends IntArrayColumn<Integer, IntColumn, NonNullIntColumn> implements IntColumn {
@@ -81,5 +83,30 @@ final class NonNullIntColumn extends IntArrayColumn<Integer, IntColumn, NonNullI
 	@Override
 	public IntStream intStream() {
 		return BufferUtils.stream(elements, offset, offset + size, characteristics);
+	}
+
+	@Override
+	public IntColumn cleanInt(IntPredicate predicate) {
+
+		return cleanInt(predicate, new BufferBitSet());
+	}
+
+	IntColumn cleanInt(IntPredicate predicate, BufferBitSet nonNulls) {
+
+		int cardinality = 0, i = 0;
+
+		for (i = 0; i < size(); i++) {
+			if (!predicate.test(at(i + offset))) {
+				nonNulls.set(i);
+				cardinality++;
+			}
+		}
+
+		if (cardinality == size())
+			return this;
+		else {
+			NonNullIntColumn filtered = applyFilter0(nonNulls, cardinality);
+			return new NullableIntColumn(filtered, nonNulls, null, 0, size());
+		}
 	}
 }

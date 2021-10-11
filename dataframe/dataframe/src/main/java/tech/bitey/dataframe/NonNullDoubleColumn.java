@@ -27,6 +27,7 @@ import java.nio.ByteBuffer;
 import java.nio.DoubleBuffer;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.DoublePredicate;
 import java.util.stream.DoubleStream;
 
 import tech.bitey.bufferstuff.BufferBitSet;
@@ -205,5 +206,30 @@ final class NonNullDoubleColumn extends NonNullSingleBufferColumn<Double, Double
 	@Override
 	public DoubleStream doubleStream() {
 		return BufferUtils.stream(elements, offset, offset + size, characteristics);
+	}
+
+	@Override
+	public DoubleColumn cleanDouble(DoublePredicate predicate) {
+
+		return cleanDouble(predicate, new BufferBitSet());
+	}
+
+	DoubleColumn cleanDouble(DoublePredicate predicate, BufferBitSet nonNulls) {
+
+		int cardinality = 0, i = 0;
+
+		for (i = 0; i < size(); i++) {
+			if (!predicate.test(at(i + offset))) {
+				nonNulls.set(i);
+				cardinality++;
+			}
+		}
+
+		if (cardinality == size())
+			return this;
+		else {
+			NonNullDoubleColumn filtered = applyFilter0(nonNulls, cardinality);
+			return new NullableDoubleColumn(filtered, nonNulls, null, 0, size());
+		}
 	}
 }
