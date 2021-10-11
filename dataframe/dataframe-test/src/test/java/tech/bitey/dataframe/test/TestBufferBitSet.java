@@ -470,9 +470,11 @@ public class TestBufferBitSet {
 		Assertions.assertEquals(0, new BufferBitSet().cardinality(0, 10));
 
 		BufferBitSet bs2 = new BufferBitSet();
-		bs2.set(0, 24);
-		for (int i = 0; i <= 24; i++)
+		bs2.set(0, 100);
+		for (int i = 0; i <= 100; i++)
 			Assertions.assertEquals(i, bs2.cardinality(0, i));
+		for (int i = 1; i <= 100; i++)
+			Assertions.assertEquals(i - 1, bs2.cardinality(1, i));
 		Assertions.assertEquals(3, bs2.cardinality(3, 6));
 		Assertions.assertEquals(3, bs2.cardinality(6, 9));
 	}

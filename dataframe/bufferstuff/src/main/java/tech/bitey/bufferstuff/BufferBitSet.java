@@ -10,6 +10,7 @@ import static tech.bitey.bufferstuff.BufferUtils.writeFully;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.LongBuffer;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 import java.util.BitSet;
@@ -67,6 +68,12 @@ public class BufferBitSet implements Cloneable {
 	 */
 	private ByteBuffer buffer;
 
+	/**
+	 * Long view of {@link #buffer}. Used to boost performance by performing certain
+	 * operations on longs instead of bytes.
+	 */
+	private LongBuffer longBuffer;
+
 	/*--------------------------------------------------------------------------------
 	 *  Getters
 	 *-------------------------------------------------------------------------------*/
@@ -109,7 +116,16 @@ public class BufferBitSet implements Cloneable {
 			this.buffer = buffer;
 		}
 
+		resetLongBuffer();
+
 		this.resizable = resizable;
+	}
+
+	private void resetLongBuffer() {
+		int position = buffer.position();
+		buffer.position(0);
+		longBuffer = buffer.asLongBuffer();
+		buffer.position(position);
 	}
 
 	/**
@@ -915,7 +931,12 @@ public class BufferBitSet implements Cloneable {
 		buffer.position(position);
 
 		// Perform logical AND on words in common
-		for (int i = 0; i < position; i++)
+		final int longAlignedPos = position >> 3;
+		int i = 0;
+		for (; i < longAlignedPos; i++)
+			longBuffer.put(i, longBuffer.get(i) & set.longBuffer.get(i));
+		i <<= 3;
+		for (; i < position; i++)
 			put(i, byt(i) & set.byt(i));
 
 		recalculateBytesInUse();
@@ -936,7 +957,12 @@ public class BufferBitSet implements Cloneable {
 		int bytesInCommon = Math.min(this.buffer.position(), set.buffer.position());
 
 		// Perform logical OR on bytes in common
-		for (int i = 0; i < bytesInCommon; i++)
+		final int longAlignedPos = bytesInCommon >> 3;
+		int i = 0;
+		for (; i < longAlignedPos; i++)
+			longBuffer.put(i, longBuffer.get(i) | set.longBuffer.get(i));
+		i <<= 3;
+		for (; i < bytesInCommon; i++)
 			put(i, byt(i) | set.byt(i));
 
 		copyRemainingBytes(bytesInCommon, set);
@@ -962,7 +988,12 @@ public class BufferBitSet implements Cloneable {
 		int bytesInCommon = Math.min(this.buffer.position(), set.buffer.position());
 
 		// Perform logical XOR on bytes in common
-		for (int i = 0; i < bytesInCommon; i++)
+		final int longAlignedPos = bytesInCommon >> 3;
+		int i = 0;
+		for (; i < longAlignedPos; i++)
+			longBuffer.put(i, longBuffer.get(i) ^ set.longBuffer.get(i));
+		i <<= 3;
+		for (; i < bytesInCommon; i++)
 			put(i, byt(i) ^ set.byt(i));
 
 		copyRemainingBytes(bytesInCommon, set);
@@ -1100,10 +1131,15 @@ public class BufferBitSet implements Cloneable {
 	public int cardinality() {
 
 		final int position = buffer.position();
+		final int longAlignedPos = position >> 3;
 		int count = 0;
 
-		for (int i = 0; i < position; i++)
-			count += bitCount(byt(i) & 0xFF);
+		int i = 0;
+		for (; i < longAlignedPos; i++)
+			count += Long.bitCount(longBuffer.get(i));
+		i <<= 3;
+		for (; i < position; i++)
+			count += Integer.bitCount(byt(i) & 0xFF);
 
 		return count;
 	}
@@ -1129,6 +1165,13 @@ public class BufferBitSet implements Cloneable {
 			return 0;
 		else if (toIndex - 1 > lastSetBit)
 			toIndex = lastSetBit + 1;
+
+		if ((fromIndex & 63) == 0 && (toIndex - fromIndex <= 64) && (toIndex >> 6) < longBuffer.capacity() - 1) {
+			// fast path for single aligned long (common case in dataframe usage)
+			long value = longBuffer.get(fromIndex >> 6);
+			value &= -1L >>> (64 - (toIndex - fromIndex));
+			return Long.bitCount(value);
+		}
 
 		int startByteIndex = byteIndex(fromIndex);
 		int endByteIndex = byteIndex(toIndex - 1);
@@ -1265,6 +1308,8 @@ public class BufferBitSet implements Cloneable {
 			// copy old buffer and replace with new one
 			this.buffer.flip();
 			this.buffer = buffer.put(this.buffer);
+
+			resetLongBuffer();
 		}
 
 		if (byteIndex >= buffer.position())
