@@ -71,6 +71,7 @@ import tech.bitey.dataframe.db.DecimalFromResultSet;
 import tech.bitey.dataframe.db.DoubleFromResultSet;
 import tech.bitey.dataframe.db.FloatFromResultSet;
 import tech.bitey.dataframe.db.IFromResultSet;
+import tech.bitey.dataframe.db.InstantFromResultSet;
 import tech.bitey.dataframe.db.IntFromResultSet;
 import tech.bitey.dataframe.db.LongFromResultSet;
 import tech.bitey.dataframe.db.NormalStringFromResultSet;
@@ -293,6 +294,10 @@ public class TestDataFrame {
 					case TI:
 						create.append("TEXT");
 						fromRsLogic.add(TimeFromResultSet.TIME_FROM_STRING);
+						break;
+					case IN:
+						create.append("TEXT");
+						fromRsLogic.add(InstantFromResultSet.INSTANT_FROM_TIMESTAMP);
 						break;
 					case S:
 						create.append("TEXT");

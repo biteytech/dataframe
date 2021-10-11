@@ -22,66 +22,67 @@ import static java.util.Spliterator.SORTED;
 import static tech.bitey.bufferstuff.BufferUtils.EMPTY_BUFFER;
 
 import java.nio.ByteBuffer;
-import java.nio.LongBuffer;
+import java.nio.IntBuffer;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 import tech.bitey.bufferstuff.BufferBitSet;
 
-final class NonNullUuidColumn extends NonNullSingleBufferColumn<UUID, UuidColumn, NonNullUuidColumn>
-		implements UuidColumn {
+final class NonNullInstantColumn extends NonNullSingleBufferColumn<Instant, InstantColumn, NonNullInstantColumn>
+		implements InstantColumn {
 
-	static final Map<Integer, NonNullUuidColumn> EMPTY = new HashMap<>();
+	static final Map<Integer, NonNullInstantColumn> EMPTY = new HashMap<>();
 	static {
-		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS, c -> new NonNullUuidColumn(EMPTY_BUFFER, 0, 0, c, false));
+		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS, c -> new NonNullInstantColumn(EMPTY_BUFFER, 0, 0, c, false));
 		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED,
-				c -> new NonNullUuidColumn(EMPTY_BUFFER, 0, 0, c, false));
+				c -> new NonNullInstantColumn(EMPTY_BUFFER, 0, 0, c, false));
 		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED | DISTINCT,
-				c -> new NonNullUuidColumn(EMPTY_BUFFER, 0, 0, c, false));
+				c -> new NonNullInstantColumn(EMPTY_BUFFER, 0, 0, c, false));
 	}
 
-	static NonNullUuidColumn empty(int characteristics) {
+	static NonNullInstantColumn empty(int characteristics) {
 		return EMPTY.get(characteristics | NONNULL_CHARACTERISTICS);
 	}
 
-	private final LongBuffer elements;
+	private final IntBuffer elements;
 
-	NonNullUuidColumn(ByteBuffer buffer, int offset, int size, int characteristics, boolean view) {
+	NonNullInstantColumn(ByteBuffer buffer, int offset, int size, int characteristics, boolean view) {
 		super(buffer, offset, size, characteristics, view);
 
-		this.elements = buffer.asLongBuffer();
+		this.elements = buffer.asIntBuffer();
 	}
 
 	@Override
-	NonNullUuidColumn construct(ByteBuffer buffer, int offset, int size, int characteristics, boolean view) {
-		return new NonNullUuidColumn(buffer, offset, size, characteristics, view);
+	NonNullInstantColumn construct(ByteBuffer buffer, int offset, int size, int characteristics, boolean view) {
+		return new NonNullInstantColumn(buffer, offset, size, characteristics, view);
 	}
 
-	private long msb(int index) {
-		return elements.get(index << 1);
+	private long second(int index) {
+		return elements.get(index * 3) << 32L | elements.get(index * 3 + 1);
 	}
 
-	private long lsb(int index) {
-		return elements.get((index << 1) + 1);
+	private int nano(int index) {
+		return elements.get(index * 3 + 2);
 	}
 
-	private void put(int index, long msb, long lsb) {
-		elements.put(index << 1, msb);
-		elements.put((index << 1) + 1, lsb);
+	private void put(int index, long seconds, int nanos) {
+		elements.put(index * 3 + 0, (int) (seconds >> 32));
+		elements.put(index * 3 + 1, (int) seconds);
+		elements.put(index * 3 + 2, nanos);
 	}
 
 	@Override
-	UUID getNoOffset(int index) {
-		return new UUID(msb(index), lsb(index));
+	Instant getNoOffset(int index) {
+		return Instant.ofEpochSecond(second(index), nano(index));
 	}
 
-	int search(UUID value) {
+	int search(Instant value) {
 		return AbstractColumnSearch.binarySearch(this, offset, offset + size, value);
 	}
 
 	@Override
-	int search(UUID value, boolean first) {
+	int search(Instant value, boolean first) {
 		return AbstractColumnSearch.search(this, value, first);
 	}
 
@@ -122,13 +123,13 @@ final class NonNullUuidColumn extends NonNullSingleBufferColumn<UUID, UuidColumn
 	}
 
 	@Override
-	NonNullUuidColumn empty() {
+	NonNullInstantColumn empty() {
 		return EMPTY.get(characteristics);
 	}
 
 	@Override
-	public ColumnType<UUID> getType() {
-		return ColumnType.UUID;
+	public ColumnType<Instant> getType() {
+		return ColumnType.INSTANT;
 	}
 
 	@Override
@@ -137,9 +138,9 @@ final class NonNullUuidColumn extends NonNullSingleBufferColumn<UUID, UuidColumn
 		int result = 1;
 		for (int i = fromIndex; i <= toIndex; i++) {
 
-			long mostSigBits = msb(i);
-			long leastSigBits = lsb(i);
-			long hilo = mostSigBits ^ leastSigBits;
+			long second = second(i);
+			int nano = nano(i);
+			long hilo = second ^ nano;
 
 			result = 31 * result + ((int) (hilo >> 32)) ^ (int) hilo;
 		}
@@ -147,12 +148,12 @@ final class NonNullUuidColumn extends NonNullSingleBufferColumn<UUID, UuidColumn
 	}
 
 	private void put(ByteBuffer buffer, int index) {
-		buffer.putLong(msb(index));
-		buffer.putLong(lsb(index));
+		buffer.putLong(second(index));
+		buffer.putInt(nano(index));
 	}
 
 	@Override
-	NonNullUuidColumn applyFilter0(BufferBitSet keep, int cardinality) {
+	NonNullInstantColumn applyFilter0(BufferBitSet keep, int cardinality) {
 
 		ByteBuffer buffer = allocate(cardinality);
 		for (int i = offset; i <= lastIndex(); i++)
@@ -160,11 +161,11 @@ final class NonNullUuidColumn extends NonNullSingleBufferColumn<UUID, UuidColumn
 				put(buffer, i);
 		buffer.flip();
 
-		return new NonNullUuidColumn(buffer, 0, cardinality, characteristics, false);
+		return new NonNullInstantColumn(buffer, 0, cardinality, characteristics, false);
 	}
 
 	@Override
-	NonNullUuidColumn select0(IntColumn indices) {
+	NonNullInstantColumn select0(IntColumn indices) {
 
 		ByteBuffer buffer = allocate(indices.size());
 		for (int i = 0; i < indices.size(); i++)
@@ -175,11 +176,11 @@ final class NonNullUuidColumn extends NonNullSingleBufferColumn<UUID, UuidColumn
 	}
 
 	@Override
-	int compareValuesAt(NonNullUuidColumn rhs, int l, int r) {
+	int compareValuesAt(NonNullInstantColumn rhs, int l, int r) {
 
-		return (this.msb(l) < rhs.msb(r) ? -1
-				: (this.msb(l) > rhs.msb(r) ? 1
-						: (this.lsb(l) < rhs.lsb(r) ? -1 : (this.lsb(l) > rhs.lsb(r) ? 1 : 0))));
+		return (this.second(l) < rhs.second(r) ? -1
+				: (this.second(l) > rhs.second(r) ? 1
+						: (this.nano(l) < rhs.nano(r) ? -1 : (this.nano(l) > rhs.nano(r) ? 1 : 0))));
 	}
 
 	private int compareValuesAt(int l, int r) {
@@ -187,7 +188,7 @@ final class NonNullUuidColumn extends NonNullSingleBufferColumn<UUID, UuidColumn
 	}
 
 	@Override
-	void intersectLeftSorted(NonNullUuidColumn rhs, IntColumnBuilder indices, BufferBitSet keepRight) {
+	void intersectLeftSorted(NonNullInstantColumn rhs, IntColumnBuilder indices, BufferBitSet keepRight) {
 
 		for (int i = rhs.offset; i <= rhs.lastIndex(); i++) {
 
@@ -202,12 +203,12 @@ final class NonNullUuidColumn extends NonNullSingleBufferColumn<UUID, UuidColumn
 
 	@Override
 	boolean checkType(Object o) {
-		return o instanceof UUID;
+		return o instanceof Instant;
 	}
 
 	@Override
 	int elementSize() {
-		return 16;
+		return 12;
 	}
 
 	// =========================================================================
@@ -252,13 +253,13 @@ final class NonNullUuidColumn extends NonNullSingleBufferColumn<UUID, UuidColumn
 	}
 
 	private void swap(int i, int j) {
-		long im = msb(i);
-		long il = lsb(i);
-		long jm = msb(j);
-		long jl = lsb(j);
+		long is = second(i);
+		int in = nano(i);
+		long js = second(j);
+		int jn = nano(j);
 
-		put(i, jm, jl);
-		put(j, im, il);
+		put(i, js, jn);
+		put(j, is, in);
 	}
 
 	// =========================================================================
@@ -268,21 +269,21 @@ final class NonNullUuidColumn extends NonNullSingleBufferColumn<UUID, UuidColumn
 		if (toIndex - fromIndex < 2)
 			return toIndex;
 
-		long prevM = msb(fromIndex);
-		long prevL = lsb(fromIndex);
+		long prevS = second(fromIndex);
+		int prevN = nano(fromIndex);
 		int highest = fromIndex + 1;
 
 		for (int i = fromIndex + 1; i < toIndex; i++) {
-			long msb = msb(i);
-			long lsb = lsb(i);
+			long second = second(i);
+			int nano = nano(i);
 
-			if (prevM != msb || prevL != lsb) {
+			if (prevS != second || prevN != nano) {
 				if (highest < i)
-					put(highest, msb, lsb);
+					put(highest, second, nano);
 
 				highest++;
-				prevM = msb;
-				prevL = lsb;
+				prevS = second;
+				prevN = nano;
 			}
 		}
 

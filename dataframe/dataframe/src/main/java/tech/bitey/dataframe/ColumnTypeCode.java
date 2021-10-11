@@ -22,6 +22,7 @@ public enum ColumnTypeCode {
 	DA, // Date
 	DT, // DateTime
 	TI, // Time
+	IN, // Instant
 	D, // Double
 	F, // Float
 	I, // Int
@@ -44,6 +45,8 @@ public enum ColumnTypeCode {
 			return ColumnType.DATETIME;
 		case TI:
 			return ColumnType.TIME;
+		case IN:
+			return ColumnType.INSTANT;
 		case D:
 			return ColumnType.DOUBLE;
 		case F:

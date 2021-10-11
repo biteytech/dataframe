@@ -22,9 +22,11 @@ import static java.util.Spliterator.SORTED;
 
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -63,6 +65,11 @@ import tech.bitey.dataframe.ColumnTypeCode;
 import tech.bitey.dataframe.DataFrame;
 import tech.bitey.dataframe.DataFrameFactory;
 
+/**
+ * Takes several minutes to run. RAM hungry (needs at least 4GB, maybe 8).
+ * 
+ * @author biteytech@protonmail.com
+ */
 @RunWith(Suite.class)
 @Suite.SuiteClasses({ GuavaTestLibSuite.ColumnTests.class, GuavaTestLibSuite.ColumnMapTests.class })
 public class GuavaTestLibSuite {
@@ -115,6 +122,9 @@ public class GuavaTestLibSuite {
 			new TestIngredients<>(ColumnType.DATE, LocalDate[]::new, DATES),
 			new TestIngredients<>(ColumnType.DATETIME, LocalDateTime[]::new,
 					Arrays.stream(DATES).map(LocalDate::atStartOfDay).toArray(LocalDateTime[]::new)),
+			new TestIngredients<>(ColumnType.INSTANT, Instant[]::new,
+					Arrays.stream(DATES).map(l -> l.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant())
+							.toArray(Instant[]::new)),
 			new TestIngredients<>(ColumnType.TIME, LocalTime[]::new, LocalTime.MIN, LocalTime.MIN.plusNanos(1),
 					LocalTime.of(1, 0), LocalTime.of(1, 1), LocalTime.of(8, 8), LocalTime.NOON.minusNanos(1),
 					LocalTime.NOON.plusNanos(1), LocalTime.MAX.minusNanos(1), LocalTime.MAX),
