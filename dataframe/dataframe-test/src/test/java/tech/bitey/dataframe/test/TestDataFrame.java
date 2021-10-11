@@ -18,6 +18,7 @@ package tech.bitey.dataframe.test;
 
 import static java.util.Spliterator.DISTINCT;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.math.BigDecimal;
 import java.sql.Connection;
@@ -693,6 +694,24 @@ public class TestDataFrame {
 		for (Row r : expected)
 			for (int i = 0; i < r.columnCount(); i++)
 				Assertions.assertEquals(expected.columnName(i), r.columnName(i));
+	}
+
+	@Test
+	public void parseCsv() throws Exception {
+
+		DataFrame expected = DataFrameConfig.builder().columnNames("A", "B")
+				.columns(StringColumn.of("a", "b", "c"), IntColumn.of(1, 2, null)).build().create();
+		DataFrame actual;
+
+		String vanilla = "A,B\na,\"1\"\nb,2\nc,";
+		actual = DataFrameFactory.readCsvFrom(new ByteArrayInputStream(vanilla.getBytes()),
+				ReadCsvConfig.builder().columnTypes(ColumnType.STRING, ColumnType.INT).build());
+		Assertions.assertEquals(expected, actual);
+
+		String fancy = "A\tB\r\na\t\"1\"\r\nb\t2\r\nc\t(null)";
+		actual = DataFrameFactory.readCsvFrom(new ByteArrayInputStream(fancy.getBytes()), ReadCsvConfig.builder()
+				.columnTypes(ColumnType.STRING, ColumnType.INT).delim('\t').nullValue("(null)").build());
+		Assertions.assertEquals(expected, actual);
 	}
 
 	private static LocalDate fromInt(int yyyymmdd) {

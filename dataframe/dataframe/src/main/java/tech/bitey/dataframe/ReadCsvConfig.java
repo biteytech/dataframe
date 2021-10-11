@@ -86,14 +86,22 @@ public final class ReadCsvConfig implements ImmutableBean {
     private final List<Function<String, Comparable<?>>> columnParsers;
 
     /**
-     * any ASCII character which is not a letter, digit, double quote, CR, or LF
+     * Any ASCII character which is not a letter, digit, double quote, CR, or LF.
+     * Defaults to comma.
      */
     @PropertyDefinition
     private final char delim;
 
+    /**
+     * Value to be interpreted as {@code null}. Defaults to empty string.
+     */
+    @PropertyDefinition
+    private final String nullValue;
+
     @ImmutableDefaults
     private static void applyDefaults(Builder builder) {
         builder.delim(',');
+        builder.nullValue("");
     }
 
     @ImmutableValidator
@@ -109,6 +117,8 @@ public final class ReadCsvConfig implements ImmutableBean {
 
         checkArgument(delim <= 0x7F && !isLetterOrDigit(delim) && delim != '"' && delim != '\r' && delim != '\n',
                 "delimiter must an ASCII character which is not a letter, digit, double quote, CR, or LF");
+
+        Pr.checkNotNull(nullValue, "nullValue cannot itself be null");
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -252,7 +262,7 @@ public final class ReadCsvConfig implements ImmutableBean {
             if (fields[i].startsWith("\""))
                 fields[i] = fields[i].substring(1, fields[i].length() - 1);
 
-            if (fields[i].isEmpty()) {
+            if (nullValue.equals(fields[i])) {
                 fields[i] = null;
                 continue;
             }
@@ -286,12 +296,14 @@ public final class ReadCsvConfig implements ImmutableBean {
                             "columnTypes",
                             "columnNames",
                             "columnParsers",
-                            "delim"},
+                            "delim",
+                            "nullValue"},
                     () -> new ReadCsvConfig.Builder(),
                     b -> b.getColumnTypes(),
                     b -> b.getColumnNames(),
                     b -> b.getColumnParsers(),
-                    b -> b.getDelim());
+                    b -> b.getDelim(),
+                    b -> b.getNullValue());
 
     /**
      * The meta-bean for {@code ReadCsvConfig}.
@@ -317,12 +329,14 @@ public final class ReadCsvConfig implements ImmutableBean {
             List<ColumnType<?>> columnTypes,
             List<String> columnNames,
             List<Function<String, Comparable<?>>> columnParsers,
-            char delim) {
+            char delim,
+            String nullValue) {
         JodaBeanUtils.notEmpty(columnTypes, "columnTypes");
         this.columnTypes = Collections.unmodifiableList(new ArrayList<>(columnTypes));
         this.columnNames = (columnNames != null ? Collections.unmodifiableList(new ArrayList<>(columnNames)) : null);
         this.columnParsers = (columnParsers != null ? Collections.unmodifiableList(new ArrayList<>(columnParsers)) : null);
         this.delim = delim;
+        this.nullValue = nullValue;
         validate();
     }
 
@@ -364,11 +378,21 @@ public final class ReadCsvConfig implements ImmutableBean {
 
     //-----------------------------------------------------------------------
     /**
-     * Gets any ASCII character which is not a letter, digit, double quote, CR, or LF
+     * Gets any ASCII character which is not a letter, digit, double quote, CR, or LF.
+     * Defaults to comma.
      * @return the value of the property
      */
     public char getDelim() {
         return delim;
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * Gets value to be interpreted as {@code null}. Defaults to empty string.
+     * @return the value of the property
+     */
+    public String getNullValue() {
+        return nullValue;
     }
 
     //-----------------------------------------------------------------------
@@ -390,7 +414,8 @@ public final class ReadCsvConfig implements ImmutableBean {
             return JodaBeanUtils.equal(columnTypes, other.columnTypes) &&
                     JodaBeanUtils.equal(columnNames, other.columnNames) &&
                     JodaBeanUtils.equal(columnParsers, other.columnParsers) &&
-                    (delim == other.delim);
+                    (delim == other.delim) &&
+                    JodaBeanUtils.equal(nullValue, other.nullValue);
         }
         return false;
     }
@@ -402,17 +427,19 @@ public final class ReadCsvConfig implements ImmutableBean {
         hash = hash * 31 + JodaBeanUtils.hashCode(columnNames);
         hash = hash * 31 + JodaBeanUtils.hashCode(columnParsers);
         hash = hash * 31 + JodaBeanUtils.hashCode(delim);
+        hash = hash * 31 + JodaBeanUtils.hashCode(nullValue);
         return hash;
     }
 
     @Override
     public String toString() {
-        StringBuilder buf = new StringBuilder(160);
+        StringBuilder buf = new StringBuilder(192);
         buf.append("ReadCsvConfig{");
         buf.append("columnTypes").append('=').append(JodaBeanUtils.toString(columnTypes)).append(',').append(' ');
         buf.append("columnNames").append('=').append(JodaBeanUtils.toString(columnNames)).append(',').append(' ');
         buf.append("columnParsers").append('=').append(JodaBeanUtils.toString(columnParsers)).append(',').append(' ');
-        buf.append("delim").append('=').append(JodaBeanUtils.toString(delim));
+        buf.append("delim").append('=').append(JodaBeanUtils.toString(delim)).append(',').append(' ');
+        buf.append("nullValue").append('=').append(JodaBeanUtils.toString(nullValue));
         buf.append('}');
         return buf.toString();
     }
@@ -427,6 +454,7 @@ public final class ReadCsvConfig implements ImmutableBean {
         private List<String> columnNames;
         private List<Function<String, Comparable<?>>> columnParsers;
         private char delim;
+        private String nullValue;
 
         /**
          * Restricted constructor.
@@ -444,6 +472,7 @@ public final class ReadCsvConfig implements ImmutableBean {
             this.columnNames = (beanToCopy.getColumnNames() != null ? new ArrayList<>(beanToCopy.getColumnNames()) : null);
             this.columnParsers = (beanToCopy.getColumnParsers() != null ? new ArrayList<>(beanToCopy.getColumnParsers()) : null);
             this.delim = beanToCopy.getDelim();
+            this.nullValue = beanToCopy.getNullValue();
         }
 
         //-----------------------------------------------------------------------
@@ -458,6 +487,8 @@ public final class ReadCsvConfig implements ImmutableBean {
                     return columnParsers;
                 case 95468143:  // delim
                     return delim;
+                case 1034369066:  // nullValue
+                    return nullValue;
                 default:
                     throw new NoSuchElementException("Unknown property: " + propertyName);
             }
@@ -479,6 +510,9 @@ public final class ReadCsvConfig implements ImmutableBean {
                 case 95468143:  // delim
                     this.delim = (Character) newValue;
                     break;
+                case 1034369066:  // nullValue
+                    this.nullValue = (String) newValue;
+                    break;
                 default:
                     throw new NoSuchElementException("Unknown property: " + propertyName);
             }
@@ -497,7 +531,8 @@ public final class ReadCsvConfig implements ImmutableBean {
                     columnTypes,
                     columnNames,
                     columnParsers,
-                    delim);
+                    delim,
+                    nullValue);
         }
 
         //-----------------------------------------------------------------------
@@ -569,7 +604,8 @@ public final class ReadCsvConfig implements ImmutableBean {
         }
 
         /**
-         * Sets any ASCII character which is not a letter, digit, double quote, CR, or LF
+         * Sets any ASCII character which is not a letter, digit, double quote, CR, or LF.
+         * Defaults to comma.
          * @param delim  the new value
          * @return this, for chaining, not null
          */
@@ -578,15 +614,26 @@ public final class ReadCsvConfig implements ImmutableBean {
             return this;
         }
 
+        /**
+         * Sets value to be interpreted as {@code null}. Defaults to empty string.
+         * @param nullValue  the new value
+         * @return this, for chaining, not null
+         */
+        public Builder nullValue(String nullValue) {
+            this.nullValue = nullValue;
+            return this;
+        }
+
         //-----------------------------------------------------------------------
         @Override
         public String toString() {
-            StringBuilder buf = new StringBuilder(160);
+            StringBuilder buf = new StringBuilder(192);
             buf.append("ReadCsvConfig.Builder{");
             buf.append("columnTypes").append('=').append(JodaBeanUtils.toString(columnTypes)).append(',').append(' ');
             buf.append("columnNames").append('=').append(JodaBeanUtils.toString(columnNames)).append(',').append(' ');
             buf.append("columnParsers").append('=').append(JodaBeanUtils.toString(columnParsers)).append(',').append(' ');
-            buf.append("delim").append('=').append(JodaBeanUtils.toString(delim));
+            buf.append("delim").append('=').append(JodaBeanUtils.toString(delim)).append(',').append(' ');
+            buf.append("nullValue").append('=').append(JodaBeanUtils.toString(nullValue));
             buf.append('}');
             return buf.toString();
         }
