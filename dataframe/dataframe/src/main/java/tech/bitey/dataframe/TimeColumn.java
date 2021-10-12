@@ -70,6 +70,26 @@ public interface TimeColumn extends Column<LocalTime> {
 	@Override
 	TimeColumn clean(Predicate<LocalTime> predicate);
 
+	@Override
+	TimeColumn filter(Predicate<LocalTime> predicate, boolean keepNulls);
+
+	/**
+	 * Returns a new column derived by testing each value with the specified
+	 * predicate and removing values when the predicate returns {@code false}.
+	 * {@code null} values are not passed to the predicate for testing and are kept
+	 * as-is. Equivalent to {@link #filter(Predicate, boolean) filter(predicate,
+	 * true)}.
+	 * 
+	 * @param predicate the {@link Predicate} used to test for values which should
+	 *                  be kept.
+	 * 
+	 * @return a new column derived by testing each value with the specified
+	 *         predicate.
+	 */
+	default TimeColumn filter(Predicate<LocalTime> predicate) {
+		return filter(predicate, true);
+	}
+
 	/**
 	 * Returns a {@link TimeColumnBuilder builder} with the specified
 	 * characteristic.

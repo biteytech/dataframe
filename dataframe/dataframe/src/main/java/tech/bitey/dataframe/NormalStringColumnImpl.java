@@ -544,7 +544,27 @@ public class NormalStringColumnImpl extends AbstractColumn<String, NormalStringC
 	}
 
 	@Override
-	public Column<String> clean(Predicate<String> predicate) {
+	public NormalStringColumn clean(Predicate<String> predicate) {
 		throw new UnsupportedOperationException("clean");
+	}
+
+	@Override
+	public NormalStringColumn filter(Predicate<String> predicate, boolean keepNulls) {
+
+		boolean[] keep = new boolean[values.length];
+		boolean keepAll = true;
+		for (int i = 0; i < values.length; i++) {
+			keep[i] = predicate.test(values[i]);
+			keepAll = keepAll && keep[i];
+		}
+		if (keepAll)
+			return this;
+
+		ByteColumn bytes = this.bytes.subColumn(offset, offset + size).filter(b -> keep[b & 0xFF], keepNulls);
+
+		if (bytes.size() == this.bytes.size())
+			return this;
+		else
+			return new NormalStringColumnImpl(bytes, indices, 0, bytes.size());
 	}
 }

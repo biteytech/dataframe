@@ -93,14 +93,7 @@ final class NonNullIntColumn extends IntArrayColumn<Integer, IntColumn, NonNullI
 
 	IntColumn cleanInt(IntPredicate predicate, BufferBitSet nonNulls) {
 
-		int cardinality = 0, i = 0;
-
-		for (i = 0; i < size(); i++) {
-			if (!predicate.test(at(i + offset))) {
-				nonNulls.set(i);
-				cardinality++;
-			}
-		}
+		int cardinality = filterInt00(predicate, nonNulls, false);
 
 		if (cardinality == size())
 			return this;
@@ -108,5 +101,35 @@ final class NonNullIntColumn extends IntArrayColumn<Integer, IntColumn, NonNullI
 			NonNullIntColumn filtered = applyFilter0(nonNulls, cardinality);
 			return new NullableIntColumn(filtered, nonNulls, null, 0, size());
 		}
+	}
+
+	@Override
+	public IntColumn filterInt(IntPredicate predicate, boolean keepNulls) {
+
+		return filterInt0(predicate, new BufferBitSet());
+	}
+
+	IntColumn filterInt0(IntPredicate predicate, BufferBitSet keep) {
+
+		int cardinality = filterInt00(predicate, keep, true);
+
+		if (cardinality == size())
+			return this;
+		else
+			return applyFilter0(keep, cardinality);
+	}
+
+	private int filterInt00(IntPredicate predicate, BufferBitSet filter, boolean expected) {
+
+		int cardinality = 0;
+
+		for (int i = size() - 1; i >= 0; i--) {
+			if (predicate.test(at(i + offset)) == expected) {
+				filter.set(i);
+				cardinality++;
+			}
+		}
+
+		return cardinality;
 	}
 }

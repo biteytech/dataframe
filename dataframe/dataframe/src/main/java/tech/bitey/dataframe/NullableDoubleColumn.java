@@ -46,18 +46,15 @@ final class NullableDoubleColumn extends NullableColumn<Double, DoubleColumn, No
 		BufferBitSet cleanNonNulls = new BufferBitSet();
 		DoubleColumn cleaned = subColumn.cleanDouble(predicate, cleanNonNulls);
 
-		if (cleaned == subColumn)
-			return this;
-		else if (cleaned.isEmpty())
-			return construct((NonNullDoubleColumn) cleaned, cleanNonNulls, size);
+		return clean(cleaned, cleanNonNulls);
+	}
 
-		NullableDoubleColumn nullableCleaned = (NullableDoubleColumn) cleaned;
+	@Override
+	public DoubleColumn filterDouble(DoublePredicate predicate, boolean keepNulls) {
 
-		BufferBitSet nonNulls = new BufferBitSet();
-		for (int i = offset, j = 0; i <= lastIndex(); i++)
-			if (this.nonNulls.get(i) && nullableCleaned.nonNulls.get(j++))
-				nonNulls.set(i - offset);
+		BufferBitSet keep = new BufferBitSet();
+		var filtered = subColumn.filterDouble0(predicate, keep);
 
-		return construct(nullableCleaned.column, nonNulls, size);
+		return filter(filtered, keep, keepNulls);
 	}
 }

@@ -89,14 +89,7 @@ final class NonNullLongColumn extends LongArrayColumn<Long, LongColumn, NonNullL
 
 	LongColumn cleanLong(LongPredicate predicate, BufferBitSet nonNulls) {
 
-		int cardinality = 0, i = 0;
-
-		for (i = 0; i < size(); i++) {
-			if (!predicate.test(at(i + offset))) {
-				nonNulls.set(i);
-				cardinality++;
-			}
-		}
+		int cardinality = filterLong00(predicate, nonNulls, false);
 
 		if (cardinality == size())
 			return this;
@@ -104,5 +97,35 @@ final class NonNullLongColumn extends LongArrayColumn<Long, LongColumn, NonNullL
 			NonNullLongColumn filtered = applyFilter0(nonNulls, cardinality);
 			return new NullableLongColumn(filtered, nonNulls, null, 0, size());
 		}
+	}
+
+	@Override
+	public LongColumn filterLong(LongPredicate predicate, boolean keepNulls) {
+
+		return filterLong0(predicate, new BufferBitSet());
+	}
+
+	LongColumn filterLong0(LongPredicate predicate, BufferBitSet keep) {
+
+		int cardinality = filterLong00(predicate, keep, true);
+
+		if (cardinality == size())
+			return this;
+		else
+			return applyFilter0(keep, cardinality);
+	}
+
+	private int filterLong00(LongPredicate predicate, BufferBitSet filter, boolean expected) {
+
+		int cardinality = 0;
+
+		for (int i = size() - 1; i >= 0; i--) {
+			if (predicate.test(at(i + offset)) == expected) {
+				filter.set(i);
+				cardinality++;
+			}
+		}
+
+		return cardinality;
 	}
 }

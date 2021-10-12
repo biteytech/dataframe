@@ -69,6 +69,26 @@ public interface FloatColumn extends Column<Float> {
 	@Override
 	FloatColumn clean(Predicate<Float> predicate);
 
+	@Override
+	FloatColumn filter(Predicate<Float> predicate, boolean keepNulls);
+
+	/**
+	 * Returns a new column derived by testing each value with the specified
+	 * predicate and removing values when the predicate returns {@code false}.
+	 * {@code null} values are not passed to the predicate for testing and are kept
+	 * as-is. Equivalent to {@link #filter(Predicate, boolean) filter(predicate,
+	 * true)}.
+	 * 
+	 * @param predicate the {@link Predicate} used to test for values which should
+	 *                  be kept.
+	 * 
+	 * @return a new column derived by testing each value with the specified
+	 *         predicate.
+	 */
+	default FloatColumn filter(Predicate<Float> predicate) {
+		return filter(predicate, true);
+	}
+
 	/**
 	 * Primitive specialization of {@link Column#get(int)}.
 	 * 

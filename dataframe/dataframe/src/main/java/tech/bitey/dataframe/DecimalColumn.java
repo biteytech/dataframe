@@ -74,6 +74,26 @@ public interface DecimalColumn extends Column<BigDecimal> {
 	@Override
 	DecimalColumn clean(Predicate<BigDecimal> predicate);
 
+	@Override
+	DecimalColumn filter(Predicate<BigDecimal> predicate, boolean keepNulls);
+
+	/**
+	 * Returns a new column derived by testing each value with the specified
+	 * predicate and removing values when the predicate returns {@code false}.
+	 * {@code null} values are not passed to the predicate for testing and are kept
+	 * as-is. Equivalent to {@link #filter(Predicate, boolean) filter(predicate,
+	 * true)}.
+	 * 
+	 * @param predicate the {@link Predicate} used to test for values which should
+	 *                  be kept.
+	 * 
+	 * @return a new column derived by testing each value with the specified
+	 *         predicate.
+	 */
+	default DecimalColumn filter(Predicate<BigDecimal> predicate) {
+		return filter(predicate, true);
+	}
+
 	/**
 	 * Returns a {@link DecimalColumnBuilder builder} with the specified
 	 * characteristic.

@@ -69,6 +69,26 @@ public interface ShortColumn extends Column<Short> {
 	@Override
 	ShortColumn clean(Predicate<Short> predicate);
 
+	@Override
+	ShortColumn filter(Predicate<Short> predicate, boolean keepNulls);
+
+	/**
+	 * Returns a new column derived by testing each value with the specified
+	 * predicate and removing values when the predicate returns {@code false}.
+	 * {@code null} values are not passed to the predicate for testing and are kept
+	 * as-is. Equivalent to {@link #filter(Predicate, boolean) filter(predicate,
+	 * true)}.
+	 * 
+	 * @param predicate the {@link Predicate} used to test for values which should
+	 *                  be kept.
+	 * 
+	 * @return a new column derived by testing each value with the specified
+	 *         predicate.
+	 */
+	default ShortColumn filter(Predicate<Short> predicate) {
+		return filter(predicate, true);
+	}
+
 	/**
 	 * Primitive specialization of {@link Column#get(int)}.
 	 * 

@@ -647,15 +647,7 @@ abstract class NonNullColumn<E extends Comparable<? super E>, I extends Column<E
 
 	I clean(Predicate<E> predicate, BufferBitSet nonNulls) {
 
-		int cardinality = 0, i = 0;
-
-		for (E e : this) {
-			if (!predicate.test(e)) {
-				nonNulls.set(i);
-				cardinality++;
-			}
-			i++;
-		}
+		int cardinality = filter00(Predicate.not(predicate), nonNulls);
 
 		if (cardinality == size())
 			return (I) this;
@@ -663,5 +655,34 @@ abstract class NonNullColumn<E extends Comparable<? super E>, I extends Column<E
 			C filtered = (C) applyFilter0(nonNulls, cardinality);
 			return (I) getType().nullableConstructor().create(filtered, nonNulls, null, 0, size());
 		}
+	}
+
+	@Override
+	public C filter(Predicate<E> predicate, boolean keepNulls) {
+
+		return filter0(predicate, new BufferBitSet());
+	}
+
+	C filter0(Predicate<E> predicate, BufferBitSet keep) {
+
+		int cardinality = filter00(predicate, keep);
+
+		return (C) applyFilter(keep, cardinality);
+	}
+
+	private int filter00(Predicate<E> predicate, BufferBitSet filter) {
+
+		int cardinality = 0;
+
+		for (int i = lastIndex(); i >= offset; i--) {
+
+			E e = getNoOffset(i);
+			if (predicate.test(e)) {
+				filter.set(i - offset);
+				cardinality++;
+			}
+		}
+
+		return cardinality;
 	}
 }

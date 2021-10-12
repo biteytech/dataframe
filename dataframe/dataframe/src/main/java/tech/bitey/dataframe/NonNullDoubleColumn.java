@@ -216,14 +216,7 @@ final class NonNullDoubleColumn extends NonNullSingleBufferColumn<Double, Double
 
 	DoubleColumn cleanDouble(DoublePredicate predicate, BufferBitSet nonNulls) {
 
-		int cardinality = 0, i = 0;
-
-		for (i = 0; i < size(); i++) {
-			if (!predicate.test(at(i + offset))) {
-				nonNulls.set(i);
-				cardinality++;
-			}
-		}
+		int cardinality = filterDouble00(predicate, nonNulls, false);
 
 		if (cardinality == size())
 			return this;
@@ -231,5 +224,35 @@ final class NonNullDoubleColumn extends NonNullSingleBufferColumn<Double, Double
 			NonNullDoubleColumn filtered = applyFilter0(nonNulls, cardinality);
 			return new NullableDoubleColumn(filtered, nonNulls, null, 0, size());
 		}
+	}
+
+	@Override
+	public DoubleColumn filterDouble(DoublePredicate predicate, boolean keepNulls) {
+
+		return filterDouble0(predicate, new BufferBitSet());
+	}
+
+	DoubleColumn filterDouble0(DoublePredicate predicate, BufferBitSet keep) {
+
+		int cardinality = filterDouble00(predicate, keep, true);
+
+		if (cardinality == size())
+			return this;
+		else
+			return applyFilter0(keep, cardinality);
+	}
+
+	private int filterDouble00(DoublePredicate predicate, BufferBitSet filter, boolean expected) {
+
+		int cardinality = 0;
+
+		for (int i = size() - 1; i >= 0; i--) {
+			if (predicate.test(at(i + offset)) == expected) {
+				filter.set(i);
+				cardinality++;
+			}
+		}
+
+		return cardinality;
 	}
 }

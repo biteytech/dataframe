@@ -76,6 +76,26 @@ public interface StringColumn extends Column<String> {
 	@Override
 	StringColumn clean(Predicate<String> predicate);
 
+	@Override
+	StringColumn filter(Predicate<String> predicate, boolean keepNulls);
+
+	/**
+	 * Returns a new column derived by testing each value with the specified
+	 * predicate and removing values when the predicate returns {@code false}.
+	 * {@code null} values are not passed to the predicate for testing and are kept
+	 * as-is. Equivalent to {@link #filter(Predicate, boolean) filter(predicate,
+	 * true)}.
+	 * 
+	 * @param predicate the {@link Predicate} used to test for values which should
+	 *                  be kept.
+	 * 
+	 * @return a new column derived by testing each value with the specified
+	 *         predicate.
+	 */
+	default StringColumn filter(Predicate<String> predicate) {
+		return filter(predicate, true);
+	}
+
 	/**
 	 * Returns an {@link StringColumnBuilder builder} with the specified
 	 * characteristic.

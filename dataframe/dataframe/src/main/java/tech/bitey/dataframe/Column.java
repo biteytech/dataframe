@@ -466,22 +466,22 @@ public interface Column<E extends Comparable<? super E>> extends List<E> {
 	 */
 	Column<E> clean(Predicate<E> predicate);
 
-//	/**
-//	 * Returns a new column derived by testing each value with the specified
-//	 * predicate and removing values when the predicate returns {@code false}.
-//	 * {@code null} values are never passed to the predicate for testing, instead
-//	 * the {@code keepNulls} parameter determines whether all nulls are kept as-is,
-//	 * or if all nulls are removed.
-//	 * 
-//	 * @param predicate the {@link Predicate} used to test for values which should
-//	 *                  be kept.
-//	 * @param keepNulls {@code true} means keep all {@code null} values as-is.
-//	 *                  {@code false} means drop all {@code null} values.
-//	 * 
-//	 * @return a new column derived by testing each value with the specified
-//	 *         predicate.
-//	 */
-//	Column<E> filter(Predicate<E> predicate, boolean keepNulls);
+	/**
+	 * Returns a new column derived by testing each value with the specified
+	 * predicate and removing values when the predicate returns {@code false}.
+	 * {@code null} values are never passed to the predicate for testing, instead
+	 * the {@code keepNulls} parameter determines whether all nulls are kept as-is,
+	 * or if all nulls are removed.
+	 * 
+	 * @param predicate the {@link Predicate} used to test for values which should
+	 *                  be kept.
+	 * @param keepNulls {@code true} means keep all {@code null} values as-is.
+	 *                  {@code false} means drop all {@code null} values.
+	 * 
+	 * @return a new column derived by testing each value with the specified
+	 *         predicate.
+	 */
+	Column<E> filter(Predicate<E> predicate, boolean keepNulls);
 
 	/*------------------------------------------------------------
 	 *  NavigableSet-inspired Methods

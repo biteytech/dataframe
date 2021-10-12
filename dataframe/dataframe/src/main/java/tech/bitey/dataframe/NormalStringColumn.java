@@ -23,6 +23,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.UUID;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collector;
 
 /**
@@ -74,6 +75,26 @@ public interface NormalStringColumn extends Column<String> {
 
 	@Override
 	NormalStringColumn copy();
+
+	@Override
+	NormalStringColumn filter(Predicate<String> predicate, boolean keepNulls);
+
+	/**
+	 * Returns a new column derived by testing each value with the specified
+	 * predicate and removing values when the predicate returns {@code false}.
+	 * {@code null} values are not passed to the predicate for testing and are kept
+	 * as-is. Equivalent to {@link #filter(Predicate, boolean) filter(predicate,
+	 * true)}.
+	 * 
+	 * @param predicate the {@link Predicate} used to test for values which should
+	 *                  be kept.
+	 * 
+	 * @return a new column derived by testing each value with the specified
+	 *         predicate.
+	 */
+	default NormalStringColumn filter(Predicate<String> predicate) {
+		return filter(predicate, true);
+	}
 
 	/**
 	 * Returns a new {@link NormalStringColumnBuilder}

@@ -46,18 +46,15 @@ final class NullableIntColumn extends NullableIntArrayColumn<Integer, IntColumn,
 		BufferBitSet cleanNonNulls = new BufferBitSet();
 		IntColumn cleaned = subColumn.cleanInt(predicate, cleanNonNulls);
 
-		if (cleaned == subColumn)
-			return this;
-		else if (cleaned.isEmpty())
-			return construct((NonNullIntColumn) cleaned, cleanNonNulls, size);
+		return clean(cleaned, cleanNonNulls);
+	}
 
-		NullableIntColumn nullableCleaned = (NullableIntColumn) cleaned;
+	@Override
+	public IntColumn filterInt(IntPredicate predicate, boolean keepNulls) {
 
-		BufferBitSet nonNulls = new BufferBitSet();
-		for (int i = offset, j = 0; i <= lastIndex(); i++)
-			if (this.nonNulls.get(i) && nullableCleaned.nonNulls.get(j++))
-				nonNulls.set(i - offset);
+		BufferBitSet keep = new BufferBitSet();
+		var filtered = subColumn.filterInt0(predicate, keep);
 
-		return construct(nullableCleaned.column, nonNulls, size);
+		return filter(filtered, keep, keepNulls);
 	}
 }

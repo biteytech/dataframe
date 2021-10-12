@@ -87,6 +87,58 @@ public interface LongColumn extends Column<Long> {
 	 */
 	LongColumn cleanLong(LongPredicate predicate);
 
+	@Override
+	LongColumn filter(Predicate<Long> predicate, boolean keepNulls);
+
+	/**
+	 * Returns a new column derived by testing each value with the specified
+	 * predicate and removing values when the predicate returns {@code false}.
+	 * {@code null} values are not passed to the predicate for testing and are kept
+	 * as-is. Equivalent to {@link #filter(Predicate, boolean) filter(predicate,
+	 * true)}.
+	 * 
+	 * @param predicate the {@link Predicate} used to test for values which should
+	 *                  be kept.
+	 * 
+	 * @return a new column derived by testing each value with the specified
+	 *         predicate.
+	 */
+	default LongColumn filter(Predicate<Long> predicate) {
+		return filter(predicate, true);
+	}
+
+	/**
+	 * Returns a new column derived by testing each value with the specified
+	 * predicate and removing values when the predicate returns {@code false}. The
+	 * {@code keepNulls} parameter determines whether all nulls are kept as-is, or
+	 * if all nulls are removed.
+	 * 
+	 * @param predicate the {@link LongPredicate} used to test for values which
+	 *                  should be kept.
+	 * @param keepNulls {@code true} means keep all {@code null} values as-is.
+	 *                  {@code false} means drop all {@code null} values.
+	 * 
+	 * @return a new column derived by testing each value with the specified
+	 *         predicate.
+	 */
+	LongColumn filterLong(LongPredicate predicate, boolean keepNulls);
+
+	/**
+	 * Returns a new column derived by testing each value with the specified
+	 * predicate and removing values when the predicate returns {@code false}.
+	 * Equivalent to {@link #filter(LongPredicate, boolean) filter(predicate,
+	 * true)}.
+	 * 
+	 * @param predicate the {@link LongPredicate} used to test for values which
+	 *                  should be kept.
+	 * 
+	 * @return a new column derived by testing each value with the specified
+	 *         predicate.
+	 */
+	default LongColumn filterLong(LongPredicate predicate) {
+		return filterLong(predicate, true);
+	}
+
 	/**
 	 * Primitive specialization of {@link Column#get(int)}.
 	 * 

@@ -300,6 +300,11 @@ abstract class NullableColumn<E extends Comparable<? super E>, I extends Column<
 		BufferBitSet cleanNonNulls = new BufferBitSet();
 		I cleaned = subColumn.clean(predicate, cleanNonNulls);
 
+		return clean(cleaned, cleanNonNulls);
+	}
+
+	N clean(I cleaned, BufferBitSet cleanNonNulls) {
+
 		if (cleaned == subColumn)
 			return (N) this;
 		else if (cleaned.isEmpty())
@@ -313,6 +318,39 @@ abstract class NullableColumn<E extends Comparable<? super E>, I extends Column<
 				nonNulls.set(i - offset);
 
 		return construct(nullableCleaned.column, nonNulls, size);
+	}
+
+	@Override
+	public I filter(Predicate<E> predicate, boolean keepNulls) {
+
+		BufferBitSet keep = new BufferBitSet();
+		I filtered = (I) subColumn.filter0(predicate, keep);
+
+		return filter(filtered, keep, keepNulls);
+	}
+
+	I filter(I filtered, BufferBitSet keep, boolean keepNulls) {
+
+		if (!keepNulls)
+			return filtered;
+
+		BufferBitSet nonNulls = new BufferBitSet();
+		int removed = 0;
+		for (int i = offset, j = 0; i <= lastIndex(); i++) {
+			if (this.nonNulls.get(i)) {
+				if (keep.get(j++))
+					nonNulls.set(i - offset - removed);
+				else
+					removed++;
+			}
+		}
+
+		if (removed == 0)
+			return (I) this;
+		else if (removed == size)
+			return (I) empty();
+		else
+			return (I) construct((C) filtered, nonNulls, size - removed);
 	}
 
 	@Override

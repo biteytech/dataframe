@@ -46,18 +46,15 @@ final class NullableLongColumn extends NullableLongArrayColumn<Long, LongColumn,
 		BufferBitSet cleanNonNulls = new BufferBitSet();
 		LongColumn cleaned = subColumn.cleanLong(predicate, cleanNonNulls);
 
-		if (cleaned == subColumn)
-			return this;
-		else if (cleaned.isEmpty())
-			return construct((NonNullLongColumn) cleaned, cleanNonNulls, size);
+		return clean(cleaned, cleanNonNulls);
+	}
 
-		NullableLongColumn nullableCleaned = (NullableLongColumn) cleaned;
+	@Override
+	public LongColumn filterLong(LongPredicate predicate, boolean keepNulls) {
 
-		BufferBitSet nonNulls = new BufferBitSet();
-		for (int i = offset, j = 0; i <= lastIndex(); i++)
-			if (this.nonNulls.get(i) && nullableCleaned.nonNulls.get(j++))
-				nonNulls.set(i - offset);
+		BufferBitSet keep = new BufferBitSet();
+		var filtered = subColumn.filterLong0(predicate, keep);
 
-		return construct(nullableCleaned.column, nonNulls, size);
+		return filter(filtered, keep, keepNulls);
 	}
 }
