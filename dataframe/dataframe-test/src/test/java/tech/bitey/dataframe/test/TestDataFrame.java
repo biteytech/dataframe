@@ -719,6 +719,35 @@ public class TestDataFrame {
 		Assertions.assertEquals(expected, actual);
 	}
 
+	@Test
+	public void testSelectColumn() throws Exception {
+
+		IntColumn a = IntColumn.of(1, 2, 3).toDistinct();
+		IntColumn b = IntColumn.of(11, 22, 33);
+		IntColumn c = IntColumn.of(111, 222, 333);
+
+		// include key column
+		{
+			DataFrame expected = DataFrameConfig.builder().columnNames("A", "B").keyColumnName("A").columns(a, b)
+					.build().create();
+
+			DataFrame actual = DataFrameConfig.builder().columnNames("A", "B", "C").keyColumnName("A").columns(a, b, c)
+					.build().create().selectColumns("A", "B");
+
+			Assertions.assertEquals(expected, actual);
+		}
+
+		// exclude key column
+		{
+			DataFrame expected = DataFrameConfig.builder().columnNames("B", "C").columns(b, c).build().create();
+
+			DataFrame actual = DataFrameConfig.builder().columnNames("A", "B", "C").keyColumnName("A").columns(a, b, c)
+					.build().create().selectColumns("B", "C");
+
+			Assertions.assertEquals(expected, actual);
+		}
+	}
+
 	private static LocalDate fromInt(int yyyymmdd) {
 		return LocalDate.of(yyyymmdd / 10000, yyyymmdd % 10000 / 100, yyyymmdd % 100);
 	}

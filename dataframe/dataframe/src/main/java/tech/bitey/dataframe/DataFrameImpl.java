@@ -428,7 +428,7 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 			columnMap.put(columnName, column);
 		}
 
-		return new DataFrameImpl(columnMap, keyColumnName());
+		return new DataFrameImpl(columnMap, columnMap.keySet().contains(keyColumnName()) ? keyColumnName() : null);
 	}
 
 	@Override
@@ -458,7 +458,7 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 		if (drop.contains(keyColumnName))
 			keyColumnName = null;
 
-		return new DataFrameImpl(columnMap, keyColumnName);
+		return new DataFrameImpl(columnMap, columnMap.keySet().contains(keyColumnName()) ? keyColumnName() : null);
 	}
 
 	@Override

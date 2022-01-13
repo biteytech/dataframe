@@ -528,6 +528,9 @@ public interface DataFrame extends List<Row>, RandomAccess {
 	/**
 	 * Returns a new dataframe which contains only the specified columns, in the
 	 * specified order.
+	 * <p>
+	 * The resulting dataframe will preserve the key column iff it is one of the
+	 * selected columns.
 	 * 
 	 * @param columnNames - the columns names to be included in the result
 	 * 
@@ -539,6 +542,9 @@ public interface DataFrame extends List<Row>, RandomAccess {
 	/**
 	 * Returns a new dataframe which contains only the specified columns, in the
 	 * specified order.
+	 * <p>
+	 * The resulting dataframe will preserve the key column iff it is one of the
+	 * selected columns.
 	 * 
 	 * @param columnNames - the columns names to be included in the result
 	 * 
@@ -550,6 +556,9 @@ public interface DataFrame extends List<Row>, RandomAccess {
 	/**
 	 * Returns a new dataframe which contains only the specified columns, in the
 	 * specified order.
+	 * <p>
+	 * The resulting dataframe will preserve the key column iff it is one of the
+	 * selected columns.
 	 * 
 	 * @param columnIndices - the columns to be included in the result
 	 * 
@@ -560,6 +569,9 @@ public interface DataFrame extends List<Row>, RandomAccess {
 
 	/**
 	 * Returns a new dataframe which excludes the specified columns.
+	 * <p>
+	 * The resulting dataframe will preserve the key column iff it is one of the
+	 * remaining columns.
 	 * 
 	 * @param columnNames - the columns names to be excluded from the result
 	 * 
@@ -569,6 +581,9 @@ public interface DataFrame extends List<Row>, RandomAccess {
 
 	/**
 	 * Returns a new dataframe which excludes the specified columns.
+	 * <p>
+	 * The resulting dataframe will preserve the key column iff it is one of the
+	 * remaining columns.
 	 * 
 	 * @param columnNames - the columns names to be excluded from the result
 	 * 
@@ -578,6 +593,9 @@ public interface DataFrame extends List<Row>, RandomAccess {
 
 	/**
 	 * Returns a new dataframe which excludes the specified columns.
+	 * <p>
+	 * The resulting dataframe will preserve the key column iff it is one of the
+	 * remaining columns.
 	 * 
 	 * @param columnIndices - the columns to be excluded from the result
 	 * 
