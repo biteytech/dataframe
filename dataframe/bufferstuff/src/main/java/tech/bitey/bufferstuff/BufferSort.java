@@ -8,6 +8,7 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.LongBuffer;
 import java.nio.ShortBuffer;
+import java.util.function.IntBinaryOperator;
 
 /**
  * Sorting algorithms for nio buffers.
@@ -78,6 +79,66 @@ public class BufferSort {
 		int swap = b.get(i);
 		b.put(i, b.get(j));
 		b.put(j, swap);
+	}
+
+	/**
+	 * Sorts a range of the specified {@link IntBuffer} in ascending order (lowest
+	 * first). The sort is:
+	 * <ul>
+	 * <li>in-place
+	 * <li>{@code O(n*log(n))} in the worst case
+	 * <li>a good general-purpose sorting algorithm
+	 * </ul>
+	 *
+	 * @param b          the buffer to be sorted
+	 * @param comparator used to compare values from {@code b}. useful when the
+	 *                   integers are identifiers or indices referencing some
+	 *                   external data structure.
+	 * @param fromIndex  the index of the first element (inclusive) to be sorted
+	 * @param toIndex    the index of the last element (exclusive) to be sorted
+	 * 
+	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
+	 * @throws IndexOutOfBoundsException if
+	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
+	 */
+	public static void heapSort(IntBuffer b, IntBinaryOperator comparator, int fromIndex, int toIndex) {
+		rangeCheck(b.capacity(), fromIndex, toIndex);
+
+		int n = toIndex - fromIndex;
+		if (n <= 1)
+			return;
+
+		// Build max heap
+		for (int i = fromIndex + n / 2 - 1; i >= fromIndex; i--)
+			heapify(b, comparator, toIndex, i, fromIndex);
+
+		// Heap sort
+		for (int i = toIndex - 1; i >= fromIndex; i--) {
+			swap(b, fromIndex, i);
+
+			// Heapify root element
+			heapify(b, comparator, i, fromIndex, fromIndex);
+		}
+	}
+
+	// based on https://www.programiz.com/dsa/heap-sort
+	private static void heapify(IntBuffer b, IntBinaryOperator comparator, int n, int i, int offset) {
+		// Find largest among root, left child and right child
+		int largest = i;
+		int l = 2 * i + 1 - offset;
+		int r = l + 1;
+
+		if (l < n && comparator.applyAsInt(b.get(l), b.get(largest)) > 0)
+			largest = l;
+
+		if (r < n && comparator.applyAsInt(b.get(r), b.get(largest)) > 0)
+			largest = r;
+
+		// Swap and continue heapifying if root is not largest
+		if (largest != i) {
+			swap(b, i, largest);
+			heapify(b, comparator, n, largest, offset);
+		}
 	}
 
 	// =========================================================================

@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Random;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -68,6 +69,11 @@ public class TestDoubleColumn extends TestFloatingColumn<Double> {
 	@Override
 	Double[] toArray(Collection<Double> samples) {
 		return samples.toArray(empty());
+	}
+
+	@Override
+	Column<Double> collect(Stream<Double> stream) {
+		return stream.collect(DoubleColumn.collector());
 	}
 
 	@Override

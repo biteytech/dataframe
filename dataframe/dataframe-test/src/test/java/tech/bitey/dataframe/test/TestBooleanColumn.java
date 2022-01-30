@@ -17,6 +17,7 @@
 package tech.bitey.dataframe.test;
 
 import java.util.Collection;
+import java.util.stream.Stream;
 
 import tech.bitey.dataframe.BooleanColumn;
 import tech.bitey.dataframe.Column;
@@ -57,6 +58,11 @@ public class TestBooleanColumn extends TestColumn<Boolean> {
 	@Override
 	Boolean[] toArray(Collection<Boolean> samples) {
 		return samples.toArray(empty());
+	}
+
+	@Override
+	Column<Boolean> collect(Stream<Boolean> stream) {
+		return stream.collect(BooleanColumn.collector());
 	}
 
 	Boolean[] fromInteger(Integer[] array) {

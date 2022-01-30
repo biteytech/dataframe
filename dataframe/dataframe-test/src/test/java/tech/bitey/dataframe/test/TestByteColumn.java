@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Stream;
 
 import tech.bitey.dataframe.ByteColumn;
 import tech.bitey.dataframe.Column;
@@ -54,6 +55,11 @@ public class TestByteColumn extends TestColumn<Byte> {
 	@Override
 	Byte[] toArray(Collection<Byte> samples) {
 		return samples.toArray(empty());
+	}
+
+	@Override
+	Column<Byte> collect(Stream<Byte> stream) {
+		return stream.collect(ByteColumn.collector());
 	}
 
 	@Override

@@ -11,7 +11,7 @@ To add a dependency on dataframe using Maven, use the following:
 <dependency>
   <groupId>tech.bitey</groupId>
   <artifactId>dataframe</artifactId>
-  <version>1.1.3</version>
+  <version>1.1.4</version>
 </dependency>
 ```
 
@@ -25,7 +25,7 @@ Requires Java 11 or higher.
 * It's geared towards making it easier to ship around tabular data for Java backend developers - rather than for data science. This is not Pandas for Java.
 * Data is stored in ByteBuffers, so the data frames can read/write to Channels with minimal overhead (save to files, send over network).
 * Optimized for space. For example, booleans take one bit each, DateTimes take one long (with microsecond precision).
-* Nulls are stored in a separate BitSet (also backed by a ByteBuffer), taking up two bits per Column length (no extra space is used if all values are non-null).
+* Nulls are stored in a separate BitSet (also backed by a ByteBuffer), taking up two bits per Column length. No extra space is used if all values are non-null.
 
 ### Features
 * Supports the most common types: String, Integer, Long, Short, Byte, Boolean, Double, Float, Date, DateTime, and BigDecimal; as well as Time, UUID, and Instant.
@@ -33,7 +33,7 @@ Requires Java 11 or higher.
 * Read/write to File or Channel with minimal overhead
 * Read/write CSV files
 * Read from ResultSet, write with PreparedStatement
-* Backing ByteBuffers can be on heap or off (as a global config)
+* Backing ByteBuffers can be on heap or off as a global property: `-Dtech.bitey.allocateDirect=true` or `false`, default `false`
 * Column implements List. DataFrame implements `List<Row>`. If the DataFrame has a key column it can be viewed as a `NavigableMap<KEY_TYPE, Row>`
 * Basic filtering, joining, grouping
 
@@ -42,7 +42,7 @@ Requires Java 11 or higher.
 * Great for generating Excel reports via POI - stage the data in a DataFrame first and then write POI code against the DataFrame. This separates concerns and is easier than writing POI directly against a ResultSet or other "raw" data sources.
 
 ### Limitations
-* Max \~2^31 rows (\~2.1 billion)
+* Max \~2^31 rows (\~2 billion)
 * Custom column types are not supported
 * ResultSet view does not support ResultSetMetaData
 

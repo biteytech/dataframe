@@ -22,6 +22,7 @@ import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
 import static java.nio.file.StandardOpenOption.WRITE;
 import static java.util.Spliterator.DISTINCT;
 import static java.util.Spliterator.SORTED;
+import static tech.bitey.dataframe.NonNullColumn.NONNULL_CHARACTERISTICS;
 import static tech.bitey.dataframe.Pr.checkArgument;
 import static tech.bitey.dataframe.Pr.checkElementIndex;
 import static tech.bitey.dataframe.Pr.checkNotNull;
@@ -33,6 +34,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.math.BigDecimal;
+import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.WritableByteChannel;
 import java.sql.PreparedStatement;
@@ -56,6 +59,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
+import java.util.function.IntBinaryOperator;
 import java.util.function.Predicate;
 import java.util.function.ToDoubleFunction;
 import java.util.function.ToIntFunction;
@@ -67,6 +71,8 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import tech.bitey.bufferstuff.BufferBitSet;
+import tech.bitey.bufferstuff.BufferSort;
+import tech.bitey.bufferstuff.BufferUtils;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
 class DataFrameImpl extends AbstractList<Row> implements DataFrame {
@@ -1054,9 +1060,36 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 	@Override
 	public DataFrame sort(String... columnNames) {
 
-		IntColumn indices = IntColumn.of(selectColumns(columnNames).stream().sorted().mapToInt(r -> r.rowIndex()));
+		return select(sortIndices(selectColumns(columnNames)));
+	}
 
-		return select(indices);
+	private static IntColumn sortIndices(DataFrame df) {
+
+		IntBinaryOperator comparator = (l, r) -> {
+			if (l == r)
+				return 0;
+
+			for (int i = 0; i < df.columnCount(); i++) {
+
+				Comparable lc = df.get(l, i);
+				Comparable rc = df.get(r, i);
+
+				int d = lc.compareTo(rc);
+				if (d != 0)
+					return d;
+			}
+
+			return 0;
+		};
+
+		ByteBuffer bb = BufferUtils.allocate(df.size() * 4);
+		IntBuffer b = bb.asIntBuffer();
+		for (int i = 0; i < df.size(); i++)
+			b.put(i, i);
+
+		BufferSort.heapSort(b, comparator, 0, df.size());
+
+		return new NonNullIntColumn(bb, 0, df.size(), NONNULL_CHARACTERISTICS, false);
 	}
 
 	@Override
@@ -1064,7 +1097,7 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 
 		// sort by 'group by' columns
 		DataFrame dfSelect = selectColumns(config.getGroupByNames());
-		IntColumn indices = IntColumn.of(dfSelect.stream().sorted().mapToInt(r -> r.rowIndex()));
+		IntColumn indices = sortIndices(dfSelect);
 
 		// set up new column builders
 		final int dfScc = dfSelect.columnCount();

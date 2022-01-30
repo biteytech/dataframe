@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Stream;
 
 import tech.bitey.dataframe.Column;
 import tech.bitey.dataframe.ShortColumn;
@@ -54,6 +55,11 @@ public class TestShortColumn extends TestColumn<Short> {
 	@Override
 	Short[] toArray(Collection<Short> samples) {
 		return samples.toArray(empty());
+	}
+
+	@Override
+	Column<Short> collect(Stream<Short> stream) {
+		return stream.collect(ShortColumn.collector());
 	}
 
 	@Override

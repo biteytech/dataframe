@@ -16,7 +16,9 @@
 
 package tech.bitey.dataframe;
 
+import static java.util.Spliterator.DISTINCT;
 import static java.util.Spliterator.NONNULL;
+import static java.util.Spliterator.SORTED;
 import static tech.bitey.bufferstuff.BufferUtils.EMPTY_BUFFER;
 import static tech.bitey.bufferstuff.BufferUtils.readFully;
 import static tech.bitey.bufferstuff.BufferUtils.writeFully;
@@ -29,6 +31,7 @@ import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 
 import tech.bitey.bufferstuff.BufferBitSet;
+import tech.bitey.bufferstuff.BufferSort;
 import tech.bitey.bufferstuff.BufferUtils;
 
 abstract class NonNullVarLenColumn<E extends Comparable<E>, I extends Column<E>, C extends NonNullVarLenColumn<E, I, C>>
@@ -296,18 +299,64 @@ abstract class NonNullVarLenColumn<E extends Comparable<E>, I extends Column<E>,
 		if (size < 2)
 			return true;
 
+		ByteBuffer prev = BufferUtils.slice(elements, pat(offset), end(offset));
+
 		for (int i = offset + 1; i <= lastIndex(); i++) {
 			if (length(i) != length(i - 1))
 				continue;
 
 			ByteBuffer curr = BufferUtils.slice(elements, pat(i), end(i));
-			ByteBuffer prev = BufferUtils.slice(elements, pat(i - 1), end(i - 1));
 
 			if (curr.equals(prev))
 				return false;
+
+			prev = curr;
 		}
 
 		return true;
+	}
+
+	@Override
+	C toSorted0() {
+
+		ByteBuffer bb = BufferUtils.allocate(size() * 4);
+		IntBuffer b = bb.asIntBuffer();
+		for (int i = 0; i < size(); i++)
+			b.put(i, i);
+
+		BufferSort.heapSort(b, (l, r) -> get(l).compareTo(get(r)), 0, size());
+
+		NonNullIntColumn indices = new NonNullIntColumn(bb, 0, size(), NONNULL_CHARACTERISTICS, false);
+
+		@SuppressWarnings("unchecked")
+		C sorted = (C) select(indices);
+		return sorted.withCharacteristics(NONNULL_CHARACTERISTICS | SORTED);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	C toDistinct0(boolean sort) {
+
+		C col = (C) this;
+
+		if (sort)
+			col = toSorted0();
+
+		BufferBitSet keep = new BufferBitSet();
+		int cardinality = 0;
+		for (int i = col.lastIndex(); i >= col.offset;) {
+
+			keep.set(i - col.offset);
+			cardinality++;
+
+			E value = col.getNoOffset(i);
+			i--;
+			for (; i >= col.offset && col.getNoOffset(i).equals(value); i--)
+				;
+		}
+
+		C filtered = (C) col.applyFilter(keep, cardinality);
+		return filtered.withCharacteristics(NONNULL_CHARACTERISTICS | SORTED | DISTINCT);
 	}
 
 	@Override

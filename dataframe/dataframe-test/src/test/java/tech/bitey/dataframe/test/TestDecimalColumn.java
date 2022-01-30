@@ -25,6 +25,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Stream;
 
 import tech.bitey.dataframe.Column;
 import tech.bitey.dataframe.DecimalColumn;
@@ -61,6 +62,11 @@ public class TestDecimalColumn extends TestColumn<BigDecimal> {
 	@Override
 	BigDecimal[] toArray(Collection<BigDecimal> samples) {
 		return samples.toArray(empty());
+	}
+
+	@Override
+	Column<BigDecimal> collect(Stream<BigDecimal> stream) {
+		return stream.collect(DecimalColumn.collector());
 	}
 
 	@Override

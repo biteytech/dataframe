@@ -17,14 +17,12 @@
 package tech.bitey.dataframe;
 
 import static java.util.Spliterator.DISTINCT;
-import static java.util.Spliterator.NONNULL;
 import static java.util.Spliterator.SORTED;
 import static tech.bitey.bufferstuff.BufferUtils.EMPTY_BUFFER;
 
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Stream;
 
 final class NonNullStringColumn extends NonNullVarLenColumn<String, StringColumn, NonNullStringColumn>
 		implements StringColumn {
@@ -67,20 +65,5 @@ final class NonNullStringColumn extends NonNullVarLenColumn<String, StringColumn
 	@Override
 	boolean checkType(Object o) {
 		return o instanceof String;
-	}
-
-	@Override
-	NonNullStringColumn toSorted0() {
-		// TODO: make this more efficient
-		return (NonNullStringColumn) stream().sorted().collect(StringColumn.collector(NONNULL | SORTED));
-	}
-
-	@Override
-	NonNullStringColumn toDistinct0(boolean sort) {
-		// TODO: make this more efficient
-		Stream<String> stream = stream();
-		if (sort)
-			stream = stream.sorted();
-		return (NonNullStringColumn) stream.distinct().collect(StringColumn.collector(NONNULL | SORTED | DISTINCT));
 	}
 }

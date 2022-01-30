@@ -17,7 +17,6 @@
 package tech.bitey.dataframe;
 
 import static java.util.Spliterator.DISTINCT;
-import static java.util.Spliterator.NONNULL;
 import static java.util.Spliterator.SORTED;
 import static tech.bitey.bufferstuff.BufferUtils.EMPTY_BUFFER;
 
@@ -25,7 +24,6 @@ import java.math.BigDecimal;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Stream;
 
 final class NonNullDecimalColumn extends NonNullVarLenColumn<BigDecimal, DecimalColumn, NonNullDecimalColumn>
 		implements DecimalColumn {
@@ -68,20 +66,5 @@ final class NonNullDecimalColumn extends NonNullVarLenColumn<BigDecimal, Decimal
 	@Override
 	boolean checkType(Object o) {
 		return o instanceof BigDecimal;
-	}
-
-	@Override
-	NonNullDecimalColumn toSorted0() {
-		// TODO: make this more efficient
-		return (NonNullDecimalColumn) stream().sorted().collect(DecimalColumn.collector(NONNULL | SORTED));
-	}
-
-	@Override
-	NonNullDecimalColumn toDistinct0(boolean sort) {
-		// TODO: make this more efficient
-		Stream<BigDecimal> stream = stream();
-		if (sort)
-			stream = stream.sorted();
-		return (NonNullDecimalColumn) stream.distinct().collect(DecimalColumn.collector(NONNULL | SORTED | DISTINCT));
 	}
 }

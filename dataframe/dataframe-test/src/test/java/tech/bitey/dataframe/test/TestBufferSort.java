@@ -55,7 +55,8 @@ public class TestBufferSort {
 		Arrays.sort(expected, fromIndex, toIndex);
 
 		for (IntBufferSort sort : new IntBufferSort[] { BufferSort::insertionSort, BufferSort::heapSort,
-				BufferSort::radixSort, BufferSort::sort }) {
+				(b, f, t) -> BufferSort.heapSort(b, Integer::compare, f, t), BufferSort::radixSort,
+				BufferSort::sort }) {
 			IntBuffer actual = IntBuffer.wrap(Arrays.copyOf(array, array.length));
 			sort.sort(actual, fromIndex, toIndex);
 

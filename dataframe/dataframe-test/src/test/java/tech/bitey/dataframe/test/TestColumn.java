@@ -32,6 +32,7 @@ import java.util.Set;
 import java.util.Spliterator;
 import java.util.TreeSet;
 import java.util.function.IntFunction;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -332,6 +333,23 @@ abstract class TestColumn<E extends Comparable<E>> {
 	}
 
 	/*------------------------------------------------------------
+	 *  Test Collectors
+	 *------------------------------------------------------------*/
+	@Test
+	public void testCollectors() {
+		for (TestSample<E> s : samples()) {
+
+			Column<E> expected = s.column();
+
+			Column<E> sequential = collect(s.column().stream());
+			Assertions.assertEquals(expected, sequential, s + ", sequential collector");
+
+			Column<E> parallel = collect(s.column().stream().parallel());
+			Assertions.assertEquals(expected, parallel, s + ", parallel collector");
+		}
+	}
+
+	/*------------------------------------------------------------
 	 *  Test Other Methods
 	 *------------------------------------------------------------*/
 	@Test
@@ -579,4 +597,6 @@ abstract class TestColumn<E extends Comparable<E>> {
 	abstract E[] same(int size);
 
 	abstract E[] smar(int size);
+
+	abstract Column<E> collect(Stream<E> stream);
 }

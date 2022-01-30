@@ -18,6 +18,7 @@ package tech.bitey.dataframe.test;
 
 import java.util.Collection;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 import tech.bitey.dataframe.Column;
 import tech.bitey.dataframe.StringColumn;
@@ -50,6 +51,11 @@ public class TestUuidColumn extends TestColumn<UUID> {
 	@Override
 	UUID[] toArray(Collection<UUID> samples) {
 		return samples.toArray(empty());
+	}
+
+	@Override
+	Column<UUID> collect(Stream<UUID> stream) {
+		return stream.collect(UuidColumn.collector());
 	}
 
 	@Override

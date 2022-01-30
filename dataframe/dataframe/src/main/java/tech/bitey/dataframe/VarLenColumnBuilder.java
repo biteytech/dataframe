@@ -17,15 +17,14 @@
 package tech.bitey.dataframe;
 
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-
-import tech.bitey.bufferstuff.BufferUtils;
+import java.util.Spliterator;
 
 @SuppressWarnings("unchecked")
 abstract class VarLenColumnBuilder<E extends Comparable<? super E>, C extends Column<E>, B extends VarLenColumnBuilder<E, C, B>>
 		extends AbstractColumnBuilder<E, C, B> {
 
-	final ArrayList<byte[]> elements = new ArrayList<>();
+	final IntColumnBuilder pointers = new IntColumnBuilder(Spliterator.NONNULL);
+	final ByteColumnBuilder elements = new ByteColumnBuilder(Spliterator.NONNULL);
 
 	final VarLenPacker<E> packer;
 
@@ -54,30 +53,43 @@ abstract class VarLenColumnBuilder<E extends Comparable<? super E>, C extends Co
 
 	@Override
 	void addNonNull(E element) {
-		elements.add(packer.pack(element));
+
+		pointers.add(elements.size());
+		elements.addAll(packer.pack(element));
+
 		size++;
 		last = element;
 	}
 
 	@Override
 	void ensureAdditionalCapacity(int additionalCapacity) {
-		elements.ensureCapacity(elements.size() + additionalCapacity);
+		pointers.ensureAdditionalCapacity(additionalCapacity);
 	}
 
 	@Override
 	public B ensureCapacity(int minCapacity) {
-		elements.ensureCapacity(minCapacity);
+		pointers.ensureCapacity(minCapacity);
 		return (B) this;
 	}
 
 	@Override
 	int getNonNullSize() {
-		return elements.size();
+		return pointers.size();
 	}
 
 	@Override
 	void append0(B tail) {
-		this.elements.addAll(tail.elements);
+
+		int offset = elements.size();
+		int begin = pointers.size();
+		int end = begin + tail.pointers.size();
+
+		elements.append(tail.elements);
+		pointers.append(tail.pointers);
+
+		for (int i = begin; i < end; i++)
+			pointers.elements.put(i, pointers.elements.get(i) + offset);
+
 		if (sorted())
 			this.last = tail.last;
 	}
@@ -87,20 +99,9 @@ abstract class VarLenColumnBuilder<E extends Comparable<? super E>, C extends Co
 	@Override
 	C buildNonNullColumn(int characteristics) {
 
-		int byteLength = elements.stream().mapToInt(b -> b.length).sum();
+		NonNullIntColumn pointers = (NonNullIntColumn) this.pointers.build();
+		NonNullByteColumn elements = (NonNullByteColumn) this.elements.build();
 
-		ByteBuffer pointers = BufferUtils.allocate(elements.size() * 4);
-		ByteBuffer elements = BufferUtils.allocate(byteLength);
-
-		int pointer = 0;
-		for (byte[] packed : this.elements) {
-			elements.put(packed);
-			pointers.putInt(pointer);
-			pointer += packed.length;
-		}
-		pointers.flip();
-		elements.flip();
-
-		return construct(elements, pointers, characteristics, this.elements.size());
+		return construct(elements.buffer, pointers.buffer, characteristics, pointers.size());
 	}
 }

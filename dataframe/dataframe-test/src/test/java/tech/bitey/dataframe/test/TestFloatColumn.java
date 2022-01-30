@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Stream;
 
 import tech.bitey.dataframe.Column;
 import tech.bitey.dataframe.FloatColumn;
@@ -54,6 +55,11 @@ public class TestFloatColumn extends TestFloatingColumn<Float> {
 	@Override
 	Float[] toArray(Collection<Float> samples) {
 		return samples.toArray(empty());
+	}
+
+	@Override
+	Column<Float> collect(Stream<Float> stream) {
+		return stream.collect(FloatColumn.collector());
 	}
 
 	@Override

@@ -27,6 +27,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
 
@@ -79,6 +80,11 @@ public class TestNormalStringColumn extends TestColumn<String> {
 	@Override
 	String[] toArray(Collection<String> samples) {
 		return samples.toArray(empty());
+	}
+
+	@Override
+	Column<String> collect(Stream<String> stream) {
+		return stream.collect(NormalStringColumn.collector());
 	}
 
 	@Override
