@@ -2,5 +2,6 @@ language: java
 jdk:
   - openjdk11
   - oraclejdk11
+  - openjdk17
+  - oraclejdk17
 script: cd dataframe && mvn clean package
-
