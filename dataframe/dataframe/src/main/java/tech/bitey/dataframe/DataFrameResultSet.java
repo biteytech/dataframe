@@ -42,16 +42,16 @@ import java.util.Map;
 
 /**
  * A {@link ResultSet} implementation backed by a {@link DataFrame}. Supports
- * bidirectional cursor navigation. Does not support {@link ResultSetMetaData}
- * or {@code updateXXX} methods.
+ * bidirectional cursor navigation. Does not support {@code updateXXX} methods.
  *
  * @author biteytech@protonmail.com
  */
 public class DataFrameResultSet implements ResultSet {
 
+	private static final int BEFORE_FIRST = 0;
+
 	private DataFrame df;
 
-	private final int BEFORE_FIRST = 0;
 	private final int AFTER_LAST;
 	private int row = BEFORE_FIRST;
 
@@ -646,7 +646,8 @@ public class DataFrameResultSet implements ResultSet {
 
 	@Override
 	public ResultSetMetaData getMetaData() throws SQLException {
-		throw new SQLFeatureNotSupportedException("getMetaData");
+		checkClosed();
+		return new DataFrameResultSetMetaData(df);
 	}
 
 	@Override

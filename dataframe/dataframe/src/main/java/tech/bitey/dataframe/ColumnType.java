@@ -77,58 +77,64 @@ import tech.bitey.bufferstuff.BufferBitSet;
 public class ColumnType<E extends Comparable<? super E>> {
 
 	/** The type for {@link BooleanColumn} */
-	public static final ColumnType<Boolean> BOOLEAN = new ColumnType<>(B);
+	public static final ColumnType<Boolean> BOOLEAN = new ColumnType<>(B, Boolean.class);
 
 	/** The type for {@link DateColumn} */
-	public static final ColumnType<LocalDate> DATE = new ColumnType<>(DA);
+	public static final ColumnType<LocalDate> DATE = new ColumnType<>(DA, LocalDate.class);
 
 	/** The type for {@link DateTimeColumn} */
-	public static final ColumnType<LocalDateTime> DATETIME = new ColumnType<>(DT);
+	public static final ColumnType<LocalDateTime> DATETIME = new ColumnType<>(DT, LocalDateTime.class);
 
 	/** The type for {@link DateTimeColumn} */
-	public static final ColumnType<LocalTime> TIME = new ColumnType<>(TI);
+	public static final ColumnType<LocalTime> TIME = new ColumnType<>(TI, LocalTime.class);
 
 	/** The type for {@link InstantColumn} */
-	public static final ColumnType<Instant> INSTANT = new ColumnType<>(IN);
+	public static final ColumnType<Instant> INSTANT = new ColumnType<>(IN, Instant.class);
 
 	/** The type for {@link DoubleColumn} */
-	public static final ColumnType<Double> DOUBLE = new ColumnType<>(D);
+	public static final ColumnType<Double> DOUBLE = new ColumnType<>(D, Double.class);
 
 	/** The type for {@link FloatColumn} */
-	public static final ColumnType<Float> FLOAT = new ColumnType<>(F);
+	public static final ColumnType<Float> FLOAT = new ColumnType<>(F, Float.class);
 
 	/** The type for {@link IntColumn} */
-	public static final ColumnType<Integer> INT = new ColumnType<>(I);
+	public static final ColumnType<Integer> INT = new ColumnType<>(I, Integer.class);
 
 	/** The type for {@link LongColumn} */
-	public static final ColumnType<Long> LONG = new ColumnType<>(L);
+	public static final ColumnType<Long> LONG = new ColumnType<>(L, Long.class);
 
 	/** The type for {@link ShortColumn} */
-	public static final ColumnType<Short> SHORT = new ColumnType<>(T);
+	public static final ColumnType<Short> SHORT = new ColumnType<>(T, Short.class);
 
 	/** The type for {@link StringColumn} */
-	public static final ColumnType<String> STRING = new ColumnType<>(S);
+	public static final ColumnType<String> STRING = new ColumnType<>(S, String.class);
 
 	/** The type for {@link StringColumn} */
-	public static final ColumnType<Byte> BYTE = new ColumnType<>(Y);
+	public static final ColumnType<Byte> BYTE = new ColumnType<>(Y, Byte.class);
 
 	/** The type for {@link DecimalColumn} */
-	public static final ColumnType<BigDecimal> DECIMAL = new ColumnType<>(BD);
+	public static final ColumnType<BigDecimal> DECIMAL = new ColumnType<>(BD, BigDecimal.class);
 
 	/** The type for {@link UuidColumn} */
-	public static final ColumnType<UUID> UUID = new ColumnType<>(UU);
+	public static final ColumnType<UUID> UUID = new ColumnType<>(UU, UUID.class);
 
 	/** The type for {@link NormalStringColumn} */
-	public static final ColumnType<String> NSTRING = new ColumnType<>(NS);
+	public static final ColumnType<String> NSTRING = new ColumnType<>(NS, String.class);
 
 	private final ColumnTypeCode code;
+	private final Class<E> elementType;
 
-	private ColumnType(ColumnTypeCode code) {
+	private ColumnType(ColumnTypeCode code, Class<E> elementType) {
 		this.code = code;
+		this.elementType = elementType;
 	}
 
 	public ColumnTypeCode getCode() {
 		return code;
+	}
+
+	public Class<E> getElementType() {
+		return elementType;
 	}
 
 	/**

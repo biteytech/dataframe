@@ -44,5 +44,4 @@ Requires Java 11 or higher.
 ### Limitations
 * Max \~2^31 rows (\~2 billion)
 * Custom column types are not supported
-* ResultSet view does not support ResultSetMetaData
 

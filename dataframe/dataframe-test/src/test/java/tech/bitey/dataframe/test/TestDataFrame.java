@@ -25,6 +25,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
@@ -364,6 +365,25 @@ public class TestDataFrame {
 					Assertions.assertEquals(expected, actual, e.getKey() + ", read/write db");
 				}
 			}
+		}
+	}
+
+	@Test
+	public void testResultSetMetaData() throws Exception {
+
+		String[] columnNames = new String[] { "A", "B", "C" };
+		Column<?>[] columns = new Column<?>[] { IntColumn.of(1), StringColumn.of("ONE"),
+				DecimalColumn.of(BigDecimal.ONE) };
+
+		DataFrame df = DataFrameConfig.builder().columnNames(columnNames).columns(columns).build().create();
+		ResultSetMetaData rsmd = df.asResultSet().getMetaData();
+
+		Assertions.assertEquals(df.columnCount(), rsmd.getColumnCount(), "mismatched column count");
+
+		for (int i = 1; i <= rsmd.getColumnCount(); i++) {
+			Assertions.assertEquals(df.columnName(i - 1), rsmd.getColumnName(i), "mismatched column name, i=" + i);
+			Assertions.assertEquals(df.column(i - 1).getType().getElementType().getName(), rsmd.getColumnClassName(i),
+					"mismatched column class name, i=" + i);
 		}
 	}
 
