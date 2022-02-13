@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 biteytech@protonmail.com
+ * Copyright 2022 biteytech@protonmail.com
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,6 @@
  */
 
 package tech.bitey.dataframe;
-
-import static tech.bitey.dataframe.DfStrings.repeat;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
@@ -105,6 +103,34 @@ class DataFramePrinter {
 		return IntStream.range(0, widths.length)
 				.mapToObj(i -> LEFT_PADDING + "%" + (i + 1) + "$" + widths[i] + "s" + RIGHT_PADDING + "|")
 				.reduce((left, right) -> left + " " + right).orElse("");
+	}
+
+	/*
+	 * Copied from Google Guava
+	 */
+	private static String repeat(String string, int count) {
+		Pr.checkNotNull(string, "string cannot be null");
+
+		if (count <= 1) {
+			Pr.checkArgument(count >= 0, "count must be nonnegative");
+			return (count == 0) ? "" : string;
+		}
+
+		final int len = string.length();
+		final long longSize = (long) len * (long) count;
+		final int size = (int) longSize;
+		if (size != longSize) {
+			throw new ArrayIndexOutOfBoundsException("Required array size too large: " + longSize);
+		}
+
+		final char[] array = new char[size];
+		string.getChars(0, len, array, 0);
+		int n;
+		for (n = len; n < size - n; n <<= 1) {
+			System.arraycopy(array, 0, array, n, n);
+		}
+		System.arraycopy(array, 0, array, n, size - n);
+		return new String(array);
 	}
 
 	/**
