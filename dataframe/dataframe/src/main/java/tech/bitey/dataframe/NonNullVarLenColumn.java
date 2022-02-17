@@ -302,8 +302,6 @@ abstract class NonNullVarLenColumn<E extends Comparable<E>, I extends Column<E>,
 		ByteBuffer prev = BufferUtils.slice(elements, pat(offset), end(offset));
 
 		for (int i = offset + 1; i <= lastIndex(); i++) {
-			if (length(i) != length(i - 1))
-				continue;
 
 			ByteBuffer curr = BufferUtils.slice(elements, pat(i), end(i));
 
@@ -333,29 +331,38 @@ abstract class NonNullVarLenColumn<E extends Comparable<E>, I extends Column<E>,
 		return sorted.withCharacteristics(NONNULL_CHARACTERISTICS | SORTED);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	C toDistinct0(boolean sort) {
 
+		@SuppressWarnings("unchecked")
 		C col = (C) this;
 
 		if (sort)
 			col = toSorted0();
 
+		return col.toDistinct00();
+	}
+
+	C toDistinct00() {
+
 		BufferBitSet keep = new BufferBitSet();
 		int cardinality = 0;
-		for (int i = col.lastIndex(); i >= col.offset;) {
+		for (int i = lastIndex(); i >= offset;) {
 
-			keep.set(i - col.offset);
+			keep.set(i - offset);
 			cardinality++;
 
-			E value = col.getNoOffset(i);
+			ByteBuffer e1 = BufferUtils.slice(elements, pat(i), end(i));
 			i--;
-			for (; i >= col.offset && col.getNoOffset(i).equals(value); i--)
-				;
+			for (; i >= offset; i--) {
+				ByteBuffer e2 = BufferUtils.slice(elements, pat(i), end(i));
+				if (!e1.equals(e2))
+					break;
+			}
 		}
 
-		C filtered = (C) col.applyFilter(keep, cardinality);
+		@SuppressWarnings("unchecked")
+		C filtered = (C) applyFilter(keep, cardinality);
 		return filtered.withCharacteristics(NONNULL_CHARACTERISTICS | SORTED | DISTINCT);
 	}
 
