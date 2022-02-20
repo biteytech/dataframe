@@ -31,7 +31,7 @@ class ChannelDataFrameHeader {
 	private static final long MAGIC_NUMBER = ((long) 'd') << 56 | ((long) 'a') << 48 | ((long) 't') << 40
 			| ((long) 'a') << 32 | 'f' << 24 | 'r' << 16 | 'a' << 8 | 'm';
 
-	private static final int VERSION = 1;
+	private static final int VERSION = 2;
 
 	private static final ByteOrder ORDER = ByteOrder.BIG_ENDIAN;
 
@@ -58,7 +58,7 @@ class ChannelDataFrameHeader {
 		checkState(magicNumber == MAGIC_NUMBER, "bad magic number: " + magicNumber);
 
 		version = b.getInt();
-		checkState(version == VERSION, "bad version: " + version);
+		checkState(version >= 1 && version <= VERSION, "bad version: " + version);
 
 		columnCount = b.getInt();
 		checkState(columnCount > 0, "column count must be > 0: " + columnCount);

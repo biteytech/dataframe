@@ -16,22 +16,16 @@
 
 package tech.bitey.dataframe;
 
-import static java.nio.ByteOrder.BIG_ENDIAN;
-import static tech.bitey.bufferstuff.BufferUtils.writeFully;
 import static tech.bitey.dataframe.NonNullColumn.NONNULL_CHARACTERISTICS;
 import static tech.bitey.dataframe.Pr.checkPositionIndex;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.nio.ByteBuffer;
 import java.nio.channels.WritableByteChannel;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.Map;
 import java.util.NavigableSet;
 import java.util.NoSuchElementException;
 import java.util.Objects;
@@ -48,21 +42,16 @@ public class NormalStringColumnImpl extends AbstractColumn<String, NormalStringC
 		implements NormalStringColumn {
 
 	static final NormalStringColumnImpl EMPTY = new NormalStringColumnImpl(
-			NonNullByteColumn.empty(NONNULL_CHARACTERISTICS), Map.of(), 0, 0);
+			NonNullByteColumn.empty(NONNULL_CHARACTERISTICS), NonNullStringColumn.empty(NONNULL_CHARACTERISTICS), 0, 0);
 
 	final ByteColumn bytes;
-	final Map<String, Integer> indices;
-	final String[] values;
+	final NonNullStringColumn values;
 
-	NormalStringColumnImpl(ByteColumn bytes, Map<String, Integer> indices, int offset, int size) {
+	NormalStringColumnImpl(ByteColumn bytes, NonNullStringColumn values, int offset, int size) {
 		super(offset, size);
 
 		this.bytes = bytes;
-		this.indices = indices;
-
-		this.values = new String[indices.size()];
-		for (var e : indices.entrySet())
-			values[e.getValue()] = e.getKey();
+		this.values = values;
 	}
 
 	@Override
@@ -81,7 +70,7 @@ public class NormalStringColumnImpl extends AbstractColumn<String, NormalStringC
 	}
 
 	private String at(int index) {
-		return values[bytes.get(index) & 0xFF];
+		return values.get(bytes.get(index) & 0xFF);
 	}
 
 	@Override
@@ -161,7 +150,7 @@ public class NormalStringColumnImpl extends AbstractColumn<String, NormalStringC
 
 	@Override
 	NormalStringColumnImpl subColumn0(int fromIndex, int toIndex) {
-		return new NormalStringColumnImpl(bytes, indices, fromIndex + offset, toIndex - fromIndex);
+		return new NormalStringColumnImpl(bytes, values, fromIndex + offset, toIndex - fromIndex);
 	}
 
 	private ByteColumn sliceBytes() {
@@ -170,7 +159,7 @@ public class NormalStringColumnImpl extends AbstractColumn<String, NormalStringC
 
 	@Override
 	public NormalStringColumn copy() {
-		return new NormalStringColumnImpl(sliceBytes().copy(), new HashMap<>(indices), 0, size);
+		return new NormalStringColumnImpl(sliceBytes().copy(), values.copy(), 0, size);
 	}
 
 	@Override
@@ -185,7 +174,7 @@ public class NormalStringColumnImpl extends AbstractColumn<String, NormalStringC
 		AbstractColumn slice = (AbstractColumn) sliceBytes();
 		ByteColumn bytes = (ByteColumn) slice.applyFilter(keep, cardinality);
 
-		return new NormalStringColumnImpl(bytes, indices, 0, cardinality);
+		return new NormalStringColumnImpl(bytes, values, 0, cardinality);
 	}
 
 	@Override
@@ -195,7 +184,7 @@ public class NormalStringColumnImpl extends AbstractColumn<String, NormalStringC
 		AbstractColumn slice = (AbstractColumn) sliceBytes();
 		ByteColumn bytes = (ByteColumn) slice.select(indices);
 
-		return new NormalStringColumnImpl(bytes, this.indices, 0, indices.size());
+		return new NormalStringColumnImpl(bytes, this.values, 0, indices.size());
 	}
 
 	@Override
@@ -230,11 +219,7 @@ public class NormalStringColumnImpl extends AbstractColumn<String, NormalStringC
 
 		((AbstractColumn) sliceBytes()).writeTo(channel);
 
-		writeInt(channel, BIG_ENDIAN, values.length);
-		for (int i = 0; i < values.length; i++) {
-			writeInt(channel, BIG_ENDIAN, values[i].length());
-			writeFully(channel, ByteBuffer.wrap(values[i].getBytes(StandardCharsets.UTF_8)));
-		}
+		values.writeTo(channel);
 	}
 
 	@Override
@@ -551,20 +536,20 @@ public class NormalStringColumnImpl extends AbstractColumn<String, NormalStringC
 	@Override
 	public NormalStringColumn filter(Predicate<String> predicate, boolean keepNulls) {
 
-		boolean[] keep = new boolean[values.length];
-		boolean keepAll = true;
-		for (int i = 0; i < values.length; i++) {
-			keep[i] = predicate.test(values[i]);
-			keepAll = keepAll && keep[i];
+		BufferBitSet keep = new BufferBitSet();
+
+		for (int i = values.lastIndex(); i >= 0; i--) {
+			boolean k = predicate.test(values.get(i));
+			keep.set(i, k);
 		}
-		if (keepAll)
+		if (keep.cardinality() == values.size())
 			return this;
 
-		ByteColumn bytes = this.bytes.subColumn(offset, offset + size).filter(b -> keep[b & 0xFF], keepNulls);
+		ByteColumn bytes = this.bytes.subColumn(offset, offset + size).filter(b -> keep.get(b & 0xFF), keepNulls);
 
 		if (bytes.size() == this.bytes.size())
 			return this;
 		else
-			return new NormalStringColumnImpl(bytes, indices, 0, bytes.size());
+			return new NormalStringColumnImpl(bytes, values, 0, bytes.size());
 	}
 }

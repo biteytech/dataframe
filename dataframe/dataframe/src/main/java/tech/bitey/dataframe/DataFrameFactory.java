@@ -243,7 +243,7 @@ public enum DataFrameFactory {
 
 		Column<?>[] columns = new Column<?>[cc];
 		for (int i = 0; i < cc; i++)
-			columns[i] = columnTypes[i].readFrom(channel, characteristics[i]);
+			columns[i] = columnTypes[i].readFrom(channel, characteristics[i], dfHeader.getVersion());
 
 		Integer keyIndex = dfHeader.keyIndex();
 		return create(columns, columnNames, keyIndex == null ? null : columnNames[keyIndex]);

@@ -45,8 +45,6 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 
 import tech.bitey.bufferstuff.BufferBitSet;
@@ -216,7 +214,7 @@ public class ColumnType<E extends Comparable<? super E>> {
 		return builder().addNulls(size).build();
 	}
 
-	Column<?> readFrom(ReadableByteChannel channel, int characteristics) throws IOException {
+	Column<?> readFrom(ReadableByteChannel channel, int characteristics, int version) throws IOException {
 		BufferBitSet nonNulls = null;
 		int size = 0;
 		if (getCode() != NS && !((characteristics & NONNULL) != 0)) {
@@ -324,20 +322,26 @@ public class ColumnType<E extends Comparable<? super E>> {
 				return new NullableUuidColumn(column, nonNulls, null, 0, size);
 		}
 		case NS: {
-			ByteColumn bytes = (ByteColumn) Y.getType().readFrom(channel, characteristics);
+			ByteColumn bytes = (ByteColumn) BYTE.readFrom(channel, characteristics, version);
+			NonNullStringColumn values;
 
-			Map<String, Integer> indices = new HashMap<>();
-			int count = readInt(channel, BIG_ENDIAN);
-			for (int i = 0; i < count; i++) {
+			if (version == 1) {
+				StringColumnBuilder builder = StringColumn.builder(NONNULL);
+				int count = readInt(channel, BIG_ENDIAN);
+				for (int i = 0; i < count; i++) {
 
-				ByteBuffer buf = ByteBuffer.allocate(readInt(channel, BIG_ENDIAN));
-				readFully(channel, buf);
-				String value = new String(buf.array(), StandardCharsets.UTF_8);
+					ByteBuffer buf = ByteBuffer.allocate(readInt(channel, BIG_ENDIAN));
+					readFully(channel, buf);
+					String value = new String(buf.array(), StandardCharsets.UTF_8);
 
-				indices.put(value, i);
+					builder.add(value);
+				}
+				values = (NonNullStringColumn) builder.build();
+			} else {
+				values = (NonNullStringColumn) STRING.readFrom(channel, NONNULL, version);
 			}
 
-			return new NormalStringColumnImpl(bytes, indices, 0, bytes.size());
+			return new NormalStringColumnImpl(bytes, values, 0, bytes.size());
 		}
 		}
 

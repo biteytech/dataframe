@@ -16,9 +16,14 @@
 
 package tech.bitey.dataframe;
 
+import static java.util.Spliterator.NONNULL;
+
+import java.nio.ByteBuffer;
+import java.nio.LongBuffer;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import tech.bitey.bufferstuff.BufferBitSet;
 
@@ -42,12 +47,53 @@ import tech.bitey.bufferstuff.BufferBitSet;
 public final class NormalStringColumnBuilder
 		extends AbstractColumnBuilder<String, NormalStringColumn, NormalStringColumnBuilder> {
 
+	private static final String HASH_ALGORITHM = "SHA-256";
+
 	private final ByteColumnBuilder builder;
-	private final Map<String, Byte> codeMap;
+	private final StringColumnBuilder values;
+
+	/*
+	 * In theory there could be collisions, but in practice we're hashing with
+	 * SHA-256 so it's very very unlikely.
+	 */
+	private final MessageDigest digest;
+	private final Map<StringHash, Byte> codeMap;
+
+	private class StringHash {
+		final long l1, l2, l3, l4;
+
+		StringHash(String s) {
+			LongBuffer buf = ByteBuffer.wrap(digest.digest(s.getBytes())).asLongBuffer();
+			l1 = buf.get();
+			l2 = buf.get();
+			l3 = buf.get();
+			l4 = buf.get();
+		}
+
+		@Override
+		public boolean equals(Object o) {
+			StringHash rhs = (StringHash) o;
+			return l1 == rhs.l1 && l2 == rhs.l2 && l3 == rhs.l3 && l4 == rhs.l4;
+		}
+
+		@Override
+		public int hashCode() {
+			return Long.hashCode(l1 ^ l2 ^ l3 ^ l4);
+		}
+	}
 
 	NormalStringColumnBuilder() {
 		super(0);
-		builder = new ByteColumnBuilder(0);
+
+		try {
+			digest = MessageDigest.getInstance(HASH_ALGORITHM);
+		} catch (NoSuchAlgorithmException e) {
+			throw new RuntimeException(e);
+		}
+
+		builder = new ByteColumnBuilder(NONNULL);
+		values = new StringColumnBuilder(NONNULL);
+
 		codeMap = new HashMap<>();
 	}
 
@@ -56,21 +102,19 @@ public final class NormalStringColumnBuilder
 		return ColumnType.NSTRING;
 	}
 
-	void addNonNull0(String element) {
-
-		int mapSize = codeMap.size();
-		byte b = codeMap.computeIfAbsent(element, x -> {
-			if (mapSize == 256)
-				throw new RuntimeException("exceeded 256 distinct values");
-			return (byte) mapSize;
-		});
-		builder.add(b);
-	}
-
 	@Override
 	void addNonNull(String element) {
 
-		addNonNull0(element);
+		int mapSize = codeMap.size();
+
+		byte b = codeMap.computeIfAbsent(new StringHash(element), x -> {
+			if (mapSize == 256)
+				throw new RuntimeException("exceeded 256 distinct values");
+			values.add(element);
+			return (byte) mapSize;
+		});
+
+		builder.add(b);
 		size++;
 	}
 
@@ -113,10 +157,7 @@ public final class NormalStringColumnBuilder
 	@Override
 	NormalStringColumn buildNonNullColumn(int characteristics) {
 
-		Map<String, Integer> indices = codeMap.entrySet().stream()
-				.collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue().byteValue() & 0xFF));
-
-		return new NormalStringColumnImpl(builder.build(), indices, 0, builder.size());
+		return new NormalStringColumnImpl(builder.build(), (NonNullStringColumn) values.build(), 0, builder.size());
 	}
 
 	@Override
@@ -126,21 +167,40 @@ public final class NormalStringColumnBuilder
 
 		ByteColumn bytes = new NullableByteColumn((NonNullByteColumn) impl.bytes, nonNulls, null, 0, size);
 
-		return new NormalStringColumnImpl(bytes, impl.indices, 0, size);
+		return new NormalStringColumnImpl(bytes, impl.values, 0, size);
 	}
 
 	@Override
 	void append0(NormalStringColumnBuilder tail) {
 
-		ensureAdditionalCapacity(tail.getNonNullSize());
+		int headSize = builder.size();
+		int tailSize = tail.builder.size();
 
-		String[] values = new String[tail.codeMap.size()];
-		for (var e : tail.codeMap.entrySet())
-			values[e.getValue().byteValue() & 0xFF] = e.getKey();
+		builder.append(tail.builder);
 
-		for (int i = 0; i < tail.getNonNullSize(); i++) {
-			byte b = tail.builder.buffer.get(i);
-			addNonNull0(values[b & 0xFF]);
+		byte[] remap = new byte[tail.codeMap.size()];
+		int r = codeMap.size();
+		IntColumnBuilder indices = IntColumn.builder(NONNULL);
+		for (var e : tail.codeMap.entrySet()) {
+
+			int tailByte = e.getValue() & 0xFF;
+
+			if (codeMap.containsKey(e.getKey())) {
+				remap[tailByte] = codeMap.get(e.getKey());
+			} else {
+				if (r >= 256)
+					throw new RuntimeException("exceeded 256 distinct values");
+
+				codeMap.put(e.getKey(), remap[tailByte] = (byte) (r++));
+				indices.add(tailByte);
+			}
+		}
+
+		values.addAll(((NonNullStringColumn) tail.values.build()).select(indices.build()));
+
+		for (int i = headSize; i < headSize + tailSize; i++) {
+			byte b = builder.buffer.get(i);
+			builder.buffer.put(i, remap[b & 0xFF]);
 		}
 	}
 }
