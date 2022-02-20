@@ -28,6 +28,7 @@ import java.nio.DoubleBuffer;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.DoublePredicate;
+import java.util.function.DoubleUnaryOperator;
 import java.util.stream.DoubleStream;
 
 import tech.bitey.bufferstuff.BufferBitSet;
@@ -254,5 +255,19 @@ final class NonNullDoubleColumn extends NonNullSingleBufferColumn<Double, Double
 		}
 
 		return cardinality;
+	}
+
+	@Override
+	public DoubleColumn evaluate(DoubleUnaryOperator op) {
+
+		final ByteBuffer bb = allocate(size);
+		final DoubleBuffer buf = bb.asDoubleBuffer();
+
+		for (int i = offset; i <= lastIndex(); i++) {
+			double value = op.applyAsDouble(at(i));
+			buf.put(value);
+		}
+
+		return new NonNullDoubleColumn(bb, 0, size, NONNULL_CHARACTERISTICS, false);
 	}
 }

@@ -17,6 +17,7 @@
 package tech.bitey.dataframe;
 
 import java.util.function.DoublePredicate;
+import java.util.function.DoubleUnaryOperator;
 import java.util.stream.DoubleStream;
 
 import tech.bitey.bufferstuff.BufferBitSet;
@@ -56,5 +57,11 @@ final class NullableDoubleColumn extends NullableColumn<Double, DoubleColumn, No
 		var filtered = subColumn.filterDouble0(predicate, keep);
 
 		return filter(filtered, keep, keepNulls);
+	}
+
+	@Override
+	public DoubleColumn evaluate(DoubleUnaryOperator op) {
+
+		return new NullableDoubleColumn((NonNullDoubleColumn) subColumn.evaluate(op), subNonNulls(), null, 0, size);
 	}
 }

@@ -21,6 +21,7 @@ import static java.util.Spliterator.NONNULL;
 import java.nio.ByteBuffer;
 import java.util.Collection;
 import java.util.function.DoublePredicate;
+import java.util.function.DoubleUnaryOperator;
 import java.util.function.Predicate;
 import java.util.stream.Collector;
 import java.util.stream.DoubleStream;
@@ -149,6 +150,18 @@ public interface DoubleColumn extends Column<Double> {
 	default DoubleColumn filterDouble(DoublePredicate predicate) {
 		return filterDouble(predicate, true);
 	}
+
+	/**
+	 * Derives a new {@link DoubleColumn} from this one by applying the specified
+	 * {@link DoubleUnaryOperator} to each non-null element.
+	 * <p>
+	 * The resulting column will not be flagged as sorted or distinct.
+	 * 
+	 * @param op a {@link DoubleUnaryOperator}
+	 * 
+	 * @return {@code op(this)}
+	 */
+	DoubleColumn evaluate(DoubleUnaryOperator op);
 
 	/**
 	 * Primitive specialization of {@link Column#get(int)}.

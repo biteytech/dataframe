@@ -17,6 +17,7 @@
 package tech.bitey.dataframe;
 
 import java.util.function.IntPredicate;
+import java.util.function.IntUnaryOperator;
 import java.util.stream.IntStream;
 
 import tech.bitey.bufferstuff.BufferBitSet;
@@ -56,5 +57,11 @@ final class NullableIntColumn extends NullableIntArrayColumn<Integer, IntColumn,
 		var filtered = subColumn.filterInt0(predicate, keep);
 
 		return filter(filtered, keep, keepNulls);
+	}
+
+	@Override
+	public IntColumn evaluate(IntUnaryOperator op) {
+
+		return new NullableIntColumn((NonNullIntColumn) subColumn.evaluate(op), subNonNulls(), null, 0, size);
 	}
 }

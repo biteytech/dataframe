@@ -87,6 +87,18 @@ public interface ByteColumn extends Column<Byte> {
 	}
 
 	/**
+	 * Derives a new {@link ByteColumn} from this one by applying the specified
+	 * {@link ByteUnaryOperator} to each non-null element.
+	 * <p>
+	 * The resulting column will not be flagged as sorted or distinct.
+	 * 
+	 * @param op a {@link ByteUnaryOperator}
+	 * 
+	 * @return {@code op(this)}
+	 */
+	ByteColumn evaluate(ByteUnaryOperator op);
+
+	/**
 	 * Primitive specialization of {@link Column#get(int)}.
 	 * 
 	 * @param index - index of the value to return

@@ -200,4 +200,18 @@ final class NonNullFloatColumn extends NonNullSingleBufferColumn<Float, FloatCol
 	int elementSize() {
 		return 4;
 	}
+
+	@Override
+	public FloatColumn evaluate(FloatUnaryOperator op) {
+
+		final ByteBuffer bb = allocate(size);
+		final FloatBuffer buf = bb.asFloatBuffer();
+
+		for (int i = offset; i <= lastIndex(); i++) {
+			float value = op.applyAsFloat(at(i));
+			buf.put(value);
+		}
+
+		return new NonNullFloatColumn(bb, 0, size, NONNULL_CHARACTERISTICS, false);
+	}
 }

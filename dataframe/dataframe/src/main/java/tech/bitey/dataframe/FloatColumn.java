@@ -90,6 +90,18 @@ public interface FloatColumn extends Column<Float> {
 	}
 
 	/**
+	 * Derives a new {@link FloatColumn} from this one by applying the specified
+	 * {@link FloatUnaryOperator} to each non-null element.
+	 * <p>
+	 * The resulting column will not be flagged as sorted or distinct.
+	 * 
+	 * @param op a {@link FloatUnaryOperator}
+	 * 
+	 * @return {@code op(this)}
+	 */
+	FloatColumn evaluate(FloatUnaryOperator op);
+
+	/**
 	 * Primitive specialization of {@link Column#get(int)}.
 	 * 
 	 * @param index - index of the value to return

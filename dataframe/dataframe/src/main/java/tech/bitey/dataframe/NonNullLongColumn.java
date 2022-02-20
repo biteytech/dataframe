@@ -23,9 +23,11 @@ import static tech.bitey.dataframe.LongArrayPacker.LONG;
 import static tech.bitey.dataframe.Pr.checkElementIndex;
 
 import java.nio.ByteBuffer;
+import java.nio.LongBuffer;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.LongPredicate;
+import java.util.function.LongUnaryOperator;
 import java.util.stream.LongStream;
 
 import tech.bitey.bufferstuff.BufferBitSet;
@@ -127,5 +129,19 @@ final class NonNullLongColumn extends LongArrayColumn<Long, LongColumn, NonNullL
 		}
 
 		return cardinality;
+	}
+
+	@Override
+	public LongColumn evaluate(LongUnaryOperator op) {
+
+		final ByteBuffer bb = allocate(size);
+		final LongBuffer buf = bb.asLongBuffer();
+
+		for (int i = offset; i <= lastIndex(); i++) {
+			long value = op.applyAsLong(at(i));
+			buf.put(value);
+		}
+
+		return new NonNullLongColumn(bb, 0, size, NONNULL_CHARACTERISTICS, false);
 	}
 }

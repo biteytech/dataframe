@@ -21,6 +21,7 @@ import static java.util.Spliterator.NONNULL;
 import java.nio.ByteBuffer;
 import java.util.Collection;
 import java.util.function.LongPredicate;
+import java.util.function.LongUnaryOperator;
 import java.util.function.Predicate;
 import java.util.stream.Collector;
 import java.util.stream.LongStream;
@@ -138,6 +139,18 @@ public interface LongColumn extends Column<Long> {
 	default LongColumn filterLong(LongPredicate predicate) {
 		return filterLong(predicate, true);
 	}
+
+	/**
+	 * Derives a new {@link LongColumn} from this one by applying the specified
+	 * {@link LongUnaryOperator} to each non-null element.
+	 * <p>
+	 * The resulting column will not be flagged as sorted or distinct.
+	 * 
+	 * @param op a {@link LongUnaryOperator}
+	 * 
+	 * @return {@code op(this)}
+	 */
+	LongColumn evaluate(LongUnaryOperator op);
 
 	/**
 	 * Primitive specialization of {@link Column#get(int)}.

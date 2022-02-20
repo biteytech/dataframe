@@ -17,6 +17,7 @@
 package tech.bitey.dataframe;
 
 import java.util.function.LongPredicate;
+import java.util.function.LongUnaryOperator;
 import java.util.stream.LongStream;
 
 import tech.bitey.bufferstuff.BufferBitSet;
@@ -56,5 +57,11 @@ final class NullableLongColumn extends NullableLongArrayColumn<Long, LongColumn,
 		var filtered = subColumn.filterLong0(predicate, keep);
 
 		return filter(filtered, keep, keepNulls);
+	}
+
+	@Override
+	public LongColumn evaluate(LongUnaryOperator op) {
+
+		return new NullableLongColumn((NonNullLongColumn) subColumn.evaluate(op), subNonNulls(), null, 0, size);
 	}
 }

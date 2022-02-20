@@ -21,6 +21,7 @@ import static java.util.Spliterator.NONNULL;
 import java.nio.ByteBuffer;
 import java.util.Collection;
 import java.util.function.IntPredicate;
+import java.util.function.IntUnaryOperator;
 import java.util.function.Predicate;
 import java.util.stream.Collector;
 import java.util.stream.IntStream;
@@ -137,6 +138,18 @@ public interface IntColumn extends Column<Integer> {
 	default IntColumn filterInt(IntPredicate predicate) {
 		return filterInt(predicate, true);
 	}
+
+	/**
+	 * Derives a new {@link IntColumn} from this one by applying the specified
+	 * {@link IntUnaryOperator} to each non-null element.
+	 * <p>
+	 * The resulting column will not be flagged as sorted or distinct.
+	 * 
+	 * @param op an {@link IntUnaryOperator}
+	 * 
+	 * @return {@code op(this)}
+	 */
+	IntColumn evaluate(IntUnaryOperator op);
 
 	/**
 	 * Primitive specialization of {@link Column#get(int)}.

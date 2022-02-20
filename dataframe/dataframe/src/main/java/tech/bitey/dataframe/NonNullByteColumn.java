@@ -69,4 +69,17 @@ final class NonNullByteColumn extends ByteArrayColumn<Byte, ByteColumn, NonNullB
 	boolean checkType(Object o) {
 		return o instanceof Byte;
 	}
+
+	@Override
+	public ByteColumn evaluate(ByteUnaryOperator op) {
+
+		final ByteBuffer bb = allocate(size);
+
+		for (int i = offset, j = 0; i <= lastIndex(); i++) {
+			byte value = op.applyAsByte(at(i));
+			bb.put(j++, value);
+		}
+
+		return new NonNullByteColumn(bb, 0, size, NONNULL_CHARACTERISTICS, false);
+	}
 }

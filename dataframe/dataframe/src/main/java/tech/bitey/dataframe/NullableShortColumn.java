@@ -31,4 +31,10 @@ final class NullableShortColumn extends NullableColumn<Short, ShortColumn, NonNu
 		checkGetPrimitive(index);
 		return column.getShort(nonNullIndex(index + offset));
 	}
+
+	@Override
+	public ShortColumn evaluate(ShortUnaryOperator op) {
+
+		return new NullableShortColumn((NonNullShortColumn) subColumn.evaluate(op), subNonNulls(), null, 0, size);
+	}
 }

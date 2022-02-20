@@ -31,4 +31,10 @@ final class NullableFloatColumn extends NullableColumn<Float, FloatColumn, NonNu
 		checkGetPrimitive(index);
 		return column.getFloat(nonNullIndex(index + offset));
 	}
+
+	@Override
+	public FloatColumn evaluate(FloatUnaryOperator op) {
+
+		return new NullableFloatColumn((NonNullFloatColumn) subColumn.evaluate(op), subNonNulls(), null, 0, size);
+	}
 }

@@ -199,4 +199,18 @@ final class NonNullShortColumn extends NonNullSingleBufferColumn<Short, ShortCol
 	int elementSize() {
 		return 2;
 	}
+
+	@Override
+	public ShortColumn evaluate(ShortUnaryOperator op) {
+
+		final ByteBuffer bb = allocate(size);
+		final ShortBuffer buf = bb.asShortBuffer();
+
+		for (int i = offset; i <= lastIndex(); i++) {
+			short value = op.applyAsShort(at(i));
+			buf.put(value);
+		}
+
+		return new NonNullShortColumn(bb, 0, size, NONNULL_CHARACTERISTICS, false);
+	}
 }

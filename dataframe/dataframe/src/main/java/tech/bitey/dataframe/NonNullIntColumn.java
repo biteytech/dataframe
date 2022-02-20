@@ -23,9 +23,11 @@ import static tech.bitey.dataframe.IntArrayPacker.INTEGER;
 import static tech.bitey.dataframe.Pr.checkElementIndex;
 
 import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.IntPredicate;
+import java.util.function.IntUnaryOperator;
 import java.util.stream.IntStream;
 
 import tech.bitey.bufferstuff.BufferBitSet;
@@ -127,5 +129,19 @@ final class NonNullIntColumn extends IntArrayColumn<Integer, IntColumn, NonNullI
 		}
 
 		return cardinality;
+	}
+
+	@Override
+	public IntColumn evaluate(IntUnaryOperator op) {
+
+		final ByteBuffer bb = allocate(size);
+		final IntBuffer buf = bb.asIntBuffer();
+
+		for (int i = offset; i <= lastIndex(); i++) {
+			int value = op.applyAsInt(at(i));
+			buf.put(value);
+		}
+
+		return new NonNullIntColumn(bb, 0, size, NONNULL_CHARACTERISTICS, false);
 	}
 }

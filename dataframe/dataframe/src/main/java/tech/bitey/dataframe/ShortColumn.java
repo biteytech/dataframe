@@ -90,6 +90,18 @@ public interface ShortColumn extends Column<Short> {
 	}
 
 	/**
+	 * Derives a new {@link ShortColumn} from this one by applying the specified
+	 * {@link ShortUnaryOperator} to each non-null element.
+	 * <p>
+	 * The resulting column will not be flagged as sorted or distinct.
+	 * 
+	 * @param op a {@link ShortUnaryOperator}
+	 * 
+	 * @return {@code op(this)}
+	 */
+	ShortColumn evaluate(ShortUnaryOperator op);
+
+	/**
 	 * Primitive specialization of {@link Column#get(int)}.
 	 * 
 	 * @param index - index of the value to return

@@ -31,4 +31,10 @@ final class NullableByteColumn extends NullableByteArrayColumn<Byte, ByteColumn,
 		checkGetPrimitive(index);
 		return column.getByte(nonNullIndex(index + offset));
 	}
+
+	@Override
+	public ByteColumn evaluate(ByteUnaryOperator op) {
+
+		return new NullableByteColumn((NonNullByteColumn) subColumn.evaluate(op), subNonNulls(), null, 0, size);
+	}
 }
