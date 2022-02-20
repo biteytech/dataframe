@@ -73,7 +73,7 @@ abstract class NonNullSingleBufferColumn<E extends Comparable<? super E>, I exte
 
 		int size = copy.deduplicate();
 
-		return construct(BufferUtils.slice(copy.buffer, 0, size * elementSize()), 0, size, SORTED | DISTINCT, false);
+		return construct(BufferUtils.copy(copy.buffer, 0, size * elementSize()), 0, size, SORTED | DISTINCT, false);
 	}
 
 	@Override
