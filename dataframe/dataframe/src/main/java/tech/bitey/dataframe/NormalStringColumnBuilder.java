@@ -18,10 +18,6 @@ package tech.bitey.dataframe;
 
 import static java.util.Spliterator.NONNULL;
 
-import java.nio.ByteBuffer;
-import java.nio.LongBuffer;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -47,49 +43,13 @@ import tech.bitey.bufferstuff.BufferBitSet;
 public final class NormalStringColumnBuilder
 		extends AbstractColumnBuilder<String, NormalStringColumn, NormalStringColumnBuilder> {
 
-	private static final String HASH_ALGORITHM = "SHA-256";
-
 	private final ByteColumnBuilder builder;
 	private final StringColumnBuilder values;
 
-	/*
-	 * In theory there could be collisions, but in practice we're hashing with
-	 * SHA-256 so it's very very unlikely.
-	 */
-	private final MessageDigest digest;
-	private final Map<StringHash, Byte> codeMap;
-
-	private class StringHash {
-		final long l1, l2, l3, l4;
-
-		StringHash(String s) {
-			LongBuffer buf = ByteBuffer.wrap(digest.digest(s.getBytes())).asLongBuffer();
-			l1 = buf.get();
-			l2 = buf.get();
-			l3 = buf.get();
-			l4 = buf.get();
-		}
-
-		@Override
-		public boolean equals(Object o) {
-			StringHash rhs = (StringHash) o;
-			return l1 == rhs.l1 && l2 == rhs.l2 && l3 == rhs.l3 && l4 == rhs.l4;
-		}
-
-		@Override
-		public int hashCode() {
-			return Long.hashCode(l1 ^ l2 ^ l3 ^ l4);
-		}
-	}
+	private final Map<NormalStringHash, Byte> codeMap;
 
 	NormalStringColumnBuilder() {
 		super(0);
-
-		try {
-			digest = MessageDigest.getInstance(HASH_ALGORITHM);
-		} catch (NoSuchAlgorithmException e) {
-			throw new RuntimeException(e);
-		}
 
 		builder = new ByteColumnBuilder(NONNULL);
 		values = new StringColumnBuilder(NONNULL);
@@ -107,7 +67,7 @@ public final class NormalStringColumnBuilder
 
 		int mapSize = codeMap.size();
 
-		byte b = codeMap.computeIfAbsent(new StringHash(element), x -> {
+		byte b = codeMap.computeIfAbsent(new NormalStringHash(element), x -> {
 			if (mapSize == 256)
 				throw new RuntimeException("exceeded 256 distinct values");
 			values.add(element);

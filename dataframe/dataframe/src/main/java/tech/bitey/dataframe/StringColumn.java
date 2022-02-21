@@ -356,8 +356,7 @@ public interface StringColumn extends Column<String> {
 	 * Convert this column into a {@link NormalStringColumn} by passing this column
 	 * to a {@link NormalStringColumnBuilder}.
 	 * 
-	 * @return A {@link NormalStringColumnBuilder} with the same elements as this
-	 *         column.
+	 * @return A {@link NormalStringColumn} with the same elements as this column.
 	 */
 	default NormalStringColumn toNormalStringColumn() {
 		return new NormalStringColumnBuilder().addAll(this).build();
@@ -378,21 +377,27 @@ public interface StringColumn extends Column<String> {
 
 		Pr.checkArgument(threshold > 0 && threshold <= 1, "threshold must be > 0 and <= 1");
 
-		Map<String, Integer> counts = new HashMap<>();
-		int totalLength = 0, nonNullSize = 0;
+		if (size() < 2)
+			return this;
+
+		// hash -> String.length()
+		Map<NormalStringHash, Integer> distinct = new HashMap<>();
+
+		long thisLength = 0;
+		int nonNullSize = 0;
 		for (String value : this) {
 			if (value != null) {
-				totalLength += value.length();
-				counts.compute(value, (k, v) -> v == null ? 1 : v + 1);
+				thisLength += value.length();
+				distinct.computeIfAbsent(new NormalStringHash(value), x -> value.length());
 				nonNullSize++;
 			}
-			if (counts.size() > 256)
+			if (distinct.size() > 256)
 				return this;
 		}
 
-		int normalLength = nonNullSize + counts.keySet().stream().mapToInt(String::length).sum();
+		long normalLength = nonNullSize + distinct.values().stream().mapToLong(i -> i).sum();
 
-		if (normalLength < totalLength * threshold)
+		if (normalLength < thisLength * threshold)
 			return toNormalStringColumn();
 		else
 			return this;
