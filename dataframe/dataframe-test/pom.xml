@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>tech.bitey</groupId>
 		<artifactId>dataframe-parent</artifactId>
-		<version>1.1.5</version>
+		<version>1.1.6</version>
 	</parent>
 
 	<artifactId>dataframe-test</artifactId>
@@ -61,7 +61,7 @@
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava-testlib</artifactId>
-			<version>30.1.1-jre</version>
+			<version>31.0.1-jre</version>
 		</dependency>
 	</dependencies>
 

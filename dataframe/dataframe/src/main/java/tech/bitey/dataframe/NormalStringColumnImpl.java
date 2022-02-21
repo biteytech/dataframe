@@ -528,28 +528,85 @@ public class NormalStringColumnImpl extends AbstractColumn<String, NormalStringC
 		return builder.build();
 	}
 
+	/*------------------------------------------------------------
+	 *                      clean & filter
+	 *------------------------------------------------------------*/
+
+	private class NSFilter {
+
+		final BufferBitSet filter = new BufferBitSet();
+		final int cardinality;
+
+		NSFilter(Predicate<String> predicate) {
+
+			int cardinality = 0;
+
+			for (int i = values.lastIndex(); i >= 0; i--) {
+				if (predicate.test(values.get(i))) {
+					filter.set(i);
+					cardinality++;
+				}
+			}
+
+			this.cardinality = cardinality;
+		}
+
+		NormalStringColumn finish(ByteColumn bytes, boolean flip) {
+
+			int cardinality = this.cardinality;
+
+			if (flip) {
+				filter.flip(0, values.size());
+				cardinality = values.size() - cardinality;
+			}
+
+			NonNullStringColumn vals = (NonNullStringColumn) values.applyFilter(filter, cardinality);
+
+			byte[] remap = new byte[values.size()];
+			for (int i = 0, j = 0; i < remap.length; i++)
+				if (filter.get(i))
+					remap[i] = (byte) (j++);
+
+			ByteColumn byts = bytes.evaluate(b -> remap[b & 0xFF]);
+
+			return new NormalStringColumnImpl(byts, vals, 0, byts.size());
+		}
+	}
+
 	@Override
 	public NormalStringColumn clean(Predicate<String> predicate) {
-		throw new UnsupportedOperationException("clean");
+
+		NSFilter filter = new NSFilter(predicate);
+
+		if (filter.cardinality == values.size())
+			return NormalStringColumn.builder().addNulls(size).build();
+		else if (filter.cardinality == 0)
+			return this;
+
+		ByteColumn subColumn = this.bytes.subColumn(offset, offset + size);
+		ByteColumn bytes = subColumn.cleanByte(b -> filter.filter.get(b & 0xFF));
+
+		return filter.finish(bytes, true);
 	}
 
 	@Override
 	public NormalStringColumn filter(Predicate<String> predicate, boolean keepNulls) {
 
-		BufferBitSet keep = new BufferBitSet();
+		NSFilter filter = new NSFilter(predicate);
 
-		for (int i = values.lastIndex(); i >= 0; i--) {
-			boolean k = predicate.test(values.get(i));
-			keep.set(i, k);
+		if (bytes.isNonnull() || keepNulls) {
+			if (filter.cardinality == values.size())
+				return this;
+			else if (filter.cardinality == 0)
+				return EMPTY;
 		}
-		if (keep.cardinality() == values.size())
-			return this;
 
-		ByteColumn bytes = this.bytes.subColumn(offset, offset + size).filter(b -> keep.get(b & 0xFF), keepNulls);
+		ByteColumn subColumn = this.bytes.subColumn(offset, offset + size);
+		ByteColumn bytes = subColumn.filterByte(b -> filter.filter.get(b & 0xFF), keepNulls);
 
-		if (bytes.size() == this.bytes.size())
-			return this;
+		if (bytes.size() == 0)
+			return EMPTY;
 		else
-			return new NormalStringColumnImpl(bytes, values, 0, bytes.size());
+			return filter.finish(bytes, false);
 	}
 }

@@ -77,6 +77,9 @@ public interface NormalStringColumn extends Column<String> {
 	NormalStringColumn copy();
 
 	@Override
+	NormalStringColumn clean(Predicate<String> predicate);
+
+	@Override
 	NormalStringColumn filter(Predicate<String> predicate, boolean keepNulls);
 
 	/**
