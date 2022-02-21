@@ -202,6 +202,54 @@ final class NonNullFloatColumn extends NonNullSingleBufferColumn<Float, FloatCol
 	}
 
 	@Override
+	public FloatColumn cleanFloat(FloatPredicate predicate) {
+
+		return cleanFloat(predicate, new BufferBitSet());
+	}
+
+	FloatColumn cleanFloat(FloatPredicate predicate, BufferBitSet nonNulls) {
+
+		int cardinality = filterFloat00(predicate, nonNulls, false);
+
+		if (cardinality == size())
+			return this;
+		else {
+			NonNullFloatColumn filtered = applyFilter0(nonNulls, cardinality);
+			return new NullableFloatColumn(filtered, nonNulls, null, 0, size());
+		}
+	}
+
+	@Override
+	public FloatColumn filterFloat(FloatPredicate predicate, boolean keepNulls) {
+
+		return filterFloat0(predicate, new BufferBitSet());
+	}
+
+	FloatColumn filterFloat0(FloatPredicate predicate, BufferBitSet keep) {
+
+		int cardinality = filterFloat00(predicate, keep, true);
+
+		if (cardinality == size())
+			return this;
+		else
+			return applyFilter0(keep, cardinality);
+	}
+
+	private int filterFloat00(FloatPredicate predicate, BufferBitSet filter, boolean expected) {
+
+		int cardinality = 0;
+
+		for (int i = size() - 1; i >= 0; i--) {
+			if (predicate.test(at(i + offset)) == expected) {
+				filter.set(i);
+				cardinality++;
+			}
+		}
+
+		return cardinality;
+	}
+
+	@Override
 	public FloatColumn evaluate(FloatUnaryOperator op) {
 
 		final ByteBuffer bb = allocate(size);

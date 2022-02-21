@@ -69,6 +69,20 @@ public interface ShortColumn extends Column<Short> {
 	@Override
 	ShortColumn clean(Predicate<Short> predicate);
 
+	/**
+	 * Returns a new column derived by testing each value with the specified
+	 * {@link ShortPredicate} and replacing with {@code null} when the predicate
+	 * returns {@code true}.
+	 * 
+	 * @param predicate the {@code ShortPredicate} used to test for values which
+	 *                  should be {@code null}
+	 * 
+	 * @return a new column derived by testing each value with the specified
+	 *         {@code ShortPredicate} and replacing with {@code null} when the
+	 *         predicate returns {@code true}.
+	 */
+	ShortColumn cleanShort(ShortPredicate predicate);
+
 	@Override
 	ShortColumn filter(Predicate<Short> predicate, boolean keepNulls);
 
@@ -87,6 +101,38 @@ public interface ShortColumn extends Column<Short> {
 	 */
 	default ShortColumn filter(Predicate<Short> predicate) {
 		return filter(predicate, true);
+	}
+
+	/**
+	 * Returns a new column derived by testing each value with the specified
+	 * predicate and removing values when the predicate returns {@code false}. The
+	 * {@code keepNulls} parameter determines whether all nulls are kept as-is, or
+	 * if all nulls are removed.
+	 * 
+	 * @param predicate the {@link ShortPredicate} used to test for values which
+	 *                  should be kept.
+	 * @param keepNulls {@code true} means keep all {@code null} values as-is.
+	 *                  {@code false} means drop all {@code null} values.
+	 * 
+	 * @return a new column derived by testing each value with the specified
+	 *         predicate.
+	 */
+	ShortColumn filterShort(ShortPredicate predicate, boolean keepNulls);
+
+	/**
+	 * Returns a new column derived by testing each value with the specified
+	 * predicate and removing values when the predicate returns {@code false}.
+	 * Equivalent to {@link #filter(ShortPredicate, boolean) filter(predicate,
+	 * true)}.
+	 * 
+	 * @param predicate the {@link ShortPredicate} used to test for values which
+	 *                  should be kept.
+	 * 
+	 * @return a new column derived by testing each value with the specified
+	 *         predicate.
+	 */
+	default ShortColumn filterShort(ShortPredicate predicate) {
+		return filterShort(predicate, true);
 	}
 
 	/**

@@ -33,6 +33,24 @@ final class NullableShortColumn extends NullableColumn<Short, ShortColumn, NonNu
 	}
 
 	@Override
+	public ShortColumn cleanShort(ShortPredicate predicate) {
+
+		BufferBitSet cleanNonNulls = new BufferBitSet();
+		ShortColumn cleaned = subColumn.cleanShort(predicate, cleanNonNulls);
+
+		return clean(cleaned, cleanNonNulls);
+	}
+
+	@Override
+	public ShortColumn filterShort(ShortPredicate predicate, boolean keepNulls) {
+
+		BufferBitSet keep = new BufferBitSet();
+		var filtered = subColumn.filterShort0(predicate, keep);
+
+		return filter(filtered, keep, keepNulls);
+	}
+
+	@Override
 	public ShortColumn evaluate(ShortUnaryOperator op) {
 
 		return new NullableShortColumn((NonNullShortColumn) subColumn.evaluate(op), subNonNulls(), null, 0, size);

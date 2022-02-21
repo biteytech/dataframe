@@ -23,9 +23,13 @@ import java.util.List;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import tech.bitey.dataframe.ByteColumn;
 import tech.bitey.dataframe.DoubleColumn;
+import tech.bitey.dataframe.FloatColumn;
 import tech.bitey.dataframe.IntColumn;
 import tech.bitey.dataframe.LongColumn;
+import tech.bitey.dataframe.NormalStringColumn;
+import tech.bitey.dataframe.ShortColumn;
 import tech.bitey.dataframe.StringColumn;
 
 public class TestClean {
@@ -250,6 +254,184 @@ public class TestClean {
 
 		List<Double> expected = DoubleColumn.of(1d, null, 3d);
 		DoubleColumn actual = DoubleColumn.of(1d, Double.NaN, 3d).cleanNaN();
+		Assertions.assertEquals(expected, actual);
+	}
+
+	@Test
+	public void cleanFloat() {
+
+		List<Float> expected;
+		FloatColumn actual;
+
+		expected = List.of();
+		actual = FloatColumn.of().cleanFloat(x -> false);
+		Assertions.assertEquals(expected, actual);
+
+		expected = List.of(1f, 2f, 3f);
+		actual = FloatColumn.of(expected).cleanFloat(x -> false);
+		Assertions.assertEquals(expected, actual);
+
+		expected = List.of(2f, 3f, 4f);
+		actual = FloatColumn.of(1f, 2f, 3f, 4f, 5f).subColumn(1, 4).cleanFloat(x -> false);
+		Assertions.assertEquals(expected, actual);
+
+		expected = Arrays.asList(2f, null, 4f);
+		actual = FloatColumn.of(1f, 2f, Float.MIN_VALUE, 4f, 5f).subColumn(1, 4).cleanFloat(x -> Float.MIN_VALUE == x);
+		Assertions.assertEquals(expected, actual);
+
+		expected = Arrays.asList(null, null, null);
+		actual = FloatColumn.of(Float.MIN_VALUE, Float.MIN_VALUE, Float.MIN_VALUE)
+				.cleanFloat(x -> Float.MIN_VALUE == x);
+		Assertions.assertEquals(expected, actual);
+
+		expected = new ArrayList<>();
+		expected.add(null);
+		actual = FloatColumn.of(expected).cleanFloat(x -> false);
+		Assertions.assertEquals(expected, actual);
+
+		expected = Arrays.asList(null, null);
+		actual = FloatColumn.of(expected).cleanFloat(x -> false);
+		Assertions.assertEquals(expected, actual);
+
+		expected = Arrays.asList(1f, null, null, null, 5f, null, 6f);
+		actual = FloatColumn.of(1f, null, Float.MIN_VALUE, null, 5f, Float.MIN_VALUE, 6f)
+				.cleanFloat(x -> Float.MIN_VALUE == x);
+		Assertions.assertEquals(expected, actual);
+
+		expected = Arrays.asList(3f, null, 5f);
+		actual = FloatColumn
+				.of(Float.MIN_VALUE, Float.MIN_VALUE, 3f, Float.MAX_VALUE, 5f, Float.MIN_VALUE, Float.MIN_VALUE)
+				.subColumn(1, 6);
+		actual = actual.cleanFloat(x -> Float.MIN_VALUE == x);
+		actual = actual.subColumn(1, 4);
+		actual = actual.cleanFloat(x -> Float.MAX_VALUE == x);
+		Assertions.assertEquals(expected, actual);
+
+		expected = Arrays.asList(null, null, null);
+		actual = FloatColumn.of(null, Float.MIN_VALUE, null).cleanFloat(x -> Float.MIN_VALUE == x);
+		Assertions.assertEquals(expected, actual);
+	}
+
+	@Test
+	public void cleanShort() {
+
+		List<Short> expected;
+		ShortColumn actual;
+
+		expected = List.of();
+		actual = ShortColumn.of().cleanShort(x -> false);
+		Assertions.assertEquals(expected, actual);
+
+		expected = List.of((short) 1, (short) 2, (short) 3);
+		actual = ShortColumn.of(expected).cleanShort(x -> false);
+		Assertions.assertEquals(expected, actual);
+
+		expected = List.of((short) 2, (short) 3, (short) 4);
+		actual = ShortColumn.of((short) 1, (short) 2, (short) 3, (short) 4, (short) 5).subColumn(1, 4)
+				.cleanShort(x -> false);
+		Assertions.assertEquals(expected, actual);
+
+		expected = Arrays.asList((short) 2, null, (short) 4);
+		actual = ShortColumn.of((short) 1, (short) 2, Short.MIN_VALUE, (short) 4, (short) 5).subColumn(1, 4)
+				.cleanShort(x -> Short.MIN_VALUE == x);
+		Assertions.assertEquals(expected, actual);
+
+		expected = Arrays.asList(null, null, null);
+		actual = ShortColumn.of(Short.MIN_VALUE, Short.MIN_VALUE, Short.MIN_VALUE)
+				.cleanShort(x -> Short.MIN_VALUE == x);
+		Assertions.assertEquals(expected, actual);
+
+		expected = new ArrayList<>();
+		expected.add(null);
+		actual = ShortColumn.of(expected).cleanShort(x -> false);
+		Assertions.assertEquals(expected, actual);
+
+		expected = Arrays.asList(null, null);
+		actual = ShortColumn.of(expected).cleanShort(x -> false);
+		Assertions.assertEquals(expected, actual);
+
+		expected = Arrays.asList((short) 1, null, null, null, (short) 5, null, (short) 6);
+		actual = ShortColumn.of((short) 1, null, Short.MIN_VALUE, null, (short) 5, Short.MIN_VALUE, (short) 6)
+				.cleanShort(x -> Short.MIN_VALUE == x);
+		Assertions.assertEquals(expected, actual);
+
+		expected = Arrays.asList((short) 3, null, (short) 5);
+		actual = ShortColumn.of(Short.MIN_VALUE, Short.MIN_VALUE, (short) 3, Short.MAX_VALUE, (short) 5,
+				Short.MIN_VALUE, Short.MIN_VALUE).subColumn(1, 6);
+		actual = actual.cleanShort(x -> Short.MIN_VALUE == x);
+		actual = actual.subColumn(1, 4);
+		actual = actual.cleanShort(x -> Short.MAX_VALUE == x);
+		Assertions.assertEquals(expected, actual);
+
+		expected = Arrays.asList(null, null, null);
+		actual = ShortColumn.of(null, Short.MIN_VALUE, null).cleanShort(x -> Short.MIN_VALUE == x);
+		Assertions.assertEquals(expected, actual);
+	}
+
+	@Test
+	public void cleanByte() {
+
+		List<Byte> expected;
+		ByteColumn actual;
+
+		expected = List.of();
+		actual = ByteColumn.of().cleanByte(x -> false);
+		Assertions.assertEquals(expected, actual);
+
+		expected = List.of((byte) 1, (byte) 2, (byte) 3);
+		actual = ByteColumn.of(expected).cleanByte(x -> false);
+		Assertions.assertEquals(expected, actual);
+
+		expected = List.of((byte) 2, (byte) 3, (byte) 4);
+		actual = ByteColumn.of((byte) 1, (byte) 2, (byte) 3, (byte) 4, (byte) 5).subColumn(1, 4).cleanByte(x -> false);
+		Assertions.assertEquals(expected, actual);
+
+		expected = Arrays.asList((byte) 2, null, (byte) 4);
+		actual = ByteColumn.of((byte) 1, (byte) 2, Byte.MIN_VALUE, (byte) 4, (byte) 5).subColumn(1, 4)
+				.cleanByte(x -> Byte.MIN_VALUE == x);
+		Assertions.assertEquals(expected, actual);
+
+		expected = Arrays.asList(null, null, null);
+		actual = ByteColumn.of(Byte.MIN_VALUE, Byte.MIN_VALUE, Byte.MIN_VALUE).cleanByte(x -> Byte.MIN_VALUE == x);
+		Assertions.assertEquals(expected, actual);
+
+		expected = new ArrayList<>();
+		expected.add(null);
+		actual = ByteColumn.of(expected).cleanByte(x -> false);
+		Assertions.assertEquals(expected, actual);
+
+		expected = Arrays.asList(null, null);
+		actual = ByteColumn.of(expected).cleanByte(x -> false);
+		Assertions.assertEquals(expected, actual);
+
+		expected = Arrays.asList((byte) 1, null, null, null, (byte) 5, null, (byte) 6);
+		actual = ByteColumn.of((byte) 1, null, Byte.MIN_VALUE, null, (byte) 5, Byte.MIN_VALUE, (byte) 6)
+				.cleanByte(x -> Byte.MIN_VALUE == x);
+		Assertions.assertEquals(expected, actual);
+
+		expected = Arrays.asList((byte) 3, null, (byte) 5);
+		actual = ByteColumn
+				.of(Byte.MIN_VALUE, Byte.MIN_VALUE, (byte) 3, Byte.MAX_VALUE, (byte) 5, Byte.MIN_VALUE, Byte.MIN_VALUE)
+				.subColumn(1, 6);
+		actual = actual.cleanByte(x -> Byte.MIN_VALUE == x);
+		actual = actual.subColumn(1, 4);
+		actual = actual.cleanByte(x -> Byte.MAX_VALUE == x);
+		Assertions.assertEquals(expected, actual);
+
+		expected = Arrays.asList(null, null, null);
+		actual = ByteColumn.of(null, Byte.MIN_VALUE, null).cleanByte(x -> Byte.MIN_VALUE == x);
+		Assertions.assertEquals(expected, actual);
+	}
+
+	@Test
+	public void cleanNormalString() {
+
+		List<String> expected;
+		NormalStringColumn actual;
+
+		expected = Arrays.asList("a", null, null, "c", "c", null);
+		actual = NormalStringColumn.of("a", "a", "b", "b", "c", "c", "b", "b").subColumn(1, 7)
+				.clean(s -> "b".equals(s));
 		Assertions.assertEquals(expected, actual);
 	}
 }

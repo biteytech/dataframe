@@ -33,6 +33,24 @@ final class NullableFloatColumn extends NullableColumn<Float, FloatColumn, NonNu
 	}
 
 	@Override
+	public FloatColumn cleanFloat(FloatPredicate predicate) {
+
+		BufferBitSet cleanNonNulls = new BufferBitSet();
+		FloatColumn cleaned = subColumn.cleanFloat(predicate, cleanNonNulls);
+
+		return clean(cleaned, cleanNonNulls);
+	}
+
+	@Override
+	public FloatColumn filterFloat(FloatPredicate predicate, boolean keepNulls) {
+
+		BufferBitSet keep = new BufferBitSet();
+		var filtered = subColumn.filterFloat0(predicate, keep);
+
+		return filter(filtered, keep, keepNulls);
+	}
+
+	@Override
 	public FloatColumn evaluate(FloatUnaryOperator op) {
 
 		return new NullableFloatColumn((NonNullFloatColumn) subColumn.evaluate(op), subNonNulls(), null, 0, size);

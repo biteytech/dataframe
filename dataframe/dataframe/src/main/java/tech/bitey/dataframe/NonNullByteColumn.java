@@ -25,6 +25,8 @@ import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 
+import tech.bitey.bufferstuff.BufferBitSet;
+
 final class NonNullByteColumn extends ByteArrayColumn<Byte, ByteColumn, NonNullByteColumn> implements ByteColumn {
 
 	static final Map<Integer, NonNullByteColumn> EMPTY = new HashMap<>();
@@ -68,6 +70,54 @@ final class NonNullByteColumn extends ByteArrayColumn<Byte, ByteColumn, NonNullB
 	@Override
 	boolean checkType(Object o) {
 		return o instanceof Byte;
+	}
+
+	@Override
+	public ByteColumn cleanByte(BytePredicate predicate) {
+
+		return cleanByte(predicate, new BufferBitSet());
+	}
+
+	ByteColumn cleanByte(BytePredicate predicate, BufferBitSet nonNulls) {
+
+		int cardinality = filterByte00(predicate, nonNulls, false);
+
+		if (cardinality == size())
+			return this;
+		else {
+			NonNullByteColumn filtered = applyFilter0(nonNulls, cardinality);
+			return new NullableByteColumn(filtered, nonNulls, null, 0, size());
+		}
+	}
+
+	@Override
+	public ByteColumn filterByte(BytePredicate predicate, boolean keepNulls) {
+
+		return filterByte0(predicate, new BufferBitSet());
+	}
+
+	ByteColumn filterByte0(BytePredicate predicate, BufferBitSet keep) {
+
+		int cardinality = filterByte00(predicate, keep, true);
+
+		if (cardinality == size())
+			return this;
+		else
+			return applyFilter0(keep, cardinality);
+	}
+
+	private int filterByte00(BytePredicate predicate, BufferBitSet filter, boolean expected) {
+
+		int cardinality = 0;
+
+		for (int i = size() - 1; i >= 0; i--) {
+			if (predicate.test(at(i + offset)) == expected) {
+				filter.set(i);
+				cardinality++;
+			}
+		}
+
+		return cardinality;
 	}
 
 	@Override

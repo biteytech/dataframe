@@ -66,6 +66,20 @@ public interface ByteColumn extends Column<Byte> {
 	@Override
 	ByteColumn clean(Predicate<Byte> predicate);
 
+	/**
+	 * Returns a new column derived by testing each value with the specified
+	 * {@link BytePredicate} and replacing with {@code null} when the predicate
+	 * returns {@code true}.
+	 * 
+	 * @param predicate the {@code BytePredicate} used to test for values which
+	 *                  should be {@code null}
+	 * 
+	 * @return a new column derived by testing each value with the specified
+	 *         {@code BytePredicate} and replacing with {@code null} when the
+	 *         predicate returns {@code true}.
+	 */
+	ByteColumn cleanByte(BytePredicate predicate);
+
 	@Override
 	ByteColumn filter(Predicate<Byte> predicate, boolean keepNulls);
 
@@ -84,6 +98,38 @@ public interface ByteColumn extends Column<Byte> {
 	 */
 	default ByteColumn filter(Predicate<Byte> predicate) {
 		return filter(predicate, true);
+	}
+
+	/**
+	 * Returns a new column derived by testing each value with the specified
+	 * predicate and removing values when the predicate returns {@code false}. The
+	 * {@code keepNulls} parameter determines whether all nulls are kept as-is, or
+	 * if all nulls are removed.
+	 * 
+	 * @param predicate the {@link BytePredicate} used to test for values which
+	 *                  should be kept.
+	 * @param keepNulls {@code true} means keep all {@code null} values as-is.
+	 *                  {@code false} means drop all {@code null} values.
+	 * 
+	 * @return a new column derived by testing each value with the specified
+	 *         predicate.
+	 */
+	ByteColumn filterByte(BytePredicate predicate, boolean keepNulls);
+
+	/**
+	 * Returns a new column derived by testing each value with the specified
+	 * predicate and removing values when the predicate returns {@code false}.
+	 * Equivalent to {@link #filter(BytePredicate, boolean) filter(predicate,
+	 * true)}.
+	 * 
+	 * @param predicate the {@link BytePredicate} used to test for values which
+	 *                  should be kept.
+	 * 
+	 * @return a new column derived by testing each value with the specified
+	 *         predicate.
+	 */
+	default ByteColumn filterByte(BytePredicate predicate) {
+		return filterByte(predicate, true);
 	}
 
 	/**

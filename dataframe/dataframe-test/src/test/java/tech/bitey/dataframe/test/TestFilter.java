@@ -22,10 +22,13 @@ import java.util.List;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import tech.bitey.dataframe.ByteColumn;
 import tech.bitey.dataframe.DoubleColumn;
+import tech.bitey.dataframe.FloatColumn;
 import tech.bitey.dataframe.IntColumn;
 import tech.bitey.dataframe.LongColumn;
 import tech.bitey.dataframe.NormalStringColumn;
+import tech.bitey.dataframe.ShortColumn;
 import tech.bitey.dataframe.StringColumn;
 
 public class TestFilter {
@@ -371,6 +374,256 @@ public class TestFilter {
 
 		expected = Arrays.asList(null, 3d);
 		actual = DoubleColumn.of(1d, null, 2d, 3d, null).subColumn(1, 4).filterDouble(i -> i != 2, true);
+		Assertions.assertEquals(expected, actual);
+	}
+
+	@Test
+	public void testFilterFloat() {
+
+		List<Float> expected;
+		FloatColumn actual;
+
+		expected = Arrays.asList();
+		actual = FloatColumn.of().filterFloat(s -> false, false);
+		Assertions.assertEquals(expected, actual);
+
+		expected = Arrays.asList();
+		actual = FloatColumn.of(1f).filterFloat(s -> false, false);
+		Assertions.assertEquals(expected, actual);
+
+		expected = Arrays.asList();
+		actual = FloatColumn.of(1f, 2f).filterFloat(s -> false, false);
+		Assertions.assertEquals(expected, actual);
+
+		expected = Arrays.asList(1f, 2f);
+		actual = FloatColumn.of(1f, 2f).filterFloat(s -> true, false);
+		Assertions.assertEquals(expected, actual);
+
+		expected = Arrays.asList(1f, 3f);
+		actual = FloatColumn.of(1f, 2f, 3f).filterFloat(i -> i != 2, false);
+		Assertions.assertEquals(expected, actual);
+
+		expected = Arrays.asList(2f);
+		actual = FloatColumn.of(1f, 2f, 3f).filterFloat(i -> i == 2, false);
+		Assertions.assertEquals(expected, actual);
+
+		expected = Arrays.asList();
+		actual = FloatColumn.builder().addNull().build().filterFloat(s -> false, false);
+		Assertions.assertEquals(expected, actual);
+
+		expected = Arrays.asList();
+		actual = FloatColumn.of(1f, null).filterFloat(s -> false, false);
+		Assertions.assertEquals(expected, actual);
+
+		expected = Arrays.asList();
+		actual = FloatColumn.of(1f, 2f, null).filterFloat(s -> false, false);
+		Assertions.assertEquals(expected, actual);
+
+		expected = Arrays.asList(1f, 2f);
+		actual = FloatColumn.of(1f, 2f, null).filterFloat(s -> true, false);
+		Assertions.assertEquals(expected, actual);
+
+		expected = Arrays.asList(1f, 3f);
+		actual = FloatColumn.of(1f, null, 2f, 3f, null).filterFloat(i -> i != 2, false);
+		Assertions.assertEquals(expected, actual);
+
+		expected = Arrays.asList(2f);
+		actual = FloatColumn.of(1f, 2f, 3f, null).filterFloat(i -> i == 2, false);
+		Assertions.assertEquals(expected, actual);
+
+		expected = Arrays.asList(new Float[] { null });
+		actual = FloatColumn.builder().addNull().build().filterFloat(s -> false, true);
+		Assertions.assertEquals(expected, actual);
+
+		expected = Arrays.asList(new Float[] { null });
+		actual = FloatColumn.of(1f, null).filterFloat(s -> false, true);
+		Assertions.assertEquals(expected, actual);
+
+		expected = Arrays.asList(new Float[] { null });
+		actual = FloatColumn.of(1f, 2f, null).filterFloat(s -> false, true);
+		Assertions.assertEquals(expected, actual);
+
+		expected = Arrays.asList(1f, 2f, null);
+		actual = FloatColumn.of(1f, 2f, null).filterFloat(s -> true, true);
+		Assertions.assertEquals(expected, actual);
+
+		expected = Arrays.asList(1f, null, 3f, null);
+		actual = FloatColumn.of(1f, null, 2f, 3f, null).filterFloat(i -> i != 2, true);
+		Assertions.assertEquals(expected, actual);
+
+		expected = Arrays.asList(2f, null);
+		actual = FloatColumn.of(1f, 2f, 3f, null).filterFloat(i -> i == 2, true);
+		Assertions.assertEquals(expected, actual);
+
+		expected = Arrays.asList(null, 3f);
+		actual = FloatColumn.of(1f, null, 2f, 3f, null).subColumn(1, 4).filterFloat(i -> i != 2, true);
+		Assertions.assertEquals(expected, actual);
+	}
+
+	@Test
+	public void testFilterShort() {
+
+		List<Short> expected;
+		ShortColumn actual;
+
+		expected = Arrays.asList();
+		actual = ShortColumn.of().filterShort(s -> false, false);
+		Assertions.assertEquals(expected, actual);
+
+		expected = Arrays.asList();
+		actual = ShortColumn.of((short) 1).filterShort(s -> false, false);
+		Assertions.assertEquals(expected, actual);
+
+		expected = Arrays.asList();
+		actual = ShortColumn.of((short) 1, (short) 2).filterShort(s -> false, false);
+		Assertions.assertEquals(expected, actual);
+
+		expected = Arrays.asList((short) 1, (short) 2);
+		actual = ShortColumn.of((short) 1, (short) 2).filterShort(s -> true, false);
+		Assertions.assertEquals(expected, actual);
+
+		expected = Arrays.asList((short) 1, (short) 3);
+		actual = ShortColumn.of((short) 1, (short) 2, (short) 3).filterShort(i -> i != 2, false);
+		Assertions.assertEquals(expected, actual);
+
+		expected = Arrays.asList((short) 2);
+		actual = ShortColumn.of((short) 1, (short) 2, (short) 3).filterShort(i -> i == 2, false);
+		Assertions.assertEquals(expected, actual);
+
+		expected = Arrays.asList();
+		actual = ShortColumn.builder().addNull().build().filterShort(s -> false, false);
+		Assertions.assertEquals(expected, actual);
+
+		expected = Arrays.asList();
+		actual = ShortColumn.of((short) 1, null).filterShort(s -> false, false);
+		Assertions.assertEquals(expected, actual);
+
+		expected = Arrays.asList();
+		actual = ShortColumn.of((short) 1, (short) 2, null).filterShort(s -> false, false);
+		Assertions.assertEquals(expected, actual);
+
+		expected = Arrays.asList((short) 1, (short) 2);
+		actual = ShortColumn.of((short) 1, (short) 2, null).filterShort(s -> true, false);
+		Assertions.assertEquals(expected, actual);
+
+		expected = Arrays.asList((short) 1, (short) 3);
+		actual = ShortColumn.of((short) 1, null, (short) 2, (short) 3, null).filterShort(i -> i != 2, false);
+		Assertions.assertEquals(expected, actual);
+
+		expected = Arrays.asList((short) 2);
+		actual = ShortColumn.of((short) 1, (short) 2, (short) 3, null).filterShort(i -> i == 2, false);
+		Assertions.assertEquals(expected, actual);
+
+		expected = Arrays.asList(new Short[] { null });
+		actual = ShortColumn.builder().addNull().build().filterShort(s -> false, true);
+		Assertions.assertEquals(expected, actual);
+
+		expected = Arrays.asList(new Short[] { null });
+		actual = ShortColumn.of((short) 1, null).filterShort(s -> false, true);
+		Assertions.assertEquals(expected, actual);
+
+		expected = Arrays.asList(new Short[] { null });
+		actual = ShortColumn.of((short) 1, (short) 2, null).filterShort(s -> false, true);
+		Assertions.assertEquals(expected, actual);
+
+		expected = Arrays.asList((short) 1, (short) 2, null);
+		actual = ShortColumn.of((short) 1, (short) 2, null).filterShort(s -> true, true);
+		Assertions.assertEquals(expected, actual);
+
+		expected = Arrays.asList((short) 1, null, (short) 3, null);
+		actual = ShortColumn.of((short) 1, null, (short) 2, (short) 3, null).filterShort(i -> i != 2, true);
+		Assertions.assertEquals(expected, actual);
+
+		expected = Arrays.asList((short) 2, null);
+		actual = ShortColumn.of((short) 1, (short) 2, (short) 3, null).filterShort(i -> i == 2, true);
+		Assertions.assertEquals(expected, actual);
+
+		expected = Arrays.asList(null, (short) 3);
+		actual = ShortColumn.of((short) 1, null, (short) 2, (short) 3, null).subColumn(1, 4).filterShort(i -> i != 2,
+				true);
+		Assertions.assertEquals(expected, actual);
+	}
+
+	@Test
+	public void testFilterByte() {
+
+		List<Byte> expected;
+		ByteColumn actual;
+
+		expected = Arrays.asList();
+		actual = ByteColumn.of().filterByte(s -> false, false);
+		Assertions.assertEquals(expected, actual);
+
+		expected = Arrays.asList();
+		actual = ByteColumn.of((byte) 1).filterByte(s -> false, false);
+		Assertions.assertEquals(expected, actual);
+
+		expected = Arrays.asList();
+		actual = ByteColumn.of((byte) 1, (byte) 2).filterByte(s -> false, false);
+		Assertions.assertEquals(expected, actual);
+
+		expected = Arrays.asList((byte) 1, (byte) 2);
+		actual = ByteColumn.of((byte) 1, (byte) 2).filterByte(s -> true, false);
+		Assertions.assertEquals(expected, actual);
+
+		expected = Arrays.asList((byte) 1, (byte) 3);
+		actual = ByteColumn.of((byte) 1, (byte) 2, (byte) 3).filterByte(i -> i != 2, false);
+		Assertions.assertEquals(expected, actual);
+
+		expected = Arrays.asList((byte) 2);
+		actual = ByteColumn.of((byte) 1, (byte) 2, (byte) 3).filterByte(i -> i == 2, false);
+		Assertions.assertEquals(expected, actual);
+
+		expected = Arrays.asList();
+		actual = ByteColumn.builder().addNull().build().filterByte(s -> false, false);
+		Assertions.assertEquals(expected, actual);
+
+		expected = Arrays.asList();
+		actual = ByteColumn.of((byte) 1, null).filterByte(s -> false, false);
+		Assertions.assertEquals(expected, actual);
+
+		expected = Arrays.asList();
+		actual = ByteColumn.of((byte) 1, (byte) 2, null).filterByte(s -> false, false);
+		Assertions.assertEquals(expected, actual);
+
+		expected = Arrays.asList((byte) 1, (byte) 2);
+		actual = ByteColumn.of((byte) 1, (byte) 2, null).filterByte(s -> true, false);
+		Assertions.assertEquals(expected, actual);
+
+		expected = Arrays.asList((byte) 1, (byte) 3);
+		actual = ByteColumn.of((byte) 1, null, (byte) 2, (byte) 3, null).filterByte(i -> i != 2, false);
+		Assertions.assertEquals(expected, actual);
+
+		expected = Arrays.asList((byte) 2);
+		actual = ByteColumn.of((byte) 1, (byte) 2, (byte) 3, null).filterByte(i -> i == 2, false);
+		Assertions.assertEquals(expected, actual);
+
+		expected = Arrays.asList(new Byte[] { null });
+		actual = ByteColumn.builder().addNull().build().filterByte(s -> false, true);
+		Assertions.assertEquals(expected, actual);
+
+		expected = Arrays.asList(new Byte[] { null });
+		actual = ByteColumn.of((byte) 1, null).filterByte(s -> false, true);
+		Assertions.assertEquals(expected, actual);
+
+		expected = Arrays.asList(new Byte[] { null });
+		actual = ByteColumn.of((byte) 1, (byte) 2, null).filterByte(s -> false, true);
+		Assertions.assertEquals(expected, actual);
+
+		expected = Arrays.asList((byte) 1, (byte) 2, null);
+		actual = ByteColumn.of((byte) 1, (byte) 2, null).filterByte(s -> true, true);
+		Assertions.assertEquals(expected, actual);
+
+		expected = Arrays.asList((byte) 1, null, (byte) 3, null);
+		actual = ByteColumn.of((byte) 1, null, (byte) 2, (byte) 3, null).filterByte(i -> i != 2, true);
+		Assertions.assertEquals(expected, actual);
+
+		expected = Arrays.asList((byte) 2, null);
+		actual = ByteColumn.of((byte) 1, (byte) 2, (byte) 3, null).filterByte(i -> i == 2, true);
+		Assertions.assertEquals(expected, actual);
+
+		expected = Arrays.asList(null, (byte) 3);
+		actual = ByteColumn.of((byte) 1, null, (byte) 2, (byte) 3, null).subColumn(1, 4).filterByte(i -> i != 2, true);
 		Assertions.assertEquals(expected, actual);
 	}
 }

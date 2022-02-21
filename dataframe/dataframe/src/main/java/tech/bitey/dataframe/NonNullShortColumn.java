@@ -201,6 +201,54 @@ final class NonNullShortColumn extends NonNullSingleBufferColumn<Short, ShortCol
 	}
 
 	@Override
+	public ShortColumn cleanShort(ShortPredicate predicate) {
+
+		return cleanShort(predicate, new BufferBitSet());
+	}
+
+	ShortColumn cleanShort(ShortPredicate predicate, BufferBitSet nonNulls) {
+
+		int cardinality = filterShort00(predicate, nonNulls, false);
+
+		if (cardinality == size())
+			return this;
+		else {
+			NonNullShortColumn filtered = applyFilter0(nonNulls, cardinality);
+			return new NullableShortColumn(filtered, nonNulls, null, 0, size());
+		}
+	}
+
+	@Override
+	public ShortColumn filterShort(ShortPredicate predicate, boolean keepNulls) {
+
+		return filterShort0(predicate, new BufferBitSet());
+	}
+
+	ShortColumn filterShort0(ShortPredicate predicate, BufferBitSet keep) {
+
+		int cardinality = filterShort00(predicate, keep, true);
+
+		if (cardinality == size())
+			return this;
+		else
+			return applyFilter0(keep, cardinality);
+	}
+
+	private int filterShort00(ShortPredicate predicate, BufferBitSet filter, boolean expected) {
+
+		int cardinality = 0;
+
+		for (int i = size() - 1; i >= 0; i--) {
+			if (predicate.test(at(i + offset)) == expected) {
+				filter.set(i);
+				cardinality++;
+			}
+		}
+
+		return cardinality;
+	}
+
+	@Override
 	public ShortColumn evaluate(ShortUnaryOperator op) {
 
 		final ByteBuffer bb = allocate(size);

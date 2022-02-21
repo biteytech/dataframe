@@ -33,6 +33,24 @@ final class NullableByteColumn extends NullableByteArrayColumn<Byte, ByteColumn,
 	}
 
 	@Override
+	public ByteColumn cleanByte(BytePredicate predicate) {
+
+		BufferBitSet cleanNonNulls = new BufferBitSet();
+		ByteColumn cleaned = subColumn.cleanByte(predicate, cleanNonNulls);
+
+		return clean(cleaned, cleanNonNulls);
+	}
+
+	@Override
+	public ByteColumn filterByte(BytePredicate predicate, boolean keepNulls) {
+
+		BufferBitSet keep = new BufferBitSet();
+		var filtered = subColumn.filterByte0(predicate, keep);
+
+		return filter(filtered, keep, keepNulls);
+	}
+
+	@Override
 	public ByteColumn evaluate(ByteUnaryOperator op) {
 
 		return new NullableByteColumn((NonNullByteColumn) subColumn.evaluate(op), subNonNulls(), null, 0, size);
