@@ -169,6 +169,21 @@ public class TestStringColumn extends TestColumn<String> {
 		assertEquals(DecimalColumn.of(BigDecimal.ONE.negate(), BigDecimal.ZERO), s.parseDecimal(), "parseDecmial");
 	}
 
+	@Test
+	public void testNonAscii() {
+
+		List<String> expected = Arrays.asList(new String[] { "あああ", "いいい", "ううう", "えええ", "おおお" });
+		assertEquals(expected, StringColumn.of(expected).toDistinct());
+
+		Random rand = new Random(0);
+		for (int i = 0; i < 3; i++) {
+			List<String> unsorted = new ArrayList<>(expected);
+			Collections.shuffle(unsorted, rand);
+			unsorted.add(unsorted.get(0));
+			assertEquals(expected, StringColumn.of(unsorted).toDistinct());
+		}
+	}
+
 	// 1026 values
 	private static final String[] RANDOM = { "5", "5", "8", "5", "2", "6", "9", "2", "2", "8", "7", "1", "5", "1", "3",
 			"4", "8", "8", "3", "1", "5", "6", "1", "2", "1", "0", "1", "4", "5", "9", "1", "2", "2", "9", "7", "8",

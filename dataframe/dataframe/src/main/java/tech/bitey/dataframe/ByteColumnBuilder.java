@@ -87,6 +87,21 @@ public final class ByteColumnBuilder extends ByteArrayColumnBuilder<Byte, ByteCo
 		return this;
 	}
 
+	/**
+	 * Adds a sequence of {@code bytes} to the column.
+	 *
+	 * @param elements the {@code bytes} to add
+	 * 
+	 * @return this builder
+	 */
+	public ByteColumnBuilder addAll(ByteBuffer elements) {
+		int remaining = elements.remaining();
+		ensureAdditionalCapacity(remaining);
+		this.elements.put(elements);
+		size += remaining;
+		return this;
+	}
+
 	@Override
 	public ColumnType<Byte> getType() {
 		return ColumnType.BYTE;

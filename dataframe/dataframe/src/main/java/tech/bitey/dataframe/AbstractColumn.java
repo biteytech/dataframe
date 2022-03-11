@@ -296,7 +296,7 @@ abstract class AbstractColumn<E extends Comparable<? super E>, I extends Column<
 		if (isEmpty())
 			throw new NoSuchElementException();
 
-		return get(0);
+		return getNoOffset(offset);
 	}
 
 	@Override
@@ -304,7 +304,7 @@ abstract class AbstractColumn<E extends Comparable<? super E>, I extends Column<
 		if (isEmpty())
 			throw new NoSuchElementException();
 
-		return get(size() - 1);
+		return getNoOffset(lastIndex());
 	}
 
 	/*------------------------------------------------------------

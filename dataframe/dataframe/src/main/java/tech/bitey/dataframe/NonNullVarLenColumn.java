@@ -29,6 +29,8 @@ import java.nio.ByteOrder;
 import java.nio.IntBuffer;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
+import java.util.function.IntBinaryOperator;
+import java.util.function.IntUnaryOperator;
 
 import tech.bitey.bufferstuff.BufferBitSet;
 import tech.bitey.bufferstuff.BufferSort;
@@ -85,15 +87,13 @@ abstract class NonNullVarLenColumn<E extends Comparable<E>, I extends Column<E>,
 		return end(index) - pat(index);
 	}
 
+	ByteBuffer element(int index) {
+		return BufferUtils.slice(elements, pat(index), end(index));
+	}
+
 	@Override
 	E getNoOffset(int index) {
-
-		ByteBuffer element = BufferUtils.slice(elements, pat(index), end(index));
-
-		byte[] bytes = new byte[length(index)];
-		element.get(bytes);
-
-		return packer.unpack(bytes);
+		return packer.unpack(element(index));
 	}
 
 	@Override
@@ -283,13 +283,16 @@ abstract class NonNullVarLenColumn<E extends Comparable<E>, I extends Column<E>,
 
 	@Override
 	boolean checkSorted() {
+		return checkSorted0(i -> getNoOffset(i - 1).compareTo(getNoOffset(i)));
+	}
+
+	boolean checkSorted0(IntUnaryOperator comparator) {
 		if (size < 2)
 			return true;
 
-		for (int i = offset + 1; i <= lastIndex(); i++) {
-			if (getNoOffset(i - 1).compareTo(getNoOffset(i)) > 0)
+		for (int i = offset + 1; i <= lastIndex(); i++)
+			if (comparator.applyAsInt(i) > 0)
 				return false;
-		}
 
 		return true;
 	}
@@ -299,11 +302,11 @@ abstract class NonNullVarLenColumn<E extends Comparable<E>, I extends Column<E>,
 		if (size < 2)
 			return true;
 
-		ByteBuffer prev = BufferUtils.slice(elements, pat(offset), end(offset));
+		ByteBuffer prev = element(offset);
 
 		for (int i = offset + 1; i <= lastIndex(); i++) {
 
-			ByteBuffer curr = BufferUtils.slice(elements, pat(i), end(i));
+			ByteBuffer curr = element(i);
 
 			if (curr.equals(prev))
 				return false;
@@ -316,13 +319,17 @@ abstract class NonNullVarLenColumn<E extends Comparable<E>, I extends Column<E>,
 
 	@Override
 	C toSorted0() {
+		return toSorted00((l, r) -> getNoOffset(l + offset).compareTo(getNoOffset(r + offset)));
+	}
+
+	C toSorted00(IntBinaryOperator comparator) {
 
 		ByteBuffer bb = BufferUtils.allocate(size() * 4);
 		IntBuffer b = bb.asIntBuffer();
 		for (int i = 0; i < size(); i++)
 			b.put(i, i);
 
-		BufferSort.heapSort(b, (l, r) -> get(l).compareTo(get(r)), 0, size());
+		BufferSort.heapSort(b, comparator, 0, size());
 
 		NonNullIntColumn indices = new NonNullIntColumn(bb, 0, size(), NONNULL_CHARACTERISTICS, false);
 
@@ -352,10 +359,10 @@ abstract class NonNullVarLenColumn<E extends Comparable<E>, I extends Column<E>,
 			keep.set(i - offset);
 			cardinality++;
 
-			ByteBuffer e1 = BufferUtils.slice(elements, pat(i), end(i));
+			ByteBuffer e1 = element(i);
 			i--;
 			for (; i >= offset; i--) {
-				ByteBuffer e2 = BufferUtils.slice(elements, pat(i), end(i));
+				ByteBuffer e2 = element(i);
 				if (!e1.equals(e2))
 					break;
 			}

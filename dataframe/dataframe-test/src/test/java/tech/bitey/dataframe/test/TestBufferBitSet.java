@@ -39,6 +39,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import tech.bitey.bufferstuff.BufferBitSet;
+import tech.bitey.bufferstuff.BufferUtils;
 
 public class TestBufferBitSet {
 
@@ -500,7 +501,11 @@ public class TestBufferBitSet {
 		BufferBitSet bs = new BufferBitSet();
 		populateWithSampleIndices(bs);
 
-		int expected = Arrays.hashCode(bs.getBuffer().array());
+		ByteBuffer buf = BufferUtils.copy(bs.getBuffer(), 0, bs.getBuffer().position());
+		buf.position(0);
+		byte[] bytes = new byte[buf.capacity()];
+		buf.get(bytes);
+		int expected = Arrays.hashCode(bytes);
 
 		Assertions.assertEquals(expected, bs.hashCode());
 		Assertions.assertEquals(0, new BufferBitSet().hashCode());

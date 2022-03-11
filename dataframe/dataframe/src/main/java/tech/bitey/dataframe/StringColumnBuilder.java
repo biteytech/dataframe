@@ -42,7 +42,7 @@ import tech.bitey.bufferstuff.BufferBitSet;
 public final class StringColumnBuilder extends VarLenColumnBuilder<String, StringColumn, StringColumnBuilder> {
 
 	StringColumnBuilder(int characteristics) {
-		super(characteristics, VarLenPacker.STRING);
+		super(characteristics, VarLenPacker.STRING_UTF_8);
 	}
 
 	@Override
