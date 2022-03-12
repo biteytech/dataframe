@@ -201,7 +201,7 @@ final class NonNullBooleanColumn extends NonNullColumn<Boolean, BooleanColumn, N
 	}
 
 	@Override
-	NonNullBooleanColumn readFrom(ReadableByteChannel channel) throws IOException {
+	NonNullBooleanColumn readFrom(ReadableByteChannel channel, int version) throws IOException {
 		int size = readInt(channel, BIG_ENDIAN);
 		BufferBitSet elements = BufferBitSet.readFrom(channel);
 

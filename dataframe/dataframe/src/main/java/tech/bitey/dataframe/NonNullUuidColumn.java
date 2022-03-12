@@ -17,63 +17,95 @@
 package tech.bitey.dataframe;
 
 import static java.util.Spliterator.DISTINCT;
-import static java.util.Spliterator.NONNULL;
 import static java.util.Spliterator.SORTED;
-import static tech.bitey.bufferstuff.BufferUtils.EMPTY_BUFFER;
+import static tech.bitey.bufferstuff.BufferUtils.readFully;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.LongBuffer;
+import java.nio.channels.ReadableByteChannel;
+import java.nio.channels.WritableByteChannel;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
 import tech.bitey.bufferstuff.BufferBitSet;
+import tech.bitey.bufferstuff.BufferUtils;
 
-final class NonNullUuidColumn extends NonNullSingleBufferColumn<UUID, UuidColumn, NonNullUuidColumn>
-		implements UuidColumn {
+final class NonNullUuidColumn extends NonNullColumn<UUID, UuidColumn, NonNullUuidColumn> implements UuidColumn {
+
+	private static final NonNullLongColumn EMPTY_COLUMN = (NonNullLongColumn) LongColumn.of();
 
 	static final Map<Integer, NonNullUuidColumn> EMPTY = new HashMap<>();
 	static {
-		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS, c -> new NonNullUuidColumn(EMPTY_BUFFER, 0, 0, c, false));
+		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS,
+				c -> new NonNullUuidColumn(EMPTY_COLUMN, EMPTY_COLUMN, 0, 0, c, false));
 		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED,
-				c -> new NonNullUuidColumn(EMPTY_BUFFER, 0, 0, c, false));
+				c -> new NonNullUuidColumn(EMPTY_COLUMN, EMPTY_COLUMN, 0, 0, c, false));
 		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED | DISTINCT,
-				c -> new NonNullUuidColumn(EMPTY_BUFFER, 0, 0, c, false));
+				c -> new NonNullUuidColumn(EMPTY_COLUMN, EMPTY_COLUMN, 0, 0, c, false));
 	}
 
 	static NonNullUuidColumn empty(int characteristics) {
 		return EMPTY.get(characteristics | NONNULL_CHARACTERISTICS);
 	}
 
-	private final LongBuffer elements;
+	private final NonNullLongColumn msb;
+	private final NonNullLongColumn lsb;
 
-	NonNullUuidColumn(ByteBuffer buffer, int offset, int size, int characteristics, boolean view) {
-		super(buffer, offset, size, characteristics, view);
+	NonNullUuidColumn(NonNullLongColumn msb, NonNullLongColumn lsb, int offset, int size, int characteristics,
+			boolean view) {
+		super(offset, size, characteristics, view);
 
-		this.elements = buffer.asLongBuffer();
-	}
-
-	@Override
-	NonNullUuidColumn construct(ByteBuffer buffer, int offset, int size, int characteristics, boolean view) {
-		return new NonNullUuidColumn(buffer, offset, size, characteristics, view);
+		this.msb = msb;
+		this.lsb = lsb;
 	}
 
 	private long msb(int index) {
-		return elements.get(index << 1);
+		return msb.getLong(index);
 	}
 
 	private long lsb(int index) {
-		return elements.get((index << 1) + 1);
-	}
-
-	private void put(int index, long msb, long lsb) {
-		elements.put(index << 1, msb);
-		elements.put((index << 1) + 1, lsb);
+		return lsb.getLong(index);
 	}
 
 	@Override
-	UUID getNoOffset(int index) {
-		return new UUID(msb(index), lsb(index));
+	public ColumnType<UUID> getType() {
+		return ColumnType.UUID;
+	}
+
+	private NonNullLongColumn sub(NonNullLongColumn col) {
+		return col.subColumn0(offset, offset + size);
+	}
+
+	@Override
+	public UuidColumn copy() {
+		return new NonNullUuidColumn(sub(msb).copy(), sub(lsb).copy(), 0, size, characteristics, false);
+	}
+
+	@Override
+	NonNullUuidColumn slice() {
+		return new NonNullUuidColumn(sub(msb), sub(lsb), 0, size, characteristics, false);
+	}
+
+	@Override
+	NonNullUuidColumn appendNonNull(NonNullUuidColumn tail) {
+		NonNullUuidColumn lhs = this.slice();
+		NonNullUuidColumn rhs = tail.slice();
+
+		return new NonNullUuidColumn(lhs.msb.appendNonNull(rhs.msb), lhs.lsb.appendNonNull(rhs.lsb), 0,
+				size + tail.size, 0, false);
+	}
+
+	@Override
+	NonNullUuidColumn subColumn0(int fromIndex, int toIndex) {
+		return new NonNullUuidColumn(msb, lsb, fromIndex + offset, toIndex - fromIndex, characteristics, true);
+	}
+
+	@Override
+	NonNullUuidColumn withCharacteristics(int characteristics) {
+		return new NonNullUuidColumn(msb, lsb, offset, size, characteristics, view);
 	}
 
 	int search(UUID value) {
@@ -83,16 +115,6 @@ final class NonNullUuidColumn extends NonNullSingleBufferColumn<UUID, UuidColumn
 	@Override
 	int search(UUID value, boolean first) {
 		return AbstractColumnSearch.search(this, value, first);
-	}
-
-	@Override
-	void sort() {
-		heapSort(offset, offset + size);
-	}
-
-	@Override
-	int deduplicate() {
-		return deduplicate(offset, offset + size);
 	}
 
 	@Override
@@ -122,64 +144,79 @@ final class NonNullUuidColumn extends NonNullSingleBufferColumn<UUID, UuidColumn
 	}
 
 	@Override
-	NonNullUuidColumn empty() {
-		return EMPTY.get(characteristics);
+	NonNullUuidColumn toSorted0() {
+		return NonNullVarLenColumn.toSorted00(this, (l, r) -> compareValuesAt(l + offset, r + offset));
 	}
 
 	@Override
-	public ColumnType<UUID> getType() {
-		return ColumnType.UUID;
+	NonNullUuidColumn toDistinct0(boolean sort) {
+
+		NonNullUuidColumn col = this;
+
+		if (sort)
+			col = toSorted0();
+
+		return col.toDistinct00();
 	}
 
-	@Override
-	public int hashCode(int fromIndex, int toIndex) {
-		// from Arrays::hashCode
-		int result = 1;
-		for (int i = fromIndex; i <= toIndex; i++) {
+	NonNullUuidColumn toDistinct00() {
 
-			long mostSigBits = msb(i);
-			long leastSigBits = lsb(i);
-			long hilo = mostSigBits ^ leastSigBits;
+		BufferBitSet keep = new BufferBitSet();
+		int cardinality = 0;
+		for (int i = lastIndex(); i >= offset;) {
 
-			result = 31 * result + ((int) (hilo >> 32)) ^ (int) hilo;
+			keep.set(i - offset);
+			cardinality++;
+
+			i--;
+			for (; i >= offset; i--) {
+				if (msb(i) != msb(i + 1) || lsb(i) != lsb(i + 1))
+					break;
+			}
 		}
-		return result;
-	}
 
-	private void put(ByteBuffer buffer, int index) {
-		buffer.putLong(msb(index));
-		buffer.putLong(lsb(index));
+		NonNullUuidColumn filtered = (NonNullUuidColumn) applyFilter(keep, cardinality);
+		return filtered.withCharacteristics(NONNULL_CHARACTERISTICS | SORTED | DISTINCT);
 	}
 
 	@Override
-	NonNullUuidColumn applyFilter0(BufferBitSet keep, int cardinality) {
-
-		ByteBuffer buffer = allocate(cardinality);
-		for (int i = offset; i <= lastIndex(); i++)
-			if (keep.get(i - offset))
-				put(buffer, i);
-		buffer.flip();
-
-		return new NonNullUuidColumn(buffer, 0, cardinality, characteristics, false);
+	int hashCode(int fromIndex, int toIndex) {
+		return msb.hashCode(fromIndex, toIndex) ^ lsb.hashCode(fromIndex, toIndex);
 	}
 
 	@Override
-	NonNullUuidColumn select0(IntColumn indices) {
+	boolean equals0(NonNullUuidColumn rhs) {
 
-		ByteBuffer buffer = allocate(indices.size());
-		for (int i = 0; i < indices.size(); i++)
-			put(buffer, indices.getInt(i) + offset);
-		buffer.flip();
+		return sub(msb).equals(rhs.sub(rhs.msb)) && sub(lsb).equals(rhs.sub(rhs.lsb));
+	}
 
-		return construct(buffer, 0, indices.size(), NONNULL, false);
+	@Override
+	boolean equals0(NonNullUuidColumn rhs, int lStart, int rStart, int length) {
+		// should never be called
+		throw new IllegalStateException("equals0");
 	}
 
 	@Override
 	int compareValuesAt(NonNullUuidColumn rhs, int l, int r) {
 
-		return (this.msb(l) < rhs.msb(r) ? -1
-				: (this.msb(l) > rhs.msb(r) ? 1
-						: (this.lsb(l) < rhs.lsb(r) ? -1 : (this.lsb(l) > rhs.lsb(r) ? 1 : 0))));
+		long L = msb.elements.get(l);
+		long R = rhs.msb.elements.get(r);
+
+		if (L < R)
+			return -1;
+		else if (L > R)
+			return 1;
+		else {
+			L = lsb.elements.get(l);
+			R = rhs.lsb.elements.get(r);
+
+			if (L < R)
+				return -1;
+			else if (L > R)
+				return 1;
+			else
+				return 0;
+		}
 	}
 
 	private int compareValuesAt(int l, int r) {
@@ -201,91 +238,76 @@ final class NonNullUuidColumn extends NonNullSingleBufferColumn<UUID, UuidColumn
 	}
 
 	@Override
+	NonNullUuidColumn empty() {
+		return EMPTY.get(characteristics);
+	}
+
+	@Override
+	UUID getNoOffset(int index) {
+		return new UUID(msb(index), lsb(index));
+	}
+
+	@Override
 	boolean checkType(Object o) {
 		return o instanceof UUID;
 	}
 
 	@Override
-	int elementSize() {
-		return 16;
+	Column<UUID> applyFilter0(BufferBitSet keep, int cardinality) {
+		return new NonNullUuidColumn(sub(msb).applyFilter0(keep, cardinality), sub(lsb).applyFilter0(keep, cardinality),
+				0, cardinality, characteristics, false);
 	}
 
-	// =========================================================================
+	@Override
+	NonNullUuidColumn select0(IntColumn indices) {
 
-	private void heapSort(int fromIndex, int toIndex) {
+		UuidColumnBuilder builder = new UuidColumnBuilder(NONNULL_CHARACTERISTICS);
+		builder.ensureCapacity(indices.size());
 
-		int n = toIndex - fromIndex;
-		if (n <= 1)
-			return;
-
-		// Build max heap
-		for (int i = fromIndex + n / 2 - 1; i >= fromIndex; i--)
-			heapify(toIndex, i, fromIndex);
-
-		// Heap sort
-		for (int i = toIndex - 1; i >= fromIndex; i--) {
-			swap(fromIndex, i);
-
-			// Heapify root element
-			heapify(i, fromIndex, fromIndex);
+		for (int i = 0; i < indices.size(); i++) {
+			int idx = indices.getInt(i) + offset;
+			builder.add(msb(idx), lsb(idx));
 		}
+
+		return (NonNullUuidColumn) builder.build();
 	}
 
-	// based on https://www.programiz.com/dsa/heap-sort
-	private void heapify(int n, int i, int offset) {
-		// Find largest among root, left child and right child
-		int largest = i;
-		int l = 2 * i + 1 - offset;
-		int r = l + 1;
-
-		if (l < n && compareValuesAt(l, largest) > 0)
-			largest = l;
-
-		if (r < n && compareValuesAt(r, largest) > 0)
-			largest = r;
-
-		// Swap and continue heapifying if root is not largest
-		if (largest != i) {
-			swap(i, largest);
-			heapify(n, largest, offset);
-		}
+	@Override
+	void writeTo(WritableByteChannel channel) throws IOException {
+		sub(msb).writeTo(channel);
+		sub(lsb).writeTo(channel);
 	}
 
-	private void swap(int i, int j) {
-		long im = msb(i);
-		long il = lsb(i);
-		long jm = msb(j);
-		long jl = lsb(j);
+	@Override
+	NonNullUuidColumn readFrom(ReadableByteChannel channel, int version) throws IOException {
+		if (version <= 2) {
+			ByteOrder order = readByteOrder(channel);
+			int size = readInt(channel, order);
 
-		put(i, jm, jl);
-		put(j, im, il);
-	}
+			ByteBuffer buffer = BufferUtils.allocate(size * 16, order);
+			readFully(channel, buffer);
+			buffer.flip();
 
-	// =========================================================================
+			UuidColumnBuilder builder = UuidColumn.builder(characteristics);
+			builder.ensureCapacity(size);
 
-	private int deduplicate(int fromIndex, int toIndex) {
-
-		if (toIndex - fromIndex < 2)
-			return toIndex;
-
-		long prevM = msb(fromIndex);
-		long prevL = lsb(fromIndex);
-		int highest = fromIndex + 1;
-
-		for (int i = fromIndex + 1; i < toIndex; i++) {
-			long msb = msb(i);
-			long lsb = lsb(i);
-
-			if (prevM != msb || prevL != lsb) {
-				if (highest < i)
-					put(highest, msb, lsb);
-
-				highest++;
-				prevM = msb;
-				prevL = lsb;
+			LongBuffer longs = buffer.asLongBuffer();
+			for (int i = 0; i < size; i++) {
+				long msb = longs.get();
+				long lsb = longs.get();
+				builder.add(msb, lsb);
 			}
-		}
 
-		return highest;
+			return (NonNullUuidColumn) builder.build();
+
+		} else {
+			NonNullLongColumn msb = (NonNullLongColumn) ColumnType.LONG.readFrom(channel, NONNULL_CHARACTERISTICS,
+					version);
+			NonNullLongColumn lsb = (NonNullLongColumn) ColumnType.LONG.readFrom(channel, NONNULL_CHARACTERISTICS,
+					version);
+
+			return new NonNullUuidColumn(msb, lsb, 0, msb.size(), characteristics, false);
+		}
 	}
+
 }

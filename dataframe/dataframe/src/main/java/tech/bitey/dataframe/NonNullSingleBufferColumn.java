@@ -125,7 +125,7 @@ abstract class NonNullSingleBufferColumn<E extends Comparable<? super E>, I exte
 	}
 
 	@Override
-	C readFrom(ReadableByteChannel channel) throws IOException {
+	C readFrom(ReadableByteChannel channel, int version) throws IOException {
 		ByteOrder order = readByteOrder(channel);
 		int size = readInt(channel, order);
 

@@ -81,7 +81,7 @@ abstract class NonNullColumn<E extends Comparable<? super E>, I extends Column<E
 
 	abstract C slice();
 
-	abstract C readFrom(ReadableByteChannel channel) throws IOException;
+	abstract C readFrom(ReadableByteChannel channel, int version) throws IOException;
 
 	@Override
 	public C toHeap() {

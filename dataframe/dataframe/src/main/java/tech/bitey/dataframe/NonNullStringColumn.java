@@ -93,6 +93,6 @@ final class NonNullStringColumn extends NonNullVarLenColumn<String, StringColumn
 		if (!isAscii())
 			return super.toSorted0();
 		else
-			return toSorted00((l, r) -> element(l + offset).compareTo(element(r + offset)));
+			return toSorted00(this, (l, r) -> element(l + offset).compareTo(element(r + offset)));
 	}
 }

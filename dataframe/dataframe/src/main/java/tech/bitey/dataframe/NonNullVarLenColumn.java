@@ -317,25 +317,28 @@ abstract class NonNullVarLenColumn<E extends Comparable<E>, I extends Column<E>,
 		return true;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	C toSorted0() {
-		return toSorted00((l, r) -> getNoOffset(l + offset).compareTo(getNoOffset(r + offset)));
+		return (C) toSorted00(this, (l, r) -> getNoOffset(l + offset).compareTo(getNoOffset(r + offset)));
 	}
 
-	C toSorted00(IntBinaryOperator comparator) {
+	@SuppressWarnings("unchecked")
+	static <C extends NonNullColumn<?, ?, ?>> C toSorted00(C column, IntBinaryOperator comparator) {
 
-		ByteBuffer bb = BufferUtils.allocate(size() * 4);
+		int size = column.size();
+
+		ByteBuffer bb = BufferUtils.allocate(size * 4);
 		IntBuffer b = bb.asIntBuffer();
-		for (int i = 0; i < size(); i++)
+		for (int i = 0; i < size; i++)
 			b.put(i, i);
 
-		BufferSort.heapSort(b, comparator, 0, size());
+		BufferSort.heapSort(b, comparator, 0, size);
 
-		NonNullIntColumn indices = new NonNullIntColumn(bb, 0, size(), NONNULL_CHARACTERISTICS, false);
+		NonNullIntColumn indices = new NonNullIntColumn(bb, 0, size, NONNULL_CHARACTERISTICS, false);
 
-		@SuppressWarnings("unchecked")
-		C sorted = (C) select(indices);
-		return sorted.withCharacteristics(NONNULL_CHARACTERISTICS | SORTED);
+		C sorted = (C) column.select(indices);
+		return (C) sorted.withCharacteristics(NONNULL_CHARACTERISTICS | SORTED);
 	}
 
 	@Override
@@ -391,7 +394,7 @@ abstract class NonNullVarLenColumn<E extends Comparable<E>, I extends Column<E>,
 
 	@SuppressWarnings("unchecked")
 	@Override
-	C readFrom(ReadableByteChannel channel) throws IOException {
+	C readFrom(ReadableByteChannel channel, int version) throws IOException {
 
 		Pr.checkState(isEmpty(), "readFrom can only be called on empty column");
 

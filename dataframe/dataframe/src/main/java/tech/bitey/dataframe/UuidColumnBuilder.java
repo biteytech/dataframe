@@ -16,8 +16,9 @@
 
 package tech.bitey.dataframe;
 
-import java.nio.ByteBuffer;
-import java.nio.LongBuffer;
+import static java.util.Spliterator.NONNULL;
+import static tech.bitey.dataframe.Pr.checkState;
+
 import java.util.Spliterator;
 import java.util.UUID;
 
@@ -40,66 +41,13 @@ import tech.bitey.bufferstuff.BufferBitSet;
  *
  * @author biteytech@protonmail.com
  */
-public final class UuidColumnBuilder
-		extends SingleBufferColumnBuilder<UUID, LongBuffer, UuidColumn, UuidColumnBuilder> {
+public final class UuidColumnBuilder extends AbstractColumnBuilder<UUID, UuidColumn, UuidColumnBuilder> {
+
+	private final LongColumnBuilder msb = LongColumn.builder(NONNULL);
+	private final LongColumnBuilder lsb = LongColumn.builder(NONNULL);
 
 	UuidColumnBuilder(int characteristics) {
 		super(characteristics);
-	}
-
-	@Override
-	void addNonNull(UUID element) {
-		add(element.getMostSignificantBits(), element.getLeastSignificantBits());
-	}
-
-	public void add(long msb, long lsb) {
-		ensureAdditionalCapacity(1);
-		elements.put(msb);
-		elements.put(lsb);
-		size++;
-	}
-
-	@Override
-	UuidColumn emptyNonNull() {
-		return NonNullUuidColumn.EMPTY.get(characteristics | Spliterator.NONNULL);
-	}
-
-	@Override
-	boolean checkSorted() {
-
-		for (int i = 1; i < size; i++)
-			if (compareValuesAt(i - 1, i) > 0)
-				return false;
-
-		return true;
-	}
-
-	@Override
-	boolean checkDistinct() {
-
-		for (int i = 1; i < size; i++)
-			if (compareValuesAt(i - 1, i) >= 0)
-				return false;
-
-		return true;
-	}
-
-	private long msb(int index) {
-		return elements.get(index << 1);
-	}
-
-	private long lsb(int index) {
-		return elements.get((index << 1) + 1);
-	}
-
-	int compareValuesAt(int l, int r) {
-
-		return (msb(l) < msb(r) ? -1 : (msb(l) > msb(r) ? 1 : (lsb(l) < lsb(r) ? -1 : (lsb(l) > lsb(r) ? 1 : 0))));
-	}
-
-	@Override
-	UuidColumn wrapNullableColumn(UuidColumn column, BufferBitSet nonNulls) {
-		return new NullableUuidColumn((NonNullUuidColumn) column, nonNulls, null, 0, size);
 	}
 
 	@Override
@@ -108,34 +56,117 @@ public final class UuidColumnBuilder
 	}
 
 	@Override
-	UuidColumn buildNonNullColumn(ByteBuffer trim, int characteristics) {
-		return new NonNullUuidColumn(trim, 0, getNonNullSize(), characteristics, false);
+	public UuidColumnBuilder ensureCapacity(int minCapacity) {
+		msb.ensureCapacity(minCapacity);
+		lsb.ensureCapacity(minCapacity);
+		return this;
 	}
 
 	@Override
-	LongBuffer asBuffer(ByteBuffer buffer) {
-		return buffer.asLongBuffer();
-	}
-
-	@Override
-	int elementSize() {
-		return 16;
+	UuidColumn emptyNonNull() {
+		return NonNullUuidColumn.EMPTY.get(characteristics | Spliterator.NONNULL);
 	}
 
 	@Override
 	int getNonNullSize() {
-		return elements.position() / 2;
+		return msb.size();
 	}
 
 	@Override
-	int getNonNullCapacity() {
-		return elements.capacity() / 2;
+	UuidColumn wrapNullableColumn(UuidColumn column, BufferBitSet nonNulls) {
+		return new NullableUuidColumn((NonNullUuidColumn) column, nonNulls, null, 0, size);
 	}
 
 	@Override
-	void append00(LongBuffer elements) {
-		LongBuffer tail = elements.duplicate();
-		tail.flip();
-		this.elements.put(tail);
+	UuidColumn buildNonNullColumn(int characteristics) {
+		return new NonNullUuidColumn((NonNullLongColumn) msb.build(), (NonNullLongColumn) lsb.build(), 0,
+				getNonNullSize(), characteristics, false);
 	}
+
+	@Override
+	void append0(UuidColumnBuilder tail) {
+		msb.append(tail.msb);
+		lsb.append(tail.lsb);
+	}
+
+	@Override
+	void addNonNull(UUID element) {
+		msb.add(element.getMostSignificantBits());
+		lsb.add(element.getLeastSignificantBits());
+		size++;
+	}
+
+	public void add(long msb, long lsb) {
+		ensureAdditionalCapacity(1);
+		this.msb.add(msb);
+		this.lsb.add(lsb);
+		size++;
+	}
+
+	@Override
+	int compareToLast(UUID element) {
+		throw new UnsupportedOperationException("compareToLast");
+	}
+
+	@Override
+	void checkCharacteristics() {
+		if (sorted() && size >= 2) {
+			if (distinct())
+				checkState(checkDistinct(), "column elements must be sorted and distinct");
+			else
+				checkState(checkSorted(), "column elements must be sorted");
+		}
+	}
+
+	private boolean checkSorted() {
+
+		for (int i = 1; i < size; i++)
+			if (compareValuesAt(i - 1, i) > 0)
+				return false;
+
+		return true;
+	}
+
+	private boolean checkDistinct() {
+
+		for (int i = 1; i < size; i++)
+			if (compareValuesAt(i - 1, i) >= 0)
+				return false;
+
+		return true;
+	}
+
+	int compareValuesAt(int l, int r) {
+
+		long L = msb.elements.get(l);
+		long R = msb.elements.get(r);
+
+		if (L < R)
+			return -1;
+		else if (L > R)
+			return 1;
+		else {
+			L = lsb.elements.get(l);
+			R = lsb.elements.get(r);
+
+			if (L < R)
+				return -1;
+			else if (L > R)
+				return 1;
+			else
+				return 0;
+		}
+	}
+
+	@Override
+	CharacteristicValidation getCharacteristicValidation() {
+		return CharacteristicValidation.BUILD;
+	}
+
+	@Override
+	void ensureAdditionalCapacity(int additionalCapacity) {
+		msb.ensureAdditionalCapacity(additionalCapacity);
+		lsb.ensureAdditionalCapacity(additionalCapacity);
+	}
+
 }

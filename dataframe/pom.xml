@@ -5,7 +5,7 @@
 
 	<groupId>tech.bitey</groupId>
 	<artifactId>dataframe-parent</artifactId>
-	<version>1.1.6</version>
+	<version>1.1.7</version>
 	<packaging>pom</packaging>
 
 	<name>${project.groupId}:${project.artifactId}</name>
@@ -36,7 +36,7 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<dataframe.version>1.1.6</dataframe.version>
+		<dataframe.version>1.1.7</dataframe.version>
 		<joda.beans.config>jdk6</joda.beans.config>
 	</properties>
 

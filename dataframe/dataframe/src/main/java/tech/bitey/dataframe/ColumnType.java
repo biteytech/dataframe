@@ -224,98 +224,98 @@ public class ColumnType<E extends Comparable<? super E>> {
 
 		switch (getCode()) {
 		case B: {
-			NonNullBooleanColumn column = NonNullBooleanColumn.EMPTY.readFrom(channel);
+			NonNullBooleanColumn column = NonNullBooleanColumn.EMPTY.readFrom(channel, version);
 			if (nonNulls == null)
 				return column;
 			else
 				return new NullableBooleanColumn(column, nonNulls, null, 0, size);
 		}
 		case DA: {
-			NonNullDateColumn column = NonNullDateColumn.empty(characteristics).readFrom(channel);
+			NonNullDateColumn column = NonNullDateColumn.empty(characteristics).readFrom(channel, version);
 			if (nonNulls == null)
 				return column;
 			else
 				return new NullableDateColumn(column, nonNulls, null, 0, size);
 		}
 		case DT: {
-			NonNullDateTimeColumn column = NonNullDateTimeColumn.empty(characteristics).readFrom(channel);
+			NonNullDateTimeColumn column = NonNullDateTimeColumn.empty(characteristics).readFrom(channel, version);
 			if (nonNulls == null)
 				return column;
 			else
 				return new NullableDateTimeColumn(column, nonNulls, null, 0, size);
 		}
 		case TI: {
-			NonNullTimeColumn column = NonNullTimeColumn.empty(characteristics).readFrom(channel);
+			NonNullTimeColumn column = NonNullTimeColumn.empty(characteristics).readFrom(channel, version);
 			if (nonNulls == null)
 				return column;
 			else
 				return new NullableTimeColumn(column, nonNulls, null, 0, size);
 		}
 		case IN: {
-			NonNullInstantColumn column = NonNullInstantColumn.empty(characteristics).readFrom(channel);
+			NonNullInstantColumn column = NonNullInstantColumn.empty(characteristics).readFrom(channel, version);
 			if (nonNulls == null)
 				return column;
 			else
 				return new NullableInstantColumn(column, nonNulls, null, 0, size);
 		}
 		case D: {
-			NonNullDoubleColumn column = NonNullDoubleColumn.empty(characteristics).readFrom(channel);
+			NonNullDoubleColumn column = NonNullDoubleColumn.empty(characteristics).readFrom(channel, version);
 			if (nonNulls == null)
 				return column;
 			else
 				return new NullableDoubleColumn(column, nonNulls, null, 0, size);
 		}
 		case F: {
-			NonNullFloatColumn column = NonNullFloatColumn.empty(characteristics).readFrom(channel);
+			NonNullFloatColumn column = NonNullFloatColumn.empty(characteristics).readFrom(channel, version);
 			if (nonNulls == null)
 				return column;
 			else
 				return new NullableFloatColumn(column, nonNulls, null, 0, size);
 		}
 		case I: {
-			NonNullIntColumn column = NonNullIntColumn.empty(characteristics).readFrom(channel);
+			NonNullIntColumn column = NonNullIntColumn.empty(characteristics).readFrom(channel, version);
 			if (nonNulls == null)
 				return column;
 			else
 				return new NullableIntColumn(column, nonNulls, null, 0, size);
 		}
 		case L: {
-			NonNullLongColumn column = NonNullLongColumn.empty(characteristics).readFrom(channel);
+			NonNullLongColumn column = NonNullLongColumn.empty(characteristics).readFrom(channel, version);
 			if (nonNulls == null)
 				return column;
 			else
 				return new NullableLongColumn(column, nonNulls, null, 0, size);
 		}
 		case T: {
-			NonNullShortColumn column = NonNullShortColumn.empty(characteristics).readFrom(channel);
+			NonNullShortColumn column = NonNullShortColumn.empty(characteristics).readFrom(channel, version);
 			if (nonNulls == null)
 				return column;
 			else
 				return new NullableShortColumn(column, nonNulls, null, 0, size);
 		}
 		case Y: {
-			NonNullByteColumn column = NonNullByteColumn.empty(characteristics).readFrom(channel);
+			NonNullByteColumn column = NonNullByteColumn.empty(characteristics).readFrom(channel, version);
 			if (nonNulls == null)
 				return column;
 			else
 				return new NullableByteColumn(column, nonNulls, null, 0, size);
 		}
 		case S: {
-			NonNullStringColumn column = NonNullStringColumn.empty(characteristics).readFrom(channel);
+			NonNullStringColumn column = NonNullStringColumn.empty(characteristics).readFrom(channel, version);
 			if (nonNulls == null)
 				return column;
 			else
 				return new NullableStringColumn(column, nonNulls, null, 0, size);
 		}
 		case BD: {
-			NonNullDecimalColumn column = NonNullDecimalColumn.empty(characteristics).readFrom(channel);
+			NonNullDecimalColumn column = NonNullDecimalColumn.empty(characteristics).readFrom(channel, version);
 			if (nonNulls == null)
 				return column;
 			else
 				return new NullableDecimalColumn(column, nonNulls, null, 0, size);
 		}
 		case UU: {
-			NonNullUuidColumn column = NonNullUuidColumn.empty(characteristics).readFrom(channel);
+			NonNullUuidColumn column = NonNullUuidColumn.empty(characteristics).readFrom(channel, version);
 			if (nonNulls == null)
 				return column;
 			else

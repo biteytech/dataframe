@@ -31,7 +31,11 @@ class ChannelDataFrameHeader {
 	private static final long MAGIC_NUMBER = ((long) 'd') << 56 | ((long) 'a') << 48 | ((long) 't') << 40
 			| ((long) 'a') << 32 | 'f' << 24 | 'r' << 16 | 'a' << 8 | 'm';
 
-	private static final int VERSION = 2;
+	/*-
+	 * v2: modified NormalStringColumnImpl representation
+	 * v3: modified NonNullUuidColumn representation
+	 */
+	private static final int VERSION = 3;
 
 	private static final ByteOrder ORDER = ByteOrder.BIG_ENDIAN;
 
