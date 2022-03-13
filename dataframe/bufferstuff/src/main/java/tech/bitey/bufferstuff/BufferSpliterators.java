@@ -29,7 +29,7 @@ public class BufferSpliterators {
 		 * <b>Note:</b> ignores {@link IntBuffer#position() position} and
 		 * {@link IntBuffer#limit() limit}, can pass a {@link IntBuffer#slice() slice}
 		 * instead.
-		 * 
+		 *
 		 * @param buffer                    the buffer, assumed to be unmodified during
 		 *                                  use
 		 * @param additionalCharacteristics Additional spliterator characteristics of
@@ -43,7 +43,7 @@ public class BufferSpliterators {
 
 		/**
 		 * Creates a spliterator covering the given {@link IntBuffer} and range.
-		 * 
+		 *
 		 * @param buffer                    the buffer, assumed to be unmodified during
 		 *                                  use
 		 * @param origin                    the least index (inclusive) to cover
@@ -126,7 +126,7 @@ public class BufferSpliterators {
 		 * <b>Note:</b> ignores {@link LongBuffer#position() position} and
 		 * {@link LongBuffer#limit() limit}, can pass a {@link LongBuffer#slice() slice}
 		 * instead.
-		 * 
+		 *
 		 * @param buffer                    the buffer, assumed to be unmodified during
 		 *                                  use
 		 * @param additionalCharacteristics Additional spliterator characteristics of
@@ -140,7 +140,7 @@ public class BufferSpliterators {
 
 		/**
 		 * Creates a spliterator covering the given {@link LongBuffer} and range.
-		 * 
+		 *
 		 * @param buffer                    the buffer, assumed to be unmodified during
 		 *                                  use
 		 * @param origin                    the least index (inclusive) to cover
@@ -223,7 +223,7 @@ public class BufferSpliterators {
 		 * <b>Note:</b> ignores {@link DoubleBuffer#position() position} and
 		 * {@link DoubleBuffer#limit() limit}, can pass a {@link DoubleBuffer#slice()
 		 * slice} instead.
-		 * 
+		 *
 		 * @param buffer                    the buffer, assumed to be unmodified during
 		 *                                  use
 		 * @param additionalCharacteristics Additional spliterator characteristics of
@@ -237,7 +237,7 @@ public class BufferSpliterators {
 
 		/**
 		 * Creates a spliterator covering the given {@link DoubleBuffer} and range.
-		 * 
+		 *
 		 * @param buffer                    the buffer, assumed to be unmodified during
 		 *                                  use
 		 * @param origin                    the least index (inclusive) to cover
@@ -301,4 +301,5 @@ public class BufferSpliterators {
 			throw new IllegalStateException();
 		}
 	}
+
 }

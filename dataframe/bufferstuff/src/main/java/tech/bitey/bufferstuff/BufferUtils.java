@@ -21,7 +21,7 @@ import java.util.stream.StreamSupport;
 
 /**
  * Utility methods for working with nio buffers.
- * 
+ *
  * @author biteytech@protonmail.com
  */
 public enum BufferUtils {
@@ -39,9 +39,9 @@ public enum BufferUtils {
 	 * Allocates a new {@link ByteBuffer} with the specified capacity. The buffer
 	 * will be direct if the {@code tech.bitey.allocateDirect} system property is
 	 * set to "true", and will have {@link ByteOrder#nativeOrder() native order}.
-	 * 
+	 *
 	 * @param capacity the new buffer's capacity, in bytes
-	 * 
+	 *
 	 * @return the new native order {@code ByteBuffer}
 	 */
 	public static ByteBuffer allocate(int capacity) {
@@ -52,10 +52,10 @@ public enum BufferUtils {
 	 * Allocates a new {@link ByteBuffer} with the specified capacity. The buffer
 	 * will be direct if the {@code tech.bitey.allocateDirect} system property is
 	 * set to "true", and will have the specified {@link ByteOrder}.
-	 * 
+	 *
 	 * @param capacity the new buffer's capacity, in bytes
 	 * @param order    the {@code ByteOrder}
-	 * 
+	 *
 	 * @return the new {@code ByteBuffer}
 	 */
 	public static ByteBuffer allocate(int capacity, ByteOrder order) {
@@ -64,15 +64,15 @@ public enum BufferUtils {
 
 	/**
 	 * Duplicate a {@link ByteBuffer} and preserve the order. Equivalent to:
-	 * 
+	 *
 	 * <pre>
 	 * b.duplicate().order(b.order())
 	 * </pre>
-	 * 
+	 *
 	 * @param b - the buffer to be duplicated
-	 * 
+	 *
 	 * @return duplicated buffer with order preserved
-	 * 
+	 *
 	 * @see ByteBuffer#duplicate()
 	 * @see ByteBuffer#order()
 	 */
@@ -82,15 +82,15 @@ public enum BufferUtils {
 
 	/**
 	 * Slice a {@link ByteBuffer} and preserve the order. Equivalent to:
-	 * 
+	 *
 	 * <pre>
 	 * b.slice().order(b.order())
 	 * </pre>
-	 * 
+	 *
 	 * @param b - the buffer to be sliced
-	 * 
+	 *
 	 * @return sliced buffer with order preserved
-	 * 
+	 *
 	 * @see ByteBuffer#slice()
 	 * @see ByteBuffer#order()
 	 */
@@ -101,15 +101,15 @@ public enum BufferUtils {
 	/**
 	 * Creates a new, read-only byte buffer that shares the specified buffer's
 	 * content, and preserves it's order. Equivalent to:
-	 * 
+	 *
 	 * <pre>
 	 * b.asReadOnlyBuffer().order(b.order())
 	 * </pre>
-	 * 
+	 *
 	 * @param b - the buffer to be made read-only
-	 * 
+	 *
 	 * @return read-only byte buffer that shares the specified buffer's content
-	 * 
+	 *
 	 * @see ByteBuffer#asReadOnlyBuffer()
 	 * @see ByteBuffer#order()
 	 */
@@ -120,17 +120,17 @@ public enum BufferUtils {
 	/**
 	 * Slice a range from the specified {@link ByteBuffer}. The buffer's order is
 	 * preserved.
-	 * 
+	 *
 	 * @param b         - the buffer to be sliced
 	 * @param fromIndex - the index of the first element in the range (inclusive)
 	 * @param toIndex   - the index of the last element in the range (exclusive)
-	 * 
+	 *
 	 * @return sliced buffer with order preserved
-	 * 
+	 *
 	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
 	 * @throws IndexOutOfBoundsException if
 	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
-	 * 
+	 *
 	 * @see ByteBuffer#slice()
 	 * @see ByteBuffer#order()
 	 */
@@ -147,13 +147,13 @@ public enum BufferUtils {
 	 * Determines if the specified buffer is sorted inside the specified range. That
 	 * is: {@code buffer[i] <= buffer[i + 1]} for all elements in the range. A range
 	 * of length zero or one is considered sorted.
-	 * 
+	 *
 	 * @param b         - the buffer to be checked
 	 * @param fromIndex - the index of the first element (inclusive) to be checked
 	 * @param toIndex   - the index of the last element (exclusive) to be checked
-	 * 
+	 *
 	 * @return true if the buffer is sorted inside the specified range
-	 * 
+	 *
 	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
 	 * @throws IndexOutOfBoundsException if
 	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
@@ -180,13 +180,13 @@ public enum BufferUtils {
 	 * specified range. That is: {@code buffer[i] < buffer[i + 1]} for all elements
 	 * in the range. A range of length zero or one is considered sorted and
 	 * distinct.
-	 * 
+	 *
 	 * @param b         - the buffer to be checked
 	 * @param fromIndex - the index of the first element (inclusive) to be checked
 	 * @param toIndex   - the index of the last element (exclusive) to be checked
-	 * 
+	 *
 	 * @return true if the buffer is sorted and distinct inside the specified range
-	 * 
+	 *
 	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
 	 * @throws IndexOutOfBoundsException if
 	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
@@ -212,13 +212,13 @@ public enum BufferUtils {
 	 * Determines if the specified buffer is sorted inside the specified range. That
 	 * is: {@code buffer[i] <= buffer[i + 1]} for all elements in the range. A range
 	 * of length zero or one is considered sorted.
-	 * 
+	 *
 	 * @param b         - the buffer to be checked
 	 * @param fromIndex - the index of the first element (inclusive) to be checked
 	 * @param toIndex   - the index of the last element (exclusive) to be checked
-	 * 
+	 *
 	 * @return true if the buffer is sorted inside the specified range
-	 * 
+	 *
 	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
 	 * @throws IndexOutOfBoundsException if
 	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
@@ -245,13 +245,13 @@ public enum BufferUtils {
 	 * specified range. That is: {@code buffer[i] < buffer[i + 1]} for all elements
 	 * in the range. A range of length zero or one is considered sorted and
 	 * distinct.
-	 * 
+	 *
 	 * @param b         - the buffer to be checked
 	 * @param fromIndex - the index of the first element (inclusive) to be checked
 	 * @param toIndex   - the index of the last element (exclusive) to be checked
-	 * 
+	 *
 	 * @return true if the buffer is sorted and distinct inside the specified range
-	 * 
+	 *
 	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
 	 * @throws IndexOutOfBoundsException if
 	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
@@ -277,13 +277,13 @@ public enum BufferUtils {
 	 * Determines if the specified buffer is sorted inside the specified range. That
 	 * is: {@code buffer[i] <= buffer[i + 1]} for all elements in the range. A range
 	 * of length zero or one is considered sorted.
-	 * 
+	 *
 	 * @param b         - the buffer to be checked
 	 * @param fromIndex - the index of the first element (inclusive) to be checked
 	 * @param toIndex   - the index of the last element (exclusive) to be checked
-	 * 
+	 *
 	 * @return true if the buffer is sorted inside the specified range
-	 * 
+	 *
 	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
 	 * @throws IndexOutOfBoundsException if
 	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
@@ -310,13 +310,13 @@ public enum BufferUtils {
 	 * specified range. That is: {@code buffer[i] < buffer[i + 1]} for all elements
 	 * in the range. A range of length zero or one is considered sorted and
 	 * distinct.
-	 * 
+	 *
 	 * @param b         - the buffer to be checked
 	 * @param fromIndex - the index of the first element (inclusive) to be checked
 	 * @param toIndex   - the index of the last element (exclusive) to be checked
-	 * 
+	 *
 	 * @return true if the buffer is sorted and distinct inside the specified range
-	 * 
+	 *
 	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
 	 * @throws IndexOutOfBoundsException if
 	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
@@ -342,13 +342,13 @@ public enum BufferUtils {
 	 * Determines if the specified buffer is sorted inside the specified range. That
 	 * is: {@code buffer[i] <= buffer[i + 1]} for all elements in the range. A range
 	 * of length zero or one is considered sorted.
-	 * 
+	 *
 	 * @param b         - the buffer to be checked
 	 * @param fromIndex - the index of the first element (inclusive) to be checked
 	 * @param toIndex   - the index of the last element (exclusive) to be checked
-	 * 
+	 *
 	 * @return true if the buffer is sorted inside the specified range
-	 * 
+	 *
 	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
 	 * @throws IndexOutOfBoundsException if
 	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
@@ -375,13 +375,13 @@ public enum BufferUtils {
 	 * specified range. That is: {@code buffer[i] < buffer[i + 1]} for all elements
 	 * in the range. A range of length zero or one is considered sorted and
 	 * distinct.
-	 * 
+	 *
 	 * @param b         - the buffer to be checked
 	 * @param fromIndex - the index of the first element (inclusive) to be checked
 	 * @param toIndex   - the index of the last element (exclusive) to be checked
-	 * 
+	 *
 	 * @return true if the buffer is sorted and distinct inside the specified range
-	 * 
+	 *
 	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
 	 * @throws IndexOutOfBoundsException if
 	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
@@ -406,15 +406,14 @@ public enum BufferUtils {
 	/**
 	 * Determines if the specified buffer is sorted inside the specified range. That
 	 * is: {@code buffer[i] <= buffer[i + 1]} for all elements in the range. A range
-	 * of length zero or one is considered sorted. The comparison of two values is
-	 * consistent with {@link Float#compareTo(Float)}.
-	 * 
+	 * of length zero or one is considered sorted.
+	 *
 	 * @param b         - the buffer to be checked
 	 * @param fromIndex - the index of the first element (inclusive) to be checked
 	 * @param toIndex   - the index of the last element (exclusive) to be checked
-	 * 
+	 *
 	 * @return true if the buffer is sorted inside the specified range
-	 * 
+	 *
 	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
 	 * @throws IndexOutOfBoundsException if
 	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
@@ -440,15 +439,14 @@ public enum BufferUtils {
 	 * Determines if the specified buffer is sorted and distinct inside the
 	 * specified range. That is: {@code buffer[i] < buffer[i + 1]} for all elements
 	 * in the range. A range of length zero or one is considered sorted and
-	 * distinct. The comparison of two values is consistent with
-	 * {@link Float#compareTo(Float)}.
-	 * 
+	 * distinct.
+	 *
 	 * @param b         - the buffer to be checked
 	 * @param fromIndex - the index of the first element (inclusive) to be checked
 	 * @param toIndex   - the index of the last element (exclusive) to be checked
-	 * 
+	 *
 	 * @return true if the buffer is sorted and distinct inside the specified range
-	 * 
+	 *
 	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
 	 * @throws IndexOutOfBoundsException if
 	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
@@ -473,15 +471,14 @@ public enum BufferUtils {
 	/**
 	 * Determines if the specified buffer is sorted inside the specified range. That
 	 * is: {@code buffer[i] <= buffer[i + 1]} for all elements in the range. A range
-	 * of length zero or one is considered sorted. The comparison of two values is
-	 * consistent with {@link Double#compareTo(Double)}.
-	 * 
+	 * of length zero or one is considered sorted.
+	 *
 	 * @param b         - the buffer to be checked
 	 * @param fromIndex - the index of the first element (inclusive) to be checked
 	 * @param toIndex   - the index of the last element (exclusive) to be checked
-	 * 
+	 *
 	 * @return true if the buffer is sorted inside the specified range
-	 * 
+	 *
 	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
 	 * @throws IndexOutOfBoundsException if
 	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
@@ -507,15 +504,14 @@ public enum BufferUtils {
 	 * Determines if the specified buffer is sorted and distinct inside the
 	 * specified range. That is: {@code buffer[i] < buffer[i + 1]} for all elements
 	 * in the range. A range of length zero or one is considered sorted and
-	 * distinct. The comparison of two values is consistent with
-	 * {@link Double#compareTo(Double)}.
-	 * 
+	 * distinct.
+	 *
 	 * @param b         - the buffer to be checked
 	 * @param fromIndex - the index of the first element (inclusive) to be checked
 	 * @param toIndex   - the index of the last element (exclusive) to be checked
-	 * 
+	 *
 	 * @return true if the buffer is sorted and distinct inside the specified range
-	 * 
+	 *
 	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
 	 * @throws IndexOutOfBoundsException if
 	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
@@ -542,13 +538,13 @@ public enum BufferUtils {
 	 * direct iff the specified buffer is direct, and will have the same byte order.
 	 * The capacity will be equal to the size of the specified range. The limit will
 	 * be set to the capacity, and the position will be set to zero.
-	 * 
+	 *
 	 * @param b         - the buffer to be checked
 	 * @param fromIndex - the index of the first element (inclusive) to be checked
 	 * @param toIndex   - the index of the last element (exclusive) to be checked
-	 * 
+	 *
 	 * @return a copy of a range of data from the specified buffer
-	 * 
+	 *
 	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
 	 * @throws IndexOutOfBoundsException if
 	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
@@ -572,13 +568,13 @@ public enum BufferUtils {
 	 * direct iff the specified buffer is direct, and will have the same byte order.
 	 * The capacity will be equal to the size of the specified range. The limit will
 	 * be set to the capacity, and the position will be set to zero.
-	 * 
+	 *
 	 * @param b         - the buffer to be checked
 	 * @param fromIndex - the index of the first element (inclusive) to be checked
 	 * @param toIndex   - the index of the last element (exclusive) to be checked
-	 * 
+	 *
 	 * @return a copy of a range of data from the specified buffer
-	 * 
+	 *
 	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
 	 * @throws IndexOutOfBoundsException if
 	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
@@ -606,13 +602,13 @@ public enum BufferUtils {
 	 * direct iff the specified buffer is direct, and will have the same byte order.
 	 * The capacity will be equal to the size of the specified range. The limit will
 	 * be set to the capacity, and the position will be set to zero.
-	 * 
+	 *
 	 * @param b         - the buffer to be checked
 	 * @param fromIndex - the index of the first element (inclusive) to be checked
 	 * @param toIndex   - the index of the last element (exclusive) to be checked
-	 * 
+	 *
 	 * @return a copy of a range of data from the specified buffer
-	 * 
+	 *
 	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
 	 * @throws IndexOutOfBoundsException if
 	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
@@ -640,13 +636,13 @@ public enum BufferUtils {
 	 * direct iff the specified buffer is direct, and will have the same byte order.
 	 * The capacity will be equal to the size of the specified range. The limit will
 	 * be set to the capacity, and the position will be set to zero.
-	 * 
+	 *
 	 * @param b         - the buffer to be checked
 	 * @param fromIndex - the index of the first element (inclusive) to be checked
 	 * @param toIndex   - the index of the last element (exclusive) to be checked
-	 * 
+	 *
 	 * @return a copy of a range of data from the specified buffer
-	 * 
+	 *
 	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
 	 * @throws IndexOutOfBoundsException if
 	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
@@ -674,13 +670,13 @@ public enum BufferUtils {
 	 * direct iff the specified buffer is direct, and will have the same byte order.
 	 * The capacity will be equal to the size of the specified range. The limit will
 	 * be set to the capacity, and the position will be set to zero.
-	 * 
+	 *
 	 * @param b         - the buffer to be checked
 	 * @param fromIndex - the index of the first element (inclusive) to be checked
 	 * @param toIndex   - the index of the last element (exclusive) to be checked
-	 * 
+	 *
 	 * @return a copy of a range of data from the specified buffer
-	 * 
+	 *
 	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
 	 * @throws IndexOutOfBoundsException if
 	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
@@ -708,13 +704,13 @@ public enum BufferUtils {
 	 * direct iff the specified buffer is direct, and will have the same byte order.
 	 * The capacity will be equal to the size of the specified range. The limit will
 	 * be set to the capacity, and the position will be set to zero.
-	 * 
+	 *
 	 * @param b         - the buffer to be checked
 	 * @param fromIndex - the index of the first element (inclusive) to be checked
 	 * @param toIndex   - the index of the last element (exclusive) to be checked
-	 * 
+	 *
 	 * @return a copy of a range of data from the specified buffer
-	 * 
+	 *
 	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
 	 * @throws IndexOutOfBoundsException if
 	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
@@ -750,9 +746,9 @@ public enum BufferUtils {
 	 *                  deduplicated
 	 * @param toIndex   - the index of the last element (exclusive) to be
 	 *                  deduplicated
-	 * 
+	 *
 	 * @return the (exclusive) highest index in use after deduplicating
-	 * 
+	 *
 	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
 	 * @throws IndexOutOfBoundsException if
 	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
@@ -794,9 +790,9 @@ public enum BufferUtils {
 	 *                  deduplicated
 	 * @param toIndex   - the index of the last element (exclusive) to be
 	 *                  deduplicated
-	 * 
+	 *
 	 * @return the (exclusive) highest index in use after deduplicating
-	 * 
+	 *
 	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
 	 * @throws IndexOutOfBoundsException if
 	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
@@ -838,9 +834,9 @@ public enum BufferUtils {
 	 *                  deduplicated
 	 * @param toIndex   - the index of the last element (exclusive) to be
 	 *                  deduplicated
-	 * 
+	 *
 	 * @return the (exclusive) highest index in use after deduplicating
-	 * 
+	 *
 	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
 	 * @throws IndexOutOfBoundsException if
 	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
@@ -882,9 +878,9 @@ public enum BufferUtils {
 	 *                  deduplicated
 	 * @param toIndex   - the index of the last element (exclusive) to be
 	 *                  deduplicated
-	 * 
+	 *
 	 * @return the (exclusive) highest index in use after deduplicating
-	 * 
+	 *
 	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
 	 * @throws IndexOutOfBoundsException if
 	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
@@ -916,8 +912,7 @@ public enum BufferUtils {
 	/**
 	 * Deduplicates a range of the specified {@link FloatBuffer}. The range must be
 	 * sorted in ascending order prior to making this call. If it is not sorted, the
-	 * results are undefined. This method considers all NaN values to be equivalent
-	 * and equal.
+	 * results are undefined.
 	 * <p>
 	 * This method is useful as a post-processing step after a sort on a buffer
 	 * which contains duplicate elements.
@@ -927,9 +922,9 @@ public enum BufferUtils {
 	 *                  deduplicated
 	 * @param toIndex   - the index of the last element (exclusive) to be
 	 *                  deduplicated
-	 * 
+	 *
 	 * @return the (exclusive) highest index in use after deduplicating
-	 * 
+	 *
 	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
 	 * @throws IndexOutOfBoundsException if
 	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
@@ -961,8 +956,7 @@ public enum BufferUtils {
 	/**
 	 * Deduplicates a range of the specified {@link DoubleBuffer}. The range must be
 	 * sorted in ascending order prior to making this call. If it is not sorted, the
-	 * results are undefined. This method considers all NaN values to be equivalent
-	 * and equal.
+	 * results are undefined.
 	 * <p>
 	 * This method is useful as a post-processing step after a sort on a buffer
 	 * which contains duplicate elements.
@@ -972,9 +966,9 @@ public enum BufferUtils {
 	 *                  deduplicated
 	 * @param toIndex   - the index of the last element (exclusive) to be
 	 *                  deduplicated
-	 * 
+	 *
 	 * @return the (exclusive) highest index in use after deduplicating
-	 * 
+	 *
 	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
 	 * @throws IndexOutOfBoundsException if
 	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
@@ -1124,7 +1118,7 @@ public enum BufferUtils {
 	/**
 	 * Checks that {@code fromIndex} and {@code toIndex} are in the range and throws
 	 * an exception if they aren't.
-	 * 
+	 *
 	 * @param bufferCapacity - capacity of the buffer being checked
 	 * @param fromIndex      - the index of the first element (inclusive) to be
 	 *                       checked
@@ -1146,7 +1140,7 @@ public enum BufferUtils {
 	/**
 	 * Checks that {@code fromIndex} and {@code toIndex} are in the range and throws
 	 * an exception if they aren't.
-	 * 
+	 *
 	 * @param bufferCapacity - capacity of the buffer being checked
 	 * @param fromIndex      - the index of the first element (inclusive) to be
 	 *                       checked
@@ -1168,7 +1162,7 @@ public enum BufferUtils {
 	/**
 	 * Writes all {@link ByteBuffer#remaining() remaining} bytes from the given
 	 * {@link ByteBuffer buffer} into the given {@link WritableByteChannel channel}.
-	 * 
+	 *
 	 * @param channel - the channel being written to
 	 * @param buffer  - the buffer being read from
 	 * @throws IOException
@@ -1181,7 +1175,7 @@ public enum BufferUtils {
 	/**
 	 * Reads bytes from the given {@link ReadableByteChannel channel} until the
 	 * given buffer is full ({@link ByteBuffer#remaining() remaining} is {@code 0}).
-	 * 
+	 *
 	 * @param channel - the channel being read from
 	 * @param buffer  - the buffer being written to
 	 * @throws IOException

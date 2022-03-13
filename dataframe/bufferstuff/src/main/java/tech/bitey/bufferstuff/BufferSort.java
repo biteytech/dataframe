@@ -12,11 +12,14 @@ import java.util.function.IntBinaryOperator;
 
 /**
  * Sorting algorithms for nio buffers.
- * 
+ *
  * @author biteytech@protonmail.com, heap-sort adapted from <a
  *         href=https://www.programiz.com/dsa/heap-sort>programiz.com</a>
  */
 public class BufferSort {
+
+	private static final int SMALL_RANGE = 100;
+	private static final int LARGE_RANGE = 10_000_000;
 
 	/**
 	 * Sorts a range of the specified {@link IntBuffer} in ascending order (lowest
@@ -30,7 +33,7 @@ public class BufferSort {
 	 * @param b         the buffer to be sorted
 	 * @param fromIndex the index of the first element (inclusive) to be sorted
 	 * @param toIndex   the index of the last element (exclusive) to be sorted
-	 * 
+	 *
 	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
 	 * @throws IndexOutOfBoundsException if
 	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
@@ -96,7 +99,7 @@ public class BufferSort {
 	 *                   external data structure.
 	 * @param fromIndex  the index of the first element (inclusive) to be sorted
 	 * @param toIndex    the index of the last element (exclusive) to be sorted
-	 * 
+	 *
 	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
 	 * @throws IndexOutOfBoundsException if
 	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
@@ -141,8 +144,6 @@ public class BufferSort {
 		}
 	}
 
-	// =========================================================================
-
 	/**
 	 * Sorts a range of the specified {@link LongBuffer} in ascending order (lowest
 	 * first). The sort is:
@@ -155,7 +156,7 @@ public class BufferSort {
 	 * @param b         the buffer to be sorted
 	 * @param fromIndex the index of the first element (inclusive) to be sorted
 	 * @param toIndex   the index of the last element (exclusive) to be sorted
-	 * 
+	 *
 	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
 	 * @throws IndexOutOfBoundsException if
 	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
@@ -206,8 +207,6 @@ public class BufferSort {
 		b.put(j, swap);
 	}
 
-	// =========================================================================
-
 	/**
 	 * Sorts a range of the specified {@link ShortBuffer} in ascending order (lowest
 	 * first). The sort is:
@@ -220,7 +219,7 @@ public class BufferSort {
 	 * @param b         the buffer to be sorted
 	 * @param fromIndex the index of the first element (inclusive) to be sorted
 	 * @param toIndex   the index of the last element (exclusive) to be sorted
-	 * 
+	 *
 	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
 	 * @throws IndexOutOfBoundsException if
 	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
@@ -271,8 +270,6 @@ public class BufferSort {
 		b.put(j, swap);
 	}
 
-	// =========================================================================
-
 	/**
 	 * Sorts a range of the specified {@link ByteBuffer} in ascending order (lowest
 	 * first). The sort is:
@@ -285,7 +282,7 @@ public class BufferSort {
 	 * @param b         the buffer to be sorted
 	 * @param fromIndex the index of the first element (inclusive) to be sorted
 	 * @param toIndex   the index of the last element (exclusive) to be sorted
-	 * 
+	 *
 	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
 	 * @throws IndexOutOfBoundsException if
 	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
@@ -336,8 +333,6 @@ public class BufferSort {
 		b.put(j, swap);
 	}
 
-	// =========================================================================
-
 	/**
 	 * Sorts a range of the specified {@link FloatBuffer} in ascending order (lowest
 	 * first). The sort is:
@@ -346,13 +341,11 @@ public class BufferSort {
 	 * <li>{@code O(n*log(n))} in the worst case
 	 * <li>a good general-purpose sorting algorithm
 	 * </ul>
-	 * This method considers all NaN values to be equal to each other and greater
-	 * than all other values (including {@code Float.POSITIVE_INFINITY}).
 	 *
 	 * @param b         the buffer to be sorted
 	 * @param fromIndex the index of the first element (inclusive) to be sorted
 	 * @param toIndex   the index of the last element (exclusive) to be sorted
-	 * 
+	 *
 	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
 	 * @throws IndexOutOfBoundsException if
 	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
@@ -403,8 +396,6 @@ public class BufferSort {
 		b.put(j, swap);
 	}
 
-	// =========================================================================
-
 	/**
 	 * Sorts a range of the specified {@link DoubleBuffer} in ascending order
 	 * (lowest first). The sort is:
@@ -413,13 +404,11 @@ public class BufferSort {
 	 * <li>{@code O(n*log(n))} in the worst case
 	 * <li>a good general-purpose sorting algorithm
 	 * </ul>
-	 * This method considers all NaN values to be equal to each other and greater
-	 * than all other values (including {@code Double.POSITIVE_INFINITY}).
 	 *
 	 * @param b         the buffer to be sorted
 	 * @param fromIndex the index of the first element (inclusive) to be sorted
 	 * @param toIndex   the index of the last element (exclusive) to be sorted
-	 * 
+	 *
 	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
 	 * @throws IndexOutOfBoundsException if
 	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
@@ -470,8 +459,6 @@ public class BufferSort {
 		b.put(j, swap);
 	}
 
-	// =========================================================================
-
 	/**
 	 * Sorts a range of the specified {@link IntBuffer} in ascending order (lowest
 	 * first). The sort is:
@@ -484,7 +471,7 @@ public class BufferSort {
 	 * @param b         the buffer to be sorted
 	 * @param fromIndex the index of the first element (inclusive) to be sorted
 	 * @param toIndex   the index of the last element (exclusive) to be sorted
-	 * 
+	 *
 	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
 	 * @throws IndexOutOfBoundsException if
 	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
@@ -530,7 +517,7 @@ public class BufferSort {
 	 * @param b         the buffer to be sorted
 	 * @param fromIndex the index of the first element (inclusive) to be sorted
 	 * @param toIndex   the index of the last element (exclusive) to be sorted
-	 * 
+	 *
 	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
 	 * @throws IndexOutOfBoundsException if
 	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
@@ -564,8 +551,6 @@ public class BufferSort {
 		}
 	}
 
-	// =========================================================================
-
 	/**
 	 * Sorts a range of the specified {@link ShortBuffer} in ascending order (lowest
 	 * first). This sort is {@code O(n)} in the worst case, but it creates and
@@ -574,7 +559,7 @@ public class BufferSort {
 	 * @param b         the buffer to be sorted
 	 * @param fromIndex the index of the first element (inclusive) to be sorted
 	 * @param toIndex   the index of the last element (exclusive) to be sorted
-	 * 
+	 *
 	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
 	 * @throws IndexOutOfBoundsException if
 	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
@@ -604,8 +589,6 @@ public class BufferSort {
 		}
 	}
 
-	// =========================================================================
-
 	/**
 	 * Sorts a range of the specified {@link ByteBuffer} in ascending order (lowest
 	 * first). This sort is {@code O(n)} in the worst case, but it creates and
@@ -614,7 +597,7 @@ public class BufferSort {
 	 * @param b         the buffer to be sorted
 	 * @param fromIndex the index of the first element (inclusive) to be sorted
 	 * @param toIndex   the index of the last element (exclusive) to be sorted
-	 * 
+	 *
 	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
 	 * @throws IndexOutOfBoundsException if
 	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
@@ -644,8 +627,6 @@ public class BufferSort {
 		}
 	}
 
-	// =========================================================================
-
 	/**
 	 * Sorts a range of the specified {@link IntBuffer} in ascending order (lowest
 	 * first). The sort is:
@@ -658,7 +639,7 @@ public class BufferSort {
 	 * @param b         the buffer to be sorted
 	 * @param fromIndex the index of the first element (inclusive) to be sorted
 	 * @param toIndex   the index of the last element (exclusive) to be sorted
-	 * 
+	 *
 	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
 	 * @throws IndexOutOfBoundsException if
 	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
@@ -687,7 +668,7 @@ public class BufferSort {
 	 * @param b         the buffer to be sorted
 	 * @param fromIndex the index of the first element (inclusive) to be sorted
 	 * @param toIndex   the index of the last element (exclusive) to be sorted
-	 * 
+	 *
 	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
 	 * @throws IndexOutOfBoundsException if
 	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
@@ -716,7 +697,7 @@ public class BufferSort {
 	 * @param b         the buffer to be sorted
 	 * @param fromIndex the index of the first element (inclusive) to be sorted
 	 * @param toIndex   the index of the last element (exclusive) to be sorted
-	 * 
+	 *
 	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
 	 * @throws IndexOutOfBoundsException if
 	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
@@ -745,7 +726,7 @@ public class BufferSort {
 	 * @param b         the buffer to be sorted
 	 * @param fromIndex the index of the first element (inclusive) to be sorted
 	 * @param toIndex   the index of the last element (exclusive) to be sorted
-	 * 
+	 *
 	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
 	 * @throws IndexOutOfBoundsException if
 	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
@@ -770,13 +751,11 @@ public class BufferSort {
 	 * <li>{@code O(n^2)} in the worst case. However, insertion sort has less
 	 * overhead than heat sort, and is faster for small ranges.
 	 * </ul>
-	 * This method considers all NaN values to be equal to each other and greater
-	 * than all other values (including {@code Float.POSITIVE_INFINITY}).
 	 *
 	 * @param b         the buffer to be sorted
 	 * @param fromIndex the index of the first element (inclusive) to be sorted
 	 * @param toIndex   the index of the last element (exclusive) to be sorted
-	 * 
+	 *
 	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
 	 * @throws IndexOutOfBoundsException if
 	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
@@ -801,13 +780,11 @@ public class BufferSort {
 	 * <li>{@code O(n^2)} in the worst case. However, insertion sort has less
 	 * overhead than heat sort, and is faster for small ranges.
 	 * </ul>
-	 * This method considers all NaN values to be equal to each other and greater
-	 * than all other values (including {@code Double.POSITIVE_INFINITY}).
 	 *
 	 * @param b         the buffer to be sorted
 	 * @param fromIndex the index of the first element (inclusive) to be sorted
 	 * @param toIndex   the index of the last element (exclusive) to be sorted
-	 * 
+	 *
 	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
 	 * @throws IndexOutOfBoundsException if
 	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
@@ -823,11 +800,6 @@ public class BufferSort {
 			b.put(j + 1, x);
 		}
 	}
-
-	// =========================================================================
-
-	private static final int SMALL_RANGE = 100;
-	private static final int LARGE_RANGE = 10_000_000;
 
 	/**
 	 * Sorts a range of the specified {@link IntBuffer} in ascending order (lowest
@@ -854,7 +826,7 @@ public class BufferSort {
 	 * @param b         the buffer to be sorted
 	 * @param fromIndex the index of the first element (inclusive) to be sorted
 	 * @param toIndex   the index of the last element (exclusive) to be sorted
-	 * 
+	 *
 	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
 	 * @throws IndexOutOfBoundsException if
 	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
@@ -896,7 +868,7 @@ public class BufferSort {
 	 * @param b         the buffer to be sorted
 	 * @param fromIndex the index of the first element (inclusive) to be sorted
 	 * @param toIndex   the index of the last element (exclusive) to be sorted
-	 * 
+	 *
 	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
 	 * @throws IndexOutOfBoundsException if
 	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
@@ -939,7 +911,7 @@ public class BufferSort {
 	 * @param b         the buffer to be sorted
 	 * @param fromIndex the index of the first element (inclusive) to be sorted
 	 * @param toIndex   the index of the last element (exclusive) to be sorted
-	 * 
+	 *
 	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
 	 * @throws IndexOutOfBoundsException if
 	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
@@ -981,7 +953,7 @@ public class BufferSort {
 	 * @param b         the buffer to be sorted
 	 * @param fromIndex the index of the first element (inclusive) to be sorted
 	 * @param toIndex   the index of the last element (exclusive) to be sorted
-	 * 
+	 *
 	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
 	 * @throws IndexOutOfBoundsException if
 	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
@@ -1020,7 +992,7 @@ public class BufferSort {
 	 * @param b         the buffer to be sorted
 	 * @param fromIndex the index of the first element (inclusive) to be sorted
 	 * @param toIndex   the index of the last element (exclusive) to be sorted
-	 * 
+	 *
 	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
 	 * @throws IndexOutOfBoundsException if
 	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
@@ -1058,7 +1030,7 @@ public class BufferSort {
 	 * @param b         the buffer to be sorted
 	 * @param fromIndex the index of the first element (inclusive) to be sorted
 	 * @param toIndex   the index of the last element (exclusive) to be sorted
-	 * 
+	 *
 	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
 	 * @throws IndexOutOfBoundsException if
 	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
@@ -1072,4 +1044,5 @@ public class BufferSort {
 		else
 			heapSort(b, fromIndex, toIndex);
 	}
+
 }

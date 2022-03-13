@@ -17,7 +17,7 @@ import java.nio.ShortBuffer;
  * <p>
  * Also provides methods for finding the first or last index of a sequence of
  * duplicate values.
- * 
+ *
  * @author biteytech@protonmail.com, adapted from java.util.Arrays
  */
 public enum BufferSearch {
@@ -34,7 +34,7 @@ public enum BufferSearch {
 	 * @param fromIndex the index of the first element (inclusive) to be searched
 	 * @param toIndex   the index of the last element (exclusive) to be searched
 	 * @param key       the value to be searched for
-	 * 
+	 *
 	 * @return index of the search key, if it is contained in the buffer within the
 	 *         specified range; otherwise, {@code (-(<i>insertion point</i>) - 1)}.
 	 *         The <i>insertion point</i> is defined as the point at which the key
@@ -43,7 +43,7 @@ public enum BufferSearch {
 	 *         the range are less than the specified key. Note that this guarantees
 	 *         that the return value will be &gt;= 0 if and only if the key is
 	 *         found.
-	 * 
+	 *
 	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
 	 * @throws IndexOutOfBoundsException if
 	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
@@ -67,6 +67,7 @@ public enum BufferSearch {
 				high = mid - 1;
 			else
 				return mid; // key found
+
 		}
 		return -(low + 1); // key not found.
 	}
@@ -82,7 +83,7 @@ public enum BufferSearch {
 	 * @param fromIndex the index of the first element (inclusive) to be searched
 	 * @param toIndex   the index of the last element (exclusive) to be searched
 	 * @param key       the value to be searched for
-	 * 
+	 *
 	 * @return index of the search key, if it is contained in the buffer within the
 	 *         specified range; otherwise, {@code (-(<i>insertion point</i>) - 1)}.
 	 *         The <i>insertion point</i> is defined as the point at which the key
@@ -91,7 +92,7 @@ public enum BufferSearch {
 	 *         the range are less than the specified key. Note that this guarantees
 	 *         that the return value will be &gt;= 0 if and only if the key is
 	 *         found.
-	 * 
+	 *
 	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
 	 * @throws IndexOutOfBoundsException if
 	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
@@ -115,6 +116,7 @@ public enum BufferSearch {
 				high = mid - 1;
 			else
 				return mid; // key found
+
 		}
 		return -(low + 1); // key not found.
 	}
@@ -130,7 +132,7 @@ public enum BufferSearch {
 	 * @param fromIndex the index of the first element (inclusive) to be searched
 	 * @param toIndex   the index of the last element (exclusive) to be searched
 	 * @param key       the value to be searched for
-	 * 
+	 *
 	 * @return index of the search key, if it is contained in the buffer within the
 	 *         specified range; otherwise, {@code (-(<i>insertion point</i>) - 1)}.
 	 *         The <i>insertion point</i> is defined as the point at which the key
@@ -139,7 +141,7 @@ public enum BufferSearch {
 	 *         the range are less than the specified key. Note that this guarantees
 	 *         that the return value will be &gt;= 0 if and only if the key is
 	 *         found.
-	 * 
+	 *
 	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
 	 * @throws IndexOutOfBoundsException if
 	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
@@ -163,6 +165,7 @@ public enum BufferSearch {
 				high = mid - 1;
 			else
 				return mid; // key found
+
 		}
 		return -(low + 1); // key not found.
 	}
@@ -178,7 +181,7 @@ public enum BufferSearch {
 	 * @param fromIndex the index of the first element (inclusive) to be searched
 	 * @param toIndex   the index of the last element (exclusive) to be searched
 	 * @param key       the value to be searched for
-	 * 
+	 *
 	 * @return index of the search key, if it is contained in the buffer within the
 	 *         specified range; otherwise, {@code (-(<i>insertion point</i>) - 1)}.
 	 *         The <i>insertion point</i> is defined as the point at which the key
@@ -187,7 +190,7 @@ public enum BufferSearch {
 	 *         the range are less than the specified key. Note that this guarantees
 	 *         that the return value will be &gt;= 0 if and only if the key is
 	 *         found.
-	 * 
+	 *
 	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
 	 * @throws IndexOutOfBoundsException if
 	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
@@ -211,6 +214,7 @@ public enum BufferSearch {
 				high = mid - 1;
 			else
 				return mid; // key found
+
 		}
 		return -(low + 1); // key not found.
 	}
@@ -227,7 +231,7 @@ public enum BufferSearch {
 	 * @param fromIndex the index of the first element (inclusive) to be searched
 	 * @param toIndex   the index of the last element (exclusive) to be searched
 	 * @param key       the value to be searched for
-	 * 
+	 *
 	 * @return index of the search key, if it is contained in the buffer within the
 	 *         specified range; otherwise, {@code (-(<i>insertion point</i>) - 1)}.
 	 *         The <i>insertion point</i> is defined as the point at which the key
@@ -236,7 +240,7 @@ public enum BufferSearch {
 	 *         the range are less than the specified key. Note that this guarantees
 	 *         that the return value will be &gt;= 0 if and only if the key is
 	 *         found.
-	 * 
+	 *
 	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
 	 * @throws IndexOutOfBoundsException if
 	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
@@ -268,6 +272,7 @@ public enum BufferSearch {
 				else // (0.0, -0.0) or (NaN, !NaN)
 					high = mid - 1;
 			}
+
 		}
 		return -(low + 1); // key not found.
 	}
@@ -284,7 +289,7 @@ public enum BufferSearch {
 	 * @param fromIndex the index of the first element (inclusive) to be searched
 	 * @param toIndex   the index of the last element (exclusive) to be searched
 	 * @param key       the value to be searched for
-	 * 
+	 *
 	 * @return index of the search key, if it is contained in the buffer within the
 	 *         specified range; otherwise, {@code (-(<i>insertion point</i>) - 1)}.
 	 *         The <i>insertion point</i> is defined as the point at which the key
@@ -293,7 +298,7 @@ public enum BufferSearch {
 	 *         the range are less than the specified key. Note that this guarantees
 	 *         that the return value will be &gt;= 0 if and only if the key is
 	 *         found.
-	 * 
+	 *
 	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
 	 * @throws IndexOutOfBoundsException if
 	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
@@ -325,6 +330,7 @@ public enum BufferSearch {
 				else // (0.0, -0.0) or (NaN, !NaN)
 					high = mid - 1;
 			}
+
 		}
 		return -(low + 1); // key not found.
 	}
@@ -342,9 +348,9 @@ public enum BufferSearch {
 	 * @param minIndex the lowest index to be searched
 	 * @param keyIndex an index of the value for which to find the first occurrence
 	 *                 (inclusive)
-	 * 
+	 *
 	 * @return index of the first occurrence of the value at {@code keyIndex}
-	 * 
+	 *
 	 * @throws IllegalArgumentException  if {@code minIndex > keyIndex}
 	 * @throws IndexOutOfBoundsException if
 	 *                                   {@code minIndex < 0 or keyIndex >= b.capacity()}
@@ -383,9 +389,9 @@ public enum BufferSearch {
 	 * @param maxIndex the highest index to be searched (exclusive)
 	 * @param keyIndex an index of the value for which to find the first occurrence
 	 *                 (inclusive)
-	 * 
+	 *
 	 * @return index of the last occurrence of the value at {@code keyIndex}
-	 * 
+	 *
 	 * @throws IllegalArgumentException  if {@code maxIndex < keyIndex}
 	 * @throws IndexOutOfBoundsException if
 	 *                                   {@code keyIndex < 0 or maxIndex > b.capacity()}
@@ -427,9 +433,9 @@ public enum BufferSearch {
 	 * @param minIndex the lowest index to be searched
 	 * @param keyIndex an index of the value for which to find the first occurrence
 	 *                 (inclusive)
-	 * 
+	 *
 	 * @return index of the first occurrence of the value at {@code keyIndex}
-	 * 
+	 *
 	 * @throws IllegalArgumentException  if {@code minIndex > keyIndex}
 	 * @throws IndexOutOfBoundsException if
 	 *                                   {@code minIndex < 0 or keyIndex >= b.capacity()}
@@ -468,9 +474,9 @@ public enum BufferSearch {
 	 * @param maxIndex the highest index to be searched (exclusive)
 	 * @param keyIndex an index of the value for which to find the first occurrence
 	 *                 (inclusive)
-	 * 
+	 *
 	 * @return index of the last occurrence of the value at {@code keyIndex}
-	 * 
+	 *
 	 * @throws IllegalArgumentException  if {@code maxIndex < keyIndex}
 	 * @throws IndexOutOfBoundsException if
 	 *                                   {@code keyIndex < 0 or maxIndex > b.capacity()}
@@ -512,9 +518,9 @@ public enum BufferSearch {
 	 * @param minIndex the lowest index to be searched
 	 * @param keyIndex an index of the value for which to find the first occurrence
 	 *                 (inclusive)
-	 * 
+	 *
 	 * @return index of the first occurrence of the value at {@code keyIndex}
-	 * 
+	 *
 	 * @throws IllegalArgumentException  if {@code minIndex > keyIndex}
 	 * @throws IndexOutOfBoundsException if
 	 *                                   {@code minIndex < 0 or keyIndex >= b.capacity()}
@@ -553,9 +559,9 @@ public enum BufferSearch {
 	 * @param maxIndex the highest index to be searched (exclusive)
 	 * @param keyIndex an index of the value for which to find the first occurrence
 	 *                 (inclusive)
-	 * 
+	 *
 	 * @return index of the last occurrence of the value at {@code keyIndex}
-	 * 
+	 *
 	 * @throws IllegalArgumentException  if {@code maxIndex < keyIndex}
 	 * @throws IndexOutOfBoundsException if
 	 *                                   {@code keyIndex < 0 or maxIndex > b.capacity()}
@@ -597,9 +603,9 @@ public enum BufferSearch {
 	 * @param minIndex the lowest index to be searched
 	 * @param keyIndex an index of the value for which to find the first occurrence
 	 *                 (inclusive)
-	 * 
+	 *
 	 * @return index of the first occurrence of the value at {@code keyIndex}
-	 * 
+	 *
 	 * @throws IllegalArgumentException  if {@code minIndex > keyIndex}
 	 * @throws IndexOutOfBoundsException if
 	 *                                   {@code minIndex < 0 or keyIndex >= b.capacity()}
@@ -638,9 +644,9 @@ public enum BufferSearch {
 	 * @param maxIndex the highest index to be searched (exclusive)
 	 * @param keyIndex an index of the value for which to find the first occurrence
 	 *                 (inclusive)
-	 * 
+	 *
 	 * @return index of the last occurrence of the value at {@code keyIndex}
-	 * 
+	 *
 	 * @throws IllegalArgumentException  if {@code maxIndex < keyIndex}
 	 * @throws IndexOutOfBoundsException if
 	 *                                   {@code keyIndex < 0 or maxIndex > b.capacity()}
@@ -683,9 +689,9 @@ public enum BufferSearch {
 	 * @param minIndex the lowest index to be searched
 	 * @param keyIndex an index of the value for which to find the first occurrence
 	 *                 (inclusive)
-	 * 
+	 *
 	 * @return index of the first occurrence of the value at {@code keyIndex}
-	 * 
+	 *
 	 * @throws IllegalArgumentException  if {@code minIndex > keyIndex}
 	 * @throws IndexOutOfBoundsException if
 	 *                                   {@code minIndex < 0 or keyIndex >= b.capacity()}
@@ -725,9 +731,9 @@ public enum BufferSearch {
 	 * @param maxIndex the highest index to be searched (exclusive)
 	 * @param keyIndex an index of the value for which to find the first occurrence
 	 *                 (inclusive)
-	 * 
+	 *
 	 * @return index of the last occurrence of the value at {@code keyIndex}
-	 * 
+	 *
 	 * @throws IllegalArgumentException  if {@code maxIndex < keyIndex}
 	 * @throws IndexOutOfBoundsException if
 	 *                                   {@code keyIndex < 0 or maxIndex > b.capacity()}
@@ -770,9 +776,9 @@ public enum BufferSearch {
 	 * @param minIndex the lowest index to be searched
 	 * @param keyIndex an index of the value for which to find the first occurrence
 	 *                 (inclusive)
-	 * 
+	 *
 	 * @return index of the first occurrence of the value at {@code keyIndex}
-	 * 
+	 *
 	 * @throws IllegalArgumentException  if {@code minIndex > keyIndex}
 	 * @throws IndexOutOfBoundsException if
 	 *                                   {@code minIndex < 0 or keyIndex >= b.capacity()}
@@ -812,9 +818,9 @@ public enum BufferSearch {
 	 * @param maxIndex the highest index to be searched (exclusive)
 	 * @param keyIndex an index of the value for which to find the first occurrence
 	 *                 (inclusive)
-	 * 
+	 *
 	 * @return index of the last occurrence of the value at {@code keyIndex}
-	 * 
+	 *
 	 * @throws IllegalArgumentException  if {@code maxIndex < keyIndex}
 	 * @throws IndexOutOfBoundsException if
 	 *                                   {@code keyIndex < 0 or maxIndex > b.capacity()}
@@ -842,4 +848,5 @@ public enum BufferSearch {
 
 		return fromIndex;
 	}
+
 }
