@@ -1,3 +1,19 @@
+/*
+ * Copyright 2022 biteytech@protonmail.com
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package tech.bitey.bufferstuff.codegen;
 
 import java.io.BufferedWriter;
@@ -10,38 +26,49 @@ public class GenBufferSort implements GenBufferCode {
 
 			section(out, PREFIX);
 
-			section(out, heapSort("int", "IntBuffer", "b.get(l) > b.get(largest)", "b.get(r) > b.get(largest)"));
-			section(out, HEAP_SORT_COMP);
-			section(out, heapSort("long", "LongBuffer", "b.get(l) > b.get(largest)", "b.get(r) > b.get(largest)"));
-			section(out, heapSort("short", "ShortBuffer", "b.get(l) > b.get(largest)", "b.get(r) > b.get(largest)"));
-			section(out, heapSort("byte", "ByteBuffer", "b.get(l) > b.get(largest)", "b.get(r) > b.get(largest)"));
-			section(out, heapSort("float", "FloatBuffer", "Float.compare(b.get(l), b.get(largest)) > 0",
-					"Float.compare(b.get(r), b.get(largest)) > 0"));
-			section(out, heapSort("double", "DoubleBuffer", "Double.compare(b.get(l), b.get(largest)) > 0",
-					"Double.compare(b.get(r), b.get(largest)) > 0"));
-
-			section(out, radixSort("int", "IntBuffer", "INT_HIGH_BIT", "1 << 31"));
-			section(out, radixSort("long", "LongBuffer", "LONG_HIGH_BIT", "1L << 63"));
-
-			section(out, countingSort("short", "ShortBuffer", "Short", 16, "0xFFFF"));
-			section(out, countingSort("byte", "ByteBuffer", "Byte", 8, "0xFF"));
-
-			section(out, insertionSort("int", "IntBuffer", "(xj = b.get(j)) > x"));
-			section(out, insertionSort("long", "LongBuffer", "(xj = b.get(j)) > x"));
-			section(out, insertionSort("short", "ShortBuffer", "(xj = b.get(j)) > x"));
-			section(out, insertionSort("byte", "ByteBuffer", "(xj = b.get(j)) > x"));
-			section(out, insertionSort("float", "FloatBuffer", "Float.compare(xj = b.get(j), x) > 0"));
-			section(out, insertionSort("double", "DoubleBuffer", "Double.compare(xj = b.get(j), x) > 0"));
-
-			section(out, insertionHeapRadix("IntBuffer"));
-			section(out, insertionHeapRadix("LongBuffer"));
-			section(out, insertionHeapCounting("ShortBuffer", "10^7", "LARGE_RANGE"));
-			section(out, insertionHeapCounting("ByteBuffer", "10^5", "100000"));
-			section(out, insertionHeap("FloatBuffer"));
-			section(out, insertionHeap("DoubleBuffer"));
+			sections(out, false);
+			sections(out, true);
 
 			out.write("}\n");
 		}
+	}
+
+	private void sections(BufferedWriter out, boolean small) throws Exception {
+
+		String s = small ? "Small" : "";
+
+		section(out, heapSort("int", s + "IntBuffer", "b.get(l) > b.get(largest)", "b.get(r) > b.get(largest)"));
+		if (small)
+			section(out, HEAP_SORT_COMP.replace("IntBuffer", "SmallIntBuffer"));
+		else
+			section(out, HEAP_SORT_COMP);
+		section(out, heapSort("long", s + "LongBuffer", "b.get(l) > b.get(largest)", "b.get(r) > b.get(largest)"));
+		section(out, heapSort("short", s + "ShortBuffer", "b.get(l) > b.get(largest)", "b.get(r) > b.get(largest)"));
+		section(out, heapSort("byte", s + "ByteBuffer", "b.get(l) > b.get(largest)", "b.get(r) > b.get(largest)"));
+		section(out, heapSort("float", s + "FloatBuffer", "Float.compare(b.get(l), b.get(largest)) > 0",
+				"Float.compare(b.get(r), b.get(largest)) > 0"));
+		section(out, heapSort("double", s + "DoubleBuffer", "Double.compare(b.get(l), b.get(largest)) > 0",
+				"Double.compare(b.get(r), b.get(largest)) > 0"));
+
+		section(out, radixSort("int", s + "IntBuffer", "INT_HIGH_BIT"));
+		section(out, radixSort("long", s + "LongBuffer", "LONG_HIGH_BIT"));
+
+		section(out, countingSort("short", s + "ShortBuffer", "Short", 16, "0xFFFF"));
+		section(out, countingSort("byte", s + "ByteBuffer", "Byte", 8, "0xFF"));
+
+		section(out, insertionSort("int", s + "IntBuffer", "(xj = b.get(j)) > x"));
+		section(out, insertionSort("long", s + "LongBuffer", "(xj = b.get(j)) > x"));
+		section(out, insertionSort("short", s + "ShortBuffer", "(xj = b.get(j)) > x"));
+		section(out, insertionSort("byte", s + "ByteBuffer", "(xj = b.get(j)) > x"));
+		section(out, insertionSort("float", s + "FloatBuffer", "Float.compare(xj = b.get(j), x) > 0"));
+		section(out, insertionSort("double", s + "DoubleBuffer", "Double.compare(xj = b.get(j), x) > 0"));
+
+		section(out, insertionHeapRadix(s + "IntBuffer"));
+		section(out, insertionHeapRadix(s + "LongBuffer"));
+		section(out, insertionHeapCounting(s + "ShortBuffer", "10^7", "LARGE_RANGE"));
+		section(out, insertionHeapCounting(s + "ByteBuffer", "10^5", "100000"));
+		section(out, insertionHeap(s + "FloatBuffer"));
+		section(out, insertionHeap(s + "DoubleBuffer"));
 	}
 
 	private static String heapSort(String valType, String bufferType, String compareL, String compareR) {
@@ -49,9 +76,9 @@ public class GenBufferSort implements GenBufferCode {
 				.replace(COMPARE_R, compareR);
 	}
 
-	private static String radixSort(String valType, String bufferType, String highBitName, String highBitValue) {
-		return RADIX_SORT.replace(VAL_TYPE, valType).replace(BUFFER_TYPE, bufferType)
-				.replace(HIGH_BIT_NAME, highBitName).replace(HIGH_BIT_VALUE, highBitValue);
+	private static String radixSort(String valType, String bufferType, String highBitName) {
+		return RADIX_SORT.replace(VAL_TYPE, valType).replace(BUFFER_TYPE, bufferType).replace(HIGH_BIT_NAME,
+				highBitName);
 	}
 
 	private static String countingSort(String valType, String bufferType, String boxType, int bits, String mask) {
@@ -82,7 +109,6 @@ public class GenBufferSort implements GenBufferCode {
 	private static final String COMPARE_L = "COMPARE_L";
 	private static final String COMPARE_R = "COMPARE_R";
 	private static final String HIGH_BIT_NAME = "HIGH_BIT_NAME";
-	private static final String HIGH_BIT_VALUE = "HIGH_BIT_VALUE";
 	private static final String BOX_TYPE = "BOX_TYPE";
 	private static final String COUNTING_BITS = "COUNTING_BITS";
 	private static final String COUNTING_MASK = "COUNTING_MASK";
@@ -312,8 +338,6 @@ public class GenBufferSort implements GenBufferCode {
 					radixSort0(b, fromIndex, toIndex, HIGH_BIT_NAME);
 				}
 
-				private static final VAL_TYPE HIGH_BIT_NAME = HIGH_BIT_VALUE;
-
 				private static void radixSort0(BUFFER_TYPE b, int fromIndex, int toIndex, VAL_TYPE bit) {
 
 					int zero = fromIndex;
@@ -338,7 +362,7 @@ public class GenBufferSort implements GenBufferCode {
 			""";
 
 	private static final String HEAP_SORT_COMP = """
-						/**
+				/**
 				 * Sorts a range of the specified {@link IntBuffer} in ascending order (lowest
 				 * first). The sort is:
 				 * <ul>
@@ -487,5 +511,8 @@ public class GenBufferSort implements GenBufferCode {
 
 				private static final int SMALL_RANGE = 100;
 				private static final int LARGE_RANGE = 10_000_000;
+
+				private static final int INT_HIGH_BIT = 1 << 31;
+				private static final long LONG_HIGH_BIT = 1L << 63;
 			""";
 }

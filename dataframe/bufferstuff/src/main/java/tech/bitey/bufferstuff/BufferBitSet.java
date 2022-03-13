@@ -1,3 +1,19 @@
+/*
+ * Copyright 2022 biteytech@protonmail.com
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package tech.bitey.bufferstuff;
 
 import static java.lang.Integer.bitCount;
@@ -17,9 +33,8 @@ import java.util.BitSet;
 import java.util.Random;
 
 /**
- * Similar to {@link java.util.BitSet BitSet}, but backed by a
- * {@link java.nio.ByteBuffer ByteBuffer}. Differences with {@code BitSet}
- * include:
+ * Similar to {@link BitSet}, but backed by a {@link java.nio.ByteBuffer
+ * ByteBuffer}. Differences with {@code BitSet} include:
  * <p>
  * {@code BufferBitSet}
  * <ul>
@@ -40,7 +55,7 @@ import java.util.Random;
  * {@link BufferUtils#allocate(int)}. The allocated buffers will be direct if
  * the {@code tech.bitey.allocateDirect} system property is set to "true".
  * 
- * @author biteytech@protonmail.com, adapted from java.util.BitSet
+ * @author biteytech@protonmail.com, adapted from {@link BitSet}
  * 
  * @see java.util.BitSet
  * @see java.nio.ByteBuffer

@@ -1,3 +1,19 @@
+/*
+ * Copyright 2022 biteytech@protonmail.com
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package tech.bitey.bufferstuff.codegen;
 
 import java.io.BufferedWriter;
@@ -10,28 +26,36 @@ public class GenBufferSearch implements GenBufferCode {
 
 			section(out, PREFIX);
 
-			section(out, intBinarySearch("IntBuffer", "int"));
-			section(out, intBinarySearch("LongBuffer", "long"));
-			section(out, intBinarySearch("ShortBuffer", "short"));
-			section(out, intBinarySearch("ByteBuffer", "byte"));
-			section(out, floatBinarySearch("FloatBuffer", "float", "Float", "int", "Int"));
-			section(out, floatBinarySearch("DoubleBuffer", "double", "Double", "long", "Long"));
-
-			section(out, intBinaryFindFirst("IntBuffer", "int"));
-			section(out, intBinaryFindLast("IntBuffer", "int"));
-			section(out, intBinaryFindFirst("LongBuffer", "long"));
-			section(out, intBinaryFindLast("LongBuffer", "long"));
-			section(out, intBinaryFindFirst("ShortBuffer", "short"));
-			section(out, intBinaryFindLast("ShortBuffer", "short"));
-			section(out, intBinaryFindFirst("ByteBuffer", "byte"));
-			section(out, intBinaryFindLast("ByteBuffer", "byte"));
-			section(out, floatBinaryFindFirst("FloatBuffer", "float", "Float"));
-			section(out, floatBinaryFindLast("FloatBuffer", "float", "Float"));
-			section(out, floatBinaryFindFirst("DoubleBuffer", "double", "Double"));
-			section(out, floatBinaryFindLast("DoubleBuffer", "double", "Double"));
+			sections(out, false);
+			sections(out, true);
 
 			out.write("}\n");
 		}
+	}
+
+	private void sections(BufferedWriter out, boolean small) throws Exception {
+
+		String s = small ? "Small" : "";
+
+		section(out, intBinarySearch(s + "IntBuffer", "int"));
+		section(out, intBinarySearch(s + "LongBuffer", "long"));
+		section(out, intBinarySearch(s + "ShortBuffer", "short"));
+		section(out, intBinarySearch(s + "ByteBuffer", "byte"));
+		section(out, floatBinarySearch(s + "FloatBuffer", "float", "Float", "int", "Int"));
+		section(out, floatBinarySearch(s + "DoubleBuffer", "double", "Double", "long", "Long"));
+
+		section(out, intBinaryFindFirst(s + "IntBuffer", "int"));
+		section(out, intBinaryFindLast(s + "IntBuffer", "int"));
+		section(out, intBinaryFindFirst(s + "LongBuffer", "long"));
+		section(out, intBinaryFindLast(s + "LongBuffer", "long"));
+		section(out, intBinaryFindFirst(s + "ShortBuffer", "short"));
+		section(out, intBinaryFindLast(s + "ShortBuffer", "short"));
+		section(out, intBinaryFindFirst(s + "ByteBuffer", "byte"));
+		section(out, intBinaryFindLast(s + "ByteBuffer", "byte"));
+		section(out, floatBinaryFindFirst(s + "FloatBuffer", "float", "Float"));
+		section(out, floatBinaryFindLast(s + "FloatBuffer", "float", "Float"));
+		section(out, floatBinaryFindFirst(s + "DoubleBuffer", "double", "Double"));
+		section(out, floatBinaryFindLast(s + "DoubleBuffer", "double", "Double"));
 	}
 
 	private static String intBinarySearch(String bufferType, String keyType) {

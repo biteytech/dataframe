@@ -1,3 +1,19 @@
+/*
+ * Copyright 2022 biteytech@protonmail.com
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package tech.bitey.bufferstuff.codegen;
 
 import java.io.BufferedWriter;
@@ -10,39 +26,49 @@ public class GenBufferUtils implements GenBufferCode {
 
 			section(out, PREFIX);
 
-			section(out, isSorted("int", "IntBuffer", "prev > value"));
-			section(out, isDistinct("int", "IntBuffer", "prev >= value"));
-			section(out, isSorted("long", "LongBuffer", "prev > value"));
-			section(out, isDistinct("long", "LongBuffer", "prev >= value"));
-			section(out, isSorted("byte", "ByteBuffer", "prev > value"));
-			section(out, isDistinct("byte", "ByteBuffer", "prev >= value"));
-			section(out, isSorted("short", "ShortBuffer", "prev > value"));
-			section(out, isDistinct("short", "ShortBuffer", "prev >= value"));
-			section(out, isSorted("float", "FloatBuffer", "Float.compare(prev, value) > 0"));
-			section(out, isDistinct("float", "FloatBuffer", "Float.compare(prev, value) >= 0"));
-			section(out, isSorted("double", "DoubleBuffer", "Double.compare(prev, value) > 0"));
-			section(out, isDistinct("double", "DoubleBuffer", "Double.compare(prev, value) >= 0"));
+			sections(out, false);
+			sections(out, true);
 
+			section(out, SUFFIX);
+		}
+	}
+
+	private void sections(BufferedWriter out, boolean small) throws Exception {
+
+		String s = small ? "Small" : "";
+
+		section(out, isSorted("int", s + "IntBuffer", "prev > value"));
+		section(out, isDistinct("int", s + "IntBuffer", "prev >= value"));
+		section(out, isSorted("long", s + "LongBuffer", "prev > value"));
+		section(out, isDistinct("long", s + "LongBuffer", "prev >= value"));
+		section(out, isSorted("byte", s + "ByteBuffer", "prev > value"));
+		section(out, isDistinct("byte", s + "ByteBuffer", "prev >= value"));
+		section(out, isSorted("short", s + "ShortBuffer", "prev > value"));
+		section(out, isDistinct("short", s + "ShortBuffer", "prev >= value"));
+		section(out, isSorted("float", s + "FloatBuffer", "Float.compare(prev, value) > 0"));
+		section(out, isDistinct("float", s + "FloatBuffer", "Float.compare(prev, value) >= 0"));
+		section(out, isSorted("double", s + "DoubleBuffer", "Double.compare(prev, value) > 0"));
+		section(out, isDistinct("double", s + "DoubleBuffer", "Double.compare(prev, value) >= 0"));
+
+		if (!small) {
 			section(out, COPY_BYTE_BUFFER);
 			section(out, copy("IntBuffer", 4));
 			section(out, copy("LongBuffer", 8));
 			section(out, copy("ShortBuffer", 2));
 			section(out, copy("FloatBuffer", 4));
 			section(out, copy("DoubleBuffer", 8));
-
-			section(out, deduplicate("int", "IntBuffer", "value != prev"));
-			section(out, deduplicate("long", "LongBuffer", "value != prev"));
-			section(out, deduplicate("short", "ShortBuffer", "value != prev"));
-			section(out, deduplicate("byte", "ByteBuffer", "value != prev"));
-			section(out, deduplicate("float", "FloatBuffer", "Float.compare(value, prev) != 0"));
-			section(out, deduplicate("double", "DoubleBuffer", "Double.compare(value, prev) != 0"));
-
-			section(out, stream("int", "IntBuffer", "IntStream"));
-			section(out, stream("long", "LongBuffer", "LongStream"));
-			section(out, stream("double", "DoubleBuffer", "DoubleStream"));
-
-			section(out, SUFFIX);
 		}
+
+		section(out, deduplicate("int", s + "IntBuffer", "value != prev"));
+		section(out, deduplicate("long", s + "LongBuffer", "value != prev"));
+		section(out, deduplicate("short", s + "ShortBuffer", "value != prev"));
+		section(out, deduplicate("byte", s + "ByteBuffer", "value != prev"));
+		section(out, deduplicate("float", s + "FloatBuffer", "Float.compare(value, prev) != 0"));
+		section(out, deduplicate("double", s + "DoubleBuffer", "Double.compare(value, prev) != 0"));
+
+		section(out, stream("int", s + "IntBuffer", "IntStream"));
+		section(out, stream("long", s + "LongBuffer", "LongStream"));
+		section(out, stream("double", s + "DoubleBuffer", "DoubleStream"));
 	}
 
 	private static String isSorted(String valType, String bufferType, String compare) {
@@ -300,6 +326,7 @@ public class GenBufferUtils implements GenBufferCode {
 	private static final String PREFIX = """
 			package tech.bitey.bufferstuff;
 
+			import static java.lang.Math.toIntExact;
 			import static java.util.Spliterator.IMMUTABLE;
 			import static java.util.Spliterator.NONNULL;
 			import static java.util.Spliterator.ORDERED;
@@ -336,6 +363,12 @@ public class GenBufferUtils implements GenBufferCode {
 				public static final ByteBuffer EMPTY_BUFFER = asReadOnlyBuffer(allocate(0));
 
 				/**
+				 * An empty, read-only {@link BigByteBuffer} which has
+				 * {@link ByteOrder#nativeOrder() native order}
+				 */
+				public static final BigByteBuffer EMPTY_BIG_BUFFER = wrap(new ByteBuffer[] { EMPTY_BUFFER });
+
+				/**
 				 * Allocates a new {@link ByteBuffer} with the specified capacity. The buffer
 				 * will be direct if the {@code tech.bitey.allocateDirect} system property is
 				 * set to "true", and will have {@link ByteOrder#nativeOrder() native order}.
@@ -360,6 +393,42 @@ public class GenBufferUtils implements GenBufferCode {
 				 */
 				public static ByteBuffer allocate(int capacity, ByteOrder order) {
 					return (DIRECT ? ByteBuffer.allocateDirect(capacity) : ByteBuffer.allocate(capacity)).order(order);
+				}
+
+				/**
+				 * Allocates a new {@link BigByteBuffer} with the specified capacity. The buffer
+				 * will be direct if the {@code tech.bitey.allocateDirect} system property is
+				 * set to "true", and will have {@link ByteOrder#nativeOrder() native order}.
+				 *
+				 * @param capacity the new buffer's capacity, in bytes
+				 *
+				 * @return the new native order {@code BigByteBuffer}
+				 */
+				public static BigByteBuffer allocateBig(long capacity) {
+					return new SimpleBigByteBuffer(allocate(toIntExact(capacity)));
+				}
+
+				/**
+				 * Allocates a new {@link BigByteBuffer} with the specified capacity. The buffer
+				 * will be direct if the {@code tech.bitey.allocateDirect} system property is
+				 * set to "true", and will have the specified {@link ByteOrder}.
+				 *
+				 * @param capacity the new buffer's capacity, in bytes
+				 * @param order    the {@code ByteOrder}
+				 *
+				 * @return the new {@code BigByteBuffer}
+				 */
+				public static BigByteBuffer allocateBig(int capacity, ByteOrder order) {
+					return new SimpleBigByteBuffer(allocate(toIntExact(capacity), order));
+				}
+
+				/**
+				 * Returns a new {@link BigByteBuffer} backed by the specified {@link ByteBuffer ByteBuffers}.
+				 *
+				 * @return a new {@code BigByteBuffer} backed by the specified {@code ByteBuffer ByteBuffers}.
+				 */
+				public static BigByteBuffer wrap(ByteBuffer[] buffers) {
+					return new SimpleBigByteBuffer(buffers[0]);
 				}
 
 				/**
@@ -437,10 +506,7 @@ public class GenBufferUtils implements GenBufferCode {
 				public static ByteBuffer slice(ByteBuffer b, int fromIndex, int toIndex) {
 					rangeCheck(b.capacity(), fromIndex, toIndex);
 
-					ByteBuffer dup = duplicate(b);
-					dup.limit(toIndex);
-					dup.position(fromIndex);
-					return slice(dup);
+					return b.slice(fromIndex, toIndex - fromIndex).order(b.order());
 				}
 				""";
 

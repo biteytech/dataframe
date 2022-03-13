@@ -1,5 +1,22 @@
+/*
+ * Copyright 2022 biteytech@protonmail.com
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package tech.bitey.bufferstuff;
 
+import static java.lang.Math.toIntExact;
 import static java.util.Spliterator.IMMUTABLE;
 import static java.util.Spliterator.NONNULL;
 import static java.util.Spliterator.ORDERED;
@@ -36,6 +53,12 @@ public enum BufferUtils {
 	public static final ByteBuffer EMPTY_BUFFER = asReadOnlyBuffer(allocate(0));
 
 	/**
+	 * An empty, read-only {@link BigByteBuffer} which has
+	 * {@link ByteOrder#nativeOrder() native order}
+	 */
+	public static final BigByteBuffer EMPTY_BIG_BUFFER = wrap(new ByteBuffer[] { EMPTY_BUFFER });
+
+	/**
 	 * Allocates a new {@link ByteBuffer} with the specified capacity. The buffer
 	 * will be direct if the {@code tech.bitey.allocateDirect} system property is
 	 * set to "true", and will have {@link ByteOrder#nativeOrder() native order}.
@@ -60,6 +83,44 @@ public enum BufferUtils {
 	 */
 	public static ByteBuffer allocate(int capacity, ByteOrder order) {
 		return (DIRECT ? ByteBuffer.allocateDirect(capacity) : ByteBuffer.allocate(capacity)).order(order);
+	}
+
+	/**
+	 * Allocates a new {@link BigByteBuffer} with the specified capacity. The buffer
+	 * will be direct if the {@code tech.bitey.allocateDirect} system property is
+	 * set to "true", and will have {@link ByteOrder#nativeOrder() native order}.
+	 *
+	 * @param capacity the new buffer's capacity, in bytes
+	 *
+	 * @return the new native order {@code BigByteBuffer}
+	 */
+	public static BigByteBuffer allocateBig(long capacity) {
+		return new SimpleBigByteBuffer(allocate(toIntExact(capacity)));
+	}
+
+	/**
+	 * Allocates a new {@link BigByteBuffer} with the specified capacity. The buffer
+	 * will be direct if the {@code tech.bitey.allocateDirect} system property is
+	 * set to "true", and will have the specified {@link ByteOrder}.
+	 *
+	 * @param capacity the new buffer's capacity, in bytes
+	 * @param order    the {@code ByteOrder}
+	 *
+	 * @return the new {@code BigByteBuffer}
+	 */
+	public static BigByteBuffer allocateBig(int capacity, ByteOrder order) {
+		return new SimpleBigByteBuffer(allocate(toIntExact(capacity), order));
+	}
+
+	/**
+	 * Returns a new {@link BigByteBuffer} backed by the specified {@link ByteBuffer
+	 * ByteBuffers}.
+	 *
+	 * @return a new {@code BigByteBuffer} backed by the specified
+	 *         {@code ByteBuffer ByteBuffers}.
+	 */
+	public static BigByteBuffer wrap(ByteBuffer[] buffers) {
+		return new SimpleBigByteBuffer(buffers[0]);
 	}
 
 	/**
@@ -137,10 +198,7 @@ public enum BufferUtils {
 	public static ByteBuffer slice(ByteBuffer b, int fromIndex, int toIndex) {
 		rangeCheck(b.capacity(), fromIndex, toIndex);
 
-		ByteBuffer dup = duplicate(b);
-		dup.limit(toIndex);
-		dup.position(fromIndex);
-		return slice(dup);
+		return b.slice(fromIndex, toIndex - fromIndex).order(b.order());
 	}
 
 	/**
@@ -1112,6 +1170,781 @@ public enum BufferUtils {
 	 */
 	public static DoubleStream stream(DoubleBuffer buffer, int startInclusive, int endExclusive, int characteristics) {
 		return StreamSupport.doubleStream(new BufferSpliterators.DoubleBufferSpliterator(buffer, startInclusive,
+				endExclusive, characteristics | ORDERED | NONNULL | IMMUTABLE), false);
+	}
+
+	/**
+	 * Determines if the specified buffer is sorted inside the specified range. That
+	 * is: {@code buffer[i] <= buffer[i + 1]} for all elements in the range. A range
+	 * of length zero or one is considered sorted.
+	 *
+	 * @param b         - the buffer to be checked
+	 * @param fromIndex - the index of the first element (inclusive) to be checked
+	 * @param toIndex   - the index of the last element (exclusive) to be checked
+	 *
+	 * @return true if the buffer is sorted inside the specified range
+	 *
+	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
+	 * @throws IndexOutOfBoundsException if
+	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
+	 */
+	public static boolean isSorted(SmallIntBuffer b, int fromIndex, int toIndex) {
+		rangeCheck(b.capacity(), fromIndex, toIndex);
+
+		if (toIndex - fromIndex <= 1)
+			return true;
+
+		int prev = b.get(fromIndex);
+		for (int i = fromIndex + 1; i < toIndex; i++) {
+			int value = b.get(i);
+			if (prev > value)
+				return false;
+			prev = value;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Determines if the specified buffer is sorted and distinct inside the
+	 * specified range. That is: {@code buffer[i] < buffer[i + 1]} for all elements
+	 * in the range. A range of length zero or one is considered sorted and
+	 * distinct.
+	 *
+	 * @param b         - the buffer to be checked
+	 * @param fromIndex - the index of the first element (inclusive) to be checked
+	 * @param toIndex   - the index of the last element (exclusive) to be checked
+	 *
+	 * @return true if the buffer is sorted and distinct inside the specified range
+	 *
+	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
+	 * @throws IndexOutOfBoundsException if
+	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
+	 */
+	public static boolean isSortedAndDistinct(SmallIntBuffer b, int fromIndex, int toIndex) {
+		rangeCheck(b.capacity(), fromIndex, toIndex);
+
+		if (toIndex - fromIndex <= 1)
+			return true;
+
+		int prev = b.get(fromIndex);
+		for (int i = fromIndex + 1; i < toIndex; i++) {
+			int value = b.get(i);
+			if (prev >= value)
+				return false;
+			prev = value;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Determines if the specified buffer is sorted inside the specified range. That
+	 * is: {@code buffer[i] <= buffer[i + 1]} for all elements in the range. A range
+	 * of length zero or one is considered sorted.
+	 *
+	 * @param b         - the buffer to be checked
+	 * @param fromIndex - the index of the first element (inclusive) to be checked
+	 * @param toIndex   - the index of the last element (exclusive) to be checked
+	 *
+	 * @return true if the buffer is sorted inside the specified range
+	 *
+	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
+	 * @throws IndexOutOfBoundsException if
+	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
+	 */
+	public static boolean isSorted(SmallLongBuffer b, int fromIndex, int toIndex) {
+		rangeCheck(b.capacity(), fromIndex, toIndex);
+
+		if (toIndex - fromIndex <= 1)
+			return true;
+
+		long prev = b.get(fromIndex);
+		for (int i = fromIndex + 1; i < toIndex; i++) {
+			long value = b.get(i);
+			if (prev > value)
+				return false;
+			prev = value;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Determines if the specified buffer is sorted and distinct inside the
+	 * specified range. That is: {@code buffer[i] < buffer[i + 1]} for all elements
+	 * in the range. A range of length zero or one is considered sorted and
+	 * distinct.
+	 *
+	 * @param b         - the buffer to be checked
+	 * @param fromIndex - the index of the first element (inclusive) to be checked
+	 * @param toIndex   - the index of the last element (exclusive) to be checked
+	 *
+	 * @return true if the buffer is sorted and distinct inside the specified range
+	 *
+	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
+	 * @throws IndexOutOfBoundsException if
+	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
+	 */
+	public static boolean isSortedAndDistinct(SmallLongBuffer b, int fromIndex, int toIndex) {
+		rangeCheck(b.capacity(), fromIndex, toIndex);
+
+		if (toIndex - fromIndex <= 1)
+			return true;
+
+		long prev = b.get(fromIndex);
+		for (int i = fromIndex + 1; i < toIndex; i++) {
+			long value = b.get(i);
+			if (prev >= value)
+				return false;
+			prev = value;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Determines if the specified buffer is sorted inside the specified range. That
+	 * is: {@code buffer[i] <= buffer[i + 1]} for all elements in the range. A range
+	 * of length zero or one is considered sorted.
+	 *
+	 * @param b         - the buffer to be checked
+	 * @param fromIndex - the index of the first element (inclusive) to be checked
+	 * @param toIndex   - the index of the last element (exclusive) to be checked
+	 *
+	 * @return true if the buffer is sorted inside the specified range
+	 *
+	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
+	 * @throws IndexOutOfBoundsException if
+	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
+	 */
+	public static boolean isSorted(SmallByteBuffer b, int fromIndex, int toIndex) {
+		rangeCheck(b.capacity(), fromIndex, toIndex);
+
+		if (toIndex - fromIndex <= 1)
+			return true;
+
+		byte prev = b.get(fromIndex);
+		for (int i = fromIndex + 1; i < toIndex; i++) {
+			byte value = b.get(i);
+			if (prev > value)
+				return false;
+			prev = value;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Determines if the specified buffer is sorted and distinct inside the
+	 * specified range. That is: {@code buffer[i] < buffer[i + 1]} for all elements
+	 * in the range. A range of length zero or one is considered sorted and
+	 * distinct.
+	 *
+	 * @param b         - the buffer to be checked
+	 * @param fromIndex - the index of the first element (inclusive) to be checked
+	 * @param toIndex   - the index of the last element (exclusive) to be checked
+	 *
+	 * @return true if the buffer is sorted and distinct inside the specified range
+	 *
+	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
+	 * @throws IndexOutOfBoundsException if
+	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
+	 */
+	public static boolean isSortedAndDistinct(SmallByteBuffer b, int fromIndex, int toIndex) {
+		rangeCheck(b.capacity(), fromIndex, toIndex);
+
+		if (toIndex - fromIndex <= 1)
+			return true;
+
+		byte prev = b.get(fromIndex);
+		for (int i = fromIndex + 1; i < toIndex; i++) {
+			byte value = b.get(i);
+			if (prev >= value)
+				return false;
+			prev = value;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Determines if the specified buffer is sorted inside the specified range. That
+	 * is: {@code buffer[i] <= buffer[i + 1]} for all elements in the range. A range
+	 * of length zero or one is considered sorted.
+	 *
+	 * @param b         - the buffer to be checked
+	 * @param fromIndex - the index of the first element (inclusive) to be checked
+	 * @param toIndex   - the index of the last element (exclusive) to be checked
+	 *
+	 * @return true if the buffer is sorted inside the specified range
+	 *
+	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
+	 * @throws IndexOutOfBoundsException if
+	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
+	 */
+	public static boolean isSorted(SmallShortBuffer b, int fromIndex, int toIndex) {
+		rangeCheck(b.capacity(), fromIndex, toIndex);
+
+		if (toIndex - fromIndex <= 1)
+			return true;
+
+		short prev = b.get(fromIndex);
+		for (int i = fromIndex + 1; i < toIndex; i++) {
+			short value = b.get(i);
+			if (prev > value)
+				return false;
+			prev = value;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Determines if the specified buffer is sorted and distinct inside the
+	 * specified range. That is: {@code buffer[i] < buffer[i + 1]} for all elements
+	 * in the range. A range of length zero or one is considered sorted and
+	 * distinct.
+	 *
+	 * @param b         - the buffer to be checked
+	 * @param fromIndex - the index of the first element (inclusive) to be checked
+	 * @param toIndex   - the index of the last element (exclusive) to be checked
+	 *
+	 * @return true if the buffer is sorted and distinct inside the specified range
+	 *
+	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
+	 * @throws IndexOutOfBoundsException if
+	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
+	 */
+	public static boolean isSortedAndDistinct(SmallShortBuffer b, int fromIndex, int toIndex) {
+		rangeCheck(b.capacity(), fromIndex, toIndex);
+
+		if (toIndex - fromIndex <= 1)
+			return true;
+
+		short prev = b.get(fromIndex);
+		for (int i = fromIndex + 1; i < toIndex; i++) {
+			short value = b.get(i);
+			if (prev >= value)
+				return false;
+			prev = value;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Determines if the specified buffer is sorted inside the specified range. That
+	 * is: {@code buffer[i] <= buffer[i + 1]} for all elements in the range. A range
+	 * of length zero or one is considered sorted.
+	 *
+	 * @param b         - the buffer to be checked
+	 * @param fromIndex - the index of the first element (inclusive) to be checked
+	 * @param toIndex   - the index of the last element (exclusive) to be checked
+	 *
+	 * @return true if the buffer is sorted inside the specified range
+	 *
+	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
+	 * @throws IndexOutOfBoundsException if
+	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
+	 */
+	public static boolean isSorted(SmallFloatBuffer b, int fromIndex, int toIndex) {
+		rangeCheck(b.capacity(), fromIndex, toIndex);
+
+		if (toIndex - fromIndex <= 1)
+			return true;
+
+		float prev = b.get(fromIndex);
+		for (int i = fromIndex + 1; i < toIndex; i++) {
+			float value = b.get(i);
+			if (Float.compare(prev, value) > 0)
+				return false;
+			prev = value;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Determines if the specified buffer is sorted and distinct inside the
+	 * specified range. That is: {@code buffer[i] < buffer[i + 1]} for all elements
+	 * in the range. A range of length zero or one is considered sorted and
+	 * distinct.
+	 *
+	 * @param b         - the buffer to be checked
+	 * @param fromIndex - the index of the first element (inclusive) to be checked
+	 * @param toIndex   - the index of the last element (exclusive) to be checked
+	 *
+	 * @return true if the buffer is sorted and distinct inside the specified range
+	 *
+	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
+	 * @throws IndexOutOfBoundsException if
+	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
+	 */
+	public static boolean isSortedAndDistinct(SmallFloatBuffer b, int fromIndex, int toIndex) {
+		rangeCheck(b.capacity(), fromIndex, toIndex);
+
+		if (toIndex - fromIndex <= 1)
+			return true;
+
+		float prev = b.get(fromIndex);
+		for (int i = fromIndex + 1; i < toIndex; i++) {
+			float value = b.get(i);
+			if (Float.compare(prev, value) >= 0)
+				return false;
+			prev = value;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Determines if the specified buffer is sorted inside the specified range. That
+	 * is: {@code buffer[i] <= buffer[i + 1]} for all elements in the range. A range
+	 * of length zero or one is considered sorted.
+	 *
+	 * @param b         - the buffer to be checked
+	 * @param fromIndex - the index of the first element (inclusive) to be checked
+	 * @param toIndex   - the index of the last element (exclusive) to be checked
+	 *
+	 * @return true if the buffer is sorted inside the specified range
+	 *
+	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
+	 * @throws IndexOutOfBoundsException if
+	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
+	 */
+	public static boolean isSorted(SmallDoubleBuffer b, int fromIndex, int toIndex) {
+		rangeCheck(b.capacity(), fromIndex, toIndex);
+
+		if (toIndex - fromIndex <= 1)
+			return true;
+
+		double prev = b.get(fromIndex);
+		for (int i = fromIndex + 1; i < toIndex; i++) {
+			double value = b.get(i);
+			if (Double.compare(prev, value) > 0)
+				return false;
+			prev = value;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Determines if the specified buffer is sorted and distinct inside the
+	 * specified range. That is: {@code buffer[i] < buffer[i + 1]} for all elements
+	 * in the range. A range of length zero or one is considered sorted and
+	 * distinct.
+	 *
+	 * @param b         - the buffer to be checked
+	 * @param fromIndex - the index of the first element (inclusive) to be checked
+	 * @param toIndex   - the index of the last element (exclusive) to be checked
+	 *
+	 * @return true if the buffer is sorted and distinct inside the specified range
+	 *
+	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
+	 * @throws IndexOutOfBoundsException if
+	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
+	 */
+	public static boolean isSortedAndDistinct(SmallDoubleBuffer b, int fromIndex, int toIndex) {
+		rangeCheck(b.capacity(), fromIndex, toIndex);
+
+		if (toIndex - fromIndex <= 1)
+			return true;
+
+		double prev = b.get(fromIndex);
+		for (int i = fromIndex + 1; i < toIndex; i++) {
+			double value = b.get(i);
+			if (Double.compare(prev, value) >= 0)
+				return false;
+			prev = value;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Deduplicates a range of the specified {@link SmallIntBuffer}. The range must
+	 * be sorted in ascending order prior to making this call. If it is not sorted,
+	 * the results are undefined.
+	 * <p>
+	 * This method is useful as a post-processing step after a sort on a buffer
+	 * which contains duplicate elements.
+	 *
+	 * @param b         the buffer to be deduplicated
+	 * @param fromIndex - the index of the first element (inclusive) to be
+	 *                  deduplicated
+	 * @param toIndex   - the index of the last element (exclusive) to be
+	 *                  deduplicated
+	 *
+	 * @return the (exclusive) highest index in use after deduplicating
+	 *
+	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
+	 * @throws IndexOutOfBoundsException if
+	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
+	 */
+	public static int deduplicate(SmallIntBuffer b, int fromIndex, int toIndex) {
+		rangeCheck(b.capacity(), fromIndex, toIndex);
+
+		if (toIndex - fromIndex < 2)
+			return toIndex;
+
+		int prev = b.get(fromIndex);
+		int highest = fromIndex + 1;
+
+		for (int i = fromIndex + 1; i < toIndex; i++) {
+			int value = b.get(i);
+
+			if (value != prev) {
+				if (highest < i)
+					b.put(highest, value);
+
+				highest++;
+				prev = value;
+			}
+		}
+
+		return highest;
+	}
+
+	/**
+	 * Deduplicates a range of the specified {@link SmallLongBuffer}. The range must
+	 * be sorted in ascending order prior to making this call. If it is not sorted,
+	 * the results are undefined.
+	 * <p>
+	 * This method is useful as a post-processing step after a sort on a buffer
+	 * which contains duplicate elements.
+	 *
+	 * @param b         the buffer to be deduplicated
+	 * @param fromIndex - the index of the first element (inclusive) to be
+	 *                  deduplicated
+	 * @param toIndex   - the index of the last element (exclusive) to be
+	 *                  deduplicated
+	 *
+	 * @return the (exclusive) highest index in use after deduplicating
+	 *
+	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
+	 * @throws IndexOutOfBoundsException if
+	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
+	 */
+	public static int deduplicate(SmallLongBuffer b, int fromIndex, int toIndex) {
+		rangeCheck(b.capacity(), fromIndex, toIndex);
+
+		if (toIndex - fromIndex < 2)
+			return toIndex;
+
+		long prev = b.get(fromIndex);
+		int highest = fromIndex + 1;
+
+		for (int i = fromIndex + 1; i < toIndex; i++) {
+			long value = b.get(i);
+
+			if (value != prev) {
+				if (highest < i)
+					b.put(highest, value);
+
+				highest++;
+				prev = value;
+			}
+		}
+
+		return highest;
+	}
+
+	/**
+	 * Deduplicates a range of the specified {@link SmallShortBuffer}. The range
+	 * must be sorted in ascending order prior to making this call. If it is not
+	 * sorted, the results are undefined.
+	 * <p>
+	 * This method is useful as a post-processing step after a sort on a buffer
+	 * which contains duplicate elements.
+	 *
+	 * @param b         the buffer to be deduplicated
+	 * @param fromIndex - the index of the first element (inclusive) to be
+	 *                  deduplicated
+	 * @param toIndex   - the index of the last element (exclusive) to be
+	 *                  deduplicated
+	 *
+	 * @return the (exclusive) highest index in use after deduplicating
+	 *
+	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
+	 * @throws IndexOutOfBoundsException if
+	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
+	 */
+	public static int deduplicate(SmallShortBuffer b, int fromIndex, int toIndex) {
+		rangeCheck(b.capacity(), fromIndex, toIndex);
+
+		if (toIndex - fromIndex < 2)
+			return toIndex;
+
+		short prev = b.get(fromIndex);
+		int highest = fromIndex + 1;
+
+		for (int i = fromIndex + 1; i < toIndex; i++) {
+			short value = b.get(i);
+
+			if (value != prev) {
+				if (highest < i)
+					b.put(highest, value);
+
+				highest++;
+				prev = value;
+			}
+		}
+
+		return highest;
+	}
+
+	/**
+	 * Deduplicates a range of the specified {@link SmallByteBuffer}. The range must
+	 * be sorted in ascending order prior to making this call. If it is not sorted,
+	 * the results are undefined.
+	 * <p>
+	 * This method is useful as a post-processing step after a sort on a buffer
+	 * which contains duplicate elements.
+	 *
+	 * @param b         the buffer to be deduplicated
+	 * @param fromIndex - the index of the first element (inclusive) to be
+	 *                  deduplicated
+	 * @param toIndex   - the index of the last element (exclusive) to be
+	 *                  deduplicated
+	 *
+	 * @return the (exclusive) highest index in use after deduplicating
+	 *
+	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
+	 * @throws IndexOutOfBoundsException if
+	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
+	 */
+	public static int deduplicate(SmallByteBuffer b, int fromIndex, int toIndex) {
+		rangeCheck(b.capacity(), fromIndex, toIndex);
+
+		if (toIndex - fromIndex < 2)
+			return toIndex;
+
+		byte prev = b.get(fromIndex);
+		int highest = fromIndex + 1;
+
+		for (int i = fromIndex + 1; i < toIndex; i++) {
+			byte value = b.get(i);
+
+			if (value != prev) {
+				if (highest < i)
+					b.put(highest, value);
+
+				highest++;
+				prev = value;
+			}
+		}
+
+		return highest;
+	}
+
+	/**
+	 * Deduplicates a range of the specified {@link SmallFloatBuffer}. The range
+	 * must be sorted in ascending order prior to making this call. If it is not
+	 * sorted, the results are undefined.
+	 * <p>
+	 * This method is useful as a post-processing step after a sort on a buffer
+	 * which contains duplicate elements.
+	 *
+	 * @param b         the buffer to be deduplicated
+	 * @param fromIndex - the index of the first element (inclusive) to be
+	 *                  deduplicated
+	 * @param toIndex   - the index of the last element (exclusive) to be
+	 *                  deduplicated
+	 *
+	 * @return the (exclusive) highest index in use after deduplicating
+	 *
+	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
+	 * @throws IndexOutOfBoundsException if
+	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
+	 */
+	public static int deduplicate(SmallFloatBuffer b, int fromIndex, int toIndex) {
+		rangeCheck(b.capacity(), fromIndex, toIndex);
+
+		if (toIndex - fromIndex < 2)
+			return toIndex;
+
+		float prev = b.get(fromIndex);
+		int highest = fromIndex + 1;
+
+		for (int i = fromIndex + 1; i < toIndex; i++) {
+			float value = b.get(i);
+
+			if (Float.compare(value, prev) != 0) {
+				if (highest < i)
+					b.put(highest, value);
+
+				highest++;
+				prev = value;
+			}
+		}
+
+		return highest;
+	}
+
+	/**
+	 * Deduplicates a range of the specified {@link SmallDoubleBuffer}. The range
+	 * must be sorted in ascending order prior to making this call. If it is not
+	 * sorted, the results are undefined.
+	 * <p>
+	 * This method is useful as a post-processing step after a sort on a buffer
+	 * which contains duplicate elements.
+	 *
+	 * @param b         the buffer to be deduplicated
+	 * @param fromIndex - the index of the first element (inclusive) to be
+	 *                  deduplicated
+	 * @param toIndex   - the index of the last element (exclusive) to be
+	 *                  deduplicated
+	 *
+	 * @return the (exclusive) highest index in use after deduplicating
+	 *
+	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
+	 * @throws IndexOutOfBoundsException if
+	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
+	 */
+	public static int deduplicate(SmallDoubleBuffer b, int fromIndex, int toIndex) {
+		rangeCheck(b.capacity(), fromIndex, toIndex);
+
+		if (toIndex - fromIndex < 2)
+			return toIndex;
+
+		double prev = b.get(fromIndex);
+		int highest = fromIndex + 1;
+
+		for (int i = fromIndex + 1; i < toIndex; i++) {
+			double value = b.get(i);
+
+			if (Double.compare(value, prev) != 0) {
+				if (highest < i)
+					b.put(highest, value);
+
+				highest++;
+				prev = value;
+			}
+		}
+
+		return highest;
+	}
+
+	/**
+	 * Returns a sequential {@link IntStream} with the specified buffer as its
+	 * source.
+	 * <p>
+	 * <b>Note:</b> ignores {@link SmallIntBuffer#position() position} and
+	 * {@link SmallIntBuffer#limit() limit}, can pass a
+	 * {@link SmallIntBuffer#slice() slice} instead.
+	 *
+	 * @param buffer the buffer, assumed to be unmodified during use
+	 * @return an {@code IntStream} for the buffer
+	 */
+	public static IntStream stream(SmallIntBuffer buffer) {
+		return stream(buffer, 0, buffer.capacity(), 0);
+	}
+
+	/**
+	 * Returns a sequential {@link IntStream} with the specified range of the
+	 * specified buffer as its source.
+	 *
+	 * @param buffer          the buffer, assumed to be unmodified during use
+	 * @param startInclusive  the first index to cover, inclusive
+	 * @param endExclusive    index immediately past the last index to cover
+	 * @param characteristics characteristics of this spliterator's source or
+	 *                        elements beyond {@code SIZED}, {@code SUBSIZED},
+	 *                        {@code ORDERED}, {@code NONNULL}, and
+	 *                        {@code IMMUTABLE}, which are are always reported
+	 * @return an {@code IntStream} for the buffer range
+	 * @throws ArrayIndexOutOfBoundsException if {@code startInclusive} is negative,
+	 *                                        {@code endExclusive} is less than
+	 *                                        {@code startInclusive}, or
+	 *                                        {@code endExclusive} is greater than
+	 *                                        the buffer's
+	 *                                        {@link SmallIntBuffer#capacity()
+	 *                                        capacity}
+	 */
+	public static IntStream stream(SmallIntBuffer buffer, int startInclusive, int endExclusive, int characteristics) {
+		return StreamSupport.intStream(new BufferSpliterators.SmallIntBufferSpliterator(buffer, startInclusive,
+				endExclusive, characteristics | ORDERED | NONNULL | IMMUTABLE), false);
+	}
+
+	/**
+	 * Returns a sequential {@link LongStream} with the specified buffer as its
+	 * source.
+	 * <p>
+	 * <b>Note:</b> ignores {@link SmallLongBuffer#position() position} and
+	 * {@link SmallLongBuffer#limit() limit}, can pass a
+	 * {@link SmallLongBuffer#slice() slice} instead.
+	 *
+	 * @param buffer the buffer, assumed to be unmodified during use
+	 * @return an {@code LongStream} for the buffer
+	 */
+	public static LongStream stream(SmallLongBuffer buffer) {
+		return stream(buffer, 0, buffer.capacity(), 0);
+	}
+
+	/**
+	 * Returns a sequential {@link LongStream} with the specified range of the
+	 * specified buffer as its source.
+	 *
+	 * @param buffer          the buffer, assumed to be unmodified during use
+	 * @param startInclusive  the first index to cover, inclusive
+	 * @param endExclusive    index immediately past the last index to cover
+	 * @param characteristics characteristics of this spliterator's source or
+	 *                        elements beyond {@code SIZED}, {@code SUBSIZED},
+	 *                        {@code ORDERED}, {@code NONNULL}, and
+	 *                        {@code IMMUTABLE}, which are are always reported
+	 * @return an {@code LongStream} for the buffer range
+	 * @throws ArrayIndexOutOfBoundsException if {@code startInclusive} is negative,
+	 *                                        {@code endExclusive} is less than
+	 *                                        {@code startInclusive}, or
+	 *                                        {@code endExclusive} is greater than
+	 *                                        the buffer's
+	 *                                        {@link SmallLongBuffer#capacity()
+	 *                                        capacity}
+	 */
+	public static LongStream stream(SmallLongBuffer buffer, int startInclusive, int endExclusive, int characteristics) {
+		return StreamSupport.longStream(new BufferSpliterators.SmallLongBufferSpliterator(buffer, startInclusive,
+				endExclusive, characteristics | ORDERED | NONNULL | IMMUTABLE), false);
+	}
+
+	/**
+	 * Returns a sequential {@link DoubleStream} with the specified buffer as its
+	 * source.
+	 * <p>
+	 * <b>Note:</b> ignores {@link SmallDoubleBuffer#position() position} and
+	 * {@link SmallDoubleBuffer#limit() limit}, can pass a
+	 * {@link SmallDoubleBuffer#slice() slice} instead.
+	 *
+	 * @param buffer the buffer, assumed to be unmodified during use
+	 * @return an {@code DoubleStream} for the buffer
+	 */
+	public static DoubleStream stream(SmallDoubleBuffer buffer) {
+		return stream(buffer, 0, buffer.capacity(), 0);
+	}
+
+	/**
+	 * Returns a sequential {@link DoubleStream} with the specified range of the
+	 * specified buffer as its source.
+	 *
+	 * @param buffer          the buffer, assumed to be unmodified during use
+	 * @param startInclusive  the first index to cover, inclusive
+	 * @param endExclusive    index immediately past the last index to cover
+	 * @param characteristics characteristics of this spliterator's source or
+	 *                        elements beyond {@code SIZED}, {@code SUBSIZED},
+	 *                        {@code ORDERED}, {@code NONNULL}, and
+	 *                        {@code IMMUTABLE}, which are are always reported
+	 * @return an {@code DoubleStream} for the buffer range
+	 * @throws ArrayIndexOutOfBoundsException if {@code startInclusive} is negative,
+	 *                                        {@code endExclusive} is less than
+	 *                                        {@code startInclusive}, or
+	 *                                        {@code endExclusive} is greater than
+	 *                                        the buffer's
+	 *                                        {@link SmallDoubleBuffer#capacity()
+	 *                                        capacity}
+	 */
+	public static DoubleStream stream(SmallDoubleBuffer buffer, int startInclusive, int endExclusive,
+			int characteristics) {
+		return StreamSupport.doubleStream(new BufferSpliterators.SmallDoubleBufferSpliterator(buffer, startInclusive,
 				endExclusive, characteristics | ORDERED | NONNULL | IMMUTABLE), false);
 	}
 
