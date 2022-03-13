@@ -68,7 +68,7 @@ import java.util.function.ToLongFunction;
  * 
  * @author biteytech@protonmail.com
  */
-public interface DataFrame extends List<Row>, RandomAccess {
+public sealed interface DataFrame extends List<Row>, RandomAccess permits DataFrameImpl {
 
 	/*--------------------------------------------------------------------------------
 	 *	Object, Collection, and List style Methods

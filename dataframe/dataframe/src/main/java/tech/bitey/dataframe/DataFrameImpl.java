@@ -75,7 +75,7 @@ import tech.bitey.bufferstuff.BufferSort;
 import tech.bitey.bufferstuff.BufferUtils;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
-class DataFrameImpl extends AbstractList<Row> implements DataFrame {
+final class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 
 	private static final DataFramePrinter DEFAULT_PRINTER = new DataFramePrinter(20);
 
