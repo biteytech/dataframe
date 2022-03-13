@@ -167,40 +167,23 @@ public class ColumnType<E extends Comparable<? super E>> {
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public <T extends Comparable<? super T>> ColumnBuilder<T> builder(int characteristic) {
-		switch (getCode()) {
-		case B:
-			return (ColumnBuilder) BooleanColumn.builder();
-		case DA:
-			return (ColumnBuilder) DateColumn.builder(characteristic);
-		case DT:
-			return (ColumnBuilder) DateTimeColumn.builder(characteristic);
-		case TI:
-			return (ColumnBuilder) TimeColumn.builder(characteristic);
-		case IN:
-			return (ColumnBuilder) InstantColumn.builder(characteristic);
-		case D:
-			return (ColumnBuilder) DoubleColumn.builder(characteristic);
-		case F:
-			return (ColumnBuilder) FloatColumn.builder(characteristic);
-		case I:
-			return (ColumnBuilder) IntColumn.builder(characteristic);
-		case L:
-			return (ColumnBuilder) LongColumn.builder(characteristic);
-		case T:
-			return (ColumnBuilder) ShortColumn.builder(characteristic);
-		case Y:
-			return (ColumnBuilder) ByteColumn.builder(characteristic);
-		case S:
-			return (ColumnBuilder) StringColumn.builder(characteristic);
-		case BD:
-			return (ColumnBuilder) DecimalColumn.builder(characteristic);
-		case UU:
-			return (ColumnBuilder) UuidColumn.builder(characteristic);
-		case NS:
-			return (ColumnBuilder) NormalStringColumn.builder();
-		}
-
-		throw new IllegalStateException();
+		return (ColumnBuilder) switch (getCode()) {
+		case B -> BooleanColumn.builder();
+		case DA -> DateColumn.builder(characteristic);
+		case DT -> DateTimeColumn.builder(characteristic);
+		case TI -> TimeColumn.builder(characteristic);
+		case IN -> InstantColumn.builder(characteristic);
+		case D -> DoubleColumn.builder(characteristic);
+		case F -> FloatColumn.builder(characteristic);
+		case I -> IntColumn.builder(characteristic);
+		case L -> LongColumn.builder(characteristic);
+		case T -> ShortColumn.builder(characteristic);
+		case Y -> ByteColumn.builder(characteristic);
+		case S -> StringColumn.builder(characteristic);
+		case BD -> DecimalColumn.builder(characteristic);
+		case UU -> UuidColumn.builder(characteristic);
+		case NS -> NormalStringColumn.builder();
+		};
 	}
 
 	/**
@@ -222,106 +205,106 @@ public class ColumnType<E extends Comparable<? super E>> {
 			nonNulls = BufferBitSet.readFrom(channel);
 		}
 
-		switch (getCode()) {
-		case B: {
+		return switch (getCode()) {
+		case B -> {
 			NonNullBooleanColumn column = NonNullBooleanColumn.EMPTY.readFrom(channel, version);
 			if (nonNulls == null)
-				return column;
+				yield column;
 			else
-				return new NullableBooleanColumn(column, nonNulls, null, 0, size);
+				yield new NullableBooleanColumn(column, nonNulls, null, 0, size);
 		}
-		case DA: {
+		case DA -> {
 			NonNullDateColumn column = NonNullDateColumn.empty(characteristics).readFrom(channel, version);
 			if (nonNulls == null)
-				return column;
+				yield column;
 			else
-				return new NullableDateColumn(column, nonNulls, null, 0, size);
+				yield new NullableDateColumn(column, nonNulls, null, 0, size);
 		}
-		case DT: {
+		case DT -> {
 			NonNullDateTimeColumn column = NonNullDateTimeColumn.empty(characteristics).readFrom(channel, version);
 			if (nonNulls == null)
-				return column;
+				yield column;
 			else
-				return new NullableDateTimeColumn(column, nonNulls, null, 0, size);
+				yield new NullableDateTimeColumn(column, nonNulls, null, 0, size);
 		}
-		case TI: {
+		case TI -> {
 			NonNullTimeColumn column = NonNullTimeColumn.empty(characteristics).readFrom(channel, version);
 			if (nonNulls == null)
-				return column;
+				yield column;
 			else
-				return new NullableTimeColumn(column, nonNulls, null, 0, size);
+				yield new NullableTimeColumn(column, nonNulls, null, 0, size);
 		}
-		case IN: {
+		case IN -> {
 			NonNullInstantColumn column = NonNullInstantColumn.empty(characteristics).readFrom(channel, version);
 			if (nonNulls == null)
-				return column;
+				yield column;
 			else
-				return new NullableInstantColumn(column, nonNulls, null, 0, size);
+				yield new NullableInstantColumn(column, nonNulls, null, 0, size);
 		}
-		case D: {
+		case D -> {
 			NonNullDoubleColumn column = NonNullDoubleColumn.empty(characteristics).readFrom(channel, version);
 			if (nonNulls == null)
-				return column;
+				yield column;
 			else
-				return new NullableDoubleColumn(column, nonNulls, null, 0, size);
+				yield new NullableDoubleColumn(column, nonNulls, null, 0, size);
 		}
-		case F: {
+		case F -> {
 			NonNullFloatColumn column = NonNullFloatColumn.empty(characteristics).readFrom(channel, version);
 			if (nonNulls == null)
-				return column;
+				yield column;
 			else
-				return new NullableFloatColumn(column, nonNulls, null, 0, size);
+				yield new NullableFloatColumn(column, nonNulls, null, 0, size);
 		}
-		case I: {
+		case I -> {
 			NonNullIntColumn column = NonNullIntColumn.empty(characteristics).readFrom(channel, version);
 			if (nonNulls == null)
-				return column;
+				yield column;
 			else
-				return new NullableIntColumn(column, nonNulls, null, 0, size);
+				yield new NullableIntColumn(column, nonNulls, null, 0, size);
 		}
-		case L: {
+		case L -> {
 			NonNullLongColumn column = NonNullLongColumn.empty(characteristics).readFrom(channel, version);
 			if (nonNulls == null)
-				return column;
+				yield column;
 			else
-				return new NullableLongColumn(column, nonNulls, null, 0, size);
+				yield new NullableLongColumn(column, nonNulls, null, 0, size);
 		}
-		case T: {
+		case T -> {
 			NonNullShortColumn column = NonNullShortColumn.empty(characteristics).readFrom(channel, version);
 			if (nonNulls == null)
-				return column;
+				yield column;
 			else
-				return new NullableShortColumn(column, nonNulls, null, 0, size);
+				yield new NullableShortColumn(column, nonNulls, null, 0, size);
 		}
-		case Y: {
+		case Y -> {
 			NonNullByteColumn column = NonNullByteColumn.empty(characteristics).readFrom(channel, version);
 			if (nonNulls == null)
-				return column;
+				yield column;
 			else
-				return new NullableByteColumn(column, nonNulls, null, 0, size);
+				yield new NullableByteColumn(column, nonNulls, null, 0, size);
 		}
-		case S: {
+		case S -> {
 			NonNullStringColumn column = NonNullStringColumn.empty(characteristics).readFrom(channel, version);
 			if (nonNulls == null)
-				return column;
+				yield column;
 			else
-				return new NullableStringColumn(column, nonNulls, null, 0, size);
+				yield new NullableStringColumn(column, nonNulls, null, 0, size);
 		}
-		case BD: {
+		case BD -> {
 			NonNullDecimalColumn column = NonNullDecimalColumn.empty(characteristics).readFrom(channel, version);
 			if (nonNulls == null)
-				return column;
+				yield column;
 			else
-				return new NullableDecimalColumn(column, nonNulls, null, 0, size);
+				yield new NullableDecimalColumn(column, nonNulls, null, 0, size);
 		}
-		case UU: {
+		case UU -> {
 			NonNullUuidColumn column = NonNullUuidColumn.empty(characteristics).readFrom(channel, version);
 			if (nonNulls == null)
-				return column;
+				yield column;
 			else
-				return new NullableUuidColumn(column, nonNulls, null, 0, size);
+				yield new NullableUuidColumn(column, nonNulls, null, 0, size);
 		}
-		case NS: {
+		case NS -> {
 			ByteColumn bytes = (ByteColumn) BYTE.readFrom(channel, characteristics, version);
 			NonNullStringColumn values;
 
@@ -341,49 +324,30 @@ public class ColumnType<E extends Comparable<? super E>> {
 				values = (NonNullStringColumn) STRING.readFrom(channel, NONNULL, version);
 			}
 
-			return new NormalStringColumnImpl(bytes, values, 0, bytes.size());
+			yield new NormalStringColumnImpl(bytes, values, 0, bytes.size());
 		}
-		}
-
-		throw new IllegalStateException();
+		};
 	}
 
 	@SuppressWarnings("rawtypes")
 	NullableColumnConstructor nullableConstructor() {
-		switch (getCode()) {
-		case B:
-			return NullableBooleanColumn::new;
-		case BD:
-			return NullableDecimalColumn::new;
-		case D:
-			return NullableDoubleColumn::new;
-		case DA:
-			return NullableDateColumn::new;
-		case DT:
-			return NullableDateTimeColumn::new;
-		case TI:
-			return NullableTimeColumn::new;
-		case IN:
-			return NullableInstantColumn::new;
-		case F:
-			return NullableFloatColumn::new;
-		case I:
-			return NullableIntColumn::new;
-		case L:
-			return NullableLongColumn::new;
-		case S:
-			return NullableStringColumn::new;
-		case T:
-			return NullableShortColumn::new;
-		case UU:
-			return NullableUuidColumn::new;
-		case Y:
-			return NullableByteColumn::new;
-		case NS:
-			// should never be called
-		}
-
-		throw new IllegalStateException();
+		return switch (getCode()) {
+		case B -> NullableBooleanColumn::new;
+		case BD -> NullableDecimalColumn::new;
+		case D -> NullableDoubleColumn::new;
+		case DA -> NullableDateColumn::new;
+		case DT -> NullableDateTimeColumn::new;
+		case TI -> NullableTimeColumn::new;
+		case IN -> NullableInstantColumn::new;
+		case F -> NullableFloatColumn::new;
+		case I -> NullableIntColumn::new;
+		case L -> NullableLongColumn::new;
+		case S -> NullableStringColumn::new;
+		case T -> NullableShortColumn::new;
+		case UU -> NullableUuidColumn::new;
+		case Y -> NullableByteColumn::new;
+		case NS -> throw new IllegalStateException();
+		};
 	}
 
 	/**
@@ -462,38 +426,22 @@ public class ColumnType<E extends Comparable<? super E>> {
 	 * @return the parsed element
 	 */
 	public Comparable<?> parse(String string) {
-		switch (getCode()) {
-		case B:
-			return Boolean.valueOf(parseBoolean(string));
-		case DA:
-			return parseDate(string);
-		case DT:
-			return LocalDateTime.parse(string);
-		case TI:
-			return LocalTime.parse(string);
-		case IN:
-			return Instant.parse(string);
-		case D:
-			return Double.valueOf(string);
-		case F:
-			return Float.valueOf(string);
-		case I:
-			return Integer.valueOf(string);
-		case L:
-			return Long.valueOf(string);
-		case T:
-			return Short.valueOf(string);
-		case Y:
-			return Byte.valueOf(string);
-		case S:
-		case NS:
-			return string;
-		case BD:
-			return new BigDecimal(string);
-		case UU:
-			return java.util.UUID.fromString(string);
-		}
-		throw new IllegalStateException();
+		return switch (getCode()) {
+		case B -> Boolean.valueOf(parseBoolean(string));
+		case DA -> parseDate(string);
+		case DT -> LocalDateTime.parse(string);
+		case TI -> LocalTime.parse(string);
+		case IN -> Instant.parse(string);
+		case D -> Double.valueOf(string);
+		case F -> Float.valueOf(string);
+		case I -> Integer.valueOf(string);
+		case L -> Long.valueOf(string);
+		case T -> Short.valueOf(string);
+		case Y -> Byte.valueOf(string);
+		case S, NS -> string;
+		case BD -> new BigDecimal(string);
+		case UU -> java.util.UUID.fromString(string);
+		};
 	}
 
 	public static boolean parseBoolean(String string) {

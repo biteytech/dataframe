@@ -5,7 +5,7 @@
 
 	<groupId>tech.bitey</groupId>
 	<artifactId>dataframe-parent</artifactId>
-	<version>1.1.7</version>
+	<version>1.2.0</version>
 	<packaging>pom</packaging>
 
 	<name>${project.groupId}:${project.artifactId}</name>
@@ -36,7 +36,7 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<dataframe.version>1.1.7</dataframe.version>
+		<dataframe.version>1.2.0</dataframe.version>
 		<joda.beans.config>jdk6</joda.beans.config>
 	</properties>
 
@@ -47,7 +47,7 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.8.1</version>
 				<configuration>
-					<release>11</release>
+					<release>17</release>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -68,7 +68,7 @@
 				<artifactId>maven-javadoc-plugin</artifactId>
 				<version>3.2.0</version>
 				<configuration>
-					<source>8</source>
+					<source>17</source>
 					<detectJavaApiLink>false</detectJavaApiLink>
 					<doclint>none</doclint>
 				</configuration>

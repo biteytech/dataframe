@@ -11,19 +11,19 @@ To add a dependency on dataframe using Maven, use the following:
 <dependency>
   <groupId>tech.bitey</groupId>
   <artifactId>dataframe</artifactId>
-  <version>1.1.7</version>
+  <version>1.2.0</version>
 </dependency>
 ```
 
-Requires Java 11 or higher.
+Requires Java 17 or higher. The last version supporting Java 11 was `1.1.7`.
 
 ### [Sample Usages](dataframe/dataframe-test/src/test/java/tech/bitey/dataframe/test/SampleUsages.java)
 
 ### [Release Notes](https://github.com/biteytech/dataframe/wiki#release-notes)
 
-### What's different about this data frame library?
+### What's different about this dataframe library?
 * It's geared towards making it easier to ship around tabular data for Java backend developers - rather than for data science. This is not Pandas for Java.
-* Data is stored in ByteBuffers, so the data frames can read/write to Channels with minimal overhead (save to files, send over network).
+* Data is stored in ByteBuffers, so the dataframes can read/write to Channels with minimal overhead (save to files, send over network).
 * Optimized for space. For example, booleans take one bit each, DateTimes take one long (with microsecond precision).
 * Nulls are stored in a separate BitSet (also backed by a ByteBuffer), taking up two bits per Column length. No extra space is used if all values are non-null.
 
@@ -42,6 +42,6 @@ Requires Java 11 or higher.
 * Great for generating Excel reports via POI - stage the data in a DataFrame first and then write POI code against the DataFrame. This separates concerns and is easier than writing POI directly against a ResultSet or other "raw" data sources.
 
 ### Limitations
-* Max \~2^31 rows (\~2 billion)
+* Max \~2^31 rows
 * Custom column types are not supported
 

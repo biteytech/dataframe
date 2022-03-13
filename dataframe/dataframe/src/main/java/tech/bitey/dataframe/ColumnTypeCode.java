@@ -36,38 +36,22 @@ public enum ColumnTypeCode {
 	;
 
 	ColumnType<?> getType() {
-		switch (this) {
-		case B:
-			return ColumnType.BOOLEAN;
-		case DA:
-			return ColumnType.DATE;
-		case DT:
-			return ColumnType.DATETIME;
-		case TI:
-			return ColumnType.TIME;
-		case IN:
-			return ColumnType.INSTANT;
-		case D:
-			return ColumnType.DOUBLE;
-		case F:
-			return ColumnType.FLOAT;
-		case I:
-			return ColumnType.INT;
-		case L:
-			return ColumnType.LONG;
-		case T:
-			return ColumnType.SHORT;
-		case Y:
-			return ColumnType.BYTE;
-		case S:
-			return ColumnType.STRING;
-		case BD:
-			return ColumnType.DECIMAL;
-		case UU:
-			return ColumnType.UUID;
-		case NS:
-			return ColumnType.NSTRING;
-		}
-		throw new IllegalStateException();
+		return switch (this) {
+		case B -> ColumnType.BOOLEAN;
+		case DA -> ColumnType.DATE;
+		case DT -> ColumnType.DATETIME;
+		case TI -> ColumnType.TIME;
+		case IN -> ColumnType.INSTANT;
+		case D -> ColumnType.DOUBLE;
+		case F -> ColumnType.FLOAT;
+		case I -> ColumnType.INT;
+		case L -> ColumnType.LONG;
+		case T -> ColumnType.SHORT;
+		case Y -> ColumnType.BYTE;
+		case S -> ColumnType.STRING;
+		case BD -> ColumnType.DECIMAL;
+		case UU -> ColumnType.UUID;
+		case NS -> ColumnType.NSTRING;
+		};
 	}
 }
