@@ -20,21 +20,20 @@ import static java.lang.Integer.compare;
 import static java.util.Spliterator.NONNULL;
 import static tech.bitey.bufferstuff.BufferUtils.isSortedAndDistinct;
 
-import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
-
+import tech.bitey.bufferstuff.BigByteBuffer;
 import tech.bitey.bufferstuff.BufferBitSet;
 import tech.bitey.bufferstuff.BufferSearch;
 import tech.bitey.bufferstuff.BufferSort;
 import tech.bitey.bufferstuff.BufferUtils;
+import tech.bitey.bufferstuff.SmallIntBuffer;
 
 abstract class IntArrayColumn<E extends Comparable<? super E>, I extends Column<E>, C extends IntArrayColumn<E, I, C>>
 		extends NonNullSingleBufferColumn<E, I, C> {
 
 	final IntArrayPacker<E> packer;
-	final IntBuffer elements;
+	final SmallIntBuffer elements;
 
-	IntArrayColumn(ByteBuffer buffer, IntArrayPacker<E> packer, int offset, int size, int characteristics,
+	IntArrayColumn(BigByteBuffer buffer, IntArrayPacker<E> packer, int offset, int size, int characteristics,
 			boolean view) {
 		super(buffer, offset, size, characteristics, view);
 
@@ -115,7 +114,7 @@ abstract class IntArrayColumn<E extends Comparable<? super E>, I extends Column<
 	@Override
 	C applyFilter0(BufferBitSet keep, int cardinality) {
 
-		ByteBuffer buffer = allocate(cardinality);
+		BigByteBuffer buffer = allocate(cardinality);
 		for (int i = offset; i <= lastIndex(); i++)
 			if (keep.get(i - offset))
 				buffer.putInt(at(i));
@@ -127,7 +126,7 @@ abstract class IntArrayColumn<E extends Comparable<? super E>, I extends Column<
 	@Override
 	C select0(IntColumn indices) {
 
-		ByteBuffer buffer = allocate(indices.size());
+		BigByteBuffer buffer = allocate(indices.size());
 		for (int i = 0; i < indices.size(); i++)
 			buffer.putInt(at(indices.getInt(i) + offset));
 		buffer.flip();

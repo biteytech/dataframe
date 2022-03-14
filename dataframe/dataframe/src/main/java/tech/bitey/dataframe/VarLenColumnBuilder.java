@@ -16,8 +16,9 @@
 
 package tech.bitey.dataframe;
 
-import java.nio.ByteBuffer;
 import java.util.Spliterator;
+
+import tech.bitey.bufferstuff.BigByteBuffer;
 
 @SuppressWarnings("unchecked")
 abstract class VarLenColumnBuilder<E extends Comparable<? super E>, C extends Column<E>, B extends VarLenColumnBuilder<E, C, B>>
@@ -94,7 +95,7 @@ abstract class VarLenColumnBuilder<E extends Comparable<? super E>, C extends Co
 			this.last = tail.last;
 	}
 
-	abstract C construct(ByteBuffer elements, ByteBuffer pointers, int characteristics, int size);
+	abstract C construct(BigByteBuffer elements, BigByteBuffer pointers, int characteristics, int size);
 
 	@Override
 	C buildNonNullColumn(int characteristics) {

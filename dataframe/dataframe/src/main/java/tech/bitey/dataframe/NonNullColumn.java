@@ -24,7 +24,7 @@ import static tech.bitey.dataframe.Pr.checkPositionIndex;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.nio.Buffer;
+import java.nio.ByteBuffer;
 import java.nio.channels.ReadableByteChannel;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -40,6 +40,7 @@ import java.util.function.ToDoubleFunction;
 import java.util.function.ToIntFunction;
 import java.util.function.ToLongFunction;
 
+import tech.bitey.bufferstuff.BigByteBuffer;
 import tech.bitey.bufferstuff.BufferBitSet;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -463,7 +464,11 @@ abstract class NonNullColumn<E extends Comparable<? super E>, I extends Column<E
 		return tail(fromElement, true);
 	}
 
-	void validateBuffer(Buffer buffer) {
+	void validateBuffer(ByteBuffer buffer) {
+		checkArgument(buffer.position() == 0, "buffer position must be zero");
+	}
+
+	void validateBuffer(BigByteBuffer buffer) {
 		checkArgument(buffer.position() == 0, "buffer position must be zero");
 	}
 

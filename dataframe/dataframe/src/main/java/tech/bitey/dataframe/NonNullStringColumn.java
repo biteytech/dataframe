@@ -18,11 +18,12 @@ package tech.bitey.dataframe;
 
 import static java.util.Spliterator.DISTINCT;
 import static java.util.Spliterator.SORTED;
-import static tech.bitey.bufferstuff.BufferUtils.EMPTY_BUFFER;
+import static tech.bitey.bufferstuff.BufferUtils.EMPTY_BIG_BUFFER;
 
-import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
+
+import tech.bitey.bufferstuff.BigByteBuffer;
 
 final class NonNullStringColumn extends NonNullVarLenColumn<String, StringColumn, NonNullStringColumn>
 		implements StringColumn {
@@ -30,25 +31,25 @@ final class NonNullStringColumn extends NonNullVarLenColumn<String, StringColumn
 	static final Map<Integer, NonNullStringColumn> EMPTY = new HashMap<>();
 	static {
 		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS,
-				c -> new NonNullStringColumn(EMPTY_BUFFER, EMPTY_BUFFER, 0, 0, c, false));
+				c -> new NonNullStringColumn(EMPTY_BIG_BUFFER, EMPTY_BIG_BUFFER, 0, 0, c, false));
 		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED,
-				c -> new NonNullStringColumn(EMPTY_BUFFER, EMPTY_BUFFER, 0, 0, c, false));
+				c -> new NonNullStringColumn(EMPTY_BIG_BUFFER, EMPTY_BIG_BUFFER, 0, 0, c, false));
 		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED | DISTINCT,
-				c -> new NonNullStringColumn(EMPTY_BUFFER, EMPTY_BUFFER, 0, 0, c, false));
+				c -> new NonNullStringColumn(EMPTY_BIG_BUFFER, EMPTY_BIG_BUFFER, 0, 0, c, false));
 	}
 
 	static NonNullStringColumn empty(int characteristics) {
 		return EMPTY.get(characteristics | NONNULL_CHARACTERISTICS);
 	}
 
-	NonNullStringColumn(ByteBuffer elements, ByteBuffer rawPointers, int offset, int size, int characteristics,
+	NonNullStringColumn(BigByteBuffer elements, BigByteBuffer rawPointers, int offset, int size, int characteristics,
 			boolean view) {
 		super(checkIsAscii(elements) ? VarLenPacker.STRING_ASCII : VarLenPacker.STRING_UTF_8, elements, rawPointers,
 				offset, size, characteristics, view);
 	}
 
-	private static boolean checkIsAscii(ByteBuffer elements) {
-		for (int i = 0; i < elements.limit(); i++)
+	private static boolean checkIsAscii(BigByteBuffer elements) {
+		for (long i = 0; i < elements.limit(); i++)
 			if (elements.get(i) < 0)
 				return false;
 
@@ -60,7 +61,7 @@ final class NonNullStringColumn extends NonNullVarLenColumn<String, StringColumn
 	}
 
 	@Override
-	NonNullStringColumn construct(ByteBuffer elements, ByteBuffer rawPointers, int offset, int size,
+	NonNullStringColumn construct(BigByteBuffer elements, BigByteBuffer rawPointers, int offset, int size,
 			int characteristics, boolean view) {
 		return new NonNullStringColumn(elements, rawPointers, offset, size, characteristics, view);
 	}

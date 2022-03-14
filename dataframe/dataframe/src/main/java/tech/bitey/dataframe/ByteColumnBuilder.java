@@ -19,7 +19,9 @@ package tech.bitey.dataframe;
 import java.nio.ByteBuffer;
 import java.util.Spliterator;
 
+import tech.bitey.bufferstuff.BigByteBuffer;
 import tech.bitey.bufferstuff.BufferBitSet;
+import tech.bitey.bufferstuff.SmallByteBuffer;
 
 /**
  * A builder for creating {@link ByteColumn} instances. Example:
@@ -50,7 +52,7 @@ public final class ByteColumnBuilder extends ByteArrayColumnBuilder<Byte, ByteCo
 	}
 
 	@Override
-	ByteColumn buildNonNullColumn(ByteBuffer trim, int characteristics) {
+	ByteColumn buildNonNullColumn(BigByteBuffer trim, int characteristics) {
 		return new NonNullByteColumn(trim, 0, getNonNullSize(), characteristics, false);
 	}
 
@@ -102,14 +104,30 @@ public final class ByteColumnBuilder extends ByteArrayColumnBuilder<Byte, ByteCo
 		return this;
 	}
 
+	/**
+	 * Adds a sequence of {@code bytes} to the column.
+	 *
+	 * @param elements the {@code bytes} to add
+	 * 
+	 * @return this builder
+	 */
+	@SuppressWarnings("exports") // is this warning a bug in Eclipse?
+	public ByteColumnBuilder addAll(SmallByteBuffer elements) {
+		int remaining = elements.remaining();
+		ensureAdditionalCapacity(remaining);
+		this.elements.put(elements);
+		size += remaining;
+		return this;
+	}
+
 	@Override
 	public ColumnType<Byte> getType() {
 		return ColumnType.BYTE;
 	}
 
 	@Override
-	void append00(ByteBuffer elements) {
-		ByteBuffer tail = elements.duplicate();
+	void append00(SmallByteBuffer elements) {
+		SmallByteBuffer tail = elements.duplicate();
 		tail.flip();
 		this.elements.put(tail);
 	}

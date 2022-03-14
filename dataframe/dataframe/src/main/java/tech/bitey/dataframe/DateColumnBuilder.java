@@ -16,10 +16,10 @@
 
 package tech.bitey.dataframe;
 
-import java.nio.ByteBuffer;
 import java.time.LocalDate;
 import java.util.Spliterator;
 
+import tech.bitey.bufferstuff.BigByteBuffer;
 import tech.bitey.bufferstuff.BufferBitSet;
 
 /**
@@ -51,7 +51,7 @@ public final class DateColumnBuilder extends IntArrayColumnBuilder<LocalDate, Da
 	}
 
 	@Override
-	DateColumn buildNonNullColumn(ByteBuffer trim, int characteristics) {
+	DateColumn buildNonNullColumn(BigByteBuffer trim, int characteristics) {
 		return new NonNullDateColumn(trim, 0, getNonNullSize(), characteristics, false);
 	}
 

@@ -41,7 +41,9 @@ import java.util.Objects;
 import java.util.RandomAccess;
 import java.util.Set;
 
+import tech.bitey.bufferstuff.BigByteBuffer;
 import tech.bitey.bufferstuff.BufferBitSet;
+import tech.bitey.bufferstuff.BufferUtils;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
 abstract class AbstractColumn<E extends Comparable<? super E>, I extends Column<E>, C extends AbstractColumn<E, I, C>>
@@ -320,6 +322,33 @@ abstract class AbstractColumn<E extends Comparable<? super E>, I extends Column<
 		byte[] b = new byte[1];
 		readFully(channel, ByteBuffer.wrap(b));
 		return b[0] == (byte) 'B' ? BIG_ENDIAN : LITTLE_ENDIAN;
+	}
+
+	static void writeBuffer(WritableByteChannel channel, BigByteBuffer buffer) throws IOException {
+
+		ByteBuffer[] buffers = buffer.buffers();
+
+		ByteOrder order = buffer.order();
+		writeInt(channel, order, buffers.length);
+
+		for (ByteBuffer b : buffers) {
+			writeInt(channel, order, b.remaining());
+			writeFully(channel, b);
+		}
+	}
+
+	static BigByteBuffer readBuffer(ReadableByteChannel channel, ByteOrder order) throws IOException {
+
+		int length = readInt(channel, order);
+		ByteBuffer[] buffers = new ByteBuffer[length];
+
+		for (int i = 0; i < length; i++) {
+			buffers[i] = BufferUtils.allocate(readInt(channel, order), order);
+			readFully(channel, buffers[i]);
+			buffers[i].flip();
+		}
+
+		return BufferUtils.wrap(buffers);
 	}
 
 	static void writeInt(WritableByteChannel channel, ByteOrder order, int value) throws IOException {

@@ -19,7 +19,6 @@ package tech.bitey.dataframe;
 import static java.util.Spliterator.DISTINCT;
 import static java.util.Spliterator.SORTED;
 import static tech.bitey.bufferstuff.BufferUtils.readFully;
-import static tech.bitey.bufferstuff.BufferUtils.writeFully;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -27,16 +26,17 @@ import java.nio.ByteOrder;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 
+import tech.bitey.bufferstuff.BigByteBuffer;
 import tech.bitey.bufferstuff.BufferUtils;
 
 abstract class NonNullSingleBufferColumn<E extends Comparable<? super E>, I extends Column<E>, C extends NonNullSingleBufferColumn<E, I, C>>
 		extends NonNullColumn<E, I, C> {
 
-	final ByteBuffer buffer;
+	final BigByteBuffer buffer;
 
-	abstract C construct(ByteBuffer buffer, int offset, int size, int characteristics, boolean view);
+	abstract C construct(BigByteBuffer buffer, int offset, int size, int characteristics, boolean view);
 
-	NonNullSingleBufferColumn(ByteBuffer buffer, int offset, int size, int characteristics, boolean view) {
+	NonNullSingleBufferColumn(BigByteBuffer buffer, int offset, int size, int characteristics, boolean view) {
 		super(offset, size, characteristics, view);
 
 		validateBuffer(buffer);
@@ -45,8 +45,8 @@ abstract class NonNullSingleBufferColumn<E extends Comparable<? super E>, I exte
 
 	abstract int elementSize();
 
-	ByteBuffer allocate(int capacity) {
-		return BufferUtils.allocate(capacity * elementSize());
+	BigByteBuffer allocate(int capacity) {
+		return BufferUtils.allocateBig((long) capacity * elementSize());
 	}
 
 	@Override
@@ -73,7 +73,7 @@ abstract class NonNullSingleBufferColumn<E extends Comparable<? super E>, I exte
 
 		int size = copy.deduplicate();
 
-		return construct(BufferUtils.copy(copy.buffer, 0, size * elementSize()), 0, size, SORTED | DISTINCT, false);
+		return construct(copy.buffer.copy(0, (long) size * elementSize()), 0, size, SORTED | DISTINCT, false);
 	}
 
 	@Override
@@ -83,7 +83,7 @@ abstract class NonNullSingleBufferColumn<E extends Comparable<? super E>, I exte
 
 	@Override
 	public C copy() {
-		ByteBuffer copy = BufferUtils.copy(buffer, offset * elementSize(), (offset + size) * elementSize());
+		BigByteBuffer copy = buffer.copy((long) offset * elementSize(), (long) (offset + size) * elementSize());
 		return construct(copy, 0, size, characteristics, false);
 	}
 
@@ -94,8 +94,8 @@ abstract class NonNullSingleBufferColumn<E extends Comparable<? super E>, I exte
 
 	@Override
 	boolean equals0(C rhs, int lStart, int rStart, int length) {
-		return BufferUtils.slice(buffer, lStart * elementSize(), (lStart + length) * elementSize())
-				.equals(BufferUtils.slice(rhs.buffer, rStart * elementSize(), (rStart + length) * elementSize()));
+		return buffer.slice((long) lStart * elementSize(), (long) (lStart + length) * elementSize())
+				.equals(rhs.buffer.slice((long) rStart * elementSize(), (long) (rStart + length) * elementSize()));
 	}
 
 	@Override
@@ -103,7 +103,7 @@ abstract class NonNullSingleBufferColumn<E extends Comparable<? super E>, I exte
 
 		final int size = size() + tail.size();
 
-		ByteBuffer buffer = allocate(size);
+		BigByteBuffer buffer = allocate(size);
 
 		buffer.put(this.slice0());
 		buffer.put(tail.slice0());
@@ -113,26 +113,39 @@ abstract class NonNullSingleBufferColumn<E extends Comparable<? super E>, I exte
 		return construct(buffer, 0, size, characteristics, false);
 	}
 
-	ByteBuffer slice0() {
-		return BufferUtils.slice(buffer, offset * elementSize(), (offset + size) * elementSize());
+	BigByteBuffer slice0() {
+		return buffer.slice((long) offset * elementSize(), (long) (offset + size) * elementSize());
 	}
 
 	@Override
 	void writeTo(WritableByteChannel channel) throws IOException {
-		writeByteOrder(channel, buffer.order());
-		writeInt(channel, buffer.order(), size);
-		writeFully(channel, slice0());
+
+		final ByteOrder order = buffer.order();
+
+		writeByteOrder(channel, order);
+		writeInt(channel, order, size);
+
+		writeBuffer(channel, slice0());
 	}
 
 	@Override
 	C readFrom(ReadableByteChannel channel, int version) throws IOException {
+
 		ByteOrder order = readByteOrder(channel);
 		int size = readInt(channel, order);
 
-		ByteBuffer buffer = BufferUtils.allocate(size * elementSize(), order);
-		readFully(channel, buffer);
-		buffer.flip();
+		final BigByteBuffer bbb;
 
-		return construct(buffer, 0, size, characteristics, false);
+		if (version <= 3) {
+
+			ByteBuffer buffer = BufferUtils.allocate(size * elementSize(), order);
+			readFully(channel, buffer);
+			buffer.flip();
+			bbb = BufferUtils.wrap(new ByteBuffer[] { buffer });
+		} else {
+			bbb = readBuffer(channel, order);
+		}
+
+		return construct(bbb, 0, size, characteristics, false);
 	}
 }

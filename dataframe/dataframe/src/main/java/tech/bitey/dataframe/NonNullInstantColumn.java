@@ -19,42 +19,42 @@ package tech.bitey.dataframe;
 import static java.util.Spliterator.DISTINCT;
 import static java.util.Spliterator.NONNULL;
 import static java.util.Spliterator.SORTED;
-import static tech.bitey.bufferstuff.BufferUtils.EMPTY_BUFFER;
+import static tech.bitey.bufferstuff.BufferUtils.EMPTY_BIG_BUFFER;
 
-import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
+import tech.bitey.bufferstuff.BigByteBuffer;
 import tech.bitey.bufferstuff.BufferBitSet;
+import tech.bitey.bufferstuff.SmallIntBuffer;
 
 final class NonNullInstantColumn extends NonNullSingleBufferColumn<Instant, InstantColumn, NonNullInstantColumn>
 		implements InstantColumn {
 
 	static final Map<Integer, NonNullInstantColumn> EMPTY = new HashMap<>();
 	static {
-		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS, c -> new NonNullInstantColumn(EMPTY_BUFFER, 0, 0, c, false));
+		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS, c -> new NonNullInstantColumn(EMPTY_BIG_BUFFER, 0, 0, c, false));
 		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED,
-				c -> new NonNullInstantColumn(EMPTY_BUFFER, 0, 0, c, false));
+				c -> new NonNullInstantColumn(EMPTY_BIG_BUFFER, 0, 0, c, false));
 		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED | DISTINCT,
-				c -> new NonNullInstantColumn(EMPTY_BUFFER, 0, 0, c, false));
+				c -> new NonNullInstantColumn(EMPTY_BIG_BUFFER, 0, 0, c, false));
 	}
 
 	static NonNullInstantColumn empty(int characteristics) {
 		return EMPTY.get(characteristics | NONNULL_CHARACTERISTICS);
 	}
 
-	private final IntBuffer elements;
+	private final SmallIntBuffer elements;
 
-	NonNullInstantColumn(ByteBuffer buffer, int offset, int size, int characteristics, boolean view) {
+	NonNullInstantColumn(BigByteBuffer buffer, int offset, int size, int characteristics, boolean view) {
 		super(buffer, offset, size, characteristics, view);
 
 		this.elements = buffer.asIntBuffer();
 	}
 
 	@Override
-	NonNullInstantColumn construct(ByteBuffer buffer, int offset, int size, int characteristics, boolean view) {
+	NonNullInstantColumn construct(BigByteBuffer buffer, int offset, int size, int characteristics, boolean view) {
 		return new NonNullInstantColumn(buffer, offset, size, characteristics, view);
 	}
 
@@ -147,7 +147,7 @@ final class NonNullInstantColumn extends NonNullSingleBufferColumn<Instant, Inst
 		return result;
 	}
 
-	private void put(ByteBuffer buffer, int index) {
+	private void put(BigByteBuffer buffer, int index) {
 		buffer.putLong(second(index));
 		buffer.putInt(nano(index));
 	}
@@ -155,7 +155,7 @@ final class NonNullInstantColumn extends NonNullSingleBufferColumn<Instant, Inst
 	@Override
 	NonNullInstantColumn applyFilter0(BufferBitSet keep, int cardinality) {
 
-		ByteBuffer buffer = allocate(cardinality);
+		BigByteBuffer buffer = allocate(cardinality);
 		for (int i = offset; i <= lastIndex(); i++)
 			if (keep.get(i - offset))
 				put(buffer, i);
@@ -167,7 +167,7 @@ final class NonNullInstantColumn extends NonNullSingleBufferColumn<Instant, Inst
 	@Override
 	NonNullInstantColumn select0(IntColumn indices) {
 
-		ByteBuffer buffer = allocate(indices.size());
+		BigByteBuffer buffer = allocate(indices.size());
 		for (int i = 0; i < indices.size(); i++)
 			put(buffer, indices.getInt(i) + offset);
 		buffer.flip();

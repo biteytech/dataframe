@@ -16,9 +16,9 @@
 
 package tech.bitey.dataframe;
 
-import java.nio.ByteBuffer;
 import java.util.Spliterator;
 
+import tech.bitey.bufferstuff.BigByteBuffer;
 import tech.bitey.bufferstuff.BufferBitSet;
 
 /**
@@ -50,7 +50,7 @@ public final class IntColumnBuilder extends IntArrayColumnBuilder<Integer, IntCo
 	}
 
 	@Override
-	IntColumn buildNonNullColumn(ByteBuffer trim, int characteristics) {
+	IntColumn buildNonNullColumn(BigByteBuffer trim, int characteristics) {
 		return new NonNullIntColumn(trim, 0, getNonNullSize(), characteristics, false);
 	}
 

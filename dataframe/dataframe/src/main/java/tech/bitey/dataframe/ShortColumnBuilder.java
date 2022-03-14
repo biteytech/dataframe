@@ -16,12 +16,12 @@
 
 package tech.bitey.dataframe;
 
-import java.nio.ByteBuffer;
-import java.nio.ShortBuffer;
 import java.util.Spliterator;
 
+import tech.bitey.bufferstuff.BigByteBuffer;
 import tech.bitey.bufferstuff.BufferBitSet;
 import tech.bitey.bufferstuff.BufferUtils;
+import tech.bitey.bufferstuff.SmallShortBuffer;
 
 /**
  * A builder for creating {@link ShortColumn} instances. Example:
@@ -41,7 +41,7 @@ import tech.bitey.bufferstuff.BufferUtils;
  * @author biteytech@protonmail.com
  */
 public final class ShortColumnBuilder
-		extends SingleBufferColumnBuilder<Short, ShortBuffer, ShortColumn, ShortColumnBuilder> {
+		extends SingleBufferColumnBuilder<Short, SmallShortBuffer, ShortColumn, ShortColumnBuilder> {
 
 	ShortColumnBuilder(int characteristics) {
 		super(characteristics);
@@ -106,12 +106,12 @@ public final class ShortColumnBuilder
 	}
 
 	@Override
-	ShortColumn buildNonNullColumn(ByteBuffer trim, int characteristics) {
+	ShortColumn buildNonNullColumn(BigByteBuffer trim, int characteristics) {
 		return new NonNullShortColumn(trim, 0, getNonNullSize(), characteristics, false);
 	}
 
 	@Override
-	ShortBuffer asBuffer(ByteBuffer buffer) {
+	SmallShortBuffer asBuffer(BigByteBuffer buffer) {
 		return buffer.asShortBuffer();
 	}
 
@@ -121,8 +121,8 @@ public final class ShortColumnBuilder
 	}
 
 	@Override
-	void append00(ShortBuffer elements) {
-		ShortBuffer tail = elements.duplicate();
+	void append00(SmallShortBuffer elements) {
+		SmallShortBuffer tail = elements.duplicate();
 		tail.flip();
 		this.elements.put(tail);
 	}

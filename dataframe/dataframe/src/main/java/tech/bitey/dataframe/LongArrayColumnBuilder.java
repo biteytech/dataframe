@@ -16,13 +16,12 @@
 
 package tech.bitey.dataframe;
 
-import java.nio.ByteBuffer;
-import java.nio.LongBuffer;
-
+import tech.bitey.bufferstuff.BigByteBuffer;
 import tech.bitey.bufferstuff.BufferUtils;
+import tech.bitey.bufferstuff.SmallLongBuffer;
 
 abstract class LongArrayColumnBuilder<E extends Comparable<? super E>, C extends Column<E>, B extends LongArrayColumnBuilder<E, C, B>>
-		extends SingleBufferColumnBuilder<E, LongBuffer, C, B> {
+		extends SingleBufferColumnBuilder<E, SmallLongBuffer, C, B> {
 
 	private final LongArrayPacker<E> packer;
 
@@ -49,7 +48,7 @@ abstract class LongArrayColumnBuilder<E extends Comparable<? super E>, C extends
 	}
 
 	@Override
-	LongBuffer asBuffer(ByteBuffer buffer) {
+	SmallLongBuffer asBuffer(BigByteBuffer buffer) {
 		return buffer.asLongBuffer();
 	}
 
@@ -59,8 +58,8 @@ abstract class LongArrayColumnBuilder<E extends Comparable<? super E>, C extends
 	}
 
 	@Override
-	void append00(LongBuffer elements) {
-		LongBuffer tail = elements.duplicate();
+	void append00(SmallLongBuffer elements) {
+		SmallLongBuffer tail = elements.duplicate();
 		tail.flip();
 		this.elements.put(tail);
 	}

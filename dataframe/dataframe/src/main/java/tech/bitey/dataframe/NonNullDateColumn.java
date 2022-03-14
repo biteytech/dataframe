@@ -18,36 +18,37 @@ package tech.bitey.dataframe;
 
 import static java.util.Spliterator.DISTINCT;
 import static java.util.Spliterator.SORTED;
-import static tech.bitey.bufferstuff.BufferUtils.EMPTY_BUFFER;
-import static tech.bitey.dataframe.Pr.checkElementIndex;
+import static tech.bitey.bufferstuff.BufferUtils.EMPTY_BIG_BUFFER;
 import static tech.bitey.dataframe.IntArrayPacker.LOCAL_DATE;
+import static tech.bitey.dataframe.Pr.checkElementIndex;
 
-import java.nio.ByteBuffer;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
+
+import tech.bitey.bufferstuff.BigByteBuffer;
 
 final class NonNullDateColumn extends IntArrayColumn<LocalDate, DateColumn, NonNullDateColumn> implements DateColumn {
 
 	static final Map<Integer, NonNullDateColumn> EMPTY = new HashMap<>();
 	static {
-		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS, c -> new NonNullDateColumn(EMPTY_BUFFER, 0, 0, c, false));
+		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS, c -> new NonNullDateColumn(EMPTY_BIG_BUFFER, 0, 0, c, false));
 		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED,
-				c -> new NonNullDateColumn(EMPTY_BUFFER, 0, 0, c, false));
+				c -> new NonNullDateColumn(EMPTY_BIG_BUFFER, 0, 0, c, false));
 		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED | DISTINCT,
-				c -> new NonNullDateColumn(EMPTY_BUFFER, 0, 0, c, false));
+				c -> new NonNullDateColumn(EMPTY_BIG_BUFFER, 0, 0, c, false));
 	}
 
 	static NonNullDateColumn empty(int characteristics) {
 		return EMPTY.get(characteristics | NONNULL_CHARACTERISTICS);
 	}
 
-	NonNullDateColumn(ByteBuffer buffer, int offset, int size, int characteristics, boolean view) {
+	NonNullDateColumn(BigByteBuffer buffer, int offset, int size, int characteristics, boolean view) {
 		super(buffer, LOCAL_DATE, offset, size, characteristics, view);
 	}
 
 	@Override
-	NonNullDateColumn construct(ByteBuffer buffer, int offset, int size, int characteristics, boolean view) {
+	NonNullDateColumn construct(BigByteBuffer buffer, int offset, int size, int characteristics, boolean view) {
 		return new NonNullDateColumn(buffer, offset, size, characteristics, view);
 	}
 

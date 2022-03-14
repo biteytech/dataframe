@@ -19,46 +19,46 @@ package tech.bitey.dataframe;
 import static java.util.Spliterator.DISTINCT;
 import static java.util.Spliterator.NONNULL;
 import static java.util.Spliterator.SORTED;
-import static tech.bitey.bufferstuff.BufferUtils.EMPTY_BUFFER;
+import static tech.bitey.bufferstuff.BufferUtils.EMPTY_BIG_BUFFER;
 import static tech.bitey.bufferstuff.BufferUtils.isSortedAndDistinct;
 import static tech.bitey.dataframe.Pr.checkElementIndex;
 
-import java.nio.ByteBuffer;
-import java.nio.ShortBuffer;
 import java.util.HashMap;
 import java.util.Map;
 
+import tech.bitey.bufferstuff.BigByteBuffer;
 import tech.bitey.bufferstuff.BufferBitSet;
 import tech.bitey.bufferstuff.BufferSearch;
 import tech.bitey.bufferstuff.BufferSort;
 import tech.bitey.bufferstuff.BufferUtils;
+import tech.bitey.bufferstuff.SmallShortBuffer;
 
 final class NonNullShortColumn extends NonNullSingleBufferColumn<Short, ShortColumn, NonNullShortColumn>
 		implements ShortColumn {
 
 	static final Map<Integer, NonNullShortColumn> EMPTY = new HashMap<>();
 	static {
-		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS, c -> new NonNullShortColumn(EMPTY_BUFFER, 0, 0, c, false));
+		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS, c -> new NonNullShortColumn(EMPTY_BIG_BUFFER, 0, 0, c, false));
 		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED,
-				c -> new NonNullShortColumn(EMPTY_BUFFER, 0, 0, c, false));
+				c -> new NonNullShortColumn(EMPTY_BIG_BUFFER, 0, 0, c, false));
 		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED | DISTINCT,
-				c -> new NonNullShortColumn(EMPTY_BUFFER, 0, 0, c, false));
+				c -> new NonNullShortColumn(EMPTY_BIG_BUFFER, 0, 0, c, false));
 	}
 
 	static NonNullShortColumn empty(int characteristics) {
 		return EMPTY.get(characteristics | NONNULL_CHARACTERISTICS);
 	}
 
-	private final ShortBuffer elements;
+	private final SmallShortBuffer elements;
 
-	NonNullShortColumn(ByteBuffer buffer, int offset, int size, int characteristics, boolean view) {
+	NonNullShortColumn(BigByteBuffer buffer, int offset, int size, int characteristics, boolean view) {
 		super(buffer, offset, size, characteristics, view);
 
 		this.elements = buffer.asShortBuffer();
 	}
 
 	@Override
-	NonNullShortColumn construct(ByteBuffer buffer, int offset, int size, int characteristics, boolean view) {
+	NonNullShortColumn construct(BigByteBuffer buffer, int offset, int size, int characteristics, boolean view) {
 		return new NonNullShortColumn(buffer, offset, size, characteristics, view);
 	}
 
@@ -151,7 +151,7 @@ final class NonNullShortColumn extends NonNullSingleBufferColumn<Short, ShortCol
 	@Override
 	NonNullShortColumn applyFilter0(BufferBitSet keep, int cardinality) {
 
-		ByteBuffer buffer = allocate(cardinality);
+		BigByteBuffer buffer = allocate(cardinality);
 		for (int i = offset; i <= lastIndex(); i++)
 			if (keep.get(i - offset))
 				buffer.putShort(at(i));
@@ -163,7 +163,7 @@ final class NonNullShortColumn extends NonNullSingleBufferColumn<Short, ShortCol
 	@Override
 	NonNullShortColumn select0(IntColumn indices) {
 
-		ByteBuffer buffer = allocate(indices.size());
+		BigByteBuffer buffer = allocate(indices.size());
 		for (int i = 0; i < indices.size(); i++)
 			buffer.putShort(at(indices.getInt(i) + offset));
 		buffer.flip();
@@ -251,8 +251,8 @@ final class NonNullShortColumn extends NonNullSingleBufferColumn<Short, ShortCol
 	@Override
 	public ShortColumn evaluate(ShortUnaryOperator op) {
 
-		final ByteBuffer bb = allocate(size);
-		final ShortBuffer buf = bb.asShortBuffer();
+		final BigByteBuffer bb = allocate(size);
+		final SmallShortBuffer buf = bb.asShortBuffer();
 
 		for (int i = offset; i <= lastIndex(); i++) {
 			short value = op.applyAsShort(at(i));

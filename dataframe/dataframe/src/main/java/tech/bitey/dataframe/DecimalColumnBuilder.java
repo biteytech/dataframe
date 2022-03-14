@@ -19,8 +19,8 @@ package tech.bitey.dataframe;
 import static tech.bitey.dataframe.NonNullColumn.NONNULL_CHARACTERISTICS;
 
 import java.math.BigDecimal;
-import java.nio.ByteBuffer;
 
+import tech.bitey.bufferstuff.BigByteBuffer;
 import tech.bitey.bufferstuff.BufferBitSet;
 
 /**
@@ -62,7 +62,7 @@ public final class DecimalColumnBuilder extends VarLenColumnBuilder<BigDecimal, 
 	}
 
 	@Override
-	DecimalColumn construct(ByteBuffer elements, ByteBuffer pointers, int characteristics, int size) {
+	DecimalColumn construct(BigByteBuffer elements, BigByteBuffer pointers, int characteristics, int size) {
 		return new NonNullDecimalColumn(elements, pointers, 0, size, characteristics, false);
 	}
 }

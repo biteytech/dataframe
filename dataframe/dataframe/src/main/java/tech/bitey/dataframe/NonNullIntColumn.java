@@ -18,42 +18,42 @@ package tech.bitey.dataframe;
 
 import static java.util.Spliterator.DISTINCT;
 import static java.util.Spliterator.SORTED;
-import static tech.bitey.bufferstuff.BufferUtils.EMPTY_BUFFER;
+import static tech.bitey.bufferstuff.BufferUtils.EMPTY_BIG_BUFFER;
 import static tech.bitey.dataframe.IntArrayPacker.INTEGER;
 import static tech.bitey.dataframe.Pr.checkElementIndex;
 
-import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.IntPredicate;
 import java.util.function.IntUnaryOperator;
 import java.util.stream.IntStream;
 
+import tech.bitey.bufferstuff.BigByteBuffer;
 import tech.bitey.bufferstuff.BufferBitSet;
 import tech.bitey.bufferstuff.BufferUtils;
+import tech.bitey.bufferstuff.SmallIntBuffer;
 
 final class NonNullIntColumn extends IntArrayColumn<Integer, IntColumn, NonNullIntColumn> implements IntColumn {
 
 	static final Map<Integer, NonNullIntColumn> EMPTY = new HashMap<>();
 	static {
-		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS, c -> new NonNullIntColumn(EMPTY_BUFFER, 0, 0, c, false));
+		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS, c -> new NonNullIntColumn(EMPTY_BIG_BUFFER, 0, 0, c, false));
 		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED,
-				c -> new NonNullIntColumn(EMPTY_BUFFER, 0, 0, c, false));
+				c -> new NonNullIntColumn(EMPTY_BIG_BUFFER, 0, 0, c, false));
 		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED | DISTINCT,
-				c -> new NonNullIntColumn(EMPTY_BUFFER, 0, 0, c, false));
+				c -> new NonNullIntColumn(EMPTY_BIG_BUFFER, 0, 0, c, false));
 	}
 
 	static NonNullIntColumn empty(int characteristics) {
 		return EMPTY.get(characteristics | NONNULL_CHARACTERISTICS);
 	}
 
-	NonNullIntColumn(ByteBuffer buffer, int offset, int size, int characteristics, boolean view) {
+	NonNullIntColumn(BigByteBuffer buffer, int offset, int size, int characteristics, boolean view) {
 		super(buffer, INTEGER, offset, size, characteristics, view);
 	}
 
 	@Override
-	NonNullIntColumn construct(ByteBuffer buffer, int offset, int size, int characteristics, boolean view) {
+	NonNullIntColumn construct(BigByteBuffer buffer, int offset, int size, int characteristics, boolean view) {
 		return new NonNullIntColumn(buffer, offset, size, characteristics, view);
 	}
 
@@ -134,8 +134,8 @@ final class NonNullIntColumn extends IntArrayColumn<Integer, IntColumn, NonNullI
 	@Override
 	public IntColumn evaluate(IntUnaryOperator op) {
 
-		final ByteBuffer bb = allocate(size);
-		final IntBuffer buf = bb.asIntBuffer();
+		final BigByteBuffer bb = allocate(size);
+		final SmallIntBuffer buf = bb.asIntBuffer();
 
 		for (int i = offset; i <= lastIndex(); i++) {
 			int value = op.applyAsInt(at(i));

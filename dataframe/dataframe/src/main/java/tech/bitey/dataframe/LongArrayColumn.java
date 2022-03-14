@@ -19,21 +19,20 @@ package tech.bitey.dataframe;
 import static java.util.Spliterator.NONNULL;
 import static tech.bitey.bufferstuff.BufferUtils.isSortedAndDistinct;
 
-import java.nio.ByteBuffer;
-import java.nio.LongBuffer;
-
+import tech.bitey.bufferstuff.BigByteBuffer;
 import tech.bitey.bufferstuff.BufferBitSet;
 import tech.bitey.bufferstuff.BufferSearch;
 import tech.bitey.bufferstuff.BufferSort;
 import tech.bitey.bufferstuff.BufferUtils;
+import tech.bitey.bufferstuff.SmallLongBuffer;
 
 abstract class LongArrayColumn<E extends Comparable<? super E>, I extends Column<E>, C extends LongArrayColumn<E, I, C>>
 		extends NonNullSingleBufferColumn<E, I, C> {
 
 	final LongArrayPacker<E> packer;
-	final LongBuffer elements;
+	final SmallLongBuffer elements;
 
-	LongArrayColumn(ByteBuffer buffer, LongArrayPacker<E> packer, int offset, int size, int characteristics,
+	LongArrayColumn(BigByteBuffer buffer, LongArrayPacker<E> packer, int offset, int size, int characteristics,
 			boolean view) {
 		super(buffer, offset, size, characteristics, view);
 
@@ -117,7 +116,7 @@ abstract class LongArrayColumn<E extends Comparable<? super E>, I extends Column
 	@Override
 	C applyFilter0(BufferBitSet keep, int cardinality) {
 
-		ByteBuffer buffer = allocate(cardinality);
+		BigByteBuffer buffer = allocate(cardinality);
 		for (int i = offset; i <= lastIndex(); i++)
 			if (keep.get(i - offset))
 				buffer.putLong(at(i));
@@ -129,7 +128,7 @@ abstract class LongArrayColumn<E extends Comparable<? super E>, I extends Column
 	@Override
 	C select0(IntColumn indices) {
 
-		ByteBuffer buffer = allocate(indices.size());
+		BigByteBuffer buffer = allocate(indices.size());
 		for (int i = 0; i < indices.size(); i++)
 			buffer.putLong(at(indices.getInt(i) + offset));
 		buffer.flip();

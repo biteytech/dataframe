@@ -16,10 +16,10 @@
 
 package tech.bitey.dataframe;
 
-import java.nio.ByteBuffer;
 import java.time.LocalTime;
 import java.util.Spliterator;
 
+import tech.bitey.bufferstuff.BigByteBuffer;
 import tech.bitey.bufferstuff.BufferBitSet;
 
 /**
@@ -51,7 +51,7 @@ public final class TimeColumnBuilder extends LongArrayColumnBuilder<LocalTime, T
 	}
 
 	@Override
-	TimeColumn buildNonNullColumn(ByteBuffer trim, int characteristics) {
+	TimeColumn buildNonNullColumn(BigByteBuffer trim, int characteristics) {
 		return new NonNullTimeColumn(trim, 0, getNonNullSize(), characteristics, false);
 	}
 

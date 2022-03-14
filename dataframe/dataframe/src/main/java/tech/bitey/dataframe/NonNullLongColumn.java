@@ -18,42 +18,42 @@ package tech.bitey.dataframe;
 
 import static java.util.Spliterator.DISTINCT;
 import static java.util.Spliterator.SORTED;
-import static tech.bitey.bufferstuff.BufferUtils.EMPTY_BUFFER;
+import static tech.bitey.bufferstuff.BufferUtils.EMPTY_BIG_BUFFER;
 import static tech.bitey.dataframe.LongArrayPacker.LONG;
 import static tech.bitey.dataframe.Pr.checkElementIndex;
 
-import java.nio.ByteBuffer;
-import java.nio.LongBuffer;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.LongPredicate;
 import java.util.function.LongUnaryOperator;
 import java.util.stream.LongStream;
 
+import tech.bitey.bufferstuff.BigByteBuffer;
 import tech.bitey.bufferstuff.BufferBitSet;
 import tech.bitey.bufferstuff.BufferUtils;
+import tech.bitey.bufferstuff.SmallLongBuffer;
 
 final class NonNullLongColumn extends LongArrayColumn<Long, LongColumn, NonNullLongColumn> implements LongColumn {
 
 	static final Map<Integer, NonNullLongColumn> EMPTY = new HashMap<>();
 	static {
-		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS, c -> new NonNullLongColumn(EMPTY_BUFFER, 0, 0, c, false));
+		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS, c -> new NonNullLongColumn(EMPTY_BIG_BUFFER, 0, 0, c, false));
 		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED,
-				c -> new NonNullLongColumn(EMPTY_BUFFER, 0, 0, c, false));
+				c -> new NonNullLongColumn(EMPTY_BIG_BUFFER, 0, 0, c, false));
 		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED | DISTINCT,
-				c -> new NonNullLongColumn(EMPTY_BUFFER, 0, 0, c, false));
+				c -> new NonNullLongColumn(EMPTY_BIG_BUFFER, 0, 0, c, false));
 	}
 
 	static NonNullLongColumn empty(int characteristics) {
 		return EMPTY.get(characteristics | NONNULL_CHARACTERISTICS);
 	}
 
-	NonNullLongColumn(ByteBuffer buffer, int offset, int size, int characteristics, boolean view) {
+	NonNullLongColumn(BigByteBuffer buffer, int offset, int size, int characteristics, boolean view) {
 		super(buffer, LONG, offset, size, characteristics, view);
 	}
 
 	@Override
-	NonNullLongColumn construct(ByteBuffer buffer, int offset, int size, int characteristics, boolean view) {
+	NonNullLongColumn construct(BigByteBuffer buffer, int offset, int size, int characteristics, boolean view) {
 		return new NonNullLongColumn(buffer, offset, size, characteristics, view);
 	}
 
@@ -134,8 +134,8 @@ final class NonNullLongColumn extends LongArrayColumn<Long, LongColumn, NonNullL
 	@Override
 	public LongColumn evaluate(LongUnaryOperator op) {
 
-		final ByteBuffer bb = allocate(size);
-		final LongBuffer buf = bb.asLongBuffer();
+		final BigByteBuffer bb = allocate(size);
+		final SmallLongBuffer buf = bb.asLongBuffer();
 
 		for (int i = offset; i <= lastIndex(); i++) {
 			long value = op.applyAsLong(at(i));

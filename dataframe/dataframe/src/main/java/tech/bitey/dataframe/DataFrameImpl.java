@@ -34,8 +34,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.math.BigDecimal;
-import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.WritableByteChannel;
 import java.sql.PreparedStatement;
@@ -70,9 +68,11 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import tech.bitey.bufferstuff.BigByteBuffer;
 import tech.bitey.bufferstuff.BufferBitSet;
 import tech.bitey.bufferstuff.BufferSort;
 import tech.bitey.bufferstuff.BufferUtils;
+import tech.bitey.bufferstuff.SmallIntBuffer;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
 final class DataFrameImpl extends AbstractList<Row> implements DataFrame {
@@ -1082,8 +1082,8 @@ final class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 			return 0;
 		};
 
-		ByteBuffer bb = BufferUtils.allocate(df.size() * 4);
-		IntBuffer b = bb.asIntBuffer();
+		BigByteBuffer bb = BufferUtils.allocateBig((long) df.size() * 4);
+		SmallIntBuffer b = bb.asIntBuffer();
 		for (int i = 0; i < df.size(); i++)
 			b.put(i, i);
 

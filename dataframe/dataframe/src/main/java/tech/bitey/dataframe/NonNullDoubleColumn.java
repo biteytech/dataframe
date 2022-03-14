@@ -19,49 +19,49 @@ package tech.bitey.dataframe;
 import static java.util.Spliterator.DISTINCT;
 import static java.util.Spliterator.NONNULL;
 import static java.util.Spliterator.SORTED;
-import static tech.bitey.bufferstuff.BufferUtils.EMPTY_BUFFER;
+import static tech.bitey.bufferstuff.BufferUtils.EMPTY_BIG_BUFFER;
 import static tech.bitey.bufferstuff.BufferUtils.isSortedAndDistinct;
 import static tech.bitey.dataframe.Pr.checkElementIndex;
 
-import java.nio.ByteBuffer;
-import java.nio.DoubleBuffer;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.DoublePredicate;
 import java.util.function.DoubleUnaryOperator;
 import java.util.stream.DoubleStream;
 
+import tech.bitey.bufferstuff.BigByteBuffer;
 import tech.bitey.bufferstuff.BufferBitSet;
 import tech.bitey.bufferstuff.BufferSearch;
 import tech.bitey.bufferstuff.BufferSort;
 import tech.bitey.bufferstuff.BufferUtils;
+import tech.bitey.bufferstuff.SmallDoubleBuffer;
 
 final class NonNullDoubleColumn extends NonNullSingleBufferColumn<Double, DoubleColumn, NonNullDoubleColumn>
 		implements DoubleColumn {
 
 	static final Map<Integer, NonNullDoubleColumn> EMPTY = new HashMap<>();
 	static {
-		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS, c -> new NonNullDoubleColumn(EMPTY_BUFFER, 0, 0, c, false));
+		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS, c -> new NonNullDoubleColumn(EMPTY_BIG_BUFFER, 0, 0, c, false));
 		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED,
-				c -> new NonNullDoubleColumn(EMPTY_BUFFER, 0, 0, c, false));
+				c -> new NonNullDoubleColumn(EMPTY_BIG_BUFFER, 0, 0, c, false));
 		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED | DISTINCT,
-				c -> new NonNullDoubleColumn(EMPTY_BUFFER, 0, 0, c, false));
+				c -> new NonNullDoubleColumn(EMPTY_BIG_BUFFER, 0, 0, c, false));
 	}
 
 	static NonNullDoubleColumn empty(int characteristics) {
 		return EMPTY.get(characteristics | NONNULL_CHARACTERISTICS);
 	}
 
-	private final DoubleBuffer elements;
+	private final SmallDoubleBuffer elements;
 
-	NonNullDoubleColumn(ByteBuffer buffer, int offset, int size, int characteristics, boolean view) {
+	NonNullDoubleColumn(BigByteBuffer buffer, int offset, int size, int characteristics, boolean view) {
 		super(buffer, offset, size, characteristics, view);
 
 		this.elements = buffer.asDoubleBuffer();
 	}
 
 	@Override
-	NonNullDoubleColumn construct(ByteBuffer buffer, int offset, int size, int characteristics, boolean view) {
+	NonNullDoubleColumn construct(BigByteBuffer buffer, int offset, int size, int characteristics, boolean view) {
 		return new NonNullDoubleColumn(buffer, offset, size, characteristics, view);
 	}
 
@@ -155,7 +155,7 @@ final class NonNullDoubleColumn extends NonNullSingleBufferColumn<Double, Double
 	@Override
 	NonNullDoubleColumn applyFilter0(BufferBitSet keep, int cardinality) {
 
-		ByteBuffer buffer = allocate(cardinality);
+		BigByteBuffer buffer = allocate(cardinality);
 		for (int i = offset; i <= lastIndex(); i++)
 			if (keep.get(i - offset))
 				buffer.putDouble(at(i));
@@ -167,7 +167,7 @@ final class NonNullDoubleColumn extends NonNullSingleBufferColumn<Double, Double
 	@Override
 	NonNullDoubleColumn select0(IntColumn indices) {
 
-		ByteBuffer buffer = allocate(indices.size());
+		BigByteBuffer buffer = allocate(indices.size());
 		for (int i = 0; i < indices.size(); i++)
 			buffer.putDouble(at(indices.getInt(i) + offset));
 		buffer.flip();
@@ -260,8 +260,8 @@ final class NonNullDoubleColumn extends NonNullSingleBufferColumn<Double, Double
 	@Override
 	public DoubleColumn evaluate(DoubleUnaryOperator op) {
 
-		final ByteBuffer bb = allocate(size);
-		final DoubleBuffer buf = bb.asDoubleBuffer();
+		final BigByteBuffer bb = allocate(size);
+		final SmallDoubleBuffer buf = bb.asDoubleBuffer();
 
 		for (int i = offset; i <= lastIndex(); i++) {
 			double value = op.applyAsDouble(at(i));

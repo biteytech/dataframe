@@ -19,46 +19,46 @@ package tech.bitey.dataframe;
 import static java.util.Spliterator.DISTINCT;
 import static java.util.Spliterator.NONNULL;
 import static java.util.Spliterator.SORTED;
-import static tech.bitey.bufferstuff.BufferUtils.EMPTY_BUFFER;
+import static tech.bitey.bufferstuff.BufferUtils.EMPTY_BIG_BUFFER;
 import static tech.bitey.bufferstuff.BufferUtils.isSortedAndDistinct;
 import static tech.bitey.dataframe.Pr.checkElementIndex;
 
-import java.nio.ByteBuffer;
-import java.nio.FloatBuffer;
 import java.util.HashMap;
 import java.util.Map;
 
+import tech.bitey.bufferstuff.BigByteBuffer;
 import tech.bitey.bufferstuff.BufferBitSet;
 import tech.bitey.bufferstuff.BufferSearch;
 import tech.bitey.bufferstuff.BufferSort;
 import tech.bitey.bufferstuff.BufferUtils;
+import tech.bitey.bufferstuff.SmallFloatBuffer;
 
 final class NonNullFloatColumn extends NonNullSingleBufferColumn<Float, FloatColumn, NonNullFloatColumn>
 		implements FloatColumn {
 
 	static final Map<Integer, NonNullFloatColumn> EMPTY = new HashMap<>();
 	static {
-		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS, c -> new NonNullFloatColumn(EMPTY_BUFFER, 0, 0, c, false));
+		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS, c -> new NonNullFloatColumn(EMPTY_BIG_BUFFER, 0, 0, c, false));
 		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED,
-				c -> new NonNullFloatColumn(EMPTY_BUFFER, 0, 0, c, false));
+				c -> new NonNullFloatColumn(EMPTY_BIG_BUFFER, 0, 0, c, false));
 		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED | DISTINCT,
-				c -> new NonNullFloatColumn(EMPTY_BUFFER, 0, 0, c, false));
+				c -> new NonNullFloatColumn(EMPTY_BIG_BUFFER, 0, 0, c, false));
 	}
 
 	static NonNullFloatColumn empty(int characteristics) {
 		return EMPTY.get(characteristics | NONNULL_CHARACTERISTICS);
 	}
 
-	private final FloatBuffer elements;
+	private final SmallFloatBuffer elements;
 
-	NonNullFloatColumn(ByteBuffer buffer, int offset, int size, int characteristics, boolean view) {
+	NonNullFloatColumn(BigByteBuffer buffer, int offset, int size, int characteristics, boolean view) {
 		super(buffer, offset, size, characteristics, view);
 
 		this.elements = buffer.asFloatBuffer();
 	}
 
 	@Override
-	NonNullFloatColumn construct(ByteBuffer buffer, int offset, int size, int characteristics, boolean view) {
+	NonNullFloatColumn construct(BigByteBuffer buffer, int offset, int size, int characteristics, boolean view) {
 		return new NonNullFloatColumn(buffer, offset, size, characteristics, view);
 	}
 
@@ -152,7 +152,7 @@ final class NonNullFloatColumn extends NonNullSingleBufferColumn<Float, FloatCol
 	@Override
 	NonNullFloatColumn applyFilter0(BufferBitSet keep, int cardinality) {
 
-		ByteBuffer buffer = allocate(cardinality);
+		BigByteBuffer buffer = allocate(cardinality);
 		for (int i = offset; i <= lastIndex(); i++)
 			if (keep.get(i - offset))
 				buffer.putFloat(at(i));
@@ -164,7 +164,7 @@ final class NonNullFloatColumn extends NonNullSingleBufferColumn<Float, FloatCol
 	@Override
 	NonNullFloatColumn select0(IntColumn indices) {
 
-		ByteBuffer buffer = allocate(indices.size());
+		BigByteBuffer buffer = allocate(indices.size());
 		for (int i = 0; i < indices.size(); i++)
 			buffer.putFloat(at(indices.getInt(i) + offset));
 		buffer.flip();
@@ -252,8 +252,8 @@ final class NonNullFloatColumn extends NonNullSingleBufferColumn<Float, FloatCol
 	@Override
 	public FloatColumn evaluate(FloatUnaryOperator op) {
 
-		final ByteBuffer bb = allocate(size);
-		final FloatBuffer buf = bb.asFloatBuffer();
+		final BigByteBuffer bb = allocate(size);
+		final SmallFloatBuffer buf = bb.asFloatBuffer();
 
 		for (int i = offset; i <= lastIndex(); i++) {
 			float value = op.applyAsFloat(at(i));

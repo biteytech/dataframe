@@ -18,8 +18,7 @@ package tech.bitey.dataframe;
 
 import static tech.bitey.dataframe.NonNullColumn.NONNULL_CHARACTERISTICS;
 
-import java.nio.ByteBuffer;
-
+import tech.bitey.bufferstuff.BigByteBuffer;
 import tech.bitey.bufferstuff.BufferBitSet;
 
 /**
@@ -61,7 +60,7 @@ public final class StringColumnBuilder extends VarLenColumnBuilder<String, Strin
 	}
 
 	@Override
-	StringColumn construct(ByteBuffer elements, ByteBuffer pointers, int characteristics, int size) {
+	StringColumn construct(BigByteBuffer elements, BigByteBuffer pointers, int characteristics, int size) {
 		return new NonNullStringColumn(elements, pointers, 0, size, characteristics, false);
 	}
 }

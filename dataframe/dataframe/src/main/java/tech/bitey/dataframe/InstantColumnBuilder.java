@@ -16,12 +16,12 @@
 
 package tech.bitey.dataframe;
 
-import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
 import java.time.Instant;
 import java.util.Spliterator;
 
+import tech.bitey.bufferstuff.BigByteBuffer;
 import tech.bitey.bufferstuff.BufferBitSet;
+import tech.bitey.bufferstuff.SmallIntBuffer;
 
 /**
  * A builder for creating {@link InstantColumn} instances. Example:
@@ -41,7 +41,7 @@ import tech.bitey.bufferstuff.BufferBitSet;
  * @author biteytech@protonmail.com
  */
 public final class InstantColumnBuilder
-		extends SingleBufferColumnBuilder<Instant, IntBuffer, InstantColumn, InstantColumnBuilder> {
+		extends SingleBufferColumnBuilder<Instant, SmallIntBuffer, InstantColumn, InstantColumnBuilder> {
 
 	InstantColumnBuilder(int characteristics) {
 		super(characteristics);
@@ -110,12 +110,12 @@ public final class InstantColumnBuilder
 	}
 
 	@Override
-	InstantColumn buildNonNullColumn(ByteBuffer trim, int characteristics) {
+	InstantColumn buildNonNullColumn(BigByteBuffer trim, int characteristics) {
 		return new NonNullInstantColumn(trim, 0, getNonNullSize(), characteristics, false);
 	}
 
 	@Override
-	IntBuffer asBuffer(ByteBuffer buffer) {
+	SmallIntBuffer asBuffer(BigByteBuffer buffer) {
 		return buffer.asIntBuffer();
 	}
 
@@ -135,8 +135,8 @@ public final class InstantColumnBuilder
 	}
 
 	@Override
-	void append00(IntBuffer elements) {
-		IntBuffer tail = elements.duplicate();
+	void append00(SmallIntBuffer elements) {
+		SmallIntBuffer tail = elements.duplicate();
 		tail.flip();
 		this.elements.put(tail);
 	}

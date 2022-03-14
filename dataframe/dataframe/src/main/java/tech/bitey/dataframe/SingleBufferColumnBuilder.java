@@ -16,49 +16,38 @@
 
 package tech.bitey.dataframe;
 
-import static tech.bitey.bufferstuff.BufferUtils.duplicate;
 import static tech.bitey.dataframe.Pr.checkState;
 
-import java.nio.Buffer;
-import java.nio.ByteBuffer;
-
+import tech.bitey.bufferstuff.BigByteBuffer;
 import tech.bitey.bufferstuff.BufferUtils;
+import tech.bitey.bufferstuff.SmallBuffer;
 
-abstract class SingleBufferColumnBuilder<E extends Comparable<? super E>, F extends Buffer, C extends Column<E>, B extends SingleBufferColumnBuilder<E, F, C, B>>
+abstract class SingleBufferColumnBuilder<E extends Comparable<? super E>, F extends SmallBuffer, C extends Column<E>, B extends SingleBufferColumnBuilder<E, F, C, B>>
 		extends AbstractColumnBuilder<E, C, B> {
-
-	/**
-	 * From {@code AbstractCollection}
-	 * <p>
-	 * The maximum size of array to allocate. Some VMs reserve some header words in
-	 * an array. Attempts to allocate larger arrays may result in OutOfMemoryError:
-	 * Requested array size exceeds VM limit
-	 */
-	private static final int MAX_ARRAY_SIZE = Integer.MAX_VALUE - 8;
 
 	SingleBufferColumnBuilder(int characteristics) {
 		super(characteristics);
 	}
 
-	ByteBuffer buffer = allocate(10);
+	BigByteBuffer buffer = allocate(8);
 	F elements = asBuffer(buffer);
 
-	abstract F asBuffer(ByteBuffer buffer);
+	abstract F asBuffer(BigByteBuffer buffer);
 
-	abstract C buildNonNullColumn(ByteBuffer trim, int characteristics);
+	abstract C buildNonNullColumn(BigByteBuffer trim, int characteristics);
 
 	abstract int elementSize();
 
 	private void resetElementBuffer() {
-		ByteBuffer buffer = duplicate(this.buffer);
+		BigByteBuffer buffer = this.buffer.duplicate();
 		buffer.clear();
 		int position = elements.position();
 		elements = asBuffer(buffer);
 		elements.position(position);
 	}
 
-	private ByteBuffer allocate(int capacity) {
-		return BufferUtils.allocate(capacity * elementSize());
+	private BigByteBuffer allocate(int capacity) {
+		return BufferUtils.allocateBig((long) capacity * elementSize());
 	}
 
 	@Override
@@ -72,7 +61,7 @@ abstract class SingleBufferColumnBuilder<E extends Comparable<? super E>, F exte
 		if (getNonNullCapacity() < minCapacity) {
 
 			int expandedCapacity = expandedCapacity(getNonNullCapacity(), minCapacity);
-			ByteBuffer extended = allocate(expandedCapacity);
+			BigByteBuffer extended = allocate(expandedCapacity);
 			buffer.position(getNonNullSize() * elementSize());
 			buffer.flip();
 			extended.put(buffer);
@@ -86,18 +75,15 @@ abstract class SingleBufferColumnBuilder<E extends Comparable<? super E>, F exte
 	// from Guava's ImmutableCollection.Builder
 	private int expandedCapacity(int oldCapacity, int minCapacity) {
 
-		final int maxCapacity = MAX_ARRAY_SIZE / elementSize();
-
-		checkState(minCapacity >= 0 && minCapacity <= maxCapacity,
-				"cannot store more than " + maxCapacity + " elements");
+		checkState(minCapacity >= 0, "minCapacity must be >= 0");
 
 		// careful of overflow!
 		int newCapacity = oldCapacity + (oldCapacity >> 1) + 1;
 		if (newCapacity < minCapacity) {
 			newCapacity = Integer.highestOneBit(minCapacity - 1) << 1;
 		}
-		if (newCapacity < 0 || newCapacity > maxCapacity) {
-			newCapacity = maxCapacity;
+		if (newCapacity < 0) {
+			newCapacity = Integer.MAX_VALUE;
 		}
 		return newCapacity;
 	}
@@ -113,11 +99,11 @@ abstract class SingleBufferColumnBuilder<E extends Comparable<? super E>, F exte
 
 	@Override
 	C buildNonNullColumn(int characteristics) {
-		ByteBuffer full = duplicate(buffer);
+		BigByteBuffer full = buffer.duplicate();
 		full.flip();
 		full.limit(getNonNullSize() * elementSize());
 
-		ByteBuffer trim = allocate(getNonNullSize());
+		BigByteBuffer trim = allocate(getNonNullSize());
 		trim.put(full);
 		trim.flip();
 

@@ -16,12 +16,12 @@
 
 package tech.bitey.dataframe;
 
-import java.nio.ByteBuffer;
-import java.nio.DoubleBuffer;
 import java.util.Spliterator;
 
+import tech.bitey.bufferstuff.BigByteBuffer;
 import tech.bitey.bufferstuff.BufferBitSet;
 import tech.bitey.bufferstuff.BufferUtils;
+import tech.bitey.bufferstuff.SmallDoubleBuffer;
 
 /**
  * A builder for creating {@link DoubleColumn} instances. Example:
@@ -41,7 +41,7 @@ import tech.bitey.bufferstuff.BufferUtils;
  * @author biteytech@protonmail.com
  */
 public final class DoubleColumnBuilder
-		extends SingleBufferColumnBuilder<Double, DoubleBuffer, DoubleColumn, DoubleColumnBuilder> {
+		extends SingleBufferColumnBuilder<Double, SmallDoubleBuffer, DoubleColumn, DoubleColumnBuilder> {
 
 	DoubleColumnBuilder(int characteristics) {
 		super(characteristics);
@@ -106,12 +106,12 @@ public final class DoubleColumnBuilder
 	}
 
 	@Override
-	DoubleColumn buildNonNullColumn(ByteBuffer trim, int characteristics) {
+	DoubleColumn buildNonNullColumn(BigByteBuffer trim, int characteristics) {
 		return new NonNullDoubleColumn(trim, 0, getNonNullSize(), characteristics, false);
 	}
 
 	@Override
-	DoubleBuffer asBuffer(ByteBuffer buffer) {
+	SmallDoubleBuffer asBuffer(BigByteBuffer buffer) {
 		return buffer.asDoubleBuffer();
 	}
 
@@ -121,8 +121,8 @@ public final class DoubleColumnBuilder
 	}
 
 	@Override
-	void append00(DoubleBuffer elements) {
-		DoubleBuffer tail = elements.duplicate();
+	void append00(SmallDoubleBuffer elements) {
+		SmallDoubleBuffer tail = elements.duplicate();
 		tail.flip();
 		this.elements.put(tail);
 	}

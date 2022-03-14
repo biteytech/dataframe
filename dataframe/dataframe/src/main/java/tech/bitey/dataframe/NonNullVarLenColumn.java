@@ -19,34 +19,34 @@ package tech.bitey.dataframe;
 import static java.util.Spliterator.DISTINCT;
 import static java.util.Spliterator.NONNULL;
 import static java.util.Spliterator.SORTED;
-import static tech.bitey.bufferstuff.BufferUtils.EMPTY_BUFFER;
+import static tech.bitey.bufferstuff.BufferUtils.EMPTY_BIG_BUFFER;
 import static tech.bitey.bufferstuff.BufferUtils.readFully;
-import static tech.bitey.bufferstuff.BufferUtils.writeFully;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.nio.IntBuffer;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 import java.util.function.IntBinaryOperator;
 import java.util.function.IntUnaryOperator;
 
+import tech.bitey.bufferstuff.BigByteBuffer;
 import tech.bitey.bufferstuff.BufferBitSet;
 import tech.bitey.bufferstuff.BufferSort;
 import tech.bitey.bufferstuff.BufferUtils;
+import tech.bitey.bufferstuff.SmallIntBuffer;
 
 abstract class NonNullVarLenColumn<E extends Comparable<E>, I extends Column<E>, C extends NonNullVarLenColumn<E, I, C>>
 		extends NonNullColumn<E, I, C> {
 
-	final ByteBuffer elements;
+	final BigByteBuffer elements;
 
-	final ByteBuffer rawPointers;
-	final IntBuffer pointers; // pointers[0] is always 0 - it's just easier that way :P
+	final BigByteBuffer rawPointers;
+	final SmallIntBuffer pointers; // pointers[0] is always 0 - it's just easier that way :P
 
 	final VarLenPacker<E> packer;
 
-	NonNullVarLenColumn(VarLenPacker<E> packer, ByteBuffer elements, ByteBuffer rawPointers, int offset, int size,
+	NonNullVarLenColumn(VarLenPacker<E> packer, BigByteBuffer elements, BigByteBuffer rawPointers, int offset, int size,
 			int characteristics, boolean view) {
 		super(offset, size, characteristics, view);
 
@@ -71,7 +71,7 @@ abstract class NonNullVarLenColumn<E extends Comparable<E>, I extends Column<E>,
 		return elements.get(index);
 	}
 
-	abstract C construct(ByteBuffer elements, ByteBuffer rawPointers, int offset, int size, int characteristics,
+	abstract C construct(BigByteBuffer elements, BigByteBuffer rawPointers, int offset, int size, int characteristics,
 			boolean view);
 
 	@Override
@@ -80,7 +80,7 @@ abstract class NonNullVarLenColumn<E extends Comparable<E>, I extends Column<E>,
 	}
 
 	int end(int index) {
-		return index == pointers.limit() - 1 ? elements.limit() : pat(index + 1);
+		return (int) (index == pointers.limit() - 1 ? elements.limit() : pat(index + 1));
 	}
 
 	int length(int index) {
@@ -88,7 +88,7 @@ abstract class NonNullVarLenColumn<E extends Comparable<E>, I extends Column<E>,
 	}
 
 	ByteBuffer element(int index) {
-		return BufferUtils.slice(elements, pat(index), end(index));
+		return elements.smallSlice(pat(index), end(index));
 	}
 
 	@Override
@@ -133,19 +133,19 @@ abstract class NonNullVarLenColumn<E extends Comparable<E>, I extends Column<E>,
 			if (length(lStart + i) != rhs.length(rStart + i))
 				return false;
 
-		return BufferUtils.slice(elements, pat(lStart), end(lStart + length - 1))
-				.equals(BufferUtils.slice(rhs.elements, rhs.pat(rStart), rhs.end(rStart + length - 1)));
+		return elements.slice(pat(lStart), end(lStart + length - 1))
+				.equals(rhs.elements.slice(rhs.pat(rStart), rhs.end(rStart + length - 1)));
 	}
 
-	private void copyElement(int i, ByteBuffer dest) {
-		ByteBuffer src = BufferUtils.slice(elements, pat(i), end(i));
+	private void copyElement(int i, BigByteBuffer dest) {
+		BigByteBuffer src = elements.slice(pat(i), end(i));
 		dest.put(src);
 	}
 
 	@Override
 	C applyFilter0(BufferBitSet keep, int cardinality) {
 
-		ByteBuffer rawPointers = BufferUtils.allocate(cardinality * 4);
+		BigByteBuffer rawPointers = BufferUtils.allocateBig((long) cardinality * 4);
 		int byteLength = 0;
 		for (int i = offset; i <= lastIndex(); i++) {
 			if (keep.get(i - offset)) {
@@ -155,7 +155,7 @@ abstract class NonNullVarLenColumn<E extends Comparable<E>, I extends Column<E>,
 		}
 		rawPointers.flip();
 
-		ByteBuffer elements = BufferUtils.allocate(byteLength);
+		BigByteBuffer elements = BufferUtils.allocateBig(byteLength);
 		for (int i = offset; i <= lastIndex(); i++)
 			if (keep.get(i - offset))
 				copyElement(i, elements);
@@ -167,7 +167,7 @@ abstract class NonNullVarLenColumn<E extends Comparable<E>, I extends Column<E>,
 	@Override
 	C select0(IntColumn indices) {
 
-		ByteBuffer rawPointers = BufferUtils.allocate(indices.size() * 4);
+		BigByteBuffer rawPointers = BufferUtils.allocateBig((long) indices.size() * 4);
 		int byteLength = 0;
 		for (int i = 0; i < indices.size(); i++) {
 			rawPointers.putInt(byteLength);
@@ -175,7 +175,7 @@ abstract class NonNullVarLenColumn<E extends Comparable<E>, I extends Column<E>,
 		}
 		rawPointers.flip();
 
-		ByteBuffer elements = BufferUtils.allocate(byteLength);
+		BigByteBuffer elements = BufferUtils.allocateBig(byteLength);
 		for (int i = 0; i < indices.size(); i++) {
 			int index = indices.getInt(i) + offset;
 			copyElement(index, elements);
@@ -185,37 +185,39 @@ abstract class NonNullVarLenColumn<E extends Comparable<E>, I extends Column<E>,
 		return construct(elements, rawPointers, 0, indices.size(), NONNULL, false);
 	}
 
+	BigByteBuffer sliceElements() {
+		return elements.slice(pat(offset), end(lastIndex()));
+	}
+
+	BigByteBuffer sliceRawPointers() {
+		return rawPointers.slice((long) offset * 4, (long) (offset + size) * 4);
+	}
+
+	BigByteBuffer copyRawPointers() {
+		return rawPointers.copy((long) offset * 4, (long) (offset + size) * 4);
+	}
+
 	@Override
 	C appendNonNull(C tail) {
 
 		final int thisByteLength = this.end(this.lastIndex()) - this.pat(this.offset);
 		final int tailByteLength = tail.end(tail.lastIndex()) - tail.pat(tail.offset);
 
-		ByteBuffer elements = BufferUtils.allocate(thisByteLength + tailByteLength);
+		BigByteBuffer elements = BufferUtils.allocateBig(thisByteLength + tailByteLength);
 		{
-			ByteBuffer thisElements = BufferUtils.slice(this.elements, this.pat(this.offset),
-					this.end(this.lastIndex()));
-			ByteBuffer tailElements = BufferUtils.slice(tail.elements, tail.pat(tail.offset),
-					tail.end(tail.lastIndex()));
-
-			elements.put(thisElements);
-			elements.put(tailElements);
+			elements.put(this.sliceElements());
+			elements.put(tail.sliceElements());
 			elements.flip();
 		}
 
-		ByteBuffer rawPointers = BufferUtils.allocate((this.size() + tail.size()) * 4);
+		BigByteBuffer rawPointers = BufferUtils.allocateBig((long) (this.size() + tail.size()) * 4);
 		{
-			ByteBuffer thisPointers = BufferUtils.slice(this.rawPointers, this.offset * 4,
-					(this.offset + this.size()) * 4);
-			ByteBuffer tailPointers = BufferUtils.slice(tail.rawPointers, tail.offset * 4,
-					(tail.offset + tail.size()) * 4);
-
-			rawPointers.put(thisPointers);
-			rawPointers.put(tailPointers);
+			rawPointers.put(this.sliceRawPointers());
+			rawPointers.put(tail.sliceRawPointers());
 			rawPointers.flip();
 		}
 
-		final IntBuffer pointers = rawPointers.asIntBuffer();
+		final SmallIntBuffer pointers = rawPointers.asIntBuffer();
 		final int size = pointers.limit();
 		final int thisOffset = this.pat(this.offset);
 		for (int i = 0; i < this.size(); i++)
@@ -249,12 +251,12 @@ abstract class NonNullVarLenColumn<E extends Comparable<E>, I extends Column<E>,
 	@Override
 	public C copy() {
 		if (isEmpty())
-			return construct(EMPTY_BUFFER, EMPTY_BUFFER, 0, 0, characteristics, false);
+			return construct(EMPTY_BIG_BUFFER, EMPTY_BIG_BUFFER, 0, 0, characteristics, false);
 
-		ByteBuffer rawPointers = BufferUtils.copy(this.rawPointers, offset * 4, (offset + size) * 4);
+		BigByteBuffer rawPointers = copyRawPointers();
 		zero(rawPointers, size);
 
-		ByteBuffer elements = BufferUtils.copy(this.elements, pat(offset), end(lastIndex()));
+		BigByteBuffer elements = this.elements.copy(pat(offset), end(lastIndex()));
 
 		return construct(elements, rawPointers, 0, size, characteristics, false);
 	}
@@ -264,17 +266,15 @@ abstract class NonNullVarLenColumn<E extends Comparable<E>, I extends Column<E>,
 		if (isEmpty())
 			return empty();
 
-		ByteBuffer rawPointers = BufferUtils.copy(this.rawPointers, offset * 4, (offset + size) * 4);
+		BigByteBuffer rawPointers = copyRawPointers();
 		zero(rawPointers, size);
 
-		ByteBuffer elements = BufferUtils.slice(this.elements, pat(offset), end(lastIndex()));
-
-		return construct(elements, rawPointers, 0, size, characteristics, false);
+		return construct(sliceElements(), rawPointers, 0, size, characteristics, false);
 	}
 
-	private static void zero(ByteBuffer rawPointers, int size) {
+	private static void zero(BigByteBuffer rawPointers, int size) {
 		if (size > 0) {
-			IntBuffer pointers = rawPointers.asIntBuffer();
+			SmallIntBuffer pointers = rawPointers.asIntBuffer();
 			int first = pointers.get(0);
 			for (int i = 0; i < size; i++)
 				pointers.put(i, pointers.get(i) - first);
@@ -328,8 +328,8 @@ abstract class NonNullVarLenColumn<E extends Comparable<E>, I extends Column<E>,
 
 		int size = column.size();
 
-		ByteBuffer bb = BufferUtils.allocate(size * 4);
-		IntBuffer b = bb.asIntBuffer();
+		BigByteBuffer bb = BufferUtils.allocateBig((long) size * 4);
+		SmallIntBuffer b = bb.asIntBuffer();
 		for (int i = 0; i < size; i++)
 			b.put(i, i);
 
@@ -385,10 +385,8 @@ abstract class NonNullVarLenColumn<E extends Comparable<E>, I extends Column<E>,
 		writeInt(channel, order, size);
 
 		if (size > 0) {
-			writeFully(channel, BufferUtils.slice(rawPointers, offset * 4, (offset + size) * 4));
-
-			writeInt(channel, order, end(lastIndex()) - pat(offset));
-			writeFully(channel, BufferUtils.slice(elements, pat(offset), end(lastIndex())));
+			writeBuffer(channel, sliceRawPointers());
+			writeBuffer(channel, sliceElements());
 		}
 	}
 
@@ -404,15 +402,26 @@ abstract class NonNullVarLenColumn<E extends Comparable<E>, I extends Column<E>,
 		if (size == 0)
 			return (C) this;
 
-		ByteBuffer rawPointers = BufferUtils.allocate(size * 4, order);
-		readFully(channel, rawPointers);
-		rawPointers.flip();
-		zero(rawPointers, size);
+		final BigByteBuffer rawPointers;
+		final BigByteBuffer elements;
 
-		int length = readInt(channel, order);
-		ByteBuffer elements = BufferUtils.allocate(length, order);
-		readFully(channel, elements);
-		elements.flip();
+		if (version <= 3) {
+			ByteBuffer rp = BufferUtils.allocate(size * 4, order);
+			readFully(channel, rp);
+			rp.flip();
+			rawPointers = BufferUtils.wrap(new ByteBuffer[] { rp });
+
+			int length = readInt(channel, order);
+			ByteBuffer el = BufferUtils.allocate(length, order);
+			readFully(channel, el);
+			el.flip();
+			elements = BufferUtils.wrap(new ByteBuffer[] { el });
+		} else {
+			rawPointers = readBuffer(channel, order);
+			elements = readBuffer(channel, order);
+		}
+
+		zero(rawPointers, size);
 
 		return construct(elements, rawPointers, 0, size, characteristics, false);
 	}

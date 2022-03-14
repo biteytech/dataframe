@@ -18,36 +18,36 @@ package tech.bitey.dataframe;
 
 import static java.util.Spliterator.DISTINCT;
 import static java.util.Spliterator.SORTED;
-import static tech.bitey.bufferstuff.BufferUtils.EMPTY_BUFFER;
+import static tech.bitey.bufferstuff.BufferUtils.EMPTY_BIG_BUFFER;
 import static tech.bitey.dataframe.Pr.checkElementIndex;
 
-import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 
+import tech.bitey.bufferstuff.BigByteBuffer;
 import tech.bitey.bufferstuff.BufferBitSet;
 
 final class NonNullByteColumn extends ByteArrayColumn<Byte, ByteColumn, NonNullByteColumn> implements ByteColumn {
 
 	static final Map<Integer, NonNullByteColumn> EMPTY = new HashMap<>();
 	static {
-		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS, c -> new NonNullByteColumn(EMPTY_BUFFER, 0, 0, c, false));
+		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS, c -> new NonNullByteColumn(EMPTY_BIG_BUFFER, 0, 0, c, false));
 		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED,
-				c -> new NonNullByteColumn(EMPTY_BUFFER, 0, 0, c, false));
+				c -> new NonNullByteColumn(EMPTY_BIG_BUFFER, 0, 0, c, false));
 		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED | DISTINCT,
-				c -> new NonNullByteColumn(EMPTY_BUFFER, 0, 0, c, false));
+				c -> new NonNullByteColumn(EMPTY_BIG_BUFFER, 0, 0, c, false));
 	}
 
 	static NonNullByteColumn empty(int characteristics) {
 		return EMPTY.get(characteristics | NONNULL_CHARACTERISTICS);
 	}
 
-	NonNullByteColumn(ByteBuffer buffer, int offset, int size, int characteristics, boolean view) {
+	NonNullByteColumn(BigByteBuffer buffer, int offset, int size, int characteristics, boolean view) {
 		super(buffer, ByteArrayPacker.BYTE, offset, size, characteristics, view);
 	}
 
 	@Override
-	NonNullByteColumn construct(ByteBuffer buffer, int offset, int size, int characteristics, boolean view) {
+	NonNullByteColumn construct(BigByteBuffer buffer, int offset, int size, int characteristics, boolean view) {
 		return new NonNullByteColumn(buffer, offset, size, characteristics, view);
 	}
 
@@ -123,7 +123,7 @@ final class NonNullByteColumn extends ByteArrayColumn<Byte, ByteColumn, NonNullB
 	@Override
 	public ByteColumn evaluate(ByteUnaryOperator op) {
 
-		final ByteBuffer bb = allocate(size);
+		final BigByteBuffer bb = allocate(size);
 
 		for (int i = offset, j = 0; i <= lastIndex(); i++) {
 			byte value = op.applyAsByte(at(i));

@@ -16,12 +16,12 @@
 
 package tech.bitey.dataframe;
 
-import java.nio.ByteBuffer;
-import java.nio.FloatBuffer;
 import java.util.Spliterator;
 
+import tech.bitey.bufferstuff.BigByteBuffer;
 import tech.bitey.bufferstuff.BufferBitSet;
 import tech.bitey.bufferstuff.BufferUtils;
+import tech.bitey.bufferstuff.SmallFloatBuffer;
 
 /**
  * A builder for creating {@link FloatColumn} instances. Example:
@@ -41,7 +41,7 @@ import tech.bitey.bufferstuff.BufferUtils;
  * @author biteytech@protonmail.com
  */
 public final class FloatColumnBuilder
-		extends SingleBufferColumnBuilder<Float, FloatBuffer, FloatColumn, FloatColumnBuilder> {
+		extends SingleBufferColumnBuilder<Float, SmallFloatBuffer, FloatColumn, FloatColumnBuilder> {
 
 	FloatColumnBuilder(int characteristics) {
 		super(characteristics);
@@ -106,12 +106,12 @@ public final class FloatColumnBuilder
 	}
 
 	@Override
-	FloatColumn buildNonNullColumn(ByteBuffer trim, int characteristics) {
+	FloatColumn buildNonNullColumn(BigByteBuffer trim, int characteristics) {
 		return new NonNullFloatColumn(trim, 0, getNonNullSize(), characteristics, false);
 	}
 
 	@Override
-	FloatBuffer asBuffer(ByteBuffer buffer) {
+	SmallFloatBuffer asBuffer(BigByteBuffer buffer) {
 		return buffer.asFloatBuffer();
 	}
 
@@ -121,8 +121,8 @@ public final class FloatColumnBuilder
 	}
 
 	@Override
-	void append00(FloatBuffer elements) {
-		FloatBuffer tail = elements.duplicate();
+	void append00(SmallFloatBuffer elements) {
+		SmallFloatBuffer tail = elements.duplicate();
 		tail.flip();
 		this.elements.put(tail);
 	}

@@ -18,12 +18,13 @@ package tech.bitey.dataframe;
 
 import static java.util.Spliterator.DISTINCT;
 import static java.util.Spliterator.SORTED;
-import static tech.bitey.bufferstuff.BufferUtils.EMPTY_BUFFER;
+import static tech.bitey.bufferstuff.BufferUtils.EMPTY_BIG_BUFFER;
 
 import java.math.BigDecimal;
-import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
+
+import tech.bitey.bufferstuff.BigByteBuffer;
 
 final class NonNullDecimalColumn extends NonNullVarLenColumn<BigDecimal, DecimalColumn, NonNullDecimalColumn>
 		implements DecimalColumn {
@@ -31,24 +32,24 @@ final class NonNullDecimalColumn extends NonNullVarLenColumn<BigDecimal, Decimal
 	static final Map<Integer, NonNullDecimalColumn> EMPTY = new HashMap<>();
 	static {
 		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS,
-				c -> new NonNullDecimalColumn(EMPTY_BUFFER, EMPTY_BUFFER, 0, 0, c, false));
+				c -> new NonNullDecimalColumn(EMPTY_BIG_BUFFER, EMPTY_BIG_BUFFER, 0, 0, c, false));
 		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED,
-				c -> new NonNullDecimalColumn(EMPTY_BUFFER, EMPTY_BUFFER, 0, 0, c, false));
+				c -> new NonNullDecimalColumn(EMPTY_BIG_BUFFER, EMPTY_BIG_BUFFER, 0, 0, c, false));
 		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED | DISTINCT,
-				c -> new NonNullDecimalColumn(EMPTY_BUFFER, EMPTY_BUFFER, 0, 0, c, false));
+				c -> new NonNullDecimalColumn(EMPTY_BIG_BUFFER, EMPTY_BIG_BUFFER, 0, 0, c, false));
 	}
 
 	static NonNullDecimalColumn empty(int characteristics) {
 		return EMPTY.get(characteristics | NONNULL_CHARACTERISTICS);
 	}
 
-	NonNullDecimalColumn(ByteBuffer elements, ByteBuffer rawPointers, int offset, int size, int characteristics,
+	NonNullDecimalColumn(BigByteBuffer elements, BigByteBuffer rawPointers, int offset, int size, int characteristics,
 			boolean view) {
 		super(VarLenPacker.DECIMAL, elements, rawPointers, offset, size, characteristics, view);
 	}
 
 	@Override
-	NonNullDecimalColumn construct(ByteBuffer elements, ByteBuffer rawPointers, int offset, int size,
+	NonNullDecimalColumn construct(BigByteBuffer elements, BigByteBuffer rawPointers, int offset, int size,
 			int characteristics, boolean view) {
 		return new NonNullDecimalColumn(elements, rawPointers, offset, size, characteristics, view);
 	}

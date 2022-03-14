@@ -16,10 +16,10 @@
 
 package tech.bitey.dataframe;
 
-import java.nio.ByteBuffer;
 import java.time.LocalDateTime;
 import java.util.Spliterator;
 
+import tech.bitey.bufferstuff.BigByteBuffer;
 import tech.bitey.bufferstuff.BufferBitSet;
 
 /**
@@ -52,7 +52,7 @@ public final class DateTimeColumnBuilder
 	}
 
 	@Override
-	DateTimeColumn buildNonNullColumn(ByteBuffer trim, int characteristics) {
+	DateTimeColumn buildNonNullColumn(BigByteBuffer trim, int characteristics) {
 		return new NonNullDateTimeColumn(trim, 0, getNonNullSize(), characteristics, false);
 	}
 

@@ -16,9 +16,9 @@
 
 package tech.bitey.dataframe;
 
-import java.nio.ByteBuffer;
 import java.util.Spliterator;
 
+import tech.bitey.bufferstuff.BigByteBuffer;
 import tech.bitey.bufferstuff.BufferBitSet;
 
 /**
@@ -50,7 +50,7 @@ public final class LongColumnBuilder extends LongArrayColumnBuilder<Long, LongCo
 	}
 
 	@Override
-	LongColumn buildNonNullColumn(ByteBuffer trim, int characteristics) {
+	LongColumn buildNonNullColumn(BigByteBuffer trim, int characteristics) {
 		return new NonNullLongColumn(trim, 0, getNonNullSize(), characteristics, false);
 	}
 
