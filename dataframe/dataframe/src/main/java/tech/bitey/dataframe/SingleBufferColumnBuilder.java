@@ -38,14 +38,6 @@ abstract class SingleBufferColumnBuilder<E extends Comparable<? super E>, F exte
 
 	abstract int elementSize();
 
-	private void resetElementBuffer() {
-		BigByteBuffer buffer = this.buffer.duplicate();
-		buffer.clear();
-		int position = elements.position();
-		elements = asBuffer(buffer);
-		elements.position(position);
-	}
-
 	private BigByteBuffer allocate(int capacity) {
 		return BufferUtils.allocateBig((long) capacity * elementSize());
 	}
@@ -62,12 +54,12 @@ abstract class SingleBufferColumnBuilder<E extends Comparable<? super E>, F exte
 
 			int expandedCapacity = expandedCapacity(getNonNullCapacity(), minCapacity);
 			BigByteBuffer extended = allocate(expandedCapacity);
-			buffer.position(getNonNullSize() * elementSize());
+			buffer.position((long) getNonNullSize() * elementSize());
 			buffer.flip();
 			extended.put(buffer);
 
 			buffer = extended;
-			resetElementBuffer();
+			elements = asBuffer(buffer);
 		}
 		return (B) this;
 	}
@@ -101,7 +93,7 @@ abstract class SingleBufferColumnBuilder<E extends Comparable<? super E>, F exte
 	C buildNonNullColumn(int characteristics) {
 		BigByteBuffer full = buffer.duplicate();
 		full.flip();
-		full.limit(getNonNullSize() * elementSize());
+		full.limit((long) getNonNullSize() * elementSize());
 
 		BigByteBuffer trim = allocate(getNonNullSize());
 		trim.put(full);

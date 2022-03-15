@@ -366,7 +366,7 @@ public class GenBufferUtils implements GenBufferCode {
 				 * An empty, read-only {@link BigByteBuffer} which has
 				 * {@link ByteOrder#nativeOrder() native order}
 				 */
-				public static final BigByteBuffer EMPTY_BIG_BUFFER = wrap(new ByteBuffer[] { EMPTY_BUFFER });
+				public static final BigByteBuffer EMPTY_BIG_BUFFER = new SimpleBigByteBuffer(EMPTY_BUFFER);
 
 				/**
 				 * Allocates a new {@link ByteBuffer} with the specified capacity. The buffer
@@ -405,7 +405,7 @@ public class GenBufferUtils implements GenBufferCode {
 				 * @return the new native order {@code BigByteBuffer}
 				 */
 				public static BigByteBuffer allocateBig(long capacity) {
-					return new SimpleBigByteBuffer(allocate(toIntExact(capacity)));
+					return allocateBig(capacity, ByteOrder.nativeOrder());
 				}
 
 				/**
@@ -418,17 +418,37 @@ public class GenBufferUtils implements GenBufferCode {
 				 *
 				 * @return the new {@code BigByteBuffer}
 				 */
-				public static BigByteBuffer allocateBig(int capacity, ByteOrder order) {
-					return new SimpleBigByteBuffer(allocate(toIntExact(capacity), order));
+				public static BigByteBuffer allocateBig(long capacity, ByteOrder order) {
+
+					if (capacity <= CompoundBigByteBuffer.CHUNK_SIZE)
+						return new SimpleBigByteBuffer(allocate(toIntExact(capacity), order));
+					else {
+						int chunks = (int) (capacity >> CompoundBigByteBuffer.CHUNK_BITS);
+						int remainder = (int) (capacity & CompoundBigByteBuffer.CHUNK_MASK);
+
+						ByteBuffer buffers[] = new ByteBuffer[chunks + (remainder > 0 ? 1 : 0)];
+						int i = 0;
+						for (; i < chunks; i++)
+							buffers[i] = allocate(CompoundBigByteBuffer.CHUNK_SIZE, order);
+						if (remainder > 0)
+							buffers[i] = allocate(remainder, order);
+
+						return new CompoundBigByteBuffer(buffers);
+					}
 				}
 
 				/**
-				 * Returns a new {@link BigByteBuffer} backed by the specified {@link ByteBuffer ByteBuffers}.
+				 * Returns a new {@link BigByteBuffer} backed by the specified {@link ByteBuffer
+				 * ByteBuffers}.
 				 *
-				 * @return a new {@code BigByteBuffer} backed by the specified {@code ByteBuffer ByteBuffers}.
+				 * @return a new {@code BigByteBuffer} backed by the specified
+				 *         {@code ByteBuffer ByteBuffers}.
 				 */
 				public static BigByteBuffer wrap(ByteBuffer[] buffers) {
-					return new SimpleBigByteBuffer(buffers[0]);
+					if (buffers.length == 1)
+						return new SimpleBigByteBuffer(buffers[0]);
+					else
+						return new CompoundBigByteBuffer(buffers);
 				}
 
 				/**

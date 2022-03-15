@@ -1,3 +1,19 @@
+/*
+ * Copyright 2022 biteytech@protonmail.com
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package tech.bitey.bufferstuff;
 
 import static java.lang.Math.toIntExact;
@@ -10,7 +26,6 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.LongBuffer;
 import java.nio.ShortBuffer;
-import java.util.Arrays;
 
 /**
  * Delegates everything to a single {@link ByteBuffer}.
@@ -135,7 +150,7 @@ final class SimpleBigByteBuffer implements BigByteBuffer {
 		if (src.remaining() > remaining())
 			throw new BufferUnderflowException();
 
-		for (ByteBuffer b : src.buffers())
+		for (ByteBuffer b : src.slice().buffers())
 			buffer.put(b);
 
 		return this;
@@ -350,9 +365,14 @@ final class SimpleBigByteBuffer implements BigByteBuffer {
 
 	@Override
 	public boolean equals(Object o) {
-		if (o instanceof BigByteBuffer rhs)
-			return Arrays.equals(buffers(), rhs.buffers());
-		else
+		if (o instanceof BigByteBuffer rhs) {
+			if (remaining() != rhs.remaining())
+				return false;
+			else {
+				// TODO: optimize this
+				return buffer.equals(rhs.smallSlice(rhs.position(), rhs.limit()));
+			}
+		} else
 			return false;
 	}
 }

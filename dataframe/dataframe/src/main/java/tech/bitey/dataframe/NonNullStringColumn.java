@@ -49,7 +49,8 @@ final class NonNullStringColumn extends NonNullVarLenColumn<String, StringColumn
 	}
 
 	private static boolean checkIsAscii(BigByteBuffer elements) {
-		for (long i = 0; i < elements.limit(); i++)
+		// TODO: optimize this
+		for (long i = elements.position(); i < elements.limit(); i++)
 			if (elements.get(i) < 0)
 				return false;
 
