@@ -214,6 +214,17 @@ public interface FloatColumn extends Column<Float> {
 	}
 
 	/**
+	 * Returns a new {@code FloatColumn} containing the specified elements.
+	 * 
+	 * @param elements the elements to be included in the new column
+	 * 
+	 * @return a new {@code FloatColumn} containing the specified elements.
+	 */
+	public static FloatColumn of(float[] elements) {
+		return builder().addAll(elements).build();
+	}
+
+	/**
 	 * Collects a stream of {@code Floats} into a new {@code FloatColumn} with the
 	 * specified characteristic.
 	 * 

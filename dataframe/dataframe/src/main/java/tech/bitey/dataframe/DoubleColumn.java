@@ -226,6 +226,17 @@ public interface DoubleColumn extends Column<Double> {
 	}
 
 	/**
+	 * Returns a new {@code DoubleColumn} containing the specified elements.
+	 * 
+	 * @param elements the elements to be included in the new column
+	 * 
+	 * @return a new {@code DoubleColumn} containing the specified elements.
+	 */
+	public static DoubleColumn of(double[] elements) {
+		return builder().addAll(elements).build();
+	}
+
+	/**
 	 * Collects a stream of {@code Doubles} into a new {@code DoubleColumn} with the
 	 * specified characteristic.
 	 * 

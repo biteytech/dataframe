@@ -215,6 +215,17 @@ public interface LongColumn extends Column<Long> {
 	}
 
 	/**
+	 * Returns a new {@code LongColumn} containing the specified elements.
+	 * 
+	 * @param elements the elements to be included in the new column
+	 * 
+	 * @return a new {@code LongColumn} containing the specified elements.
+	 */
+	public static LongColumn of(long[] elements) {
+		return builder().addAll(elements).build();
+	}
+
+	/**
 	 * Collects a stream of {@code Longs} into a new {@code LongColumn} with the
 	 * specified characteristic.
 	 * 

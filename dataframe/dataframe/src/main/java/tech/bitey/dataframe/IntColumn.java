@@ -214,6 +214,17 @@ public interface IntColumn extends Column<Integer> {
 	}
 
 	/**
+	 * Returns a new {@code IntColumn} containing the specified elements.
+	 * 
+	 * @param elements the elements to be included in the new column
+	 * 
+	 * @return a new {@code IntColumn} containing the specified elements.
+	 */
+	public static IntColumn of(int[] elements) {
+		return builder().addAll(elements).build();
+	}
+
+	/**
 	 * Collects a stream of {@code Integers} into a new {@code IntColumn} with the
 	 * specified characteristic.
 	 * 

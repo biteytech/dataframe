@@ -200,6 +200,17 @@ public interface ByteColumn extends Column<Byte> {
 	}
 
 	/**
+	 * Returns a new {@code ByteColumn} containing the specified elements.
+	 * 
+	 * @param elements the elements to be included in the new column
+	 * 
+	 * @return a new {@code ByteColumn} containing the specified elements.
+	 */
+	public static ByteColumn of(byte[] elements) {
+		return builder().addAll(elements).build();
+	}
+
+	/**
 	 * Collects a stream of {@code Bytes} into a new {@code ByteColumn} with the
 	 * specified characteristic.
 	 * 

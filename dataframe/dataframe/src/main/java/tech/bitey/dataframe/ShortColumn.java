@@ -203,6 +203,17 @@ public interface ShortColumn extends Column<Short> {
 	}
 
 	/**
+	 * Returns a new {@code ShortColumn} containing the specified elements.
+	 * 
+	 * @param elements the elements to be included in the new column
+	 * 
+	 * @return a new {@code ShortColumn} containing the specified elements.
+	 */
+	public static ShortColumn of(short[] elements) {
+		return builder().addAll(elements).build();
+	}
+
+	/**
 	 * Collects a stream of {@code Shorts} into a new {@code ShortColumn} with the
 	 * specified characteristic.
 	 * 
