@@ -19,13 +19,14 @@ package tech.bitey.dataframe;
 import java.util.Spliterator;
 
 import tech.bitey.bufferstuff.BigByteBuffer;
+import tech.bitey.bufferstuff.ResizableBigByteBuffer;
 
 @SuppressWarnings("unchecked")
 abstract class VarLenColumnBuilder<E extends Comparable<? super E>, C extends Column<E>, B extends VarLenColumnBuilder<E, C, B>>
 		extends AbstractColumnBuilder<E, C, B> {
 
-	final IntColumnBuilder pointers = new IntColumnBuilder(Spliterator.NONNULL);
-	final ByteColumnBuilder elements = new ByteColumnBuilder(Spliterator.NONNULL);
+	final LongColumnBuilder pointers = new LongColumnBuilder(Spliterator.NONNULL);
+	final ResizableBigByteBuffer elements = new ResizableBigByteBuffer();
 
 	final VarLenPacker<E> packer;
 
@@ -81,7 +82,7 @@ abstract class VarLenColumnBuilder<E extends Comparable<? super E>, C extends Co
 	@Override
 	void append0(B tail) {
 
-		int offset = elements.size();
+		long offset = elements.size();
 		int begin = pointers.size();
 		int end = begin + tail.pointers.size();
 
@@ -100,9 +101,8 @@ abstract class VarLenColumnBuilder<E extends Comparable<? super E>, C extends Co
 	@Override
 	C buildNonNullColumn(int characteristics) {
 
-		NonNullIntColumn pointers = (NonNullIntColumn) this.pointers.build();
-		NonNullByteColumn elements = (NonNullByteColumn) this.elements.build();
+		NonNullLongColumn pointers = (NonNullLongColumn) this.pointers.build();
 
-		return construct(elements.buffer, pointers.buffer, characteristics, pointers.size());
+		return construct(elements.trim(), pointers.buffer, characteristics, pointers.size());
 	}
 }

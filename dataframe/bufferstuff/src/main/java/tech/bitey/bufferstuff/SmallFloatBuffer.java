@@ -220,4 +220,9 @@ public final class SmallFloatBuffer extends SmallBuffer {
 		return new SmallFloatBuffer(buffer.slice());
 	}
 
+	@Override
+	public String toString() {
+		return "[pos=%d lim=%d cap=%d]".formatted(buffer.position(), buffer.limit(), buffer.capacity());
+	}
+
 }

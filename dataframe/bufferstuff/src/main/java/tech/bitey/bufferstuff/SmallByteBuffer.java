@@ -220,4 +220,9 @@ public final class SmallByteBuffer extends SmallBuffer {
 		return new SmallByteBuffer(buffer.slice());
 	}
 
+	@Override
+	public String toString() {
+		return "[pos=%d lim=%d cap=%d]".formatted(buffer.position(), buffer.limit(), buffer.capacity());
+	}
+
 }

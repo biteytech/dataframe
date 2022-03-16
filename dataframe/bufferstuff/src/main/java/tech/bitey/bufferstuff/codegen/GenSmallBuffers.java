@@ -248,6 +248,11 @@ public class GenSmallBuffers implements GenBufferCode {
 					return new SmallBUFFER_TYPEBuffer(buffer.slice());
 				}
 
+				@Override
+				public String toString() {
+					return "[pos=%d lim=%d cap=%d]".formatted(buffer.position(), buffer.limit(), buffer.capacity());
+				}
+
 			}
 			""";
 }
