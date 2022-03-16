@@ -1,6 +1,6 @@
 package tech.bitey.bufferstuff;
 
-abstract class AbstractBigByteBuffer implements BigByteBuffer {
+sealed abstract class AbstractBigByteBuffer implements BigByteBuffer permits SimpleBigByteBuffer,CompoundBigByteBuffer {
 
 	@Override
 	public String toString() {

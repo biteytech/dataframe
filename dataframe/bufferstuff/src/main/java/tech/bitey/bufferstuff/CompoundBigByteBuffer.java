@@ -28,7 +28,7 @@ import java.nio.IntBuffer;
 import java.nio.LongBuffer;
 import java.nio.ShortBuffer;
 
-final class CompoundBigByteBuffer extends AbstractBigByteBuffer implements BigByteBuffer {
+final class CompoundBigByteBuffer extends AbstractBigByteBuffer {
 
 	static final int CHUNK_BITS = 30;
 	static final int CHUNK_SIZE = 1 << CHUNK_BITS;

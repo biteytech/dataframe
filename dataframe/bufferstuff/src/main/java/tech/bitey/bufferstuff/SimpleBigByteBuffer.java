@@ -32,7 +32,7 @@ import java.nio.ShortBuffer;
  * 
  * @author biteytech@protonmail.com
  */
-final class SimpleBigByteBuffer extends AbstractBigByteBuffer implements BigByteBuffer {
+final class SimpleBigByteBuffer extends AbstractBigByteBuffer {
 
 	private final ByteBuffer buffer;
 

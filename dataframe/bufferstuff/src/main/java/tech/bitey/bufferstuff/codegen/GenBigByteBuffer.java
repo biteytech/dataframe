@@ -206,7 +206,7 @@ public class GenBigByteBuffer implements GenBufferCode {
 			 *
 			 * biteytech@protonmail.com, adapted from {@link ByteBuffer}
 			 */
-			public interface BigByteBuffer {
+			public sealed interface BigByteBuffer permits AbstractBigByteBuffer {
 
 				/**
 				 * Returns the underlying {@link ByteBuffer buffers}.
