@@ -49,7 +49,6 @@ import tech.bitey.dataframe.Column;
 import tech.bitey.dataframe.ColumnType;
 import tech.bitey.dataframe.Cursor;
 import tech.bitey.dataframe.DataFrame;
-import tech.bitey.dataframe.DataFrameConfig;
 import tech.bitey.dataframe.DataFrameFactory;
 import tech.bitey.dataframe.DateColumn;
 import tech.bitey.dataframe.DateTimeColumn;
@@ -233,8 +232,7 @@ public class TestDataFrame {
 			file.deleteOnExit();
 
 			expected.writeCsvTo(file);
-			DataFrame actual = DataFrameFactory.readCsvFrom(file,
-					ReadCsvConfig.builder().columnTypes(expected.columnTypes()).build());
+			DataFrame actual = DataFrameFactory.readCsvFrom(file, new ReadCsvConfig(expected.columnTypes()));
 
 			Assertions.assertEquals(expected, actual, e.getKey() + ", read/write csv");
 		}
@@ -248,8 +246,7 @@ public class TestDataFrame {
 			file.deleteOnExit();
 			expected.writeCsvTo(file);
 
-			DataFrame actual = DataFrameFactory.readCsvFrom(file,
-					ReadCsvConfig.builder().columnTypes(ColumnType.STRING).build());
+			DataFrame actual = DataFrameFactory.readCsvFrom(file, new ReadCsvConfig(ColumnType.STRING));
 
 			Assertions.assertEquals(expected, actual, "null vs empty, read/write csv");
 		}
@@ -360,8 +357,7 @@ public class TestDataFrame {
 					expected.writeTo(ps, WriteToDbConfig.DEFAULT_CONFIG);
 
 					ResultSet rs = stmt.executeQuery("select * from " + tableName);
-					DataFrame actual = DataFrameFactory.readFrom(rs,
-							ReadFromDbConfig.builder().fromRsLogic(fromRsLogic).build());
+					DataFrame actual = DataFrameFactory.readFrom(rs, new ReadFromDbConfig(fromRsLogic));
 					Assertions.assertEquals(expected, actual, e.getKey() + ", read/write db");
 				}
 			}
@@ -375,7 +371,7 @@ public class TestDataFrame {
 		Column<?>[] columns = new Column<?>[] { IntColumn.of(1), StringColumn.of("ONE"),
 				DecimalColumn.of(BigDecimal.ONE) };
 
-		DataFrame df = DataFrameConfig.builder().columnNames(columnNames).columns(columns).build().create();
+		DataFrame df = DataFrameFactory.create(columns, columnNames);
 		ResultSetMetaData rsmd = df.asResultSet().getMetaData();
 
 		Assertions.assertEquals(df.columnCount(), rsmd.getColumnCount(), "mismatched column count");
@@ -619,11 +615,10 @@ public class TestDataFrame {
 		IntColumn b = IntColumn.of(3, 2, 1, 1, 2, 2, 1, 1, 2);
 		IntColumn c = IntColumn.of(9, 2, 7, 3, 4, 6, 1, 5, 8);
 
-		DataFrame unsorted = DataFrameConfig.builder().columns(a, b, c).columnNames("C1", "C2", "C3").build().create();
+		DataFrame unsorted = DataFrameFactory.of("C1", a, "C2", b, "C3", c);
 
-		DataFrame expected = DataFrameConfig.builder()
-				.columns(a.toSorted(), IntColumn.of(1, 2, 1, 2, 1, 2, 1, 2, 3), c.toSorted())
-				.columnNames("C1", "C2", "C3").build().create();
+		DataFrame expected = DataFrameFactory.of("C1", a.toSorted(), "C2", IntColumn.of(1, 2, 1, 2, 1, 2, 1, 2, 3),
+				"C3", c.toSorted());
 
 		DataFrame actual = unsorted.sort("C1", "C2");
 
@@ -637,28 +632,25 @@ public class TestDataFrame {
 		IntColumn b = IntColumn.of(3, 2, 1, 1, 2, 2, 1, 1, 2);
 		IntColumn c = IntColumn.of(9, 2, 7, 3, 4, 6, 1, 5, 8);
 
-		DataFrame data = DataFrameConfig.builder().columns(a, b, c).columnNames("C1", "C2", "C3").build().create();
+		DataFrame data = DataFrameFactory.of("C1", a, "C2", b, "C3", c);
 
 		// C1, sum(C2) group by C1
 		Assertions.assertEquals(
-				DataFrameConfig.builder().columnNames("C1", "SUM")
-						.columns(StringColumn.of("A", "B", "C", "D"), IntColumn.of(3, 3, 3, 6)).build().create(),
-				data.groupBy(GroupByConfig.builder().groupByNames("C1").derivedNames("SUM").derivedTypes(ColumnType.INT)
-						.reductions(s -> s.mapToInt(r -> r.getInt("C2")).sum()).build()));
+				DataFrameFactory.of("C1", StringColumn.of("A", "B", "C", "D"), "SUM", IntColumn.of(3, 3, 3, 6)),
+				data.groupBy(new GroupByConfig(List.of("C1"), List.of("SUM"), List.of(ColumnType.INT),
+						List.of(s -> s.mapToInt(r -> r.getInt("C2")).sum()))));
 
 		// C1 group by C1
-		Assertions.assertEquals(DataFrameConfig.builder().columnNames("C1").columns(StringColumn.of("A", "B", "C", "D"))
-				.build().create(), data.groupBy(GroupByConfig.builder().groupByNames("C1").build()));
+		Assertions.assertEquals(DataFrameFactory.of("C1", StringColumn.of("A", "B", "C", "D")),
+				data.groupBy(new GroupByConfig(List.of("C1"))));
 
 		// C1, C2, C3 group by C1, C2, C3
-		Assertions.assertEquals(data.sort("C1", "C2"),
-				data.groupBy(GroupByConfig.builder().groupByNames("C1", "C2", "C3").build()));
+		Assertions.assertEquals(data.sort("C1", "C2"), data.groupBy(new GroupByConfig(List.of("C1", "C2", "C3"))));
 
 		// C1, C2, max(C3) group by C1, C2
 		Assertions.assertEquals(data.sort("C1", "C2"),
-				data.groupBy(
-						GroupByConfig.builder().groupByNames("C1", "C2").derivedNames("C3").derivedTypes(ColumnType.INT)
-								.reductions(s -> s.mapToInt(r -> r.getInt("C3")).max().getAsInt()).build()));
+				data.groupBy(new GroupByConfig(List.of("C1", "C2"), List.of("C3"), List.of(ColumnType.INT),
+						List.of(s -> s.mapToInt(r -> r.getInt("C3")).max().getAsInt()))));
 	}
 
 	@Test
@@ -669,8 +661,7 @@ public class TestDataFrame {
 		DateTimeColumn c = b.toDateTimeColumn(i -> i == null ? null : LocalDateTime.now().plusDays(i));
 		DecimalColumn d = b.toDecimalColumn(i -> i == null ? null : BigDecimal.valueOf(i));
 
-		ResultSet rs = DataFrameConfig.builder().columns(a, b, c, d).columnNames("A", "B", "C", "D").build().create()
-				.asResultSet();
+		ResultSet rs = DataFrameFactory.of("A", a, "B", b, "C", c, "D", d).asResultSet();
 
 		try {
 			rs.getString(1);
@@ -724,18 +715,17 @@ public class TestDataFrame {
 	@Test
 	public void parseCsv() throws Exception {
 
-		DataFrame expected = DataFrameConfig.builder().columnNames("A", "B")
-				.columns(StringColumn.of("a", "b", "c"), IntColumn.of(1, 2, null)).build().create();
+		DataFrame expected = DataFrameFactory.of("A", StringColumn.of("a", "b", "c"), "B", IntColumn.of(1, 2, null));
 		DataFrame actual;
 
 		String vanilla = "A,B\na,\"1\"\nb,2\nc,";
 		actual = DataFrameFactory.readCsvFrom(new ByteArrayInputStream(vanilla.getBytes()),
-				ReadCsvConfig.builder().columnTypes(ColumnType.STRING, ColumnType.INT).build());
+				new ReadCsvConfig(ColumnType.STRING, ColumnType.INT));
 		Assertions.assertEquals(expected, actual);
 
 		String fancy = "A\tB\r\na\t\"1\"\r\nb\t2\r\nc\t(null)";
-		actual = DataFrameFactory.readCsvFrom(new ByteArrayInputStream(fancy.getBytes()), ReadCsvConfig.builder()
-				.columnTypes(ColumnType.STRING, ColumnType.INT).delim('\t').nullValue("(null)").build());
+		actual = DataFrameFactory.readCsvFrom(new ByteArrayInputStream(fancy.getBytes()),
+				new ReadCsvConfig(ColumnType.STRING, ColumnType.INT).withDelim('\t').withNullValue("(null)"));
 		Assertions.assertEquals(expected, actual);
 	}
 
@@ -748,21 +738,18 @@ public class TestDataFrame {
 
 		// include key column
 		{
-			DataFrame expected = DataFrameConfig.builder().columnNames("A", "B").keyColumnName("A").columns(a, b)
-					.build().create();
+			DataFrame expected = DataFrameFactory.of("A", a, "B", b).withKeyColumn("A");
 
-			DataFrame actual = DataFrameConfig.builder().columnNames("A", "B", "C").keyColumnName("A").columns(a, b, c)
-					.build().create().selectColumns("A", "B");
+			DataFrame actual = DataFrameFactory.of("A", a, "B", b, "C", c).withKeyColumn("A").selectColumns("A", "B");
 
 			Assertions.assertEquals(expected, actual);
 		}
 
 		// exclude key column
 		{
-			DataFrame expected = DataFrameConfig.builder().columnNames("B", "C").columns(b, c).build().create();
+			DataFrame expected = DataFrameFactory.of("B", b, "C", c);
 
-			DataFrame actual = DataFrameConfig.builder().columnNames("A", "B", "C").keyColumnName("A").columns(a, b, c)
-					.build().create().selectColumns("B", "C");
+			DataFrame actual = DataFrameFactory.of("A", a, "B", b, "C", c).withKeyColumn("A").selectColumns("B", "C");
 
 			Assertions.assertEquals(expected, actual);
 		}

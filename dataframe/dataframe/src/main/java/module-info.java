@@ -5,5 +5,4 @@ module tech.bitey.dataframe {
 
 	requires tech.bitey.bufferstuff;
 	requires transitive java.sql;
-	requires org.joda.beans;
 }

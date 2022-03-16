@@ -1096,16 +1096,16 @@ final class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 	public DataFrame groupBy(GroupByConfig config) {
 
 		// sort by 'group by' columns
-		DataFrame dfSelect = selectColumns(config.getGroupByNames());
+		DataFrame dfSelect = selectColumns(config.groupByNames());
 		IntColumn indices = sortIndices(dfSelect);
 
 		// set up new column builders
 		final int dfScc = dfSelect.columnCount();
-		ColumnBuilder[] builders = new ColumnBuilder[dfScc + config.getDerivedNames().size()];
+		ColumnBuilder[] builders = new ColumnBuilder[dfScc + config.derivedNames().size()];
 		for (int i = 0; i < dfScc; i++)
 			builders[i] = dfSelect.column(i).getType().builder();
 		for (int i = dfScc; i < builders.length; i++)
-			builders[i] = config.getDerivedTypes().get(i - dfScc).builder();
+			builders[i] = config.derivedTypes().get(i - dfScc).builder();
 
 		// loop over groups
 		for (int begin = 0; begin < size();) {
@@ -1118,8 +1118,8 @@ final class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 				builders[i].add(group.get(i));
 
 			// apply reductions and set derived values
-			for (int i = 0; i < config.getReductions().size(); i++) {
-				GroupByReduction reduction = config.getReductions().get(i);
+			for (int i = 0; i < config.reductions().size(); i++) {
+				GroupByReduction reduction = config.reductions().get(i);
 				try (Stream<Row> rows = indices.subColumn(begin, end).intStream().mapToObj(this::get)) {
 					builders[i + dfScc].add(reduction.reduce(rows));
 				}
@@ -1136,7 +1136,7 @@ final class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 			columns[i] = builders[i].build();
 		}
 		for (int i = dfScc; i < builders.length; i++) {
-			columnNames[i] = config.getDerivedNames().get(i - dfScc);
+			columnNames[i] = config.derivedNames().get(i - dfScc);
 			columns[i] = builders[i].build();
 		}
 

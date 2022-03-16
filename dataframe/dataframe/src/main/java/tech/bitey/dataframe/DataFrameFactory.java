@@ -324,4 +324,249 @@ public enum DataFrameFactory {
 	public static DataFrame readFrom(ResultSet rs, ReadFromDbConfig config) throws SQLException {
 		return config.read(rs);
 	}
+
+	/**
+	 * Returns a dataframe with a single column
+	 * 
+	 * @param name1   - the first column name
+	 * @param column1 - the first column
+	 * 
+	 * @return a dataframe with a single column
+	 */
+	public static DataFrame of(String name1, Column<?> column1) {
+		return create(new Column<?>[] { column1 }, new String[] { name1 });
+	}
+
+	/**
+	 * Returns a dataframe with two columns
+	 *
+	 * @param name1   - the first column name
+	 * @param column1 - the first column
+	 * @param name2   - the second column name
+	 * @param column2 - the second column
+	 *
+	 * 
+	 * @return a dataframe with two columns
+	 */
+	public static DataFrame of(String name1, Column<?> column1, String name2, Column<?> column2) {
+		return create(new Column<?>[] { column1, column2 }, new String[] { name1, name2 });
+	}
+
+	/**
+	 * Returns a dataframe with three columns
+	 *
+	 * @param name1   - the first column name
+	 * @param column1 - the first column
+	 * @param name2   - the second column name
+	 * @param column2 - the second column
+	 * @param name3   - the third column name
+	 * @param column3 - the third column
+	 *
+	 * 
+	 * @return a dataframe with three columns
+	 */
+	public static DataFrame of(String name1, Column<?> column1, String name2, Column<?> column2, String name3,
+			Column<?> column3) {
+		return create(new Column<?>[] { column1, column2, column3 }, new String[] { name1, name2, name3 });
+	}
+
+	/**
+	 * Returns a dataframe with four columns
+	 *
+	 * @param name1   - the first column name
+	 * @param column1 - the first column
+	 * @param name2   - the second column name
+	 * @param column2 - the second column
+	 * @param name3   - the third column name
+	 * @param column3 - the third column
+	 * @param name4   - the fourth column name
+	 * @param column4 - the fourth column
+	 *
+	 * 
+	 * @return a dataframe with four columns
+	 */
+	public static DataFrame of(String name1, Column<?> column1, String name2, Column<?> column2, String name3,
+			Column<?> column3, String name4, Column<?> column4) {
+		return create(new Column<?>[] { column1, column2, column3, column4 },
+				new String[] { name1, name2, name3, name4 });
+	}
+
+	/**
+	 * Returns a dataframe with five columns
+	 *
+	 * @param name1   - the first column name
+	 * @param column1 - the first column
+	 * @param name2   - the second column name
+	 * @param column2 - the second column
+	 * @param name3   - the third column name
+	 * @param column3 - the third column
+	 * @param name4   - the fourth column name
+	 * @param column4 - the fourth column
+	 * @param name5   - the fifth column name
+	 * @param column5 - the fifth column
+	 *
+	 * 
+	 * @return a dataframe with five columns
+	 */
+	public static DataFrame of(String name1, Column<?> column1, String name2, Column<?> column2, String name3,
+			Column<?> column3, String name4, Column<?> column4, String name5, Column<?> column5) {
+		return create(new Column<?>[] { column1, column2, column3, column4, column5 },
+				new String[] { name1, name2, name3, name4, name5 });
+	}
+
+	/**
+	 * Returns a dataframe with six columns
+	 *
+	 * @param name1   - the first column name
+	 * @param column1 - the first column
+	 * @param name2   - the second column name
+	 * @param column2 - the second column
+	 * @param name3   - the third column name
+	 * @param column3 - the third column
+	 * @param name4   - the fourth column name
+	 * @param column4 - the fourth column
+	 * @param name5   - the fifth column name
+	 * @param column5 - the fifth column
+	 * @param name6   - the sixth column name
+	 * @param column6 - the sixth column
+	 *
+	 * 
+	 * @return a dataframe with six columns
+	 */
+	public static DataFrame of(String name1, Column<?> column1, String name2, Column<?> column2, String name3,
+			Column<?> column3, String name4, Column<?> column4, String name5, Column<?> column5, String name6,
+			Column<?> column6) {
+		return create(new Column<?>[] { column1, column2, column3, column4, column5, column6 },
+				new String[] { name1, name2, name3, name4, name5, name6 });
+	}
+
+	/**
+	 * Returns a dataframe with seven columns
+	 *
+	 * @param name1   - the first column name
+	 * @param column1 - the first column
+	 * @param name2   - the second column name
+	 * @param column2 - the second column
+	 * @param name3   - the third column name
+	 * @param column3 - the third column
+	 * @param name4   - the fourth column name
+	 * @param column4 - the fourth column
+	 * @param name5   - the fifth column name
+	 * @param column5 - the fifth column
+	 * @param name6   - the sixth column name
+	 * @param column6 - the sixth column
+	 * @param name7   - the seventh column name
+	 * @param column7 - the seventh column
+	 *
+	 * 
+	 * @return a dataframe with seven columns
+	 */
+	public static DataFrame of(String name1, Column<?> column1, String name2, Column<?> column2, String name3,
+			Column<?> column3, String name4, Column<?> column4, String name5, Column<?> column5, String name6,
+			Column<?> column6, String name7, Column<?> column7) {
+		return create(new Column<?>[] { column1, column2, column3, column4, column5, column6, column7 },
+				new String[] { name1, name2, name3, name4, name5, name6, name7 });
+	}
+
+	/**
+	 * Returns a dataframe with eight columns
+	 *
+	 * @param name1   - the first column name
+	 * @param column1 - the first column
+	 * @param name2   - the second column name
+	 * @param column2 - the second column
+	 * @param name3   - the third column name
+	 * @param column3 - the third column
+	 * @param name4   - the fourth column name
+	 * @param column4 - the fourth column
+	 * @param name5   - the fifth column name
+	 * @param column5 - the fifth column
+	 * @param name6   - the sixth column name
+	 * @param column6 - the sixth column
+	 * @param name7   - the seventh column name
+	 * @param column7 - the seventh column
+	 * @param name8   - the eighth column name
+	 * @param column8 - the eighth column
+	 *
+	 * 
+	 * @return a dataframe with eight columns
+	 */
+	public static DataFrame of(String name1, Column<?> column1, String name2, Column<?> column2, String name3,
+			Column<?> column3, String name4, Column<?> column4, String name5, Column<?> column5, String name6,
+			Column<?> column6, String name7, Column<?> column7, String name8, Column<?> column8) {
+		return create(new Column<?>[] { column1, column2, column3, column4, column5, column6, column7, column8 },
+				new String[] { name1, name2, name3, name4, name5, name6, name7, name8 });
+	}
+
+	/**
+	 * Returns a dataframe with nine columns
+	 *
+	 * @param name1   - the first column name
+	 * @param column1 - the first column
+	 * @param name2   - the second column name
+	 * @param column2 - the second column
+	 * @param name3   - the third column name
+	 * @param column3 - the third column
+	 * @param name4   - the fourth column name
+	 * @param column4 - the fourth column
+	 * @param name5   - the fifth column name
+	 * @param column5 - the fifth column
+	 * @param name6   - the sixth column name
+	 * @param column6 - the sixth column
+	 * @param name7   - the seventh column name
+	 * @param column7 - the seventh column
+	 * @param name8   - the eighth column name
+	 * @param column8 - the eighth column
+	 * @param name9   - the ninth column name
+	 * @param column9 - the ninth column
+	 *
+	 * 
+	 * @return a dataframe with nine columns
+	 */
+	public static DataFrame of(String name1, Column<?> column1, String name2, Column<?> column2, String name3,
+			Column<?> column3, String name4, Column<?> column4, String name5, Column<?> column5, String name6,
+			Column<?> column6, String name7, Column<?> column7, String name8, Column<?> column8, String name9,
+			Column<?> column9) {
+		return create(
+				new Column<?>[] { column1, column2, column3, column4, column5, column6, column7, column8, column9 },
+				new String[] { name1, name2, name3, name4, name5, name6, name7, name8, name9 });
+	}
+
+	/**
+	 * Returns a dataframe with ten columns
+	 *
+	 * @param name1    - the first column name
+	 * @param column1  - the first column
+	 * @param name2    - the second column name
+	 * @param column2  - the second column
+	 * @param name3    - the third column name
+	 * @param column3  - the third column
+	 * @param name4    - the fourth column name
+	 * @param column4  - the fourth column
+	 * @param name5    - the fifth column name
+	 * @param column5  - the fifth column
+	 * @param name6    - the sixth column name
+	 * @param column6  - the sixth column
+	 * @param name7    - the seventh column name
+	 * @param column7  - the seventh column
+	 * @param name8    - the eighth column name
+	 * @param column8  - the eighth column
+	 * @param name9    - the ninth column name
+	 * @param column9  - the ninth column
+	 * @param name10   - the tenth column name
+	 * @param column10 - the tenth column
+	 *
+	 * 
+	 * @return a dataframe with ten columns
+	 */
+	public static DataFrame of(String name1, Column<?> column1, String name2, Column<?> column2, String name3,
+			Column<?> column3, String name4, Column<?> column4, String name5, Column<?> column5, String name6,
+			Column<?> column6, String name7, Column<?> column7, String name8, Column<?> column8, String name9,
+			Column<?> column9, String name10, Column<?> column10) {
+		return create(
+				new Column<?>[] { column1, column2, column3, column4, column5, column6, column7, column8, column9,
+						column10 },
+				new String[] { name1, name2, name3, name4, name5, name6, name7, name8, name9, name10 });
+	}
+
 }

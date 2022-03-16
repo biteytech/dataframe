@@ -40,7 +40,6 @@ import tech.bitey.dataframe.Column;
 import tech.bitey.dataframe.ColumnType;
 import tech.bitey.dataframe.Cursor;
 import tech.bitey.dataframe.DataFrame;
-import tech.bitey.dataframe.DataFrameConfig;
 import tech.bitey.dataframe.DataFrameFactory;
 import tech.bitey.dataframe.DateColumn;
 import tech.bitey.dataframe.DoubleColumn;
@@ -156,8 +155,8 @@ public class SampleUsages {
 		DataFrame df = DataFrameFactory.create(new Column<?>[] { c1, c2, c3, c4, c5 },
 				new String[] { "ORDER_ID", "ORDER_DATE", "SALESPERSON", "UNITS", "UNIT_COST" });
 
-		DataFrame df0 = DataFrameConfig.builder().columns(c1, c2, c3, c4, c5)
-				.columnNames("ORDER_ID", "ORDER_DATE", "SALESPERSON", "UNITS", "UNIT_COST").build().create();
+		DataFrame df0 = DataFrameFactory.of("ORDER_ID", c1, "ORDER_DATE", c2, "SALESPERSON", c3, "UNITS", c4,
+				"UNIT_COST", c5);
 
 		Assertions.assertEquals(df, df0);
 
@@ -173,9 +172,11 @@ public class SampleUsages {
 		Files.write(file.toPath(), csv.toString().getBytes());
 
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("M/d/yyyy");
-		ReadCsvConfig config = ReadCsvConfig.builder()
-				.columnTypes(ColumnType.INT, ColumnType.DATE, ColumnType.STRING, ColumnType.INT, ColumnType.DOUBLE)
-				.columnParsers(null, text -> LocalDate.parse(text, formatter), null, null, null).delim('\t').build();
+		ReadCsvConfig config = new ReadCsvConfig(ColumnType.INT, ColumnType.DATE, ColumnType.STRING, ColumnType.INT,
+				ColumnType.DOUBLE)
+						.withColumnParsers(
+								Arrays.asList(null, text -> LocalDate.parse(text, formatter), null, null, null))
+						.withDelim('\t');
 
 		DataFrame df2 = DataFrameFactory.readCsvFrom(file, config);
 
@@ -195,11 +196,9 @@ public class SampleUsages {
 
 			ResultSet rs = stmt.executeQuery("select * from EX4");
 			DataFrame df3 = DataFrameFactory.readFrom(rs,
-					ReadFromDbConfig.builder()
-							.fromRsLogic(IntFromResultSet.INT_FROM_INT, DateFromResultSet.DATE_FROM_ISOSTRING,
-									StringFromResultSet.STRING_FROM_STRING, IntFromResultSet.INT_FROM_INT,
-									DoubleFromResultSet.DOUBLE_FROM_DOUBLE)
-							.build());
+					new ReadFromDbConfig(List.of(IntFromResultSet.INT_FROM_INT, DateFromResultSet.DATE_FROM_ISOSTRING,
+							StringFromResultSet.STRING_FROM_STRING, IntFromResultSet.INT_FROM_INT,
+							DoubleFromResultSet.DOUBLE_FROM_DOUBLE)));
 
 			Assertions.assertEquals(df, df3);
 		}
