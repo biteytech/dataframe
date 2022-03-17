@@ -373,7 +373,7 @@ public interface StringColumn extends Column<String> {
 	 * 
 	 * @return either this column, or a new {@code NormalStringColumn}
 	 */
-	default Column<String> normalize(double threshold) {
+	default StringColumn normalize(double threshold) {
 
 		Pr.checkArgument(threshold > 0 && threshold <= 1, "threshold must be > 0 and <= 1");
 
@@ -395,6 +395,7 @@ public interface StringColumn extends Column<String> {
 				return this;
 		}
 
+		thisLength += nonNullSize * 8; // pointers
 		long normalLength = nonNullSize + distinct.values().stream().mapToLong(i -> i).sum();
 
 		if (normalLength < thisLength * threshold)

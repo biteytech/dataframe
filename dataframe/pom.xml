@@ -5,7 +5,7 @@
 
 	<groupId>tech.bitey</groupId>
 	<artifactId>dataframe-parent</artifactId>
-	<version>1.2.0</version>
+	<version>1.2.1</version>
 	<packaging>pom</packaging>
 
 	<name>${project.groupId}:${project.artifactId}</name>
@@ -36,8 +36,7 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<dataframe.version>1.2.0</dataframe.version>
-		<joda.beans.config>jdk6</joda.beans.config>
+		<dataframe.version>1.2.1</dataframe.version>
 	</properties>
 
 	<build>
@@ -108,36 +107,6 @@
 			</plugin>
 		</plugins>
 	</build>
-
-	<profiles>
-		<profile>
-			<id>joda-beans-eclipse</id>
-			<activation>
-				<property>
-					<name>eclipse.buildId</name>
-				</property>
-			</activation>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.joda</groupId>
-						<artifactId>joda-beans-maven-plugin</artifactId>
-						<executions>
-							<execution>
-								<phase>generate-sources</phase>
-								<goals>
-									<goal>generate-no-resolve</goal>
-								</goals>
-								<configuration>
-									<eclipse>true</eclipse>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-	</profiles>
 
 	<distributionManagement>
 		<snapshotRepository>

@@ -16,6 +16,7 @@
 
 package tech.bitey.dataframe.test;
 
+import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.math.BigDecimal;
@@ -34,6 +35,8 @@ import org.junit.jupiter.api.Test;
 import tech.bitey.dataframe.BooleanColumn;
 import tech.bitey.dataframe.ByteColumn;
 import tech.bitey.dataframe.Column;
+import tech.bitey.dataframe.DataFrame;
+import tech.bitey.dataframe.DataFrameFactory;
 import tech.bitey.dataframe.DateColumn;
 import tech.bitey.dataframe.DateTimeColumn;
 import tech.bitey.dataframe.DecimalColumn;
@@ -41,6 +44,8 @@ import tech.bitey.dataframe.DoubleColumn;
 import tech.bitey.dataframe.FloatColumn;
 import tech.bitey.dataframe.IntColumn;
 import tech.bitey.dataframe.LongColumn;
+import tech.bitey.dataframe.NormalStringColumn;
+import tech.bitey.dataframe.Row;
 import tech.bitey.dataframe.ShortColumn;
 import tech.bitey.dataframe.StringColumn;
 
@@ -181,6 +186,26 @@ public class TestStringColumn extends TestColumn<String> {
 			Collections.shuffle(unsorted, rand);
 			unsorted.add(unsorted.get(0));
 			assertEquals(expected, StringColumn.of(unsorted).toDistinct());
+		}
+	}
+
+	@Test
+	public void testNormalize() {
+
+		StringColumn vanilla = StringColumn.of("a", "b", "a", "b");
+		assertTrue(!(vanilla instanceof NormalStringColumn));
+
+		StringColumn normal = vanilla.normalize(0.2);
+		assertTrue(normal instanceof NormalStringColumn);
+
+		assertEquals(vanilla, normal);
+
+		DataFrame df = DataFrameFactory.of("S", vanilla, "NS", normal);
+		int i = 0;
+		for (Row row : df) {
+			assertEquals(row.getString(0), row.getString(1));
+			assertEquals(df.get(i, 0), df.getString(i, 1));
+			i++;
 		}
 	}
 

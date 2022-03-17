@@ -37,7 +37,7 @@ import java.util.stream.Collector;
  * 
  * @author biteytech@protonmail.com
  */
-public interface NormalStringColumn extends Column<String> {
+public interface NormalStringColumn extends StringColumn {
 
 	@Override
 	NormalStringColumn subColumn(int fromIndex, int toIndex);
@@ -95,6 +95,7 @@ public interface NormalStringColumn extends Column<String> {
 	 * @return a new column derived by testing each value with the specified
 	 *         predicate.
 	 */
+	@Override
 	default NormalStringColumn filter(Predicate<String> predicate) {
 		return filter(predicate, true);
 	}
@@ -151,6 +152,7 @@ public interface NormalStringColumn extends Column<String> {
 	 * 
 	 * @return A {@link BooleanColumn} parsed from this column.
 	 */
+	@Override
 	default BooleanColumn parseBoolean() {
 		return toBooleanColumn(ColumnType::parseBoolean);
 	}
@@ -164,6 +166,7 @@ public interface NormalStringColumn extends Column<String> {
 	 * 
 	 * @return A {@link DateColumn} parsed from this column.
 	 */
+	@Override
 	default DateColumn parseDate() {
 		return toDateColumn(ColumnType::parseDate);
 	}
@@ -177,6 +180,7 @@ public interface NormalStringColumn extends Column<String> {
 	 * 
 	 * @return A {@link DateColumn} parsed from this column.
 	 */
+	@Override
 	default DateColumn parseDate(DateTimeFormatter formatter) {
 		return toDateColumn(text -> LocalDate.parse(text, formatter));
 	}
@@ -190,6 +194,7 @@ public interface NormalStringColumn extends Column<String> {
 	 * 
 	 * @return A {@link DateTimeColumn} parsed from this column.
 	 */
+	@Override
 	default DateTimeColumn parseDateTime() {
 		return toDateTimeColumn(LocalDateTime::parse);
 	}
@@ -203,6 +208,7 @@ public interface NormalStringColumn extends Column<String> {
 	 * 
 	 * @return A {@link DateTimeColumn} parsed from this column.
 	 */
+	@Override
 	default DateTimeColumn parseDateTime(DateTimeFormatter formatter) {
 		return toDateTimeColumn(text -> LocalDateTime.parse(text, formatter));
 	}
@@ -216,6 +222,7 @@ public interface NormalStringColumn extends Column<String> {
 	 * 
 	 * @return A {@link DoubleColumn} parsed from this column.
 	 */
+	@Override
 	default DoubleColumn parseDouble() {
 		return toDoubleColumn(Double::parseDouble);
 	}
@@ -229,6 +236,7 @@ public interface NormalStringColumn extends Column<String> {
 	 * 
 	 * @return A {@link FloatColumn} parsed from this column.
 	 */
+	@Override
 	default FloatColumn parseFloat() {
 		return toFloatColumn(Float::parseFloat);
 	}
@@ -242,6 +250,7 @@ public interface NormalStringColumn extends Column<String> {
 	 * 
 	 * @return A {@link IntColumn} parsed from this column.
 	 */
+	@Override
 	default IntColumn parseInt() {
 		return toIntColumn(Integer::parseInt);
 	}
@@ -255,6 +264,7 @@ public interface NormalStringColumn extends Column<String> {
 	 * 
 	 * @return A {@link LongColumn} parsed from this column.
 	 */
+	@Override
 	default LongColumn parseLong() {
 		return toLongColumn(Long::parseLong);
 	}
@@ -268,6 +278,7 @@ public interface NormalStringColumn extends Column<String> {
 	 * 
 	 * @return A {@link ShortColumn} parsed from this column.
 	 */
+	@Override
 	default ShortColumn parseShort() {
 		return toShortColumn(Short::parseShort);
 	}
@@ -281,6 +292,7 @@ public interface NormalStringColumn extends Column<String> {
 	 * 
 	 * @return A {@link ByteColumn} parsed from this column.
 	 */
+	@Override
 	default ByteColumn parseByte() {
 		return toByteColumn(Byte::parseByte);
 	}
@@ -294,6 +306,7 @@ public interface NormalStringColumn extends Column<String> {
 	 * 
 	 * @return A {@link DecimalColumn} parsed from this column.
 	 */
+	@Override
 	default DecimalColumn parseDecimal() {
 		return toDecimalColumn(BigDecimal::new);
 	}
@@ -307,6 +320,7 @@ public interface NormalStringColumn extends Column<String> {
 	 * 
 	 * @return A {@link UuidColumn} parsed from this column.
 	 */
+	@Override
 	default UuidColumn parseUuid() {
 		return toUuidColumn(UUID::fromString);
 	}
@@ -314,5 +328,10 @@ public interface NormalStringColumn extends Column<String> {
 	@Override
 	default StringColumn toStringColumn() {
 		return toStringColumn(Function.identity());
+	}
+
+	@Override
+	default StringColumn normalize(double threshold) {
+		return this;
 	}
 }

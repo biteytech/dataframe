@@ -20,6 +20,8 @@ import static java.nio.ByteOrder.BIG_ENDIAN;
 import static java.nio.ByteOrder.LITTLE_ENDIAN;
 import static tech.bitey.bufferstuff.BufferUtils.readFully;
 import static tech.bitey.bufferstuff.BufferUtils.writeFully;
+import static tech.bitey.dataframe.ColumnType.NSTRING;
+import static tech.bitey.dataframe.ColumnType.STRING;
 import static tech.bitey.dataframe.Pr.checkArgument;
 import static tech.bitey.dataframe.Pr.checkElementIndex;
 import static tech.bitey.dataframe.Pr.checkPositionIndexes;
@@ -203,8 +205,7 @@ abstract class AbstractColumn<E extends Comparable<? super E>, I extends Column<
 	public boolean equals(Object o) {
 		if (o == this) {
 			return true;
-		} else if (o instanceof Column) {
-			AbstractColumn rhs = (AbstractColumn) o;
+		} else if (o instanceof AbstractColumn rhs && !mixedStringTypes(this, rhs)) {
 			if (getType() != rhs.getType() || size != rhs.size)
 				return false;
 
@@ -219,21 +220,22 @@ abstract class AbstractColumn<E extends Comparable<? super E>, I extends Column<
 
 				return nonNull.equals0(nullable.subColumn);
 			}
-		} else if (o instanceof List) {
-			// from AbstractList
+		} else if (o instanceof List l) {
+			if (l.size() != size)
+				return false;
 
+			// from AbstractList
 			ListIterator<E> e1 = listIterator();
 			ListIterator<?> e2 = ((List<?>) o).listIterator();
-			while (e1.hasNext() && e2.hasNext()) {
+			while (e1.hasNext()) {
 				E o1 = e1.next();
 				Object o2 = e2.next();
-				if (!(o1 == null ? o2 == null : o1.equals(o2)))
+				if (!Objects.equals(o1, o2))
 					return false;
 			}
-			return !(e1.hasNext() || e2.hasNext());
+			return true;
 		} else if (isDistinct() && o instanceof Set) {
 			// from AbstractSet
-
 			Collection<?> c = (Collection<?>) o;
 			if (c.size() != size())
 				return false;
@@ -247,6 +249,13 @@ abstract class AbstractColumn<E extends Comparable<? super E>, I extends Column<
 		} else {
 			return false;
 		}
+	}
+
+	private static boolean mixedStringTypes(AbstractColumn a, AbstractColumn b) {
+		ColumnType aType = a.getType();
+		ColumnType bType = b.getType();
+
+		return (aType == STRING && bType == NSTRING) || (aType == NSTRING && bType == STRING);
 	}
 
 	@Override
