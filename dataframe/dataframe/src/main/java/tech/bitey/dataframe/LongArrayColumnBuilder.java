@@ -20,7 +20,7 @@ import tech.bitey.bufferstuff.BigByteBuffer;
 import tech.bitey.bufferstuff.BufferUtils;
 import tech.bitey.bufferstuff.SmallLongBuffer;
 
-abstract class LongArrayColumnBuilder<E extends Comparable<? super E>, C extends Column<E>, B extends LongArrayColumnBuilder<E, C, B>>
+abstract class LongArrayColumnBuilder<E, C extends Column<E>, B extends LongArrayColumnBuilder<E, C, B>>
 		extends SingleBufferColumnBuilder<E, SmallLongBuffer, C, B> {
 
 	private final LongArrayPacker<E> packer;

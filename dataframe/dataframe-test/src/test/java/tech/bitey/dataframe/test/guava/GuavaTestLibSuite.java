@@ -81,7 +81,7 @@ public class GuavaTestLibSuite {
 	private static final Method MAP_TEST_HASH_CODE_NULL = suppressMethod(MapHashCodeTester.class,
 			"testHashCode_containingNullValue");
 
-	private static class TestIngredients<E extends Comparable<? super E>> {
+	private static class TestIngredients<E> {
 		final ColumnType<E> type;
 		final IntFunction<E[]> newArray;
 		final E[] s;
@@ -145,8 +145,7 @@ public class GuavaTestLibSuite {
 		}
 	}
 
-	private static <E extends Comparable<? super E>> void addColumnTests(TestSuite suite,
-			TestIngredients<E> ingredients) {
+	private static <E> void addColumnTests(TestSuite suite, TestIngredients<E> ingredients) {
 
 		final E belowLesser = ingredients.s[0];
 		final E belowGreater = ingredients.s[1];
@@ -195,7 +194,7 @@ public class GuavaTestLibSuite {
 
 				@Override
 				public Iterable<E> order(List<E> insertionOrder) {
-					Collections.sort(insertionOrder);
+					Collections.sort(insertionOrder, type::compare);
 					return insertionOrder;
 				}
 
@@ -238,7 +237,7 @@ public class GuavaTestLibSuite {
 		}
 	}
 
-	private static class TestColumnAsListGenerator<E extends Comparable<? super E>> implements TestListGenerator<E> {
+	private static class TestColumnAsListGenerator<E> implements TestListGenerator<E> {
 
 		final ColumnType<E> type;
 		final SampleElements<E> samples;
@@ -266,7 +265,7 @@ public class GuavaTestLibSuite {
 		@Override
 		public Iterable<E> order(List<E> insertionOrder) {
 			if ((characteristics & SORTED) != 0)
-				Collections.sort(insertionOrder);
+				Collections.sort(insertionOrder, type::compare);
 			return insertionOrder;
 		}
 
@@ -305,8 +304,7 @@ public class GuavaTestLibSuite {
 		}
 	}
 
-	private static <E extends Comparable<? super E>> void addColumnMapTests(TestSuite suite,
-			TestIngredients<E> ingredients) {
+	private static <E> void addColumnMapTests(TestSuite suite, TestIngredients<E> ingredients) {
 
 		suite.addTest(NavigableMapTestSuiteBuilder.using(new TestColumnMapGenerator<>(ingredients))
 				.named(ingredients.type + " - COLMAP")
@@ -314,8 +312,7 @@ public class GuavaTestLibSuite {
 				.suppressing(MAP_TEST_HASH_CODE, MAP_TEST_HASH_CODE_NULL, SET_TEST_HASH_CODE).createTestSuite());
 	}
 
-	private static class TestColumnMapGenerator<E extends Comparable<? super E>>
-			implements TestSortedMapGenerator<E, E> {
+	private static class TestColumnMapGenerator<E> implements TestSortedMapGenerator<E, E> {
 
 		final ColumnType<E> type;
 		final SampleElements<Entry<E, E>> samples;
@@ -361,17 +358,17 @@ public class GuavaTestLibSuite {
 
 		@Override
 		public Iterable<Entry<E, E>> order(List<Entry<E, E>> insertionOrder) {
-			Collections.sort(insertionOrder, (e1, e2) -> e1.getKey().compareTo(e2.getKey()));
+			Collections.sort(insertionOrder, (e1, e2) -> type.compare(e1.getKey(), e2.getKey()));
 			return insertionOrder;
 		}
 
+		@SuppressWarnings("unchecked")
 		@Override
 		public SortedMap<E, E> create(Object... elements) {
 
 			Map<E, E> map = Maps.newHashMap();
 
 			for (Object o : elements) {
-				@SuppressWarnings("unchecked")
 				Entry<E, E> e = (Entry<E, E>) o;
 				map.put(e.getKey(), e.getValue());
 			}
@@ -386,7 +383,7 @@ public class GuavaTestLibSuite {
 
 			DataFrame df = DataFrameFactory.create(new Column<?>[] { keyBuilder.build(), valBuilder.build() },
 					new String[] { "KEYS", "VALUES" }).indexOrganize(0);
-			return df.asMap(1);
+			return (SortedMap<E, E>) df.asMap(1);
 		}
 
 		@Override

@@ -20,7 +20,7 @@ import tech.bitey.bufferstuff.BigByteBuffer;
 import tech.bitey.bufferstuff.BufferUtils;
 import tech.bitey.bufferstuff.SmallByteBuffer;
 
-abstract class ByteArrayColumnBuilder<E extends Comparable<? super E>, C extends Column<E>, B extends ByteArrayColumnBuilder<E, C, B>>
+abstract class ByteArrayColumnBuilder<E, C extends Column<E>, B extends ByteArrayColumnBuilder<E, C, B>>
 		extends SingleBufferColumnBuilder<E, SmallByteBuffer, C, B> {
 
 	private final ByteArrayPacker<E> packer;

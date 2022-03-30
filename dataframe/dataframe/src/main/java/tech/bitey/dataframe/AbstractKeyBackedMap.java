@@ -41,7 +41,6 @@ abstract class AbstractKeyBackedMap<K extends Comparable<? super K>, V> extends 
 
 	final NonNullColumn<K, ?, ?> keyColumn;
 
-	@SuppressWarnings("unchecked")
 	AbstractKeyBackedMap(Column<K> keyColumn) {
 
 		this.keyColumn = (NonNullColumn<K, ?, ?>) keyColumn;

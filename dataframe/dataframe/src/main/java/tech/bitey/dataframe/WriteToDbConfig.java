@@ -25,6 +25,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
+import tech.bitey.dataframe.db.BlobToStatement;
 import tech.bitey.dataframe.db.BooleanToStatement;
 import tech.bitey.dataframe.db.ByteToStatement;
 import tech.bitey.dataframe.db.DateTimeToStatement;
@@ -97,53 +98,24 @@ public record WriteToDbConfig(List<IToPreparedStatement<?>> toPsLogic, int batch
 			toPsLogic = new IToPreparedStatement[columns.length];
 
 			for (int i = 0; i < columns.length; i++) {
-				switch (columns[i].getType().getCode()) {
-				case B:
-					toPsLogic[i] = BooleanToStatement.BOOLEAN_TO_STRING;
-					break;
-				case DA:
-					toPsLogic[i] = DateToStatement.DATE_TO_DATE;
-					break;
-				case DT:
-					toPsLogic[i] = DateTimeToStatement.DATETIME_TO_TIMESTAMP;
-					break;
-				case TI:
-					toPsLogic[i] = TimeToStatement.TIME_TO_STRING;
-					break;
-				case IN:
-					toPsLogic[i] = InstantToStatement.INSTANT_TO_TIMESTAMP;
-					break;
-				case BD:
-					toPsLogic[i] = DecimalToStatement.BIGDECIMAL_TO_BIGDECIMAL;
-					break;
-				case D:
-					toPsLogic[i] = DoubleToStatement.DOUBLE_TO_DOUBLE;
-					break;
-				case F:
-					toPsLogic[i] = FloatToStatement.FLOAT_TO_FLOAT;
-					break;
-				case I:
-					toPsLogic[i] = IntToStatement.INT_TO_INT;
-					break;
-				case L:
-					toPsLogic[i] = LongToStatement.LONG_TO_LONG;
-					break;
-				case T:
-					toPsLogic[i] = ShortToStatement.SHORT_TO_SHORT;
-					break;
-				case Y:
-					toPsLogic[i] = ByteToStatement.BYTE_TO_BYTE;
-					break;
-				case S:
-					toPsLogic[i] = StringToStatement.STRING_TO_STRING;
-					break;
-				case UU:
-					toPsLogic[i] = UuidToStatement.UUID_TO_STRING;
-					break;
-				case NS:
-					toPsLogic[i] = NormalStringToStatement.STRING_TO_STRING;
-					break;
-				}
+				toPsLogic[i] = switch (columns[i].getType().getCode()) {
+				case B -> BooleanToStatement.BOOLEAN_TO_STRING;
+				case DA -> DateToStatement.DATE_TO_DATE;
+				case DT -> DateTimeToStatement.DATETIME_TO_TIMESTAMP;
+				case TI -> TimeToStatement.TIME_TO_STRING;
+				case IN -> InstantToStatement.INSTANT_TO_TIMESTAMP;
+				case BD -> DecimalToStatement.BIGDECIMAL_TO_BIGDECIMAL;
+				case D -> DoubleToStatement.DOUBLE_TO_DOUBLE;
+				case F -> FloatToStatement.FLOAT_TO_FLOAT;
+				case I -> IntToStatement.INT_TO_INT;
+				case L -> LongToStatement.LONG_TO_LONG;
+				case T -> ShortToStatement.SHORT_TO_SHORT;
+				case Y -> ByteToStatement.BYTE_TO_BYTE;
+				case S -> StringToStatement.STRING_TO_STRING;
+				case UU -> UuidToStatement.UUID_TO_STRING;
+				case NS -> NormalStringToStatement.STRING_TO_STRING;
+				case BL -> BlobToStatement.INPUT_STREAM;
+				};
 			}
 		}
 

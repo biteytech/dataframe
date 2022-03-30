@@ -41,7 +41,7 @@ import java.util.function.ToLongFunction;
 import tech.bitey.bufferstuff.BufferBitSet;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
-abstract class NullableColumn<E extends Comparable<? super E>, I extends Column<E>, C extends NonNullColumn<E, I, C>, N extends NullableColumn<E, I, C, N>>
+abstract class NullableColumn<E, I extends Column<E>, C extends NonNullColumn<E, I, C>, N extends NullableColumn<E, I, C, N>>
 		extends AbstractColumn<E, I, N> {
 
 	static final Map<ColumnTypeCode, NullableColumn> EMPTY_MAP = new EnumMap<>(ColumnTypeCode.class);

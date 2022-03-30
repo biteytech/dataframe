@@ -38,7 +38,7 @@ import java.util.Iterator;
  *
  * @param <E> the type of elements in this column builder
  */
-public interface ColumnBuilder<E extends Comparable<? super E>> {
+public interface ColumnBuilder<E> {
 
 	/**
 	 * The {@link ColumnType type} of the {@link Column} created by this builder.

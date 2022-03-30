@@ -11,7 +11,7 @@ To add a dependency on dataframe using Maven, use the following:
 <dependency>
   <groupId>tech.bitey</groupId>
   <artifactId>dataframe</artifactId>
-  <version>1.2.1</version>
+  <version>1.2.2</version>
 </dependency>
 ```
 
@@ -28,7 +28,7 @@ Requires Java 17 or higher. The last version supporting Java 11 was `1.1.7`.
 * Nulls are stored in a separate bitset (also backed by ByteBuffer), taking up two bits per Column length. No extra space is used if all values are non-null.
 
 ### Features
-* Supports the most common types: String, Integer, Long, Short, Byte, Boolean, Double, Float, Date, DateTime, and BigDecimal; as well as Time, UUID, and Instant.
+* Supports the most common types: String, Integer, Long, Short, Byte, Boolean, Double, Float, Date, DateTime, and BigDecimal; as well as Time, UUID, Instant, and InputStream.
 * Column and DataFrame are immutable. Columns can be created from collections, arrays, streams, or with builders.
 * Read/write to File or Channel with minimal overhead
 * Read/write CSV files

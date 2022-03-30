@@ -110,7 +110,7 @@ import java.util.function.ToLongFunction;
  *
  * @param <E> the type of elements in this list
  */
-public interface Column<E extends Comparable<? super E>> extends List<E> {
+public interface Column<E> extends List<E> {
 
 	static int BASE_CHARACTERISTICS = SIZED | SUBSIZED | IMMUTABLE | ORDERED;
 

@@ -22,7 +22,7 @@ import tech.bitey.bufferstuff.BigByteBuffer;
 import tech.bitey.bufferstuff.ResizableBigByteBuffer;
 
 @SuppressWarnings("unchecked")
-abstract class VarLenColumnBuilder<E extends Comparable<? super E>, C extends Column<E>, B extends VarLenColumnBuilder<E, C, B>>
+abstract class VarLenColumnBuilder<E, C extends Column<E>, B extends VarLenColumnBuilder<E, C, B>>
 		extends AbstractColumnBuilder<E, C, B> {
 
 	final LongColumnBuilder pointers = new LongColumnBuilder(Spliterator.NONNULL);
@@ -49,15 +49,10 @@ abstract class VarLenColumnBuilder<E extends Comparable<? super E>, C extends Co
 	}
 
 	@Override
-	int compareToLast(E element) {
-		return last.compareTo(element);
-	}
-
-	@Override
 	void addNonNull(E element) {
 
 		pointers.add(elements.size());
-		elements.addAll(packer.pack(element));
+		packer.pack(elements, element);
 
 		size++;
 		last = element;

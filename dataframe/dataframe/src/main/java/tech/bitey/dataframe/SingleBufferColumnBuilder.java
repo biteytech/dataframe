@@ -22,7 +22,7 @@ import tech.bitey.bufferstuff.BigByteBuffer;
 import tech.bitey.bufferstuff.BufferUtils;
 import tech.bitey.bufferstuff.SmallBuffer;
 
-abstract class SingleBufferColumnBuilder<E extends Comparable<? super E>, F extends SmallBuffer, C extends Column<E>, B extends SingleBufferColumnBuilder<E, F, C, B>>
+abstract class SingleBufferColumnBuilder<E, F extends SmallBuffer, C extends Column<E>, B extends SingleBufferColumnBuilder<E, F, C, B>>
 		extends AbstractColumnBuilder<E, C, B> {
 
 	SingleBufferColumnBuilder(int characteristics) {

@@ -24,7 +24,7 @@ package tech.bitey.dataframe;
 enum AbstractColumnSearch {
 	;
 
-	static <E extends Comparable<? super E>> int search(AbstractColumn<E, ?, ?> col, E value, boolean first) {
+	static <E> int search(AbstractColumn<E, ?, ?> col, E value, boolean first) {
 
 		final int offset = col.offset;
 
@@ -40,7 +40,7 @@ enum AbstractColumnSearch {
 			return col.indexOf(value, first) + offset;
 	}
 
-	static <E extends Comparable<? super E>> int binaryFindFirst(AbstractColumn<E, ?, ?> col, int fromIndex, E key) {
+	static <E> int binaryFindFirst(AbstractColumn<E, ?, ?> col, int fromIndex, E key) {
 
 		final int offset = col.offset;
 
@@ -58,7 +58,7 @@ enum AbstractColumnSearch {
 		return fromIndex;
 	}
 
-	static <E extends Comparable<? super E>> int binaryFindLast(AbstractColumn<E, ?, ?> col, int fromIndex, E key) {
+	static <E> int binaryFindLast(AbstractColumn<E, ?, ?> col, int fromIndex, E key) {
 
 		final int lastIndex = col.lastIndex();
 
@@ -91,8 +91,7 @@ enum AbstractColumnSearch {
 	 *         specified key. Note that this guarantees that the return value will
 	 *         be &gt;= 0 if and only if the key is found.
 	 */
-	static <E extends Comparable<? super E>> int binarySearch(AbstractColumn<E, ?, ?> col, int fromIndex, int toIndex,
-			E key) {
+	static <E> int binarySearch(AbstractColumn<E, ?, ?> col, int fromIndex, int toIndex, E key) {
 
 		int low = fromIndex;
 		int high = toIndex - 1;
@@ -102,7 +101,7 @@ enum AbstractColumnSearch {
 
 			E midVal = col.getNoOffset(mid);
 
-			int cmp = midVal.compareTo(key);
+			int cmp = col.getType().compare(midVal, key);
 
 			if (cmp < 0)
 				low = mid + 1;

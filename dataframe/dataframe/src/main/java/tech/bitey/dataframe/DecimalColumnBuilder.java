@@ -65,4 +65,9 @@ public final class DecimalColumnBuilder extends VarLenColumnBuilder<BigDecimal, 
 	DecimalColumn construct(BigByteBuffer elements, BigByteBuffer pointers, int characteristics, int size) {
 		return new NonNullDecimalColumn(elements, pointers, 0, size, characteristics, false);
 	}
+
+	@Override
+	int compareToLast(BigDecimal element) {
+		return last.compareTo(element);
+	}
 }

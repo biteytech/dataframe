@@ -44,21 +44,7 @@ final class NonNullStringColumn extends NonNullVarLenColumn<String, StringColumn
 
 	NonNullStringColumn(BigByteBuffer elements, BigByteBuffer rawPointers, int offset, int size, int characteristics,
 			boolean view) {
-		super(checkIsAscii(elements) ? VarLenPacker.STRING_ASCII : VarLenPacker.STRING_UTF_8, elements, rawPointers,
-				offset, size, characteristics, view);
-	}
-
-	private static boolean checkIsAscii(BigByteBuffer elements) {
-		// TODO: optimize this
-		for (long i = elements.position(); i < elements.limit(); i++)
-			if (elements.get(i) < 0)
-				return false;
-
-		return true;
-	}
-
-	private boolean isAscii() {
-		return packer == VarLenPacker.STRING_ASCII;
+		super(VarLenPacker.STRING, elements, rawPointers, offset, size, characteristics, view);
 	}
 
 	@Override
@@ -80,21 +66,5 @@ final class NonNullStringColumn extends NonNullVarLenColumn<String, StringColumn
 	@Override
 	boolean checkType(Object o) {
 		return o instanceof String;
-	}
-
-	@Override
-	boolean checkSorted() {
-		if (!isAscii())
-			return super.checkSorted();
-		else
-			return checkSorted0(i -> element(i - 1).compareTo(element(i)));
-	}
-
-	@Override
-	NonNullStringColumn toSorted0() {
-		if (!isAscii())
-			return super.toSorted0();
-		else
-			return toSorted00(this, (l, r) -> element(l + offset).compareTo(element(r + offset)));
 	}
 }

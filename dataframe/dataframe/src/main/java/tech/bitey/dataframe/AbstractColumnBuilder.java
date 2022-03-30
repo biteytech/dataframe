@@ -31,7 +31,7 @@ import java.util.Spliterator;
 
 import tech.bitey.bufferstuff.BufferBitSet;
 
-abstract class AbstractColumnBuilder<E extends Comparable<? super E>, C extends Column<E>, B extends AbstractColumnBuilder<E, C, B>>
+abstract class AbstractColumnBuilder<E, C extends Column<E>, B extends AbstractColumnBuilder<E, C, B>>
 		implements ColumnBuilder<E> {
 
 	private static final int VALID_CHARACTERISTICS = NONNULL_CHARACTERISTICS | SORTED | DISTINCT;

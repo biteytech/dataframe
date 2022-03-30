@@ -183,6 +183,7 @@ public class GenBigByteBuffer implements GenBufferCode {
 	private static final String PREFIX = """
 			package tech.bitey.bufferstuff;
 
+			import java.io.InputStream;
 			import java.nio.BufferOverflowException;
 			import java.nio.BufferUnderflowException;
 			import java.nio.ByteBuffer;
@@ -340,6 +341,23 @@ public class GenBigByteBuffer implements GenBufferCode {
 				 * @return The new byte buffer
 				 */
 			    BigByteBuffer slice(long fromIndex, long toIndex);
+
+				/**
+				 * Creates a new {@link ByteBuffer} whose content is a shared subsequence of this
+				 * buffer's content.
+				 * <p>
+				 * The content of the new buffer will start at this buffer's current position.
+				 * Changes to this buffer's content will be visible in the new buffer, and vice
+				 * versa; the two buffers' position and limit values will be independent.
+				 * <p>
+				 * The new buffer's position will be zero, its capacity and its limit will be
+				 * the number of bytes remaining in this buffer, and the byte order will be the
+				 * same as this buffer. The new buffer will be direct if, and only if, this
+				 * buffer is direct.
+				 *
+				 * @return The new byte buffer
+				 */
+			    ByteBuffer smallSlice();
 
 				/**
 				 * Creates a new {@link ByteBuffer} whose content is a shared subsequence of this
@@ -526,6 +544,81 @@ public class GenBigByteBuffer implements GenBufferCode {
 				byte get(long index);
 
 				/**
+				 * Relative bulk <i>get</i> method.
+				 *
+				 * <p> This method transfers bytes from this buffer into the given
+				 * destination array.  If there are fewer bytes remaining in the
+				 * buffer than are required to satisfy the request, that is, if
+				 * {@code length}&nbsp;{@code >}&nbsp;{@code remaining()}, then no
+				 * bytes are transferred and a {@link BufferUnderflowException} is
+				 * thrown.
+				 *
+				 * <p> Otherwise, this method copies {@code length} bytes from this
+				 * buffer into the given array, starting at the current position of this
+				 * buffer and at the given offset in the array.  The position of this
+				 * buffer is then incremented by {@code length}.
+				 *
+				 * <p> In other words, an invocation of this method of the form
+				 * <code>src.get(dst,&nbsp;off,&nbsp;len)</code> has exactly the same effect as
+				 * the loop
+				 *
+				 * <pre>{@code
+				 *     for (int i = off; i < off + len; i++)
+				 *         dst[i] = src.get();
+				 * }</pre>
+				 *
+				 * except that it first checks that there are sufficient bytes in
+				 * this buffer and it is potentially much more efficient.
+				 *
+				 * @param  dst
+				 *         The array into which bytes are to be written
+				 *
+				 * @param  offset
+				 *         The offset within the array of the first byte to be
+				 *         written; must be non-negative and no larger than
+				 *         {@code dst.length}
+				 *
+				 * @param  length
+				 *         The maximum number of bytes to be written to the given
+				 *         array; must be non-negative and no larger than
+				 *         {@code dst.length - offset}
+				 *
+				 * @return  This buffer
+				 *
+				 * @throws  BufferUnderflowException
+				 *          If there are fewer than {@code length} bytes
+				 *          remaining in this buffer
+				 *
+				 * @throws  IndexOutOfBoundsException
+				 *          If the preconditions on the {@code offset} and {@code length}
+				 *          parameters do not hold
+				 */
+				BigByteBuffer get(byte[] dst, int offset, int length);
+
+				/**
+				 * Relative bulk <i>get</i> method.
+				 *
+				 * <p> This method transfers bytes from this buffer into the given
+				 * destination array.  An invocation of this method of the form
+				 * {@code src.get(a)} behaves in exactly the same way as the invocation
+				 *
+				 * <pre>
+				 *     src.get(a, 0, a.length) </pre>
+				 *
+				 * @param   dst
+				 *          The destination array
+				 *
+				 * @return  This buffer
+				 *
+				 * @throws  BufferUnderflowException
+				 *          If there are fewer than {@code length} bytes
+				 *          remaining in this buffer
+				 */
+				default BigByteBuffer get(byte[] dst) {
+					return get(dst, 0, dst.length);
+				}
+
+				/**
 				 * Creates a view of this byte buffer as a byte buffer.
 				 * <p>
 				 * The content of the new buffer will start at this buffer's current position.
@@ -541,5 +634,14 @@ public class GenBigByteBuffer implements GenBufferCode {
 				default SmallByteBuffer asByteBuffer() {
 					return new SmallByteBuffer(duplicate());
 				}
+
+				/**
+				 * Creates a new {@link InputStream} which streams this buffer's content.
+				 * <p>
+				 * The stream will start at this buffer's current position, and end at this buffer's limit.
+				 *
+				 * @return the new {@code InputStream}
+				 */
+				InputStream toInputStream();
 				""";
 }

@@ -63,6 +63,7 @@ import tech.bitey.dataframe.Row;
 import tech.bitey.dataframe.ShortColumn;
 import tech.bitey.dataframe.StringColumn;
 import tech.bitey.dataframe.WriteToDbConfig;
+import tech.bitey.dataframe.db.BlobFromResultSet;
 import tech.bitey.dataframe.db.BooleanFromResultSet;
 import tech.bitey.dataframe.db.ByteFromResultSet;
 import tech.bitey.dataframe.db.DateFromResultSet;
@@ -147,7 +148,6 @@ public class TestDataFrame {
 		}
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Test
 	public void testCursorVsIterator() {
 		for (Map.Entry<String, DataFrame> e : DF_MAP.entrySet()) {
@@ -161,8 +161,11 @@ public class TestDataFrame {
 				Row row = iter.next();
 				Assertions.assertEquals(cursor.columnCount(), row.columnCount(), test);
 				Assertions.assertEquals(cursor.columnCount(), df.columnCount(), test);
-				for (int i = 0; i < df.columnCount(); i++)
-					Assertions.assertEquals(cursor.<Comparable>get(i), row.<Comparable>get(i), test);
+				for (int i = 0; i < df.columnCount(); i++) {
+					Object c = cursor.get(i);
+					Object r = row.get(i);
+					Assertions.assertEquals(c, r, test);
+				}
 			}
 			Assertions.assertFalse(iter.hasNext(), test);
 		}
@@ -337,6 +340,10 @@ public class TestDataFrame {
 						create.append("TEXT");
 						fromRsLogic.add(NormalStringFromResultSet.STRING_FROM_STRING);
 						break;
+					case BL:
+						create.append("TEXT");
+						fromRsLogic.add(BlobFromResultSet.INPUT_STREAM);
+						break;
 					}
 
 					if (i < cc - 1)
@@ -428,8 +435,8 @@ public class TestDataFrame {
 			throws Exception {
 
 		Column keyColumn = df.column(0);
-		Comparable from = keyColumn.first();
-		Comparable to = keyColumn.last();
+		Object from = keyColumn.first();
+		Object to = keyColumn.last();
 
 		Column subColumn = keyColumn.subColumnByValue(from, fromInclusive, to, toInclusive);
 

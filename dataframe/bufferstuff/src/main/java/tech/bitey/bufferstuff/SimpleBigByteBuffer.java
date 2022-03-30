@@ -18,6 +18,8 @@ package tech.bitey.bufferstuff;
 
 import static java.lang.Math.toIntExact;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -110,6 +112,11 @@ final class SimpleBigByteBuffer extends AbstractBigByteBuffer {
 	}
 
 	@Override
+	public ByteBuffer smallSlice() {
+		return slice().buffers()[0];
+	}
+
+	@Override
 	public ByteBuffer smallSlice(long fromIndex, long toIndex) {
 		return slice(fromIndex, toIndex).buffers()[0];
 	}
@@ -164,6 +171,18 @@ final class SimpleBigByteBuffer extends AbstractBigByteBuffer {
 	@Override
 	public byte get(long index) {
 		return buffer.get(toIntExact(index));
+	}
+
+	@Override
+	public BigByteBuffer get(byte[] dst, int offset, int length) {
+		buffer.get(dst, offset, length);
+		return this;
+	}
+
+	@Override
+	public BigByteBuffer get(byte[] dst) {
+		buffer.get(dst);
+		return this;
 	}
 
 	@Override
@@ -374,5 +393,40 @@ final class SimpleBigByteBuffer extends AbstractBigByteBuffer {
 			}
 		} else
 			return false;
+	}
+
+	@Override
+	public InputStream toInputStream() {
+		return new InputStream() {
+
+			final ByteBuffer buf = smallSlice();
+
+			@Override
+			public int available() throws IOException {
+				return buf.remaining();
+			}
+
+			@Override
+			public int read() throws IOException {
+
+				return buf.hasRemaining() ? buf.get() & 0xFF : -1;
+			}
+
+			@Override
+			public int read(byte[] bytes, int off, int len) throws IOException {
+
+				if (!buf.hasRemaining())
+					return -1;
+
+				len = Math.min(len, buf.remaining());
+				buf.get(bytes, off, len);
+				return len;
+			}
+
+			@Override
+			public String toString() {
+				return SimpleBigByteBuffer.this.toString();
+			}
+		};
 	}
 }

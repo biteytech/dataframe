@@ -45,7 +45,7 @@ import tech.bitey.dataframe.ColumnType;
  * @param <E> - the column's element type
  * @param <B> - the {@link ColumnBuilder} type
  */
-public interface IFromResultSet<E extends Comparable<? super E>, B extends ColumnBuilder<E>> {
+public interface IFromResultSet<E, B extends ColumnBuilder<E>> {
 
 	/**
 	 * Returns the {@link ColumnType} used to create the {@link ColumnBuilder} (via

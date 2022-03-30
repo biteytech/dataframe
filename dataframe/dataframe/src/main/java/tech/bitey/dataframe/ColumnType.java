@@ -22,6 +22,7 @@ import static tech.bitey.bufferstuff.BufferUtils.readFully;
 import static tech.bitey.dataframe.AbstractColumn.readInt;
 import static tech.bitey.dataframe.ColumnTypeCode.B;
 import static tech.bitey.dataframe.ColumnTypeCode.BD;
+import static tech.bitey.dataframe.ColumnTypeCode.BL;
 import static tech.bitey.dataframe.ColumnTypeCode.D;
 import static tech.bitey.dataframe.ColumnTypeCode.DA;
 import static tech.bitey.dataframe.ColumnTypeCode.DT;
@@ -36,7 +37,9 @@ import static tech.bitey.dataframe.ColumnTypeCode.TI;
 import static tech.bitey.dataframe.ColumnTypeCode.UU;
 import static tech.bitey.dataframe.ColumnTypeCode.Y;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigDecimal;
 import java.nio.ByteBuffer;
 import java.nio.channels.ReadableByteChannel;
@@ -68,56 +71,156 @@ import tech.bitey.bufferstuff.BufferBitSet;
  * <li>{@link #DECIMAL}
  * <li>{@link #UUID}
  * <li>{@link #NSTRING}
+ * <li>{@link #BLOB}
  * </ul>
  * 
  * @author biteytech@protonmail.com
  */
-public class ColumnType<E extends Comparable<? super E>> {
+public abstract class ColumnType<E> {
 
 	/** The type for {@link BooleanColumn} */
-	public static final ColumnType<Boolean> BOOLEAN = new ColumnType<>(B, Boolean.class);
+	public static final ColumnType<Boolean> BOOLEAN = new ColumnType<>(B, Boolean.class) {
+
+		@Override
+		public int compare(Boolean lhs, Boolean rhs) {
+			return lhs.compareTo(rhs);
+		}
+	};
 
 	/** The type for {@link DateColumn} */
-	public static final ColumnType<LocalDate> DATE = new ColumnType<>(DA, LocalDate.class);
+	public static final ColumnType<LocalDate> DATE = new ColumnType<>(DA, LocalDate.class) {
+
+		@Override
+		public int compare(LocalDate lhs, LocalDate rhs) {
+			return lhs.compareTo(rhs);
+		}
+	};
 
 	/** The type for {@link DateTimeColumn} */
-	public static final ColumnType<LocalDateTime> DATETIME = new ColumnType<>(DT, LocalDateTime.class);
+	public static final ColumnType<LocalDateTime> DATETIME = new ColumnType<>(DT, LocalDateTime.class) {
+
+		@Override
+		public int compare(LocalDateTime lhs, LocalDateTime rhs) {
+			return lhs.compareTo(rhs);
+		}
+	};
 
 	/** The type for {@link DateTimeColumn} */
-	public static final ColumnType<LocalTime> TIME = new ColumnType<>(TI, LocalTime.class);
+	public static final ColumnType<LocalTime> TIME = new ColumnType<>(TI, LocalTime.class) {
+
+		@Override
+		public int compare(LocalTime lhs, LocalTime rhs) {
+			return lhs.compareTo(rhs);
+		}
+	};
 
 	/** The type for {@link InstantColumn} */
-	public static final ColumnType<Instant> INSTANT = new ColumnType<>(IN, Instant.class);
+	public static final ColumnType<Instant> INSTANT = new ColumnType<>(IN, Instant.class) {
+
+		@Override
+		public int compare(Instant lhs, Instant rhs) {
+			return lhs.compareTo(rhs);
+		}
+	};
 
 	/** The type for {@link DoubleColumn} */
-	public static final ColumnType<Double> DOUBLE = new ColumnType<>(D, Double.class);
+	public static final ColumnType<Double> DOUBLE = new ColumnType<>(D, Double.class) {
+
+		@Override
+		public int compare(Double lhs, Double rhs) {
+			return lhs.compareTo(rhs);
+		}
+	};
 
 	/** The type for {@link FloatColumn} */
-	public static final ColumnType<Float> FLOAT = new ColumnType<>(F, Float.class);
+	public static final ColumnType<Float> FLOAT = new ColumnType<>(F, Float.class) {
+
+		@Override
+		public int compare(Float lhs, Float rhs) {
+			return lhs.compareTo(rhs);
+		}
+	};
 
 	/** The type for {@link IntColumn} */
-	public static final ColumnType<Integer> INT = new ColumnType<>(I, Integer.class);
+	public static final ColumnType<Integer> INT = new ColumnType<>(I, Integer.class) {
+
+		@Override
+		public int compare(Integer lhs, Integer rhs) {
+			return lhs.compareTo(rhs);
+		}
+	};
 
 	/** The type for {@link LongColumn} */
-	public static final ColumnType<Long> LONG = new ColumnType<>(L, Long.class);
+	public static final ColumnType<Long> LONG = new ColumnType<>(L, Long.class) {
+
+		@Override
+		public int compare(Long lhs, Long rhs) {
+			return lhs.compareTo(rhs);
+		}
+	};
 
 	/** The type for {@link ShortColumn} */
-	public static final ColumnType<Short> SHORT = new ColumnType<>(T, Short.class);
+	public static final ColumnType<Short> SHORT = new ColumnType<>(T, Short.class) {
+
+		@Override
+		public int compare(Short lhs, Short rhs) {
+			return lhs.compareTo(rhs);
+		}
+	};
 
 	/** The type for {@link StringColumn} */
-	public static final ColumnType<String> STRING = new ColumnType<>(S, String.class);
+	public static final ColumnType<String> STRING = new ColumnType<>(S, String.class) {
+
+		@Override
+		public int compare(String lhs, String rhs) {
+			return lhs.compareTo(rhs);
+		}
+	};
 
 	/** The type for {@link StringColumn} */
-	public static final ColumnType<Byte> BYTE = new ColumnType<>(Y, Byte.class);
+	public static final ColumnType<Byte> BYTE = new ColumnType<>(Y, Byte.class) {
+
+		@Override
+		public int compare(Byte lhs, Byte rhs) {
+			return lhs.compareTo(rhs);
+		}
+	};
 
 	/** The type for {@link DecimalColumn} */
-	public static final ColumnType<BigDecimal> DECIMAL = new ColumnType<>(BD, BigDecimal.class);
+	public static final ColumnType<BigDecimal> DECIMAL = new ColumnType<>(BD, BigDecimal.class) {
+
+		@Override
+		public int compare(BigDecimal lhs, BigDecimal rhs) {
+			return lhs.compareTo(rhs);
+		}
+	};
 
 	/** The type for {@link UuidColumn} */
-	public static final ColumnType<UUID> UUID = new ColumnType<>(UU, UUID.class);
+	public static final ColumnType<UUID> UUID = new ColumnType<>(UU, UUID.class) {
+
+		@Override
+		public int compare(java.util.UUID lhs, java.util.UUID rhs) {
+			return lhs.compareTo(rhs);
+		}
+	};
 
 	/** The type for {@link NormalStringColumn} */
-	public static final ColumnType<String> NSTRING = new ColumnType<>(NS, String.class);
+	public static final ColumnType<String> NSTRING = new ColumnType<>(NS, String.class) {
+
+		@Override
+		public int compare(String lhs, String rhs) {
+			return lhs.compareTo(rhs);
+		}
+	};
+
+	/** The type for {@link BlobColumn} */
+	public static final ColumnType<InputStream> BLOB = new ColumnType<>(BL, InputStream.class) {
+
+		@Override
+		public int compare(InputStream lhs, InputStream rhs) {
+			throw new UnsupportedOperationException();
+		}
+	};
 
 	private final ColumnTypeCode code;
 	private final Class<E> elementType;
@@ -142,7 +245,7 @@ public class ColumnType<E extends Comparable<? super E>> {
 	 * 
 	 * @return a {@link ColumnBuilder builder} for this column type.
 	 */
-	public <T extends Comparable<? super T>> ColumnBuilder<T> builder() {
+	public <T> ColumnBuilder<T> builder() {
 		return builder(0);
 	}
 
@@ -166,7 +269,7 @@ public class ColumnType<E extends Comparable<? super E>> {
 	 * @throws IllegalArgumentException if {@code characteristic} is not valid
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public <T extends Comparable<? super T>> ColumnBuilder<T> builder(int characteristic) {
+	public <T> ColumnBuilder<T> builder(int characteristic) {
 		return (ColumnBuilder) switch (getCode()) {
 		case B -> BooleanColumn.builder();
 		case DA -> DateColumn.builder(characteristic);
@@ -183,6 +286,7 @@ public class ColumnType<E extends Comparable<? super E>> {
 		case BD -> DecimalColumn.builder(characteristic);
 		case UU -> UuidColumn.builder(characteristic);
 		case NS -> NormalStringColumn.builder();
+		case BL -> BlobColumn.builder();
 		};
 	}
 
@@ -297,6 +401,13 @@ public class ColumnType<E extends Comparable<? super E>> {
 			else
 				yield new NullableDecimalColumn(column, nonNulls, null, 0, size);
 		}
+		case BL -> {
+			NonNullBlobColumn column = NonNullBlobColumn.EMPTY.readFrom(channel, version);
+			if (nonNulls == null)
+				yield column;
+			else
+				yield new NullableBlobColumn(column, nonNulls, null, 0, size);
+		}
 		case UU -> {
 			NonNullUuidColumn column = NonNullUuidColumn.empty(characteristics).readFrom(channel, version);
 			if (nonNulls == null)
@@ -347,6 +458,7 @@ public class ColumnType<E extends Comparable<? super E>> {
 		case UU -> NullableUuidColumn::new;
 		case Y -> NullableByteColumn::new;
 		case NS -> throw new IllegalStateException();
+		case BL -> NullableBlobColumn::new;
 		};
 	}
 
@@ -425,8 +537,9 @@ public class ColumnType<E extends Comparable<? super E>> {
 	 * 
 	 * @return the parsed element
 	 */
-	public Comparable<?> parse(String string) {
-		return switch (getCode()) {
+	@SuppressWarnings("unchecked")
+	public <T> T parse(String string) {
+		return (T) switch (getCode()) {
 		case B -> Boolean.valueOf(parseBoolean(string));
 		case DA -> parseDate(string);
 		case DT -> LocalDateTime.parse(string);
@@ -441,6 +554,7 @@ public class ColumnType<E extends Comparable<? super E>> {
 		case S, NS -> string;
 		case BD -> new BigDecimal(string);
 		case UU -> java.util.UUID.fromString(string);
+		case BL -> new ByteArrayInputStream(string.getBytes());
 		};
 	}
 
@@ -455,6 +569,8 @@ public class ColumnType<E extends Comparable<? super E>> {
 		} else
 			return LocalDate.parse(string);
 	}
+
+	public abstract int compare(E lhs, E rhs);
 
 	@Override
 	public String toString() {

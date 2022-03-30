@@ -16,69 +16,79 @@
 
 package tech.bitey.dataframe;
 
-import static java.nio.ByteOrder.BIG_ENDIAN;
-import static java.nio.charset.StandardCharsets.US_ASCII;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
+
+import tech.bitey.bufferstuff.BigByteBuffer;
+import tech.bitey.bufferstuff.ResizableBigByteBuffer;
 
 interface VarLenPacker<E> {
 
-	final VarLenPacker<String> STRING_UTF_8 = new VarLenPacker<String>() {
+	final VarLenPacker<String> STRING = new VarLenPacker<String>() {
 		@Override
-		public ByteBuffer pack(String value) {
-			return UTF_8.encode(value);
+		public void pack(ResizableBigByteBuffer buffer, String value) {
+			buffer.put(UTF_8.encode(value));
 		}
 
 		@Override
-		public String unpack(ByteBuffer buffer) {
-			return UTF_8.decode(buffer).toString();
-		}
-	};
-
-	final VarLenPacker<String> STRING_ASCII = new VarLenPacker<String>() {
-		@Override
-		public ByteBuffer pack(String value) {
-			return US_ASCII.encode(value);
-		}
-
-		@Override
-		public String unpack(ByteBuffer buffer) {
-			return US_ASCII.decode(buffer).toString();
+		public String unpack(BigByteBuffer buffer) {
+			return UTF_8.decode(buffer.smallSlice()).toString();
 		}
 	};
 
 	final VarLenPacker<BigDecimal> DECIMAL = new VarLenPacker<BigDecimal>() {
 		@Override
-		public ByteBuffer pack(BigDecimal value) {
+		public void pack(ResizableBigByteBuffer buffer, BigDecimal value) {
 
-			byte[] unscaledBytes = value.unscaledValue().toByteArray();
-
-			ByteBuffer packed = ByteBuffer.allocate(4 + unscaledBytes.length).order(BIG_ENDIAN);
-
-			packed.putInt(value.scale());
-			packed.put(unscaledBytes);
-
-			return packed.flip();
+			buffer.putInt(value.scale());
+			buffer.put(value.unscaledValue().toByteArray());
 		}
 
 		@Override
-		public BigDecimal unpack(ByteBuffer buffer) {
+		public BigDecimal unpack(BigByteBuffer buffer) {
 
-			buffer = buffer.order(BIG_ENDIAN);
+			ByteBuffer bb = buffer.smallSlice();
 
-			int scale = buffer.getInt();
+			int scale = bb.getInt();
 
-			byte[] unscaledbytes = new byte[buffer.limit() - 4];
-			buffer.get(unscaledbytes);
+			byte[] unscaledbytes = new byte[bb.limit() - 4];
+			bb.get(unscaledbytes);
 
 			return new BigDecimal(new BigInteger(unscaledbytes), scale);
 		}
 	};
 
-	ByteBuffer pack(E value);
+	final VarLenPacker<InputStream> BLOB = new VarLenPacker<InputStream>() {
 
-	E unpack(ByteBuffer buffer);
+		@Override
+		public void pack(ResizableBigByteBuffer buffer, InputStream value) {
+
+			ByteBuffer byteBuffer = ByteBuffer.allocate(8192);
+			try {
+				for (ReadableByteChannel channel = Channels.newChannel(value); channel.read(byteBuffer) != -1;) {
+					byteBuffer.flip();
+					buffer.put(byteBuffer);
+					byteBuffer.clear();
+				}
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+		}
+
+		@Override
+		public InputStream unpack(BigByteBuffer buffer) {
+			return buffer.toInputStream();
+		}
+	};
+
+	void pack(ResizableBigByteBuffer buffer, E value);
+
+	E unpack(BigByteBuffer buffer);
 }

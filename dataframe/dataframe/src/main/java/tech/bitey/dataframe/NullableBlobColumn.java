@@ -16,12 +16,15 @@
 
 package tech.bitey.dataframe;
 
+import java.io.InputStream;
+
 import tech.bitey.bufferstuff.BufferBitSet;
 
-abstract class NullableLongArrayColumn<E, I extends Column<E>, C extends LongArrayColumn<E, I, C>, N extends NullableColumn<E, I, C, N>>
-		extends NullableColumn<E, I, C, N> {
+final class NullableBlobColumn extends
+		NullableVarLenColumn<InputStream, BlobColumn, NonNullBlobColumn, NullableBlobColumn> implements BlobColumn {
 
-	NullableLongArrayColumn(C column, BufferBitSet nonNulls, INullCounts nullCounts, int offset, int size) {
-		super(column, nonNulls, nullCounts, offset, size);
+	NullableBlobColumn(NonNullColumn<InputStream, BlobColumn, NonNullBlobColumn> column, BufferBitSet nonNulls,
+			INullCounts nullCounts, int offset, int size) {
+		super((NonNullBlobColumn) column, nonNulls, nullCounts, offset, size);
 	}
 }

@@ -21,7 +21,7 @@ import java.util.Objects;
 
 import tech.bitey.dataframe.Column;
 
-public class TestSample<E extends Comparable<? super E>> {
+public class TestSample<E> {
 
 	private final String label;
 	private final E[] array;

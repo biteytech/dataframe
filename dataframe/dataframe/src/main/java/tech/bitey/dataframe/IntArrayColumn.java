@@ -16,7 +16,6 @@
 
 package tech.bitey.dataframe;
 
-import static java.lang.Integer.compare;
 import static java.util.Spliterator.NONNULL;
 import static tech.bitey.bufferstuff.BufferUtils.isSortedAndDistinct;
 
@@ -27,7 +26,7 @@ import tech.bitey.bufferstuff.BufferSort;
 import tech.bitey.bufferstuff.BufferUtils;
 import tech.bitey.bufferstuff.SmallIntBuffer;
 
-abstract class IntArrayColumn<E extends Comparable<? super E>, I extends Column<E>, C extends IntArrayColumn<E, I, C>>
+abstract class IntArrayColumn<E, I extends Column<E>, C extends IntArrayColumn<E, I, C>>
 		extends NonNullSingleBufferColumn<E, I, C> {
 
 	final IntArrayPacker<E> packer;
@@ -136,7 +135,7 @@ abstract class IntArrayColumn<E extends Comparable<? super E>, I extends Column<
 
 	@Override
 	int compareValuesAt(C rhs, int l, int r) {
-		return compare(at(l + offset), rhs.at(r + rhs.offset));
+		return Integer.compare(at(l + offset), rhs.at(r + rhs.offset));
 	}
 
 	@Override

@@ -40,7 +40,7 @@ import org.junit.jupiter.api.Test;
 import tech.bitey.dataframe.Column;
 import tech.bitey.dataframe.StringColumn;
 
-abstract class TestColumn<E extends Comparable<E>> {
+abstract class TestColumn<E> {
 
 	private final E min, max;
 	private final IntFunction<E[]> createArray;
@@ -303,7 +303,7 @@ abstract class TestColumn<E extends Comparable<E>> {
 				Assertions.assertNotSame(s.column(), sorted, s + ", toSorted, not same");
 				if (!s.column().isSorted()) {
 					List<E> list = new ArrayList<>(s.column());
-					Collections.sort(list);
+					Collections.sort(list, s.column().getType()::compare);
 					Assertions.assertEquals(list, sorted, s + ", toSorted, equals1");
 				} else
 					Assertions.assertEquals(s.column(), sorted, s + ", toSorted, equals2");
@@ -456,7 +456,7 @@ abstract class TestColumn<E extends Comparable<E>> {
 				continue;
 
 			List<E> distinct = new ArrayList<>(new HashSet<>(asList(s.copySample())));
-			Collections.sort(distinct);
+			Collections.sort(distinct, s.column().getType()::compare);
 
 			TestSample<E> r = wrapSample(s.toString() + "_dflag", toArray(distinct), Spliterator.DISTINCT);
 			if (!samples.contains(r))

@@ -44,8 +44,7 @@ import tech.bitey.bufferstuff.BigByteBuffer;
 import tech.bitey.bufferstuff.BufferBitSet;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
-abstract class NonNullColumn<E extends Comparable<? super E>, I extends Column<E>, C extends NonNullColumn<E, I, C>>
-		extends AbstractColumn<E, I, C> {
+abstract class NonNullColumn<E, I extends Column<E>, C extends NonNullColumn<E, I, C>> extends AbstractColumn<E, I, C> {
 	static final int NONNULL_CHARACTERISTICS = BASE_CHARACTERISTICS | NONNULL;
 
 	final int characteristics;
@@ -409,7 +408,7 @@ abstract class NonNullColumn<E extends Comparable<? super E>, I extends Column<E
 	public C subColumnByValue(E fromElement, boolean fromInclusive, E toElement, boolean toInclusive) {
 		verifyDistinct();
 
-		int direction = fromElement.compareTo(toElement);
+		int direction = getType().compare(fromElement, toElement);
 
 		checkArgument(direction <= 0, "from cannot be greater than to");
 

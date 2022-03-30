@@ -16,17 +16,14 @@
 
 package tech.bitey.dataframe;
 
-import static tech.bitey.dataframe.NonNullColumn.NONNULL_CHARACTERISTICS;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 
 import tech.bitey.bufferstuff.BigByteBuffer;
 import tech.bitey.bufferstuff.BufferBitSet;
 
 /**
- * A builder for creating {@link StringColumn} instances. Example:
- *
- * <pre>
- * StringColumn column = StringColumn.builder().add("Hello").add("World", "!").build();
- * </pre>
+ * A builder for creating {@link BlobColumn} instances.
  * 
  * Elements appear in the resulting column in the same order they were added to
  * the builder.
@@ -38,34 +35,42 @@ import tech.bitey.bufferstuff.BufferBitSet;
  *
  * @author biteytech@protonmail.com
  */
-public final class StringColumnBuilder extends VarLenColumnBuilder<String, StringColumn, StringColumnBuilder> {
+public final class BlobColumnBuilder extends VarLenColumnBuilder<InputStream, BlobColumn, BlobColumnBuilder> {
 
-	StringColumnBuilder(int characteristics) {
-		super(characteristics, VarLenPacker.STRING);
+	BlobColumnBuilder(int characteristics) {
+		super(characteristics, VarLenPacker.BLOB);
 	}
 
 	@Override
-	StringColumn emptyNonNull() {
-		return NonNullStringColumn.EMPTY.get(NONNULL_CHARACTERISTICS);
+	BlobColumn emptyNonNull() {
+		return NonNullBlobColumn.EMPTY;
 	}
 
 	@Override
-	StringColumn wrapNullableColumn(StringColumn column, BufferBitSet nonNulls) {
-		return new NullableStringColumn((NonNullStringColumn) column, nonNulls, null, 0, size);
+	BlobColumn wrapNullableColumn(BlobColumn column, BufferBitSet nonNulls) {
+		return new NullableBlobColumn((NonNullBlobColumn) column, nonNulls, null, 0, size);
 	}
 
 	@Override
-	public ColumnType<String> getType() {
-		return ColumnType.STRING;
+	public ColumnType<InputStream> getType() {
+		return ColumnType.BLOB;
 	}
 
 	@Override
-	StringColumn construct(BigByteBuffer elements, BigByteBuffer pointers, int characteristics, int size) {
-		return new NonNullStringColumn(elements, pointers, 0, size, characteristics, false);
+	NonNullBlobColumn construct(BigByteBuffer elements, BigByteBuffer pointers, int characteristics, int size) {
+		return new NonNullBlobColumn(elements, pointers, 0, size, characteristics, false);
 	}
 
 	@Override
-	int compareToLast(String element) {
-		return last.compareTo(element);
+	int compareToLast(InputStream element) {
+		throw new UnsupportedOperationException();
+	}
+
+	public BlobColumnBuilder add(byte[] bytes, int offset, int length) {
+		return add(new ByteArrayInputStream(bytes, offset, length));
+	}
+
+	public BlobColumnBuilder add(byte[] bytes) {
+		return add(new ByteArrayInputStream(bytes));
 	}
 }

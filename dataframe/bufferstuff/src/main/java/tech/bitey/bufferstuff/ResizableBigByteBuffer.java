@@ -1,8 +1,10 @@
 package tech.bitey.bufferstuff;
 
+import static tech.bitey.bufferstuff.CompoundBigByteBuffer.CHUNK_BITS;
 import static tech.bitey.bufferstuff.CompoundBigByteBuffer.CHUNK_MASK;
 
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 
 public class ResizableBigByteBuffer {
 
@@ -12,11 +14,25 @@ public class ResizableBigByteBuffer {
 		return buffer.position();
 	}
 
-	public void addAll(ByteBuffer buffer) {
+	public void put(ByteBuffer buffer) {
 
 		ensureAdditionalCapacity(buffer.remaining());
 
 		this.buffer.put(buffer);
+	}
+
+	public void put(byte[] bytes) {
+
+		ensureAdditionalCapacity(bytes.length);
+
+		buffer.put(bytes);
+	}
+
+	public void putInt(int value) {
+
+		ensureAdditionalCapacity(4);
+
+		buffer.putInt(value);
 	}
 
 	public void append(ResizableBigByteBuffer tail) {
@@ -51,15 +67,18 @@ public class ResizableBigByteBuffer {
 
 		if (size() == 0)
 			return BufferUtils.EMPTY_BIG_BUFFER;
+		else if (buffer instanceof SimpleBigByteBuffer s)
+			return s.position() == s.capacity() ? s.slice(0, s.position()) : s.copy(0, s.position());
+		else {
+			ByteBuffer[] buffers = Arrays.copyOf(buffer.buffers(), (int) ((size() - 1) >> CHUNK_BITS) + 1);
 
-		ByteBuffer[] buffers = buffer.buffers();
+			ByteBuffer last = buffers[buffers.length - 1];
+			int rem = (int) (size() & CHUNK_MASK);
+			if (rem != 0)
+				buffers[buffers.length - 1] = BufferUtils.copy(last, 0, rem);
 
-		ByteBuffer last = buffers[buffers.length - 1];
-		int rem = (int) (size() & CHUNK_MASK);
-		if (rem != 0)
-			buffers[buffers.length - 1] = BufferUtils.copy(last, 0, rem);
-
-		return BufferUtils.wrap(buffers);
+			return BufferUtils.wrap(buffers);
+		}
 	}
 
 	@Override

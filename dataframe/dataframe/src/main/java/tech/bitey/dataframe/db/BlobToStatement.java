@@ -14,14 +14,24 @@
  * limitations under the License.
  */
 
-package tech.bitey.dataframe;
+package tech.bitey.dataframe.db;
 
-import tech.bitey.bufferstuff.BufferBitSet;
+import java.io.InputStream;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 
-abstract class NullableLongArrayColumn<E, I extends Column<E>, C extends LongArrayColumn<E, I, C>, N extends NullableColumn<E, I, C, N>>
-		extends NullableColumn<E, I, C, N> {
+import tech.bitey.dataframe.BlobColumn;
 
-	NullableLongArrayColumn(C column, BufferBitSet nonNulls, INullCounts nullCounts, int offset, int size) {
-		super(column, nonNulls, nullCounts, offset, size);
-	}
+public enum BlobToStatement implements IToPreparedStatement<BlobColumn> {
+	INPUT_STREAM {
+
+		@Override
+		public void set(BlobColumn column, int rowIndex, PreparedStatement ps, int paramIndex) throws SQLException {
+
+			InputStream value = column.get(rowIndex);
+
+			ps.setBinaryStream(paramIndex, value);
+		}
+
+	};
 }

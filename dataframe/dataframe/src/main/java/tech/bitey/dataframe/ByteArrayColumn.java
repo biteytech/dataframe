@@ -26,7 +26,7 @@ import tech.bitey.bufferstuff.BufferSort;
 import tech.bitey.bufferstuff.BufferUtils;
 import tech.bitey.bufferstuff.SmallByteBuffer;
 
-abstract class ByteArrayColumn<E extends Comparable<? super E>, I extends Column<E>, C extends ByteArrayColumn<E, I, C>>
+abstract class ByteArrayColumn<E, I extends Column<E>, C extends ByteArrayColumn<E, I, C>>
 		extends NonNullSingleBufferColumn<E, I, C> {
 
 	final ByteArrayPacker<E> packer;

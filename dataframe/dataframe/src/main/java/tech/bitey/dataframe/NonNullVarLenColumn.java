@@ -38,7 +38,7 @@ import tech.bitey.bufferstuff.BufferUtils;
 import tech.bitey.bufferstuff.SmallIntBuffer;
 import tech.bitey.bufferstuff.SmallLongBuffer;
 
-abstract class NonNullVarLenColumn<E extends Comparable<E>, I extends Column<E>, C extends NonNullVarLenColumn<E, I, C>>
+abstract class NonNullVarLenColumn<E, I extends Column<E>, C extends NonNullVarLenColumn<E, I, C>>
 		extends NonNullColumn<E, I, C> {
 
 	final BigByteBuffer elements;
@@ -89,8 +89,8 @@ abstract class NonNullVarLenColumn<E extends Comparable<E>, I extends Column<E>,
 		return end(index) - pat(index);
 	}
 
-	ByteBuffer element(int index) {
-		return elements.smallSlice(pat(index), end(index));
+	BigByteBuffer element(int index) {
+		return elements.slice(pat(index), end(index));
 	}
 
 	@Override
@@ -233,7 +233,7 @@ abstract class NonNullVarLenColumn<E extends Comparable<E>, I extends Column<E>,
 
 	@Override
 	int compareValuesAt(C rhs, int l, int r) {
-		return getNoOffset(l + offset).compareTo(rhs.getNoOffset(r + rhs.offset));
+		return getType().compare(getNoOffset(l + offset), rhs.getNoOffset(r + rhs.offset));
 	}
 
 	@Override
@@ -285,7 +285,7 @@ abstract class NonNullVarLenColumn<E extends Comparable<E>, I extends Column<E>,
 
 	@Override
 	boolean checkSorted() {
-		return checkSorted0(i -> getNoOffset(i - 1).compareTo(getNoOffset(i)));
+		return checkSorted0(i -> getType().compare(getNoOffset(i - 1), getNoOffset(i)));
 	}
 
 	boolean checkSorted0(IntUnaryOperator comparator) {
@@ -304,11 +304,11 @@ abstract class NonNullVarLenColumn<E extends Comparable<E>, I extends Column<E>,
 		if (size < 2)
 			return true;
 
-		ByteBuffer prev = element(offset);
+		BigByteBuffer prev = element(offset);
 
 		for (int i = offset + 1; i <= lastIndex(); i++) {
 
-			ByteBuffer curr = element(i);
+			BigByteBuffer curr = element(i);
 
 			if (curr.equals(prev))
 				return false;
@@ -322,7 +322,7 @@ abstract class NonNullVarLenColumn<E extends Comparable<E>, I extends Column<E>,
 	@SuppressWarnings("unchecked")
 	@Override
 	C toSorted0() {
-		return (C) toSorted00(this, (l, r) -> getNoOffset(l + offset).compareTo(getNoOffset(r + offset)));
+		return (C) toSorted00(this, (l, r) -> getType().compare(getNoOffset(l + offset), getNoOffset(r + offset)));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -364,10 +364,10 @@ abstract class NonNullVarLenColumn<E extends Comparable<E>, I extends Column<E>,
 			keep.set(i - offset);
 			cardinality++;
 
-			ByteBuffer e1 = element(i);
+			BigByteBuffer e1 = element(i);
 			i--;
 			for (; i >= offset; i--) {
-				ByteBuffer e2 = element(i);
+				BigByteBuffer e2 = element(i);
 				if (!e1.equals(e2))
 					break;
 			}

@@ -26,7 +26,7 @@ import tech.bitey.bufferstuff.BufferSort;
 import tech.bitey.bufferstuff.BufferUtils;
 import tech.bitey.bufferstuff.SmallLongBuffer;
 
-abstract class LongArrayColumn<E extends Comparable<? super E>, I extends Column<E>, C extends LongArrayColumn<E, I, C>>
+abstract class LongArrayColumn<E, I extends Column<E>, C extends LongArrayColumn<E, I, C>>
 		extends NonNullSingleBufferColumn<E, I, C> {
 
 	final LongArrayPacker<E> packer;

@@ -18,6 +18,8 @@ package tech.bitey.bufferstuff;
 
 import static java.lang.Math.toIntExact;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.BufferOverflowException;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
@@ -27,6 +29,7 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.LongBuffer;
 import java.nio.ShortBuffer;
+import java.util.Objects;
 
 final class CompoundBigByteBuffer extends AbstractBigByteBuffer {
 
@@ -230,6 +233,11 @@ final class CompoundBigByteBuffer extends AbstractBigByteBuffer {
 		}
 
 		return BufferUtils.wrap(buffers);
+	}
+
+	@Override
+	public ByteBuffer smallSlice() {
+		return smallSlice(position, limit);
 	}
 
 	@Override
@@ -889,5 +897,63 @@ final class CompoundBigByteBuffer extends AbstractBigByteBuffer {
 			b.put(BufferUtils.slice(buffers[buf + 1], 0, b.remaining()));
 			return b.getDouble(0);
 		}
+	}
+
+	@Override
+	public InputStream toInputStream() {
+		return new InputStream() {
+
+			final BigByteBuffer buf = slice();
+
+			@Override
+			public int available() throws IOException {
+				return buf.remaining() <= Integer.MAX_VALUE ? (int) buf.remaining() : Integer.MAX_VALUE;
+			}
+
+			@Override
+			public int read() throws IOException {
+
+				return buf.hasRemaining() ? buf.get() & 0xFF : -1;
+			}
+
+			@Override
+			public int read(byte[] bytes, int off, int len) throws IOException {
+
+				if (!buf.hasRemaining())
+					return -1;
+
+				len = (int) Math.min(len, buf.remaining());
+				buf.get(bytes, off, len);
+				return len;
+			}
+
+			@Override
+			public String toString() {
+				return CompoundBigByteBuffer.this.toString();
+			}
+		};
+	}
+
+	@Override
+	public BigByteBuffer get(byte[] dst, int offset, int length) {
+		Objects.checkFromIndexSize(offset, length, dst.length);
+
+		if (length > remaining())
+			throw new BufferUnderflowException();
+
+		while (length > 0) {
+
+			ByteBuffer buf = buffers[buf(position)];
+			int byt = byt(position);
+
+			int read = Math.min(buf.capacity() - byt, length);
+			buf.get(byt, dst, offset, read);
+
+			offset += read;
+			position += read;
+			length -= read;
+		}
+
+		return this;
 	}
 }
