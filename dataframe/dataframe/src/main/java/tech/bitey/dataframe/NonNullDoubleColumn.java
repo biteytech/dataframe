@@ -21,10 +21,10 @@ import static java.util.Spliterator.NONNULL;
 import static java.util.Spliterator.SORTED;
 import static tech.bitey.bufferstuff.BufferUtils.EMPTY_BIG_BUFFER;
 import static tech.bitey.bufferstuff.BufferUtils.isSortedAndDistinct;
-import static tech.bitey.dataframe.Pr.checkElementIndex;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.DoublePredicate;
 import java.util.function.DoubleUnaryOperator;
 import java.util.stream.DoubleStream;
@@ -132,7 +132,7 @@ final class NonNullDoubleColumn extends NonNullSingleBufferColumn<Double, Double
 
 	@Override
 	public double getDouble(int index) {
-		checkElementIndex(index, size);
+		Objects.checkIndex(index, size);
 		return at(index + offset);
 	}
 

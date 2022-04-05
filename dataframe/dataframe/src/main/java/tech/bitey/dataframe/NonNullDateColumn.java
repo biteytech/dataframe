@@ -20,11 +20,11 @@ import static java.util.Spliterator.DISTINCT;
 import static java.util.Spliterator.SORTED;
 import static tech.bitey.bufferstuff.BufferUtils.EMPTY_BIG_BUFFER;
 import static tech.bitey.dataframe.IntArrayPacker.LOCAL_DATE;
-import static tech.bitey.dataframe.Pr.checkElementIndex;
 
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import tech.bitey.bufferstuff.BigByteBuffer;
 
@@ -59,7 +59,7 @@ final class NonNullDateColumn extends IntArrayColumn<LocalDate, DateColumn, NonN
 
 	@Override
 	public int yyyymmdd(int index) {
-		checkElementIndex(index, size);
+		Objects.checkIndex(index, size);
 		int packed = at(index + offset);
 		return (packed >>> 16) * 10000 + ((packed & 0xFF00) >>> 8) * 100 + (packed & 0xFF);
 	}

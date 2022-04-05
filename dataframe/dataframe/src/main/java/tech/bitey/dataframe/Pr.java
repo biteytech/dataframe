@@ -16,9 +16,7 @@
 
 package tech.bitey.dataframe;
 
-/*
- * Preconditions. Inspired by Google Guava's Preconditions.
- */
+// Preconditions
 enum Pr {
 	;
 
@@ -34,69 +32,12 @@ enum Pr {
 		}
 	}
 
-	static <T> T checkNotNull(T reference, String errorMessage) {
-		if (reference == null) {
-			throw new NullPointerException(errorMessage);
-		}
-		return reference;
-	}
-
-	static int checkElementIndex(int index, int size) {
-		return checkElementIndex(index, size, "index");
-	}
-
-	static int checkElementIndex(int index, int size, String desc) {
-		if (index < 0 || index >= size) {
-			throw new IndexOutOfBoundsException(badElementIndex(index, size, desc));
-		}
-		return index;
-	}
-
-	private static String badElementIndex(int index, int size, String desc) {
-		if (index < 0) {
-			return String.format("%s (%s) must not be negative", desc, index);
-		} else if (size < 0) {
-			throw new IllegalArgumentException("negative size: " + size);
-		} else { // index >= size
-			return String.format("%s (%s) must be less than size (%s)", desc, index, size);
-		}
-	}
-
-	static int checkPositionIndex(int index, int size) {
-		return checkPositionIndex(index, size, "index");
-	}
-
-	static int checkPositionIndex(int index, int size, String desc) {
+	static void checkPositionIndex(int index, int size) {
 		if (index < 0 || index > size) {
-			throw new IndexOutOfBoundsException(badPositionIndex(index, size, desc));
+			if (index < 0)
+				throw new IndexOutOfBoundsException("index (%d) cannot be negative".formatted(index));
+			else
+				throw new IndexOutOfBoundsException("index (%d) must be <= size (%d)".formatted(index, size));
 		}
-		return index;
-	}
-
-	private static String badPositionIndex(int index, int size, String desc) {
-		if (index < 0) {
-			return String.format("%s (%s) must not be negative", desc, index);
-		} else if (size < 0) {
-			throw new IllegalArgumentException("negative size: " + size);
-		} else { // index > size
-			return String.format("%s (%s) must not be greater than size (%s)", desc, index, size);
-		}
-	}
-
-	static void checkPositionIndexes(int start, int end, int size) {
-		if (start < 0 || end < start || end > size) {
-			throw new IndexOutOfBoundsException(badPositionIndexes(start, end, size));
-		}
-	}
-
-	static String badPositionIndexes(int start, int end, int size) {
-		if (start < 0 || start > size) {
-			return badPositionIndex(start, size, "start index");
-		}
-		if (end < 0 || end > size) {
-			return badPositionIndex(end, size, "end index");
-		}
-		// end < start
-		return String.format("end index (%s) must not be less than start index (%s)", end, start);
 	}
 }

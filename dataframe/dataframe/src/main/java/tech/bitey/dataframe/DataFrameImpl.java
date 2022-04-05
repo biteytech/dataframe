@@ -24,8 +24,6 @@ import static java.util.Spliterator.DISTINCT;
 import static java.util.Spliterator.SORTED;
 import static tech.bitey.dataframe.NonNullColumn.NONNULL_CHARACTERISTICS;
 import static tech.bitey.dataframe.Pr.checkArgument;
-import static tech.bitey.dataframe.Pr.checkElementIndex;
-import static tech.bitey.dataframe.Pr.checkNotNull;
 import static tech.bitey.dataframe.Pr.checkPositionIndex;
 
 import java.io.BufferedOutputStream;
@@ -93,7 +91,7 @@ final class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 	 *--------------------------------------------------------------------------------*/
 	DataFrameImpl(LinkedHashMap<String, Column<?>> columnMap, String keyColumnName) {
 
-		checkNotNull(columnMap, "columnMap cannot be null");
+		Objects.requireNonNull(columnMap, "columnMap cannot be null");
 		checkArgument(!columnMap.isEmpty(), "columnMap cannot be empty");
 		checkArgument(!columnMap.containsKey(null), "column name cannot be null");
 		checkArgument(!columnMap.containsValue(null), "column cannot be null");
@@ -142,17 +140,21 @@ final class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 	 *	Precondition Utility Methods
 	 *--------------------------------------------------------------------------------*/
 	private int checkedColumnIndex(String columnName) {
-		checkArgument(columnToIndexMap.containsKey(columnName), "no such column name: " + columnName);
-		return columnToIndexMap.get(columnName);
+
+		Integer index = columnToIndexMap.get(columnName);
+		if (index == null)
+			throw new IllegalArgumentException("no such column name: " + columnName);
+
+		return index;
 	}
 
 	private String checkedColumnName(int columnIndex) {
-		checkElementIndex(columnIndex, columnNames.length);
+		Objects.checkIndex(columnIndex, columnNames.length);
 		return columnNames[columnIndex];
 	}
 
 	private Column<?> checkedColumn(int columnIndex) {
-		checkElementIndex(columnIndex, columns.length);
+		Objects.checkIndex(columnIndex, columns.length);
 		return columns[columnIndex];
 	}
 
@@ -199,7 +201,7 @@ final class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 
 	@Override
 	public Row get(int rowIndex) {
-		checkElementIndex(rowIndex, size());
+		Objects.checkIndex(rowIndex, size());
 		return new RowImpl(rowIndex);
 	}
 

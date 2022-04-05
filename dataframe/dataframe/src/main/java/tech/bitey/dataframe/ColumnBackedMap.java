@@ -17,9 +17,9 @@
 package tech.bitey.dataframe;
 
 import static tech.bitey.dataframe.Pr.checkArgument;
-import static tech.bitey.dataframe.Pr.checkNotNull;
 
 import java.util.Iterator;
+import java.util.Objects;
 
 class ColumnBackedMap<K extends Comparable<? super K>, V extends Comparable<? super V>>
 		extends AbstractKeyBackedMap<K, V> {
@@ -29,8 +29,8 @@ class ColumnBackedMap<K extends Comparable<? super K>, V extends Comparable<? su
 	ColumnBackedMap(Column<K> keyColumn, Column<V> valueColumn) {
 		super(keyColumn);
 
-		checkNotNull(keyColumn, "key column cannot be null");
-		checkNotNull(valueColumn, "value column cannot be null");
+		Objects.requireNonNull(keyColumn, "key column cannot be null");
+		Objects.requireNonNull(valueColumn, "value column cannot be null");
 		checkArgument(keyColumn.isDistinct(), "key column must be a unique index");
 		checkArgument(keyColumn.size() == valueColumn.size(), "key and value columns must have the same size");
 

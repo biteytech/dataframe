@@ -21,10 +21,10 @@ import static java.util.Spliterator.NONNULL;
 import static java.util.Spliterator.SORTED;
 import static tech.bitey.bufferstuff.BufferUtils.EMPTY_BIG_BUFFER;
 import static tech.bitey.bufferstuff.BufferUtils.isSortedAndDistinct;
-import static tech.bitey.dataframe.Pr.checkElementIndex;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import tech.bitey.bufferstuff.BigByteBuffer;
 import tech.bitey.bufferstuff.BufferBitSet;
@@ -129,7 +129,7 @@ final class NonNullFloatColumn extends NonNullSingleBufferColumn<Float, FloatCol
 
 	@Override
 	public float getFloat(int index) {
-		checkElementIndex(index, size);
+		Objects.checkIndex(index, size);
 		return at(index + offset);
 	}
 

@@ -18,13 +18,14 @@ package tech.bitey.dataframe;
 
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.util.Objects;
 
 public class DataFrameResultSetMetaData implements ResultSetMetaData {
 
 	private final DataFrame df;
 
 	DataFrameResultSetMetaData(DataFrame df) {
-		Pr.checkNotNull(df, "dataframe cannot be null");
+		Objects.requireNonNull(df, "dataframe cannot be null");
 		this.df = df;
 	}
 

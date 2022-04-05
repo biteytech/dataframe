@@ -19,7 +19,6 @@ package tech.bitey.dataframe;
 import static java.lang.Character.isLetterOrDigit;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static tech.bitey.dataframe.Pr.checkArgument;
-import static tech.bitey.dataframe.Pr.checkNotNull;
 import static tech.bitey.dataframe.Pr.checkState;
 
 import java.io.BufferedReader;
@@ -29,6 +28,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Function;
 
 /**
@@ -87,11 +87,10 @@ public record ReadCsvConfig(
 		checkArgument(delim <= 0x7F && !isLetterOrDigit(delim) && delim != '"' && delim != '\r' && delim != '\n',
 				"delimiter must an ASCII character which is not a letter, digit, double quote, CR, or LF");
 
-		Pr.checkNotNull(nullValue, "nullValue cannot itself be null");
-
 		columnTypes = List.copyOf(columnTypes);
 		columnNames = columnNames == null ? null : List.copyOf(columnNames);
 		columnParsers = columnParsers == null ? null : new ArrayList<>(columnParsers);
+		nullValue = nullValue == null ? DEFAULT_NULL_VALUE : nullValue;
 	}
 
 	public ReadCsvConfig(ColumnType<?>... columnTypes) {
@@ -133,7 +132,7 @@ public record ReadCsvConfig(
 				columnNames = nextRecord(in, rno, lineno, true);
 				rno++;
 
-				checkNotNull(columnNames, "missing header - no column names configured and empty input");
+				Objects.requireNonNull(columnNames, "missing header - no column names configured and empty input");
 				checkState(columnNames.length == builders.length, "mismatch between number of fields in header ("
 						+ columnNames.length + "), vs configured types (" + builders.length + ")");
 			} else {

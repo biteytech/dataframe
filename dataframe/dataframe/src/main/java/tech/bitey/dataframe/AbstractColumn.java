@@ -23,8 +23,6 @@ import static tech.bitey.bufferstuff.BufferUtils.writeFully;
 import static tech.bitey.dataframe.ColumnType.NSTRING;
 import static tech.bitey.dataframe.ColumnType.STRING;
 import static tech.bitey.dataframe.Pr.checkArgument;
-import static tech.bitey.dataframe.Pr.checkElementIndex;
-import static tech.bitey.dataframe.Pr.checkPositionIndexes;
 
 import java.io.IOException;
 import java.lang.reflect.Array;
@@ -62,7 +60,7 @@ abstract class AbstractColumn<E, I extends Column<E>, C extends AbstractColumn<E
 	@Override
 	public C subColumn(int fromIndex, int toIndex) {
 
-		checkPositionIndexes(fromIndex, toIndex, size);
+		Objects.checkFromToIndex(fromIndex, toIndex, size);
 
 		final int subSize = toIndex - fromIndex;
 
@@ -145,14 +143,14 @@ abstract class AbstractColumn<E, I extends Column<E>, C extends AbstractColumn<E
 
 	@Override
 	public E get(int index) {
-		checkElementIndex(index, size);
+		Objects.checkIndex(index, size);
 
 		return getNoOffset(index + offset);
 	}
 
 	@Override
 	public boolean isNull(int index) {
-		checkElementIndex(index, size);
+		Objects.checkIndex(index, size);
 
 		return isNullNoOffset(index + offset);
 	}

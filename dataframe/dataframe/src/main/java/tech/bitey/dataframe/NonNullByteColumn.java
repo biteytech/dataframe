@@ -19,10 +19,10 @@ package tech.bitey.dataframe;
 import static java.util.Spliterator.DISTINCT;
 import static java.util.Spliterator.SORTED;
 import static tech.bitey.bufferstuff.BufferUtils.EMPTY_BIG_BUFFER;
-import static tech.bitey.dataframe.Pr.checkElementIndex;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import tech.bitey.bufferstuff.BigByteBuffer;
 import tech.bitey.bufferstuff.BufferBitSet;
@@ -63,7 +63,7 @@ final class NonNullByteColumn extends ByteArrayColumn<Byte, ByteColumn, NonNullB
 
 	@Override
 	public byte getByte(int index) {
-		checkElementIndex(index, size);
+		Objects.checkIndex(index, size);
 		return at(index + offset);
 	}
 

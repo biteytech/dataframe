@@ -21,11 +21,11 @@ import static java.lang.Boolean.TRUE;
 import static java.nio.ByteOrder.BIG_ENDIAN;
 import static java.util.Spliterator.NONNULL;
 import static tech.bitey.bufferstuff.BufferBitSet.EMPTY_BITSET;
-import static tech.bitey.dataframe.Pr.checkElementIndex;
 
 import java.io.IOException;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
+import java.util.Objects;
 
 import tech.bitey.bufferstuff.BufferBitSet;
 
@@ -83,7 +83,7 @@ final class NonNullBooleanColumn extends NonNullColumn<Boolean, BooleanColumn, N
 
 	@Override
 	public boolean getBoolean(int index) {
-		checkElementIndex(index, size);
+		Objects.checkIndex(index, size);
 		return elements.get(index + offset);
 	}
 

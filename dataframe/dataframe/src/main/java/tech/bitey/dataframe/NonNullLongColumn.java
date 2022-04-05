@@ -20,10 +20,10 @@ import static java.util.Spliterator.DISTINCT;
 import static java.util.Spliterator.SORTED;
 import static tech.bitey.bufferstuff.BufferUtils.EMPTY_BIG_BUFFER;
 import static tech.bitey.dataframe.LongArrayPacker.LONG;
-import static tech.bitey.dataframe.Pr.checkElementIndex;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.LongPredicate;
 import java.util.function.LongUnaryOperator;
 import java.util.stream.LongStream;
@@ -69,7 +69,7 @@ final class NonNullLongColumn extends LongArrayColumn<Long, LongColumn, NonNullL
 
 	@Override
 	public long getLong(int index) {
-		checkElementIndex(index, size);
+		Objects.checkIndex(index, size);
 		return at(index + offset);
 	}
 

@@ -24,7 +24,6 @@ import static tech.bitey.dataframe.Pr.checkPositionIndex;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.nio.ByteBuffer;
 import java.nio.channels.ReadableByteChannel;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -461,10 +460,6 @@ abstract class NonNullColumn<E, I extends Column<E>, C extends NonNullColumn<E, 
 	@Override
 	public C tail(E fromElement) {
 		return tail(fromElement, true);
-	}
-
-	void validateBuffer(ByteBuffer buffer) {
-		checkArgument(buffer.position() == 0, "buffer position must be zero");
 	}
 
 	void validateBuffer(BigByteBuffer buffer) {

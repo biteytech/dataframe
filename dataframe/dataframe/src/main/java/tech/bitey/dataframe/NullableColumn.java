@@ -18,7 +18,6 @@ package tech.bitey.dataframe;
 
 import static java.nio.ByteOrder.BIG_ENDIAN;
 import static tech.bitey.bufferstuff.BufferBitSet.EMPTY_BITSET;
-import static tech.bitey.dataframe.Pr.checkElementIndex;
 import static tech.bitey.dataframe.Pr.checkPositionIndex;
 
 import java.io.IOException;
@@ -31,6 +30,7 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.NavigableSet;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -125,7 +125,7 @@ abstract class NullableColumn<E, I extends Column<E>, C extends NonNullColumn<E,
 	}
 
 	void checkGetPrimitive(int index) {
-		checkElementIndex(index, size);
+		Objects.checkIndex(index, size);
 
 		if (isNullNoOffset(index + offset))
 			throw new NullPointerException();

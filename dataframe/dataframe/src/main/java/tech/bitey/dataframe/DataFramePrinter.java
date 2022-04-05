@@ -18,6 +18,7 @@ package tech.bitey.dataframe;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
+import java.util.Objects;
 import java.util.stream.IntStream;
 
 /**
@@ -109,7 +110,7 @@ class DataFramePrinter {
 	 * Copied from Google Guava
 	 */
 	private static String repeat(String string, int count) {
-		Pr.checkNotNull(string, "string cannot be null");
+		Objects.requireNonNull(string, "string cannot be null");
 
 		if (count <= 1) {
 			Pr.checkArgument(count >= 0, "count must be nonnegative");

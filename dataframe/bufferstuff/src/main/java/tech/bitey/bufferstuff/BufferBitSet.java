@@ -1396,12 +1396,12 @@ public class BufferBitSet implements Cloneable {
 	 * Checks that fromIndex ... toIndex is a valid range of bit indices.
 	 */
 	private static void checkRange(int fromIndex, int toIndex) {
-		if (fromIndex < 0)
-			throw new IndexOutOfBoundsException("fromIndex < 0: " + fromIndex);
-		if (toIndex < 0)
-			throw new IndexOutOfBoundsException("toIndex < 0: " + toIndex);
-		if (fromIndex > toIndex)
-			throw new IndexOutOfBoundsException("fromIndex: " + fromIndex + " > toIndex: " + toIndex);
+		if (fromIndex < 0 || fromIndex > toIndex) {
+			if (fromIndex < 0)
+				throw new IndexOutOfBoundsException("fromIndex < 0: " + fromIndex);
+			else
+				throw new IndexOutOfBoundsException("fromIndex: " + fromIndex + " > toIndex: " + toIndex);
+		}
 	}
 
 	/**

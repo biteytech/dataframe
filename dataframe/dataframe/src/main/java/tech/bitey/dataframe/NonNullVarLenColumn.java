@@ -44,7 +44,7 @@ abstract class NonNullVarLenColumn<E, I extends Column<E>, C extends NonNullVarL
 	final BigByteBuffer elements;
 
 	final BigByteBuffer rawPointers;
-	final SmallLongBuffer pointers; // pointers[0] is always 0 - it's just easier that way :P
+	final SmallLongBuffer pointers;
 
 	final VarLenPacker<E> packer;
 
@@ -268,8 +268,13 @@ abstract class NonNullVarLenColumn<E, I extends Column<E>, C extends NonNullVarL
 		if (isEmpty())
 			return empty();
 
-		BigByteBuffer rawPointers = copyRawPointers();
-		zero(rawPointers, size);
+		final BigByteBuffer rawPointers;
+		if (offset == 0) {
+			rawPointers = sliceRawPointers();
+		} else {
+			rawPointers = copyRawPointers();
+			zero(rawPointers, size);
+		}
 
 		return construct(sliceElements(), rawPointers, 0, size, characteristics, false);
 	}
@@ -278,6 +283,10 @@ abstract class NonNullVarLenColumn<E, I extends Column<E>, C extends NonNullVarL
 		if (size > 0) {
 			SmallLongBuffer pointers = rawPointers.asLongBuffer();
 			long first = pointers.get(0);
+
+			if (first == 0)
+				return;
+
 			for (int i = 0; i < size; i++)
 				pointers.put(i, pointers.get(i) - first);
 		}
