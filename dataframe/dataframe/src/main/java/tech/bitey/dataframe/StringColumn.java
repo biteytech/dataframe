@@ -16,6 +16,8 @@
 
 package tech.bitey.dataframe;
 
+import static tech.bitey.dataframe.NormalStringColumnBuilder.MAX_VALUES;
+
 import java.math.BigDecimal;
 import java.nio.ByteBuffer;
 import java.time.LocalDate;
@@ -364,7 +366,7 @@ public interface StringColumn extends Column<String> {
 
 	/**
 	 * Convert this column into a {@link NormalStringColumn} if it contains at most
-	 * 256 distinct elements and the resulting column takes up not more than
+	 * 65536 distinct elements and the resulting column takes up not more than
 	 * approximately {@code threshold%} of the space of this column.
 	 * 
 	 * @param threshold a value &gt; 0 and &lt;= 1. For example, 0.2 means that a
@@ -377,25 +379,29 @@ public interface StringColumn extends Column<String> {
 
 		Pr.checkArgument(threshold > 0 && threshold <= 1, "threshold must be > 0 and <= 1");
 
-		if (size() < 2)
+		if (size() < 2 || getType() == ColumnType.NSTRING)
 			return this;
 
 		// hash -> String.length()
 		Map<NormalStringHash, Integer> distinct = new HashMap<>();
 
 		long thisLength = 0;
-		int nonNullSize = 0;
+		long nonNullSize = 0;
 		for (String value : this) {
 			if (value != null) {
 				thisLength += value.length();
 				distinct.computeIfAbsent(new NormalStringHash(value), x -> value.length());
 				nonNullSize++;
 			}
-			if (distinct.size() > 256)
+			if (distinct.size() > MAX_VALUES)
 				return this;
 		}
 
 		thisLength += nonNullSize * 8; // pointers
+
+		if (distinct.size() > 256)
+			nonNullSize *= 2; // shorts instead of bytes
+
 		long normalLength = nonNullSize + distinct.values().stream().mapToLong(i -> i).sum();
 
 		if (normalLength < thisLength * threshold)

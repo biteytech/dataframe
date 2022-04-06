@@ -23,37 +23,38 @@ import java.util.function.Predicate;
 
 import tech.bitey.bufferstuff.BufferBitSet;
 
-public class NormalStringColumnByteImpl extends NormalStringColumnImpl<Byte, ByteColumn, NormalStringColumnByteImpl>
+public class NormalStringColumnShortImpl extends NormalStringColumnImpl<Short, ShortColumn, NormalStringColumnShortImpl>
 		implements NormalStringColumn {
 
-	static final NormalStringColumnByteImpl EMPTY = new NormalStringColumnByteImpl(
-			NonNullByteColumn.empty(NONNULL_CHARACTERISTICS), NonNullStringColumn.empty(NONNULL_CHARACTERISTICS), 0, 0);
+	static final NormalStringColumnShortImpl EMPTY = new NormalStringColumnShortImpl(
+			NonNullShortColumn.empty(NONNULL_CHARACTERISTICS), NonNullStringColumn.empty(NONNULL_CHARACTERISTICS), 0,
+			0);
 
-	NormalStringColumnByteImpl(ByteColumn indices, NonNullStringColumn values, int offset, int size) {
+	NormalStringColumnShortImpl(ShortColumn indices, NonNullStringColumn values, int offset, int size) {
 		super(indices, values, offset, size);
 	}
 
 	@Override
-	NormalStringColumnByteImpl constuct(ByteColumn indices, NonNullStringColumn values, int offset, int size) {
-		return new NormalStringColumnByteImpl(indices, values, offset, size);
+	NormalStringColumnShortImpl constuct(ShortColumn indices, NonNullStringColumn values, int offset, int size) {
+		return new NormalStringColumnShortImpl(indices, values, offset, size);
 	}
 
 	@Override
-	NormalStringColumnByteImpl empty() {
+	NormalStringColumnShortImpl empty() {
 		return EMPTY;
 	}
 
 	@Override
 	String at(int index) {
-		return values.get(indices.get(index) & 0xFF);
+		return values.get(indices.get(index) & 0xFFFF);
 	}
 
 	@Override
 	public boolean equals(Object o) {
 		if (o == this) {
 			return true;
-		} else if (o instanceof NormalStringColumnByteImpl) {
-			return equals0((NormalStringColumnByteImpl) o);
+		} else if (o instanceof NormalStringColumnShortImpl) {
+			return equals0((NormalStringColumnShortImpl) o);
 		} else if (o instanceof List) {
 			return super.equals(o);
 		} else {
@@ -84,7 +85,7 @@ public class NormalStringColumnByteImpl extends NormalStringColumnImpl<Byte, Byt
 			this.cardinality = cardinality;
 		}
 
-		NormalStringColumn finish(ByteColumn indices, boolean flip) {
+		NormalStringColumn finish(ShortColumn indices, boolean flip) {
 
 			int cardinality = this.cardinality;
 
@@ -100,9 +101,9 @@ public class NormalStringColumnByteImpl extends NormalStringColumnImpl<Byte, Byt
 				if (filter.get(i))
 					remap[i] = (byte) (j++);
 
-			ByteColumn byts = indices.evaluate(b -> remap[b & 0xFF]);
+			ShortColumn byts = indices.evaluate(b -> remap[b & 0xFFFF]);
 
-			return new NormalStringColumnByteImpl(byts, vals, 0, byts.size());
+			return new NormalStringColumnShortImpl(byts, vals, 0, byts.size());
 		}
 	}
 
@@ -116,8 +117,8 @@ public class NormalStringColumnByteImpl extends NormalStringColumnImpl<Byte, Byt
 		else if (filter.cardinality == 0)
 			return this;
 
-		ByteColumn subColumn = this.indices.subColumn(offset, offset + size);
-		ByteColumn indices = subColumn.cleanByte(b -> filter.filter.get(b & 0xFF));
+		ShortColumn subColumn = this.indices.subColumn(offset, offset + size);
+		ShortColumn indices = subColumn.cleanShort(b -> filter.filter.get(b & 0xFFFF));
 
 		return filter.finish(indices, true);
 	}
@@ -134,8 +135,8 @@ public class NormalStringColumnByteImpl extends NormalStringColumnImpl<Byte, Byt
 				return EMPTY;
 		}
 
-		ByteColumn subColumn = this.indices.subColumn(offset, offset + size);
-		ByteColumn indices = subColumn.filterByte(b -> filter.filter.get(b & 0xFF), keepNulls);
+		ShortColumn subColumn = this.indices.subColumn(offset, offset + size);
+		ShortColumn indices = subColumn.filterShort(b -> filter.filter.get(b & 0xFFFF), keepNulls);
 
 		if (indices.size() == 0)
 			return EMPTY;

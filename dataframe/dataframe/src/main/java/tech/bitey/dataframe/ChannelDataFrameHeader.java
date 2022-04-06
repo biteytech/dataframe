@@ -35,8 +35,9 @@ class ChannelDataFrameHeader {
 	 * v2: modified NormalStringColumnImpl representation
 	 * v3: modified NonNullUuidColumn representation
 	 * v4: BigByteBuffer and friends
+	 * v5: support byte & short NormalStringColumn implementations
 	 */
-	private static final int VERSION = 4;
+	private static final int VERSION = 5;
 
 	private static final ByteOrder ORDER = ByteOrder.BIG_ENDIAN;
 

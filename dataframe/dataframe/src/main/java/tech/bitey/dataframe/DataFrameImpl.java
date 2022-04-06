@@ -785,7 +785,7 @@ final class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 				final BufferBitSet nonNulls;
 				if (columns[i].getType() == ColumnType.NSTRING) {
 					NormalStringColumnImpl c = (NormalStringColumnImpl) columns[i];
-					NullableColumn n = (NullableColumn) c.bytes;
+					NullableColumn n = (NullableColumn) c.indices;
 					nonNulls = n.nonNulls.get(c.offset, c.offset + c.size);
 				} else {
 					NullableColumn n = (NullableColumn) columns[i];

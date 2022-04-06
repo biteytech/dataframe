@@ -43,18 +43,21 @@ import tech.bitey.bufferstuff.BufferBitSet;
 public final class NormalStringColumnBuilder
 		extends AbstractColumnBuilder<String, NormalStringColumn, NormalStringColumnBuilder> {
 
-	private final ByteColumnBuilder builder;
+	static final int MAX_VALUES = 1 << 16;
+	private static final String MAX_VALUE_ERROR = "exceeded %d distinct values".formatted(MAX_VALUES);
+
+	private final ShortColumnBuilder builder;
 	private final StringColumnBuilder values;
 
-	private final Map<NormalStringHash, Byte> codeMap;
+	private final Map<NormalStringHash, Integer> valueIndexMap;
 
 	NormalStringColumnBuilder() {
 		super(0);
 
-		builder = new ByteColumnBuilder(NONNULL);
+		builder = new ShortColumnBuilder(NONNULL);
 		values = new StringColumnBuilder(NONNULL);
 
-		codeMap = new HashMap<>();
+		valueIndexMap = new HashMap<>();
 	}
 
 	@Override
@@ -65,16 +68,16 @@ public final class NormalStringColumnBuilder
 	@Override
 	void addNonNull(String element) {
 
-		int mapSize = codeMap.size();
+		int mapSize = valueIndexMap.size();
 
-		byte b = codeMap.computeIfAbsent(new NormalStringHash(element), x -> {
-			if (mapSize == 256)
-				throw new RuntimeException("exceeded 256 distinct values");
+		int index = valueIndexMap.computeIfAbsent(new NormalStringHash(element), x -> {
+			if (mapSize == MAX_VALUES)
+				throw new RuntimeException(MAX_VALUE_ERROR);
 			values.add(element);
-			return (byte) mapSize;
+			return mapSize;
 		});
 
-		builder.add(b);
+		builder.add((short) index);
 		size++;
 	}
 
@@ -111,23 +114,31 @@ public final class NormalStringColumnBuilder
 
 	@Override
 	NormalStringColumn emptyNonNull() {
-		return NormalStringColumnImpl.EMPTY;
+		return NormalStringColumnByteImpl.EMPTY;
 	}
 
 	@Override
 	NormalStringColumn buildNonNullColumn(int characteristics) {
 
-		return new NormalStringColumnImpl(builder.build(), (NonNullStringColumn) values.build(), 0, builder.size());
+		if (valueIndexMap.size() <= 256)
+			return new NormalStringColumnByteImpl(builder.build().toByteColumn(Short::byteValue),
+					(NonNullStringColumn) values.build(), 0, builder.size());
+		else
+			return new NormalStringColumnShortImpl(builder.build(), (NonNullStringColumn) values.build(), 0,
+					builder.size());
 	}
 
 	@Override
 	NormalStringColumn wrapNullableColumn(NormalStringColumn column, BufferBitSet nonNulls) {
 
-		NormalStringColumnImpl impl = (NormalStringColumnImpl) column;
-
-		ByteColumn bytes = new NullableByteColumn((NonNullByteColumn) impl.bytes, nonNulls, null, 0, size);
-
-		return new NormalStringColumnImpl(bytes, impl.values, 0, size);
+		if (column instanceof NormalStringColumnByteImpl impl) {
+			ByteColumn bytes = new NullableByteColumn((NonNullByteColumn) impl.indices, nonNulls, null, 0, size);
+			return new NormalStringColumnByteImpl(bytes, impl.values, 0, size);
+		} else {
+			NormalStringColumnShortImpl impl = (NormalStringColumnShortImpl) column;
+			ShortColumn shorts = new NullableShortColumn((NonNullShortColumn) impl.indices, nonNulls, null, 0, size);
+			return new NormalStringColumnShortImpl(shorts, impl.values, 0, size);
+		}
 	}
 
 	@Override
@@ -138,29 +149,31 @@ public final class NormalStringColumnBuilder
 
 		builder.append(tail.builder);
 
-		byte[] remap = new byte[tail.codeMap.size()];
-		int r = codeMap.size();
+		short[] remap = new short[tail.valueIndexMap.size()];
+		int r = valueIndexMap.size();
 		IntColumnBuilder indices = IntColumn.builder(NONNULL);
-		for (var e : tail.codeMap.entrySet()) {
+		for (var e : tail.valueIndexMap.entrySet()) {
 
-			int tailByte = e.getValue() & 0xFF;
+			int tailIndex = e.getValue();
 
-			if (codeMap.containsKey(e.getKey())) {
-				remap[tailByte] = codeMap.get(e.getKey());
+			if (valueIndexMap.containsKey(e.getKey())) {
+				remap[tailIndex] = valueIndexMap.get(e.getKey()).shortValue();
 			} else {
-				if (r >= 256)
-					throw new RuntimeException("exceeded 256 distinct values");
+				if (r >= MAX_VALUES)
+					throw new RuntimeException(MAX_VALUE_ERROR);
 
-				codeMap.put(e.getKey(), remap[tailByte] = (byte) (r++));
-				indices.add(tailByte);
+				remap[tailIndex] = (short) (r);
+				valueIndexMap.put(e.getKey(), r);
+				r++;
+				indices.add(tailIndex);
 			}
 		}
 
 		values.addAll(((NonNullStringColumn) tail.values.build()).select(indices.build()));
 
 		for (int i = headSize; i < headSize + tailSize; i++) {
-			byte b = builder.buffer.get(i);
-			builder.buffer.put(i, remap[b & 0xFF]);
+			short s = builder.buffer.getShort(i * 2);
+			builder.buffer.putShort(i * 2, remap[s & 0xFFFF]);
 		}
 	}
 }

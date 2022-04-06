@@ -416,9 +416,23 @@ public abstract class ColumnType<E> {
 				yield new NullableUuidColumn(column, nonNulls, null, 0, size);
 		}
 		case NS -> {
-			ByteColumn bytes = (ByteColumn) BYTE.readFrom(channel, characteristics, version);
-			NonNullStringColumn values;
+			final ColumnTypeCode colTypeCode;
+			if (version < 5)
+				colTypeCode = Y;
+			else {
+				ByteBuffer buf = ByteBuffer.allocate(1);
+				channel.read(buf);
+				// Y (byte) or T (short)
+				colTypeCode = ColumnTypeCode.valueOf(new String(new byte[] { buf.get(0) }));
+			}
 
+			final Column<? extends Number> indices;
+			if (colTypeCode == Y)
+				indices = (ByteColumn) BYTE.readFrom(channel, characteristics, version);
+			else
+				indices = (ShortColumn) SHORT.readFrom(channel, characteristics, version);
+
+			final NonNullStringColumn values;
 			if (version == 1) {
 				StringColumnBuilder builder = StringColumn.builder(NONNULL);
 				int count = readInt(channel, BIG_ENDIAN);
@@ -435,7 +449,10 @@ public abstract class ColumnType<E> {
 				values = (NonNullStringColumn) STRING.readFrom(channel, NONNULL, version);
 			}
 
-			yield new NormalStringColumnImpl(bytes, values, 0, bytes.size());
+			if (colTypeCode == Y)
+				yield new NormalStringColumnByteImpl((ByteColumn) indices, values, 0, indices.size());
+			else
+				yield new NormalStringColumnShortImpl((ShortColumn) indices, values, 0, indices.size());
 		}
 		};
 	}
