@@ -38,6 +38,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
 import java.util.TreeMap;
+import java.util.UUID;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -760,6 +761,45 @@ public class TestDataFrame {
 
 			Assertions.assertEquals(expected, actual);
 		}
+	}
+
+	@Test
+	public void testRecords() {
+
+		record TestRecord(boolean c0, int c1, Integer c2, long c3, Long c4, double c5, Double c6, float c7, Float c8,
+				short c9, Short c10, byte c11, Byte c12, String c13, UUID c14, BigDecimal c15, LocalDate c16) {
+		}
+
+		List<TestRecord> expected = new ArrayList<>();
+
+		expected.add(new TestRecord(false, 0, 0, 0L, 0L, 0d, 0d, 0f, 0f, (short) 0, (short) 0, (byte) 0, (byte) 0, "",
+				new UUID(0, 0), BigDecimal.ZERO, LocalDate.EPOCH));
+		expected.add(new TestRecord(false, 0, null, 0L, null, 0d, null, 0f, null, (short) 0, null, (byte) 0, null, null,
+				null, null, null));
+		expected.add(new TestRecord(true, 1, 1, 1L, 1L, 1d, 1d, 1f, 1f, (short) 1, (short) 1, (byte) 1, (byte) 1, "hi",
+				UUID.randomUUID(), BigDecimal.ONE, LocalDate.now()));
+
+		DataFrame df = DataFrameFactory.of(expected);
+
+		List<TestRecord> actual = df.stream(TestRecord.class).toList();
+
+		Assertions.assertEquals(expected, actual);
+	}
+
+	@Test
+	public void testRecordsEmpty() {
+
+		record TestRecordEmpty(int foo, String bar) {
+		}
+
+		List<TestRecordEmpty> expected = List.of();
+
+		DataFrame df = DataFrameFactory.of(TestRecordEmpty.class, expected);
+		Assertions.assertEquals(df, DataFrameFactory.of("foo", IntColumn.of(), "bar", StringColumn.of()));
+
+		List<TestRecordEmpty> actual = df.stream(TestRecordEmpty.class).toList();
+
+		Assertions.assertEquals(expected, actual);
 	}
 
 	private static LocalDate fromInt(int yyyymmdd) {

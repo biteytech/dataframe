@@ -48,6 +48,7 @@ import java.util.function.Predicate;
 import java.util.function.ToDoubleFunction;
 import java.util.function.ToIntFunction;
 import java.util.function.ToLongFunction;
+import java.util.stream.Stream;
 
 /**
  * A two-dimensional, {@link Column}-oriented, immutable, heterogeneous tabular
@@ -203,6 +204,31 @@ public sealed interface DataFrame extends List<Row>, RandomAccess permits DataFr
 	 * @return a {@link ResultSet} backed by this dataframe.
 	 */
 	ResultSet asResultSet();
+
+	/**
+	 * Returns a {@link Stream} of {@link Record records}, where each row in the
+	 * dataframe is mapped to a record of the specified type.
+	 * <p>
+	 * Dataframe columns and record components are associated by position - names
+	 * are ignored. The record type must be compatible with the dataframe columns in
+	 * the following ways:
+	 * <ul>
+	 * <li>The number of record components must match the number of columns
+	 * <li>Each column and associated component must have compatible types (no
+	 * attempt is made at type conversion). Both primitive and boxed types will
+	 * work.
+	 * </ul>
+	 * 
+	 * @param <R>         - a record type
+	 * @param recordClass - record type class
+	 * 
+	 * @return a stream of records of the specified type.
+	 * 
+	 * @throws NullPointerException     if {@code recordClass} is null
+	 * @throws IllegalArgumentException if {@code recordClass} is not compatible
+	 *                                  with this dataframe's columns.
+	 */
+	<R extends Record> Stream<R> stream(Class<R> recordClass);
 
 	/*--------------------------------------------------------------------------------
 	 *	Key Column Methods

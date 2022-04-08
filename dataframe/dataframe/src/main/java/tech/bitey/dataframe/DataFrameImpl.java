@@ -31,6 +31,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.RecordComponent;
 import java.math.BigDecimal;
 import java.nio.channels.FileChannel;
 import java.nio.channels.WritableByteChannel;
@@ -265,6 +267,43 @@ final class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 	public ResultSet asResultSet() {
 
 		return new DataFrameResultSet(this);
+	}
+
+	@Override
+	public <R extends Record> Stream<R> stream(Class<R> recordClass) {
+
+		Objects.requireNonNull(recordClass, "recordClass cannot be null");
+
+		RecordComponent[] components = recordClass.getRecordComponents();
+
+		if (components.length != columns.length)
+			throw new IllegalArgumentException("number of record components (%d) must match number of columns (%d)"
+					.formatted(components.length, columns.length));
+
+		for (int i = 0; i < columns.length; i++) {
+
+			ColumnType colType = columns[i].getType();
+			Class<?> compType = components[i].getType();
+
+			if (compType != colType.getType() && compType != colType.getPrimitiveType())
+				throw new IllegalArgumentException("%s column %s is not compatible with record component %s"
+						.formatted(colType.getCode(), columnNames[i], components[i]));
+		}
+
+		Constructor<R> constructor = (Constructor<R>) recordClass.getDeclaredConstructors()[0];
+		constructor.setAccessible(true);
+
+		Object[] args = new Object[columns.length];
+
+		return stream().map(r -> {
+			for (int i = 0; i < columns.length; i++)
+				args[i] = r.get(i);
+			try {
+				return constructor.newInstance(args);
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+		});
 	}
 
 	/*--------------------------------------------------------------------------------

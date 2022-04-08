@@ -22,15 +22,19 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Method;
+import java.lang.reflect.RecordComponent;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.file.StandardOpenOption;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Factory methods for creating {@link DataFrame DataFrames}.
@@ -569,4 +573,140 @@ public enum DataFrameFactory {
 				new String[] { name1, name2, name3, name4, name5, name6, name7, name8, name9, name10 });
 	}
 
+	/**
+	 * Converts a {@link Collection collection} of {@link Record records} into a
+	 * {@link DataFrame dataframe}, where each row in the resulting dataframe
+	 * corresponds to one record in the collection (preserving iteration order). The
+	 * columns in the dataframe will have the same name, order, and type as the
+	 * components of the record.
+	 * 
+	 * @param <R>     - the record type
+	 * 
+	 * @param records - a collection of records. Must contain at least one non-null
+	 *                value.
+	 * 
+	 * @return a dataframe where each row in the resulting dataframe corresponds to
+	 *         one record in the collection
+	 */
+	@SuppressWarnings("unchecked")
+	public static <R extends Record> DataFrame of(Collection<R> records) {
+
+		Objects.requireNonNull(records, "records cannot be null");
+
+		Class<R> clazz = null;
+
+		for (R r : records) {
+			if (r != null) {
+				clazz = (Class<R>) r.getClass();
+				break;
+			}
+		}
+
+		Objects.requireNonNull(clazz, "records must contain at least one non-null element");
+
+		return of(clazz, records);
+	}
+
+	/**
+	 * Converts a {@link Collection collection} of {@link Record records} into a
+	 * {@link DataFrame dataframe}, where each row in the resulting dataframe
+	 * corresponds to one record in the collection (preserving iteration order). The
+	 * columns in the dataframe will have the same name, order, and type as the
+	 * components of the record.
+	 * 
+	 * @param <R>     - the record type
+	 *
+	 * @param clazz   - the record's class
+	 * @param records - a collection of records
+	 * 
+	 * @return a dataframe where each row in the resulting dataframe corresponds to
+	 *         one record in the collection
+	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public static <R extends Record> DataFrame of(Class<R> clazz, Collection<R> records) {
+
+		Objects.requireNonNull(clazz, "clazz cannot be null");
+		Objects.requireNonNull(records, "records cannot be null");
+
+		final RecordComponent[] components = clazz.getRecordComponents();
+
+		final String[] columnNames = new String[components.length];
+		final ColumnBuilder[] builders = new ColumnBuilder[components.length];
+		final Method[] accessors = new Method[components.length];
+
+		for (int i = 0; i < components.length; i++) {
+
+			columnNames[i] = components[i].getName();
+			accessors[i] = components[i].getAccessor();
+			accessors[i].setAccessible(true);
+
+			ColumnType<?> type = ColumnType.forClass(components[i].getType());
+
+			if (type == null)
+				throw new RuntimeException("unsupported component type: " + components[i]);
+
+			builders[i] = type.builder();
+		}
+
+		for (R record : records) {
+			if (record == null) {
+				for (var b : builders)
+					b.addNull();
+			} else {
+				for (int i = 0; i < builders.length; i++) {
+					try {
+						Object value = accessors[i].invoke(record);
+						builders[i].add(value);
+					} catch (Exception e) {
+						throw new RuntimeException(e);
+					}
+				}
+			}
+		}
+
+		Column[] columns = new Column[builders.length];
+		for (int i = 0; i < builders.length; i++)
+			columns[i] = builders[i].build();
+
+		return create(columns, columnNames);
+	}
+
+	/**
+	 * Converts an array of {@link Record records} into a {@link DataFrame
+	 * dataframe}, where each row in the resulting dataframe corresponds to one
+	 * record in the array (preserving order). The columns in the dataframe will
+	 * have the same name, order, and type as the components of the record.
+	 * 
+	 * @param <R>     - the record type
+	 *
+	 * @param clazz   - the record's class
+	 * @param records - an array of records
+	 * 
+	 * @return a dataframe where each row in the resulting dataframe corresponds to
+	 *         one record in the collection
+	 */
+	@SafeVarargs
+	public static <R extends Record> DataFrame of(Class<R> clazz, R... records) {
+		return of(clazz, Arrays.asList(records));
+	}
+
+	/**
+	 * Converts an array of {@link Record records} into a {@link DataFrame
+	 * dataframe}, where each row in the resulting dataframe corresponds to one
+	 * record in the array (preserving order). The columns in the dataframe will
+	 * have the same name, order, and type as the components of the record.
+	 * 
+	 * @param <R>     - the record type
+	 *
+	 * @param clazz   - the record's class
+	 * @param records - an array of records. Must contain at least one non-null
+	 *                value.
+	 * 
+	 * @return a dataframe where each row in the resulting dataframe corresponds to
+	 *         one record in the collection
+	 */
+	@SafeVarargs
+	public static <R extends Record> DataFrame of(R... records) {
+		return of(Arrays.asList(records));
+	}
 }

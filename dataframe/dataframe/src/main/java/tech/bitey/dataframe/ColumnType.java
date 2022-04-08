@@ -48,6 +48,8 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import tech.bitey.bufferstuff.BufferBitSet;
@@ -585,6 +587,88 @@ public abstract class ColumnType<E> {
 			return LocalDate.of(yyyymmdd / 10000, yyyymmdd % 10000 / 100, yyyymmdd % 100);
 		} else
 			return LocalDate.parse(string);
+	}
+
+	/**
+	 * Returns the column element's {@link Class}. For example:
+	 * <p>
+	 * {@code IntColumn.getType().getType() -> Integer.class}
+	 * 
+	 * @return the column element's {@code Class}
+	 * 
+	 * @see #getPrimitiveType()
+	 */
+	public Class<?> getType() {
+		return switch (getCode()) {
+		case B -> Boolean.class;
+		case BD -> BigDecimal.class;
+		case BL -> InputStream.class;
+		case D -> Double.class;
+		case DA -> LocalDate.class;
+		case DT -> LocalDateTime.class;
+		case F -> Float.class;
+		case I -> Integer.class;
+		case IN -> Instant.class;
+		case L -> Long.class;
+		case NS, S -> String.class;
+		case T -> Short.class;
+		case TI -> LocalTime.class;
+		case UU -> UUID.class;
+		case Y -> Byte.class;
+		};
+	}
+
+	/**
+	 * Returns the column element's primitive {@link Class}, or {@code null} if this
+	 * is not a column of primitives. For example:
+	 * <p>
+	 * {@code IntColumn.getType().getPrimitiveType() -> int.class}
+	 * 
+	 * @return the column element's primitive {@code Class}
+	 * 
+	 * @see #getType()
+	 */
+	public Class<?> getPrimitiveType() {
+		return switch (getCode()) {
+		case B -> boolean.class;
+		case D -> double.class;
+		case F -> float.class;
+		case I -> int.class;
+		case L -> long.class;
+		case T -> short.class;
+		case Y -> byte.class;
+		default -> null;
+		};
+	}
+
+	private static Map<Class<?>, ColumnType<?>> CLASS_TYPE_MAP = new HashMap<>();
+	static {
+		for (ColumnTypeCode code : ColumnTypeCode.values()) {
+
+			if (code == ColumnTypeCode.NS)
+				continue;
+
+			ColumnType<?> type = code.getType();
+			CLASS_TYPE_MAP.put(type.getType(), type);
+
+			if (type.getPrimitiveType() != null)
+				CLASS_TYPE_MAP.put(type.getPrimitiveType(), type);
+		}
+	}
+
+	/**
+	 * Returns the {@link ColumnType} for columns with elements of the specified
+	 * {@link Class}, or {@code null} if there is not such type. For example:
+	 * <p>
+	 * {@code int.class or Integer.class -> IntColumn.getType()}
+	 * 
+	 * @param clazz - element type
+	 * 
+	 * @return the {@code ColumnType} for columns with elements of the specified
+	 *         class.
+	 */
+	public static ColumnType<?> forClass(Class<?> clazz) {
+		return CLASS_TYPE_MAP.get(clazz);
 	}
 
 	public abstract int compare(E lhs, E rhs);
