@@ -11,7 +11,7 @@ To add a dependency on dataframe using Maven, use the following:
 <dependency>
   <groupId>tech.bitey</groupId>
   <artifactId>dataframe</artifactId>
-  <version>1.2.3</version>
+  <version>1.2.4</version>
 </dependency>
 ```
 
@@ -30,7 +30,7 @@ Requires Java 17 or higher. The last version supporting Java 11 was `1.1.7`.
 ### Features
 * Supports the most common types: String, Integer, Long, Short, Byte, Boolean, Double, Float, Date, DateTime, and BigDecimal; as well as Time, UUID, Instant, and InputStream.
 * Column and DataFrame are immutable. Columns can be created from collections, arrays, streams, or with builders.
-* Read/write to File or Channel with minimal overhead
+* Read/write to File or Channel with minimal overhead. Supports memory-mapping from a file.
 * Read/write CSV files
 * Read from ResultSet, write with PreparedStatement
 * Backing ByteBuffers can be on heap or off as a global property: `-Dtech.bitey.allocateDirect=true` or `false`, defaults to `false`

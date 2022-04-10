@@ -231,6 +231,27 @@ public enum DataFrameFactory {
 	 * @throws IOException if some I/O error occurs
 	 */
 	public static DataFrame readFrom(ReadableByteChannel channel) throws IOException {
+		return readFrom(channel, false);
+	}
+
+	/**
+	 * Memory-map a dataframe from a file created via
+	 * {@link DataFrame#writeTo(File)}.
+	 * 
+	 * @param file - the file to map from
+	 * 
+	 * @return the dataframe mapped from the specified file
+	 * 
+	 * @throws IOException if some I/O error occurs
+	 */
+	public static DataFrame mapFrom(File file) throws IOException {
+		try (FileChannel fileChannel = FileChannel.open(file.toPath(), StandardOpenOption.READ,
+				StandardOpenOption.WRITE);) {
+			return readFrom(fileChannel, true);
+		}
+	}
+
+	private static DataFrame readFrom(ReadableByteChannel channel, boolean map) throws IOException {
 
 		ChannelDataFrameHeader dfHeader = new ChannelDataFrameHeader(channel);
 		final int cc = dfHeader.getColumnCount();
@@ -247,7 +268,7 @@ public enum DataFrameFactory {
 
 		Column<?>[] columns = new Column<?>[cc];
 		for (int i = 0; i < cc; i++)
-			columns[i] = columnTypes[i].readFrom(channel, characteristics[i], dfHeader.getVersion());
+			columns[i] = columnTypes[i].readFrom(channel, characteristics[i], dfHeader.getVersion(), map);
 
 		Integer keyIndex = dfHeader.keyIndex();
 		return create(columns, columnNames, keyIndex == null ? null : columnNames[keyIndex]);

@@ -129,7 +129,7 @@ abstract class NonNullSingleBufferColumn<E, I extends Column<E>, C extends NonNu
 	}
 
 	@Override
-	C readFrom(ReadableByteChannel channel, int version) throws IOException {
+	C readFrom(ReadableByteChannel channel, int version, boolean map) throws IOException {
 
 		ByteOrder order = readByteOrder(channel);
 		int size = readInt(channel, order);
@@ -143,7 +143,7 @@ abstract class NonNullSingleBufferColumn<E, I extends Column<E>, C extends NonNu
 			buffer.flip();
 			bbb = BufferUtils.wrap(new ByteBuffer[] { buffer });
 		} else {
-			bbb = readBuffer(channel, order);
+			bbb = readBuffer(channel, order, map);
 		}
 
 		return construct(bbb, 0, size, characteristics, false);

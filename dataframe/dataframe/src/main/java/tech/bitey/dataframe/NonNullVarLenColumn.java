@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.IntBuffer;
+import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 import java.util.function.IntBinaryOperator;
@@ -279,17 +280,20 @@ abstract class NonNullVarLenColumn<E, I extends Column<E>, C extends NonNullVarL
 		return construct(sliceElements(), rawPointers, 0, size, characteristics, false);
 	}
 
-	private static void zero(BigByteBuffer rawPointers, int size) {
+	private static boolean zero(BigByteBuffer rawPointers, int size) {
 		if (size > 0) {
 			SmallLongBuffer pointers = rawPointers.asLongBuffer();
 			long first = pointers.get(0);
 
 			if (first == 0)
-				return;
+				return false;
 
 			for (int i = 0; i < size; i++)
 				pointers.put(i, pointers.get(i) - first);
-		}
+
+			return true;
+		} else
+			return false;
 	}
 
 	@Override
@@ -403,7 +407,7 @@ abstract class NonNullVarLenColumn<E, I extends Column<E>, C extends NonNullVarL
 
 	@SuppressWarnings("unchecked")
 	@Override
-	C readFrom(ReadableByteChannel channel, int version) throws IOException {
+	C readFrom(ReadableByteChannel channel, int version, boolean map) throws IOException {
 
 		Pr.checkState(isEmpty(), "readFrom can only be called on empty column");
 
@@ -432,11 +436,13 @@ abstract class NonNullVarLenColumn<E, I extends Column<E>, C extends NonNullVarL
 			el.flip();
 			elements = BufferUtils.wrap(new ByteBuffer[] { el });
 		} else {
-			rawPointers = readBuffer(channel, order);
-			elements = readBuffer(channel, order);
+			rawPointers = readBuffer(channel, order, map);
+			elements = readBuffer(channel, order, map);
 		}
 
-		zero(rawPointers, size);
+		if (zero(rawPointers, size) && map) {
+			((FileChannel) channel).force(true);
+		}
 
 		return construct(elements, rawPointers, 0, size, characteristics, false);
 	}

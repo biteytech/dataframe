@@ -279,7 +279,7 @@ final class NonNullUuidColumn extends NonNullColumn<UUID, UuidColumn, NonNullUui
 	}
 
 	@Override
-	NonNullUuidColumn readFrom(ReadableByteChannel channel, int version) throws IOException {
+	NonNullUuidColumn readFrom(ReadableByteChannel channel, int version, boolean map) throws IOException {
 		if (version <= 2) {
 			ByteOrder order = readByteOrder(channel);
 			int size = readInt(channel, order);
@@ -302,9 +302,9 @@ final class NonNullUuidColumn extends NonNullColumn<UUID, UuidColumn, NonNullUui
 
 		} else {
 			NonNullLongColumn msb = (NonNullLongColumn) ColumnType.LONG.readFrom(channel, NONNULL_CHARACTERISTICS,
-					version);
+					version, map);
 			NonNullLongColumn lsb = (NonNullLongColumn) ColumnType.LONG.readFrom(channel, NONNULL_CHARACTERISTICS,
-					version);
+					version, map);
 
 			return new NonNullUuidColumn(msb, lsb, 0, msb.size(), characteristics, false);
 		}

@@ -80,7 +80,7 @@ abstract class NonNullColumn<E, I extends Column<E>, C extends NonNullColumn<E, 
 
 	abstract C slice();
 
-	abstract C readFrom(ReadableByteChannel channel, int version) throws IOException;
+	abstract C readFrom(ReadableByteChannel channel, int version, boolean map) throws IOException;
 
 	@Override
 	public C toHeap() {

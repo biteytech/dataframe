@@ -219,9 +219,12 @@ public class TestDataFrame {
 			file.deleteOnExit();
 
 			expected.writeTo(file);
-			DataFrame actual = DataFrameFactory.readFrom(file);
 
-			Assertions.assertEquals(expected, actual, e.getKey() + ", read/write binary");
+			DataFrame copied = DataFrameFactory.readFrom(file);
+			Assertions.assertEquals(expected, copied, e.getKey() + ", read/write binary (copied)");
+
+			DataFrame mapped = DataFrameFactory.readFrom(file);
+			Assertions.assertEquals(expected, mapped, e.getKey() + ", read/write binary (mapped)");
 		}
 	}
 

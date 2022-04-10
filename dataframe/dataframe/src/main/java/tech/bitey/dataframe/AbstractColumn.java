@@ -28,6 +28,8 @@ import java.io.IOException;
 import java.lang.reflect.Array;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.channels.FileChannel;
+import java.nio.channels.FileChannel.MapMode;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 import java.util.AbstractCollection;
@@ -344,18 +346,31 @@ abstract class AbstractColumn<E, I extends Column<E>, C extends AbstractColumn<E
 		}
 	}
 
-	static BigByteBuffer readBuffer(ReadableByteChannel channel, ByteOrder order) throws IOException {
+	static BigByteBuffer readBuffer(ReadableByteChannel channel, ByteOrder order, boolean map) throws IOException {
 
 		int length = readInt(channel, order);
 		ByteBuffer[] buffers = new ByteBuffer[length];
 
 		for (int i = 0; i < length; i++) {
-			buffers[i] = BufferUtils.allocate(readInt(channel, order), order);
-			readFully(channel, buffers[i]);
-			buffers[i].flip();
+
+			int size = readInt(channel, order);
+			
+			if (map) {
+				FileChannel file = (FileChannel) channel;
+				buffers[i] = file.map(MapMode.READ_WRITE, file.position(), size);
+				file.position(file.position() + size);
+			} else {
+				buffers[i] = BufferUtils.allocate(size, order);
+				readFully(channel, buffers[i]);
+				buffers[i].flip();
+			}
 		}
 
 		return BufferUtils.wrap(buffers);
+	}
+
+	static BufferBitSet readBitSet(ReadableByteChannel channel, boolean map) throws IOException {
+		return map ? BufferBitSet.mapFrom((FileChannel) channel) : BufferBitSet.readFrom(channel);
 	}
 
 	static void writeInt(WritableByteChannel channel, ByteOrder order, int value) throws IOException {

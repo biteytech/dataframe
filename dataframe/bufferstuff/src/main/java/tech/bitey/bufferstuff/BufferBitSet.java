@@ -27,6 +27,8 @@ import static tech.bitey.bufferstuff.BufferUtils.writeFully;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.LongBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.channels.FileChannel.MapMode;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 import java.util.BitSet;
@@ -343,6 +345,8 @@ public class BufferBitSet implements Cloneable {
 	 *  Methods for reading from and writing to a channel
 	 *-------------------------------------------------------------------------------*/
 
+	private static final int HEADER_SIZE = 5;
+
 	/**
 	 * Write this bitset to the specified {@link WritableByteChannel}. Equivalent to
 	 * {@link #writeTo(WritableByteChannel, int, int) writeTo(channel, 0, length())}
@@ -390,7 +394,7 @@ public class BufferBitSet implements Cloneable {
 		buffer.limit(n + 1);
 		final int limit = buffer.limit();
 
-		ByteBuffer header = ByteBuffer.allocate(5).order(BIG_ENDIAN);
+		ByteBuffer header = ByteBuffer.allocate(HEADER_SIZE).order(BIG_ENDIAN);
 		header.put(0, (byte) (fromIndex & 7));
 		header.putInt(1, limit);
 
@@ -411,17 +415,39 @@ public class BufferBitSet implements Cloneable {
 
 	/**
 	 * Read a bitset from the specified {@link ReadableByteChannel}. The bitset must
-	 * have been previously written with one of the {@code writeTo} methods.
+	 * have previously been written with one of the {@code writeTo} methods.
 	 * 
 	 * @param channel - the channel to read from
 	 * 
-	 * @return a non-resizable bitset from the specified channel
+	 * @return a non-resizable bitset copied from the specified channel
 	 * 
 	 * @throws IOException if some I/O error occurs
 	 */
 	public static BufferBitSet readFrom(ReadableByteChannel channel) throws IOException {
+		return readFrom(channel, false);
+	}
 
-		ByteBuffer header = ByteBuffer.allocate(5).order(BIG_ENDIAN);
+	/**
+	 * Memory-maps a bitset from the specified {@link FileChannel}. The bitset must
+	 * have previously been written with one of the {@code writeTo} methods. <b>The
+	 * channel must be writable.</b>
+	 * <p>
+	 * Sets the channel's {@link FileChannel#position() position} to the byte
+	 * immediately after the last byte associated with this bitset.
+	 * 
+	 * @param channel - the channel to map from
+	 * 
+	 * @return a non-resizable bitset memory-mapped from the specified file
+	 * 
+	 * @throws IOException if some I/O error occurs
+	 */
+	public static BufferBitSet mapFrom(FileChannel channel) throws IOException {
+		return readFrom(channel, true);
+	}
+
+	private static BufferBitSet readFrom(ReadableByteChannel channel, boolean map) throws IOException {
+
+		ByteBuffer header = ByteBuffer.allocate(HEADER_SIZE).order(BIG_ENDIAN);
 		readFully(channel, header);
 
 		int offset = header.get(0);
@@ -430,8 +456,15 @@ public class BufferBitSet implements Cloneable {
 		if (capacity == 0)
 			return EMPTY_BITSET;
 
-		ByteBuffer buffer = allocate(capacity);
-		readFully(channel, buffer);
+		final ByteBuffer buffer;
+		if (map) {
+			FileChannel file = (FileChannel) channel;
+			buffer = file.map(offset == 0 ? MapMode.READ_ONLY : MapMode.READ_WRITE, file.position(), capacity);
+			buffer.position(capacity);
+		} else {
+			buffer = allocate(capacity);
+			readFully(channel, buffer);
+		}
 
 		if (offset == 0)
 			return new BufferBitSet(buffer, false, false);
@@ -443,6 +476,13 @@ public class BufferBitSet implements Cloneable {
 
 		// handle last byte
 		buffer.put(limit - 1, (byte) ((buffer.get(limit - 1) & 0xFF) >>> offset));
+
+		if (map) {
+			FileChannel file = (FileChannel) channel;
+			file.write(ByteBuffer.wrap(new byte[1]), file.position() - HEADER_SIZE); // set offset to 0
+			file.force(true);
+			file.position(file.position() + capacity);
+		}
 
 		buffer.clear();
 		return new BufferBitSet(buffer, false, true);

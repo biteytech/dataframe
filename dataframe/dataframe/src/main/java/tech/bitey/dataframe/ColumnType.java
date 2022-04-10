@@ -303,115 +303,115 @@ public abstract class ColumnType<E> {
 		return builder().addNulls(size).build();
 	}
 
-	Column<?> readFrom(ReadableByteChannel channel, int characteristics, int version) throws IOException {
+	Column<?> readFrom(ReadableByteChannel channel, int characteristics, int version, boolean map) throws IOException {
 		BufferBitSet nonNulls = null;
 		int size = 0;
 		if (getCode() != NS && !((characteristics & NONNULL) != 0)) {
 			size = readInt(channel, BIG_ENDIAN);
-			nonNulls = BufferBitSet.readFrom(channel);
+			nonNulls = AbstractColumn.readBitSet(channel, map);
 		}
 
 		return switch (getCode()) {
 		case B -> {
-			NonNullBooleanColumn column = NonNullBooleanColumn.EMPTY.readFrom(channel, version);
+			NonNullBooleanColumn column = NonNullBooleanColumn.EMPTY.readFrom(channel, version, map);
 			if (nonNulls == null)
 				yield column;
 			else
 				yield new NullableBooleanColumn(column, nonNulls, null, 0, size);
 		}
 		case DA -> {
-			NonNullDateColumn column = NonNullDateColumn.empty(characteristics).readFrom(channel, version);
+			NonNullDateColumn column = NonNullDateColumn.empty(characteristics).readFrom(channel, version, map);
 			if (nonNulls == null)
 				yield column;
 			else
 				yield new NullableDateColumn(column, nonNulls, null, 0, size);
 		}
 		case DT -> {
-			NonNullDateTimeColumn column = NonNullDateTimeColumn.empty(characteristics).readFrom(channel, version);
+			NonNullDateTimeColumn column = NonNullDateTimeColumn.empty(characteristics).readFrom(channel, version, map);
 			if (nonNulls == null)
 				yield column;
 			else
 				yield new NullableDateTimeColumn(column, nonNulls, null, 0, size);
 		}
 		case TI -> {
-			NonNullTimeColumn column = NonNullTimeColumn.empty(characteristics).readFrom(channel, version);
+			NonNullTimeColumn column = NonNullTimeColumn.empty(characteristics).readFrom(channel, version, map);
 			if (nonNulls == null)
 				yield column;
 			else
 				yield new NullableTimeColumn(column, nonNulls, null, 0, size);
 		}
 		case IN -> {
-			NonNullInstantColumn column = NonNullInstantColumn.empty(characteristics).readFrom(channel, version);
+			NonNullInstantColumn column = NonNullInstantColumn.empty(characteristics).readFrom(channel, version, map);
 			if (nonNulls == null)
 				yield column;
 			else
 				yield new NullableInstantColumn(column, nonNulls, null, 0, size);
 		}
 		case D -> {
-			NonNullDoubleColumn column = NonNullDoubleColumn.empty(characteristics).readFrom(channel, version);
+			NonNullDoubleColumn column = NonNullDoubleColumn.empty(characteristics).readFrom(channel, version, map);
 			if (nonNulls == null)
 				yield column;
 			else
 				yield new NullableDoubleColumn(column, nonNulls, null, 0, size);
 		}
 		case F -> {
-			NonNullFloatColumn column = NonNullFloatColumn.empty(characteristics).readFrom(channel, version);
+			NonNullFloatColumn column = NonNullFloatColumn.empty(characteristics).readFrom(channel, version, map);
 			if (nonNulls == null)
 				yield column;
 			else
 				yield new NullableFloatColumn(column, nonNulls, null, 0, size);
 		}
 		case I -> {
-			NonNullIntColumn column = NonNullIntColumn.empty(characteristics).readFrom(channel, version);
+			NonNullIntColumn column = NonNullIntColumn.empty(characteristics).readFrom(channel, version, map);
 			if (nonNulls == null)
 				yield column;
 			else
 				yield new NullableIntColumn(column, nonNulls, null, 0, size);
 		}
 		case L -> {
-			NonNullLongColumn column = NonNullLongColumn.empty(characteristics).readFrom(channel, version);
+			NonNullLongColumn column = NonNullLongColumn.empty(characteristics).readFrom(channel, version, map);
 			if (nonNulls == null)
 				yield column;
 			else
 				yield new NullableLongColumn(column, nonNulls, null, 0, size);
 		}
 		case T -> {
-			NonNullShortColumn column = NonNullShortColumn.empty(characteristics).readFrom(channel, version);
+			NonNullShortColumn column = NonNullShortColumn.empty(characteristics).readFrom(channel, version, map);
 			if (nonNulls == null)
 				yield column;
 			else
 				yield new NullableShortColumn(column, nonNulls, null, 0, size);
 		}
 		case Y -> {
-			NonNullByteColumn column = NonNullByteColumn.empty(characteristics).readFrom(channel, version);
+			NonNullByteColumn column = NonNullByteColumn.empty(characteristics).readFrom(channel, version, map);
 			if (nonNulls == null)
 				yield column;
 			else
 				yield new NullableByteColumn(column, nonNulls, null, 0, size);
 		}
 		case S -> {
-			NonNullStringColumn column = NonNullStringColumn.empty(characteristics).readFrom(channel, version);
+			NonNullStringColumn column = NonNullStringColumn.empty(characteristics).readFrom(channel, version, map);
 			if (nonNulls == null)
 				yield column;
 			else
 				yield new NullableStringColumn(column, nonNulls, null, 0, size);
 		}
 		case BD -> {
-			NonNullDecimalColumn column = NonNullDecimalColumn.empty(characteristics).readFrom(channel, version);
+			NonNullDecimalColumn column = NonNullDecimalColumn.empty(characteristics).readFrom(channel, version, map);
 			if (nonNulls == null)
 				yield column;
 			else
 				yield new NullableDecimalColumn(column, nonNulls, null, 0, size);
 		}
 		case BL -> {
-			NonNullBlobColumn column = NonNullBlobColumn.EMPTY.readFrom(channel, version);
+			NonNullBlobColumn column = NonNullBlobColumn.EMPTY.readFrom(channel, version, map);
 			if (nonNulls == null)
 				yield column;
 			else
 				yield new NullableBlobColumn(column, nonNulls, null, 0, size);
 		}
 		case UU -> {
-			NonNullUuidColumn column = NonNullUuidColumn.empty(characteristics).readFrom(channel, version);
+			NonNullUuidColumn column = NonNullUuidColumn.empty(characteristics).readFrom(channel, version, map);
 			if (nonNulls == null)
 				yield column;
 			else
@@ -430,9 +430,9 @@ public abstract class ColumnType<E> {
 
 			final Column<? extends Number> indices;
 			if (colTypeCode == Y)
-				indices = (ByteColumn) BYTE.readFrom(channel, characteristics, version);
+				indices = (ByteColumn) BYTE.readFrom(channel, characteristics, version, map);
 			else
-				indices = (ShortColumn) SHORT.readFrom(channel, characteristics, version);
+				indices = (ShortColumn) SHORT.readFrom(channel, characteristics, version, map);
 
 			final NonNullStringColumn values;
 			if (version == 1) {
@@ -448,7 +448,7 @@ public abstract class ColumnType<E> {
 				}
 				values = (NonNullStringColumn) builder.build();
 			} else {
-				values = (NonNullStringColumn) STRING.readFrom(channel, NONNULL, version);
+				values = (NonNullStringColumn) STRING.readFrom(channel, NONNULL, version, map);
 			}
 
 			if (colTypeCode == Y)
