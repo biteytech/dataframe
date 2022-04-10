@@ -354,10 +354,10 @@ abstract class AbstractColumn<E, I extends Column<E>, C extends AbstractColumn<E
 		for (int i = 0; i < length; i++) {
 
 			int size = readInt(channel, order);
-			
+
 			if (map) {
 				FileChannel file = (FileChannel) channel;
-				buffers[i] = file.map(MapMode.READ_WRITE, file.position(), size);
+				buffers[i] = file.map(MapMode.READ_WRITE, file.position(), size).order(order);
 				file.position(file.position() + size);
 			} else {
 				buffers[i] = BufferUtils.allocate(size, order);

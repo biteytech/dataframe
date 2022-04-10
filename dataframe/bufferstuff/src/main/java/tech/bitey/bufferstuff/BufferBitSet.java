@@ -450,8 +450,13 @@ public class BufferBitSet implements Cloneable {
 			readFully(channel, buffer);
 		}
 
-		if (offset == 0)
+		if (offset == 0) {
+			if (map) {
+				FileChannel file = (FileChannel) channel;
+				file.position(file.position() + capacity);
+			}
 			return new BufferBitSet(buffer, false, false);
+		}
 
 		// left shift by offset
 		int limit = buffer.limit();
