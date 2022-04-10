@@ -223,8 +223,15 @@ public class TestDataFrame {
 			DataFrame copied = DataFrameFactory.readFrom(file);
 			Assertions.assertEquals(expected, copied, e.getKey() + ", read/write binary (copied)");
 
-			DataFrame mapped = DataFrameFactory.readFrom(file);
+			// first call to mapFrom may modify the file
+			DataFrame mapped = DataFrameFactory.mapFrom(file);
 			Assertions.assertEquals(expected, mapped, e.getKey() + ", read/write binary (mapped)");
+
+			// second call to mapFrom should not modify file
+			long lastModified = file.lastModified();
+			DataFrame mapped2 = DataFrameFactory.mapFrom(file);
+			Assertions.assertEquals(expected, mapped2, e.getKey() + ", read/write binary (mapped2)");
+			Assertions.assertTrue(lastModified == file.lastModified(), e.getKey() + ", read/write binary (modified)");
 		}
 	}
 
