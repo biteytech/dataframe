@@ -187,26 +187,17 @@ public class DataFrameResultSet implements ResultSet {
 			return null;
 
 		ColumnTypeCode type = df.columnType(columnIndex).getCode();
-		switch (type) {
-		case BD:
-			return df.getBigDecimal(rowIndex, columnIndex);
-		case S:
-			return new BigDecimal(df.getString(rowIndex, columnIndex));
-		case D:
-			return BigDecimal.valueOf(df.getDouble(rowIndex, columnIndex));
-		case F:
-			return BigDecimal.valueOf(df.getFloat(rowIndex, columnIndex));
-		case L:
-			return BigDecimal.valueOf(df.getLong(rowIndex, columnIndex));
-		case I:
-			return BigDecimal.valueOf(df.getInt(rowIndex, columnIndex));
-		case T:
-			return BigDecimal.valueOf(df.getShort(rowIndex, columnIndex));
-		case Y:
-			return BigDecimal.valueOf(df.getByte(rowIndex, columnIndex));
-		default:
-			throw new SQLException("cannot convert from " + type + " to BigDecimal");
-		}
+		return switch (type) {
+		case BD -> df.getBigDecimal(rowIndex, columnIndex);
+		case S, NS -> new BigDecimal(df.getString(rowIndex, columnIndex));
+		case D -> BigDecimal.valueOf(df.getDouble(rowIndex, columnIndex));
+		case F -> BigDecimal.valueOf(df.getFloat(rowIndex, columnIndex));
+		case L -> BigDecimal.valueOf(df.getLong(rowIndex, columnIndex));
+		case I -> BigDecimal.valueOf(df.getInt(rowIndex, columnIndex));
+		case T -> BigDecimal.valueOf(df.getShort(rowIndex, columnIndex));
+		case Y -> BigDecimal.valueOf(df.getByte(rowIndex, columnIndex));
+		default -> throw new SQLException("cannot convert from " + type + " to BigDecimal");
+		};
 	}
 
 	@Override
@@ -269,7 +260,8 @@ public class DataFrameResultSet implements ResultSet {
 				return true;
 			break;
 		}
-		case S: {
+		case S:
+		case NS: {
 			String s = df.getString(rowIndex, columnIndex);
 			if (s.length() > 5)
 				break;
@@ -358,26 +350,17 @@ public class DataFrameResultSet implements ResultSet {
 			return 0;
 
 		ColumnTypeCode type = df.columnType(columnIndex).getCode();
-		switch (type) {
-		case BD:
-			return df.getBigDecimal(rowIndex, columnIndex).byteValue();
-		case S:
-			return Byte.parseByte(df.getString(rowIndex, columnIndex));
-		case D:
-			return (byte) df.getDouble(rowIndex, columnIndex);
-		case F:
-			return (byte) df.getFloat(rowIndex, columnIndex);
-		case L:
-			return (byte) df.getLong(rowIndex, columnIndex);
-		case I:
-			return (byte) df.getInt(rowIndex, columnIndex);
-		case T:
-			return (byte) df.getShort(rowIndex, columnIndex);
-		case Y:
-			return df.getByte(rowIndex, columnIndex);
-		default:
-			throw new SQLException("cannot convert from " + type + " to byte");
-		}
+		return switch (type) {
+		case BD -> df.getBigDecimal(rowIndex, columnIndex).byteValue();
+		case S, NS -> Byte.parseByte(df.getString(rowIndex, columnIndex));
+		case D -> (byte) df.getDouble(rowIndex, columnIndex);
+		case F -> (byte) df.getFloat(rowIndex, columnIndex);
+		case L -> (byte) df.getLong(rowIndex, columnIndex);
+		case I -> (byte) df.getInt(rowIndex, columnIndex);
+		case T -> (byte) df.getShort(rowIndex, columnIndex);
+		case Y -> df.getByte(rowIndex, columnIndex);
+		default -> throw new SQLException("cannot convert from " + type + " to byte");
+		};
 	}
 
 	@Override
@@ -438,14 +421,11 @@ public class DataFrameResultSet implements ResultSet {
 			return null;
 
 		ColumnTypeCode type = df.columnType(columnIndex).getCode();
-		switch (type) {
-		case DT:
-			return Date.valueOf(df.getDateTime(rowIndex, columnIndex).toLocalDate());
-		case DA:
-			return Date.valueOf(df.getDate(rowIndex, columnIndex));
-		default:
-			throw new SQLException("cannot convert from " + type + " to Date");
-		}
+		return switch (type) {
+		case DT -> Date.valueOf(df.getDateTime(rowIndex, columnIndex).toLocalDate());
+		case DA -> Date.valueOf(df.getDate(rowIndex, columnIndex));
+		default -> throw new SQLException("cannot convert from " + type + " to Date");
+		};
 	}
 
 	@Override
@@ -476,26 +456,17 @@ public class DataFrameResultSet implements ResultSet {
 			return 0d;
 
 		ColumnTypeCode type = df.columnType(columnIndex).getCode();
-		switch (type) {
-		case BD:
-			return df.getBigDecimal(rowIndex, columnIndex).doubleValue();
-		case S:
-			return Double.parseDouble(df.getString(rowIndex, columnIndex));
-		case D:
-			return df.getDouble(rowIndex, columnIndex);
-		case F:
-			return df.getFloat(rowIndex, columnIndex);
-		case L:
-			return df.getLong(rowIndex, columnIndex);
-		case I:
-			return df.getInt(rowIndex, columnIndex);
-		case T:
-			return df.getShort(rowIndex, columnIndex);
-		case Y:
-			return df.getByte(rowIndex, columnIndex);
-		default:
-			throw new SQLException("cannot convert from " + type + " to double");
-		}
+		return switch (type) {
+		case BD -> df.getBigDecimal(rowIndex, columnIndex).doubleValue();
+		case S, NS -> Double.parseDouble(df.getString(rowIndex, columnIndex));
+		case D -> df.getDouble(rowIndex, columnIndex);
+		case F -> df.getFloat(rowIndex, columnIndex);
+		case L -> df.getLong(rowIndex, columnIndex);
+		case I -> df.getInt(rowIndex, columnIndex);
+		case T -> df.getShort(rowIndex, columnIndex);
+		case Y -> df.getByte(rowIndex, columnIndex);
+		default -> throw new SQLException("cannot convert from " + type + " to double");
+		};
 	}
 
 	@Override
@@ -527,26 +498,17 @@ public class DataFrameResultSet implements ResultSet {
 			return 0f;
 
 		ColumnTypeCode type = df.columnType(columnIndex).getCode();
-		switch (type) {
-		case BD:
-			return df.getBigDecimal(rowIndex, columnIndex).floatValue();
-		case S:
-			return Float.parseFloat(df.getString(rowIndex, columnIndex));
-		case D:
-			return (float) df.getDouble(rowIndex, columnIndex);
-		case F:
-			return df.getFloat(rowIndex, columnIndex);
-		case L:
-			return df.getLong(rowIndex, columnIndex);
-		case I:
-			return df.getInt(rowIndex, columnIndex);
-		case T:
-			return df.getShort(rowIndex, columnIndex);
-		case Y:
-			return df.getByte(rowIndex, columnIndex);
-		default:
-			throw new SQLException("cannot convert from " + type + " to float");
-		}
+		return switch (type) {
+		case BD -> df.getBigDecimal(rowIndex, columnIndex).floatValue();
+		case S, NS -> Float.parseFloat(df.getString(rowIndex, columnIndex));
+		case D -> (float) df.getDouble(rowIndex, columnIndex);
+		case F -> df.getFloat(rowIndex, columnIndex);
+		case L -> df.getLong(rowIndex, columnIndex);
+		case I -> df.getInt(rowIndex, columnIndex);
+		case T -> df.getShort(rowIndex, columnIndex);
+		case Y -> df.getByte(rowIndex, columnIndex);
+		default -> throw new SQLException("cannot convert from " + type + " to float");
+		};
 	}
 
 	@Override
@@ -572,26 +534,17 @@ public class DataFrameResultSet implements ResultSet {
 			return 0;
 
 		ColumnTypeCode type = df.columnType(columnIndex).getCode();
-		switch (type) {
-		case BD:
-			return df.getBigDecimal(rowIndex, columnIndex).intValue();
-		case S:
-			return Integer.parseInt(df.getString(rowIndex, columnIndex));
-		case D:
-			return (int) df.getDouble(rowIndex, columnIndex);
-		case F:
-			return (int) df.getFloat(rowIndex, columnIndex);
-		case L:
-			return (int) df.getLong(rowIndex, columnIndex);
-		case I:
-			return df.getInt(rowIndex, columnIndex);
-		case T:
-			return df.getShort(rowIndex, columnIndex);
-		case Y:
-			return df.getByte(rowIndex, columnIndex);
-		default:
-			throw new SQLException("cannot convert from " + type + " to int");
-		}
+		return switch (type) {
+		case BD -> df.getBigDecimal(rowIndex, columnIndex).intValue();
+		case S, NS -> Integer.parseInt(df.getString(rowIndex, columnIndex));
+		case D -> (int) df.getDouble(rowIndex, columnIndex);
+		case F -> (int) df.getFloat(rowIndex, columnIndex);
+		case L -> (int) df.getLong(rowIndex, columnIndex);
+		case I -> df.getInt(rowIndex, columnIndex);
+		case T -> df.getShort(rowIndex, columnIndex);
+		case Y -> df.getByte(rowIndex, columnIndex);
+		default -> throw new SQLException("cannot convert from " + type + " to int");
+		};
 	}
 
 	@Override
@@ -612,26 +565,17 @@ public class DataFrameResultSet implements ResultSet {
 			return 0l;
 
 		ColumnTypeCode type = df.columnType(columnIndex).getCode();
-		switch (type) {
-		case BD:
-			return df.getBigDecimal(rowIndex, columnIndex).longValue();
-		case S:
-			return Long.parseLong(df.getString(rowIndex, columnIndex));
-		case D:
-			return (long) df.getDouble(rowIndex, columnIndex);
-		case F:
-			return (long) df.getFloat(rowIndex, columnIndex);
-		case L:
-			return df.getLong(rowIndex, columnIndex);
-		case I:
-			return df.getInt(rowIndex, columnIndex);
-		case T:
-			return df.getShort(rowIndex, columnIndex);
-		case Y:
-			return df.getByte(rowIndex, columnIndex);
-		default:
-			throw new SQLException("cannot convert from " + type + " to long");
-		}
+		return switch (type) {
+		case BD -> df.getBigDecimal(rowIndex, columnIndex).longValue();
+		case S, NS -> Long.parseLong(df.getString(rowIndex, columnIndex));
+		case D -> (long) df.getDouble(rowIndex, columnIndex);
+		case F -> (long) df.getFloat(rowIndex, columnIndex);
+		case L -> df.getLong(rowIndex, columnIndex);
+		case I -> df.getInt(rowIndex, columnIndex);
+		case T -> df.getShort(rowIndex, columnIndex);
+		case Y -> df.getByte(rowIndex, columnIndex);
+		default -> throw new SQLException("cannot convert from " + type + " to long");
+		};
 	}
 
 	@Override
@@ -761,26 +705,17 @@ public class DataFrameResultSet implements ResultSet {
 			return 0;
 
 		ColumnTypeCode type = df.columnType(columnIndex).getCode();
-		switch (type) {
-		case BD:
-			return df.getBigDecimal(rowIndex, columnIndex).shortValue();
-		case S:
-			return Short.parseShort(df.getString(rowIndex, columnIndex));
-		case D:
-			return (short) df.getDouble(rowIndex, columnIndex);
-		case F:
-			return (short) df.getFloat(rowIndex, columnIndex);
-		case L:
-			return (short) df.getLong(rowIndex, columnIndex);
-		case I:
-			return (short) df.getInt(rowIndex, columnIndex);
-		case T:
-			return df.getShort(rowIndex, columnIndex);
-		case Y:
-			return df.getByte(rowIndex, columnIndex);
-		default:
-			throw new SQLException("cannot convert from " + type + " to short");
-		}
+		return switch (type) {
+		case BD -> df.getBigDecimal(rowIndex, columnIndex).shortValue();
+		case S, NS -> Short.parseShort(df.getString(rowIndex, columnIndex));
+		case D -> (short) df.getDouble(rowIndex, columnIndex);
+		case F -> (short) df.getFloat(rowIndex, columnIndex);
+		case L -> (short) df.getLong(rowIndex, columnIndex);
+		case I -> (short) df.getInt(rowIndex, columnIndex);
+		case T -> df.getShort(rowIndex, columnIndex);
+		case Y -> df.getByte(rowIndex, columnIndex);
+		default -> throw new SQLException("cannot convert from " + type + " to short");
+		};
 	}
 
 	@Override
@@ -829,14 +764,11 @@ public class DataFrameResultSet implements ResultSet {
 			return null;
 
 		ColumnTypeCode type = df.columnType(columnIndex).getCode();
-		switch (type) {
-		case DT:
-			return Time.valueOf(df.getDateTime(rowIndex, columnIndex).toLocalTime());
-		case TI:
-			return Time.valueOf(df.getTime(rowIndex, columnIndex));
-		default:
-			throw new SQLException("cannot convert from " + type + " to Date");
-		}
+		return switch (type) {
+		case DT -> Time.valueOf(df.getDateTime(rowIndex, columnIndex).toLocalTime());
+		case TI -> Time.valueOf(df.getTime(rowIndex, columnIndex));
+		default -> throw new SQLException("cannot convert from " + type + " to Date");
+		};
 	}
 
 	@Override
@@ -867,16 +799,12 @@ public class DataFrameResultSet implements ResultSet {
 			return null;
 
 		ColumnTypeCode type = df.columnType(columnIndex).getCode();
-		switch (type) {
-		case DT:
-			return Timestamp.valueOf(df.getDateTime(rowIndex, columnIndex));
-		case DA:
-			return Timestamp.valueOf(df.getDate(rowIndex, columnIndex).atStartOfDay());
-		case TI:
-			return Timestamp.valueOf(df.getTime(rowIndex, columnIndex).atDate(LocalDate.now()));
-		default:
-			throw new SQLException("cannot convert from " + type + " to Timestamp");
-		}
+		return switch (type) {
+		case DT -> Timestamp.valueOf(df.getDateTime(rowIndex, columnIndex));
+		case DA -> Timestamp.valueOf(df.getDate(rowIndex, columnIndex).atStartOfDay());
+		case TI -> Timestamp.valueOf(df.getTime(rowIndex, columnIndex).atDate(LocalDate.now()));
+		default -> throw new SQLException("cannot convert from " + type + " to Timestamp");
+		};
 	}
 
 	@Override
