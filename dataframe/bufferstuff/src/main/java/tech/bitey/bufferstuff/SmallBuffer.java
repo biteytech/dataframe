@@ -33,7 +33,7 @@ import java.nio.ByteOrder;
  *
  * @author biteytech@protonmail.com, adapted from {@link Buffer}
  */
-public sealed abstract class SmallBuffer permits SmallByteBuffer,SmallShortBuffer,SmallIntBuffer,SmallLongBuffer,SmallFloatBuffer,SmallDoubleBuffer {
+public sealed abstract class SmallBuffer permits SmallByteBuffer, SmallShortBuffer, SmallIntBuffer, SmallLongBuffer, SmallFloatBuffer, SmallDoubleBuffer {
 
 	final BigByteBuffer buffer;
 

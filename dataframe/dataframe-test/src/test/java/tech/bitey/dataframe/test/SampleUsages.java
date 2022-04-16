@@ -174,9 +174,8 @@ public class SampleUsages {
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("M/d/yyyy");
 		ReadCsvConfig config = new ReadCsvConfig(ColumnType.INT, ColumnType.DATE, ColumnType.STRING, ColumnType.INT,
 				ColumnType.DOUBLE)
-						.withColumnParsers(
-								Arrays.asList(null, text -> LocalDate.parse(text, formatter), null, null, null))
-						.withDelim('\t');
+				.withColumnParsers(Arrays.asList(null, text -> LocalDate.parse(text, formatter), null, null, null))
+				.withDelim('\t');
 
 		DataFrame df2 = DataFrameFactory.readCsvFrom(file, config);
 

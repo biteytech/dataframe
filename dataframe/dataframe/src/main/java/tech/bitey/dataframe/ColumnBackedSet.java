@@ -169,8 +169,7 @@ class ColumnBackedSet<E> extends AbstractSet<E> implements NavigableSet<E> {
 		throw new UnsupportedOperationException("pollLast");
 	}
 
-	private static class DescColumnBackedSet<E> extends AbstractSet<E>
-			implements NavigableSet<E> {
+	private static class DescColumnBackedSet<E> extends AbstractSet<E> implements NavigableSet<E> {
 
 		private final ColumnBackedSet<E> asc;
 
