@@ -209,6 +209,26 @@ public class TestDataFrame {
 	}
 
 	@Test
+	public void testJoinOneToMany() {
+
+		for (Map.Entry<String, DataFrame> e : DF_MAP.entrySet()) {
+
+			DataFrame df = e.getValue();
+
+			if (!df.column(0).isDistinct())
+				continue;
+
+			DataFrame expected = df.withKeyColumn(0);
+			expected = expected.join(expected);
+
+			DataFrame actual = df.withKeyColumn(0);
+			actual = actual.joinOneToMany(actual, actual.keyColumnName());
+
+			Assertions.assertTrue(expected.equals(actual, true), e.getKey() + ", inner 1:1 vs inner 1:many");
+		}
+	}
+
+	@Test
 	public void testReadWriteBinary() throws Exception {
 
 		for (Map.Entry<String, DataFrame> e : DF_MAP.entrySet()) {
@@ -808,6 +828,21 @@ public class TestDataFrame {
 		Assertions.assertEquals(df, DataFrameFactory.of("foo", IntColumn.of(), "bar", StringColumn.of()));
 
 		List<TestRecordEmpty> actual = df.stream(TestRecordEmpty.class).toList();
+
+		Assertions.assertEquals(expected, actual);
+	}
+
+	@Test
+	public void filterToNull() {
+
+		DataFrame df = DataFrameFactory
+				.of("I", IntColumn.of(null, 1, null, 2, null), "S", StringColumn.of(null, "1", null, "2", null))
+				.filter(r -> r.isNull(0));
+
+		DataFrame actual = df.append(df).subFrame(0, 4);
+
+		DataFrame expected = DataFrameFactory.of("I", IntColumn.builder().addNulls(4).build(), "S",
+				StringColumn.builder().addNulls(4).build());
 
 		Assertions.assertEquals(expected, actual);
 	}

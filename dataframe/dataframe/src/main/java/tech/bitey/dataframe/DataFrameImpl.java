@@ -957,14 +957,7 @@ final class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 		return create(columnList.toArray(new Column<?>[0]), columnNames, null);
 	}
 
-	private static class JoinSingleIndexResult {
-		final DataFrameImpl df;
-		final IntColumn indices;
-
-		JoinSingleIndexResult(DataFrameImpl data, IntColumn indices) {
-			this.df = data;
-			this.indices = indices;
-		}
+	private static record JoinSingleIndexResult(DataFrameImpl df, IntColumn indices) {
 	}
 
 	private JoinSingleIndexResult joinSingleIndex(DataFrame df, String columnName) {

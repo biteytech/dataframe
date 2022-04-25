@@ -237,20 +237,8 @@ public class GuavaTestLibSuite {
 		}
 	}
 
-	private static class TestColumnAsListGenerator<E> implements TestListGenerator<E> {
-
-		final ColumnType<E> type;
-		final SampleElements<E> samples;
-		final IntFunction<E[]> newArray;
-		final int characteristics;
-
-		private TestColumnAsListGenerator(ColumnType<E> type, SampleElements<E> samples, IntFunction<E[]> newArray,
-				int characteristics) {
-			this.type = type;
-			this.samples = samples;
-			this.newArray = newArray;
-			this.characteristics = characteristics;
-		}
+	private static record TestColumnAsListGenerator<E> (ColumnType<E> type, SampleElements<E> samples,
+			IntFunction<E[]> newArray, int characteristics) implements TestListGenerator<E> {
 
 		@Override
 		public SampleElements<E> samples() {

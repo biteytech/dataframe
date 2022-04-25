@@ -1381,9 +1381,6 @@ public class BufferBitSet implements Cloneable {
 		return buffer.get(byteIndex);
 	}
 
-	// canary method used to detect spurious down-conversions from int to byte
-//	private void put(int byteIndex, byte b) {}
-
 	/**
 	 * Write a byte to the buffer at the given index. In practice, the "byte" always
 	 * comes in as an {@code int} due to widening from logical operations.
