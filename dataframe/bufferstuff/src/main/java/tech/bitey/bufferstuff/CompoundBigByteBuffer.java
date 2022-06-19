@@ -899,6 +899,8 @@ final class CompoundBigByteBuffer extends AbstractBigByteBuffer {
 		}
 	}
 
+	// ===================================================================================================
+
 	@Override
 	public InputStream toInputStream() {
 		return new InputStream() {
@@ -954,6 +956,12 @@ final class CompoundBigByteBuffer extends AbstractBigByteBuffer {
 			length -= read;
 		}
 
+		return this;
+	}
+
+	@Override
+	public BigByteBuffer put(long index, ByteBuffer src, int offset, int length) {
+		put0(index, BufferUtils.slice(src, offset, offset + length));
 		return this;
 	}
 }

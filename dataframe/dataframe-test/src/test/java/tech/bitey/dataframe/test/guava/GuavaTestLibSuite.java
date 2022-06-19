@@ -104,6 +104,8 @@ public class GuavaTestLibSuite {
 					"~~ b"),
 			new TestIngredients<>(ColumnType.NSTRING, String[]::new, "!! a", "!! b", "b", "a", "c", "d", "e", "~~ a",
 					"~~ b"),
+			new TestIngredients<>(ColumnType.FSTRING, String[]::new, "!! a", "!! b", "bbbb", "aaaa", "cccc", "dddd",
+					"eeee", "~~ a", "~~ b"),
 			new TestIngredients<>(ColumnType.BYTE, Byte[]::new, Byte.MIN_VALUE, (byte) 0, (byte) 2, (byte) 1, (byte) 3,
 					(byte) 4, (byte) 5, (byte) 6, Byte.MAX_VALUE),
 			new TestIngredients<>(ColumnType.SHORT, Short[]::new, Short.MIN_VALUE, (short) 0, (short) 2, (short) 1,

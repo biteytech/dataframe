@@ -38,7 +38,6 @@ import tech.bitey.dataframe.db.IToPreparedStatement;
 import tech.bitey.dataframe.db.InstantToStatement;
 import tech.bitey.dataframe.db.IntToStatement;
 import tech.bitey.dataframe.db.LongToStatement;
-import tech.bitey.dataframe.db.NormalStringToStatement;
 import tech.bitey.dataframe.db.ShortToStatement;
 import tech.bitey.dataframe.db.StringToStatement;
 import tech.bitey.dataframe.db.TimeToStatement;
@@ -111,9 +110,8 @@ public record WriteToDbConfig(List<IToPreparedStatement<?>> toPsLogic, int batch
 				case L -> LongToStatement.LONG_TO_LONG;
 				case T -> ShortToStatement.SHORT_TO_SHORT;
 				case Y -> ByteToStatement.BYTE_TO_BYTE;
-				case S -> StringToStatement.STRING_TO_STRING;
+				case S, NS, FS -> StringToStatement.STRING_TO_STRING;
 				case UU -> UuidToStatement.UUID_TO_STRING;
-				case NS -> NormalStringToStatement.STRING_TO_STRING;
 				case BL -> BlobToStatement.INPUT_STREAM;
 				};
 			}

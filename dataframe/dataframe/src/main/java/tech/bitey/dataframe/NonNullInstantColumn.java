@@ -17,7 +17,6 @@
 package tech.bitey.dataframe;
 
 import static java.util.Spliterator.DISTINCT;
-import static java.util.Spliterator.NONNULL;
 import static java.util.Spliterator.SORTED;
 import static tech.bitey.bufferstuff.BufferUtils.EMPTY_BIG_BUFFER;
 
@@ -26,10 +25,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import tech.bitey.bufferstuff.BigByteBuffer;
-import tech.bitey.bufferstuff.BufferBitSet;
-import tech.bitey.bufferstuff.SmallIntBuffer;
 
-final class NonNullInstantColumn extends NonNullSingleBufferColumn<Instant, InstantColumn, NonNullInstantColumn>
+final class NonNullInstantColumn extends NonNullFixedLenColumn<Instant, InstantColumn, NonNullInstantColumn>
 		implements InstantColumn {
 
 	static final Map<Integer, NonNullInstantColumn> EMPTY = new HashMap<>();
@@ -45,12 +42,8 @@ final class NonNullInstantColumn extends NonNullSingleBufferColumn<Instant, Inst
 		return EMPTY.get(characteristics | NONNULL_CHARACTERISTICS);
 	}
 
-	private final SmallIntBuffer elements;
-
 	NonNullInstantColumn(BigByteBuffer buffer, int offset, int size, int characteristics, boolean view) {
 		super(buffer, offset, size, characteristics, view);
-
-		this.elements = buffer.asIntBuffer();
 	}
 
 	@Override
@@ -59,67 +52,24 @@ final class NonNullInstantColumn extends NonNullSingleBufferColumn<Instant, Inst
 	}
 
 	private long second(int index) {
-		return elements.get(index * 3) << 32L | elements.get(index * 3 + 1);
+		return buffer.getLong((long) index * 12);
 	}
 
 	private int nano(int index) {
-		return elements.get(index * 3 + 2);
+		return buffer.getInt((long) index * 12 + 8);
 	}
 
 	private void put(int index, long seconds, int nanos) {
-		elements.put(index * 3 + 0, (int) (seconds >> 32));
-		elements.put(index * 3 + 1, (int) seconds);
-		elements.put(index * 3 + 2, nanos);
+
+		final long lindex = (long) index * 12;
+
+		buffer.putLong(lindex, seconds);
+		buffer.putInt(lindex + 8, nanos);
 	}
 
 	@Override
 	Instant getNoOffset(int index) {
 		return Instant.ofEpochSecond(second(index), nano(index));
-	}
-
-	int search(Instant value) {
-		return AbstractColumnSearch.binarySearch(this, offset, offset + size, value);
-	}
-
-	@Override
-	int search(Instant value, boolean first) {
-		return AbstractColumnSearch.search(this, value, first);
-	}
-
-	@Override
-	void sort() {
-		heapSort(offset, offset + size);
-	}
-
-	@Override
-	int deduplicate() {
-		return deduplicate(offset, offset + size);
-	}
-
-	@Override
-	boolean checkSorted() {
-		if (size < 2)
-			return true;
-
-		for (int i = offset + 1; i <= lastIndex(); i++) {
-			if (compareValuesAt(i - 1, i) > 0)
-				return false;
-		}
-
-		return true;
-	}
-
-	@Override
-	boolean checkDistinct() {
-		if (size < 2)
-			return true;
-
-		for (int i = offset + 1; i <= lastIndex(); i++) {
-			if (compareValuesAt(i - 1, i) >= 0)
-				return false;
-		}
-
-		return true;
 	}
 
 	@Override
@@ -147,32 +97,10 @@ final class NonNullInstantColumn extends NonNullSingleBufferColumn<Instant, Inst
 		return result;
 	}
 
-	private void put(BigByteBuffer buffer, int index) {
+	@Override
+	void put(BigByteBuffer buffer, int index) {
 		buffer.putLong(second(index));
 		buffer.putInt(nano(index));
-	}
-
-	@Override
-	NonNullInstantColumn applyFilter0(BufferBitSet keep, int cardinality) {
-
-		BigByteBuffer buffer = allocate(cardinality);
-		for (int i = offset; i <= lastIndex(); i++)
-			if (keep.get(i - offset))
-				put(buffer, i);
-		buffer.flip();
-
-		return new NonNullInstantColumn(buffer, 0, cardinality, characteristics, false);
-	}
-
-	@Override
-	NonNullInstantColumn select0(IntColumn indices) {
-
-		BigByteBuffer buffer = allocate(indices.size());
-		for (int i = 0; i < indices.size(); i++)
-			put(buffer, indices.getInt(i) + offset);
-		buffer.flip();
-
-		return construct(buffer, 0, indices.size(), NONNULL, false);
 	}
 
 	@Override
@@ -181,24 +109,6 @@ final class NonNullInstantColumn extends NonNullSingleBufferColumn<Instant, Inst
 		return (this.second(l) < rhs.second(r) ? -1
 				: (this.second(l) > rhs.second(r) ? 1
 						: (this.nano(l) < rhs.nano(r) ? -1 : (this.nano(l) > rhs.nano(r) ? 1 : 0))));
-	}
-
-	private int compareValuesAt(int l, int r) {
-		return compareValuesAt(this, l, r);
-	}
-
-	@Override
-	void intersectLeftSorted(NonNullInstantColumn rhs, IntColumnBuilder indices, BufferBitSet keepRight) {
-
-		for (int i = rhs.offset; i <= rhs.lastIndex(); i++) {
-
-			int leftIndex = search(rhs.getNoOffset(i));
-			if (leftIndex >= offset && leftIndex <= lastIndex()) {
-
-				indices.add(leftIndex - offset);
-				keepRight.set(i - rhs.offset);
-			}
-		}
 	}
 
 	@Override
@@ -211,48 +121,8 @@ final class NonNullInstantColumn extends NonNullSingleBufferColumn<Instant, Inst
 		return 12;
 	}
 
-	// =========================================================================
-
-	private void heapSort(int fromIndex, int toIndex) {
-
-		int n = toIndex - fromIndex;
-		if (n <= 1)
-			return;
-
-		// Build max heap
-		for (int i = fromIndex + n / 2 - 1; i >= fromIndex; i--)
-			heapify(toIndex, i, fromIndex);
-
-		// Heap sort
-		for (int i = toIndex - 1; i >= fromIndex; i--) {
-			swap(fromIndex, i);
-
-			// Heapify root element
-			heapify(i, fromIndex, fromIndex);
-		}
-	}
-
-	// based on https://www.programiz.com/dsa/heap-sort
-	private void heapify(int n, int i, int offset) {
-		// Find largest among root, left child and right child
-		int largest = i;
-		int l = 2 * i + 1 - offset;
-		int r = l + 1;
-
-		if (l < n && compareValuesAt(l, largest) > 0)
-			largest = l;
-
-		if (r < n && compareValuesAt(r, largest) > 0)
-			largest = r;
-
-		// Swap and continue heapifying if root is not largest
-		if (largest != i) {
-			swap(i, largest);
-			heapify(n, largest, offset);
-		}
-	}
-
-	private void swap(int i, int j) {
+	@Override
+	void swap(int i, int j) {
 		long is = second(i);
 		int in = nano(i);
 		long js = second(j);
@@ -262,9 +132,8 @@ final class NonNullInstantColumn extends NonNullSingleBufferColumn<Instant, Inst
 		put(j, is, in);
 	}
 
-	// =========================================================================
-
-	private int deduplicate(int fromIndex, int toIndex) {
+	@Override
+	int deduplicate(int fromIndex, int toIndex) {
 
 		if (toIndex - fromIndex < 2)
 			return toIndex;

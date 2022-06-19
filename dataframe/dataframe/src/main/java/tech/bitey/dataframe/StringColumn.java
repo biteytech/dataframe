@@ -397,7 +397,8 @@ public interface StringColumn extends Column<String> {
 				return this;
 		}
 
-		thisLength += nonNullSize * 8; // pointers
+		if (getType() == ColumnType.STRING)
+			thisLength += nonNullSize * 8; // pointers
 
 		if (distinct.size() > 256)
 			nonNullSize *= 2; // shorts instead of bytes

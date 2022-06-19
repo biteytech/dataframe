@@ -337,6 +337,12 @@ final class SimpleBigByteBuffer extends AbstractBigByteBuffer {
 	}
 
 	@Override
+	public BigByteBuffer put(long index, ByteBuffer src, int offset, int length) {
+		buffer.put(toIntExact(index), src, offset, length);
+		return this;
+	}
+
+	@Override
 	public BigByteBuffer putShort(ShortBuffer src) {
 		int remaining = src.remaining();
 		buffer.asShortBuffer().put(src);

@@ -20,8 +20,6 @@ import static java.nio.ByteOrder.BIG_ENDIAN;
 import static java.nio.ByteOrder.LITTLE_ENDIAN;
 import static tech.bitey.bufferstuff.BufferUtils.readFully;
 import static tech.bitey.bufferstuff.BufferUtils.writeFully;
-import static tech.bitey.dataframe.ColumnType.NSTRING;
-import static tech.bitey.dataframe.ColumnType.STRING;
 import static tech.bitey.dataframe.Pr.checkArgument;
 
 import java.io.IOException;
@@ -255,7 +253,7 @@ abstract class AbstractColumn<E, I extends Column<E>, C extends AbstractColumn<E
 		ColumnType aType = a.getType();
 		ColumnType bType = b.getType();
 
-		return (aType == STRING && bType == NSTRING) || (aType == NSTRING && bType == STRING);
+		return aType.isStringType() && bType.isStringType() && aType != bType;
 	}
 
 	@Override

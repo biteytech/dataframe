@@ -189,7 +189,7 @@ public class DataFrameResultSet implements ResultSet {
 		ColumnTypeCode type = df.columnType(columnIndex).getCode();
 		return switch (type) {
 		case BD -> df.getBigDecimal(rowIndex, columnIndex);
-		case S, NS -> new BigDecimal(df.getString(rowIndex, columnIndex));
+		case S, NS, FS -> new BigDecimal(df.getString(rowIndex, columnIndex));
 		case D -> BigDecimal.valueOf(df.getDouble(rowIndex, columnIndex));
 		case F -> BigDecimal.valueOf(df.getFloat(rowIndex, columnIndex));
 		case L -> BigDecimal.valueOf(df.getLong(rowIndex, columnIndex));
@@ -261,7 +261,8 @@ public class DataFrameResultSet implements ResultSet {
 			break;
 		}
 		case S:
-		case NS: {
+		case NS:
+		case FS: {
 			String s = df.getString(rowIndex, columnIndex);
 			if (s.length() > 5)
 				break;
@@ -352,7 +353,7 @@ public class DataFrameResultSet implements ResultSet {
 		ColumnTypeCode type = df.columnType(columnIndex).getCode();
 		return switch (type) {
 		case BD -> df.getBigDecimal(rowIndex, columnIndex).byteValue();
-		case S, NS -> Byte.parseByte(df.getString(rowIndex, columnIndex));
+		case S, NS, FS -> Byte.parseByte(df.getString(rowIndex, columnIndex));
 		case D -> (byte) df.getDouble(rowIndex, columnIndex);
 		case F -> (byte) df.getFloat(rowIndex, columnIndex);
 		case L -> (byte) df.getLong(rowIndex, columnIndex);
@@ -458,7 +459,7 @@ public class DataFrameResultSet implements ResultSet {
 		ColumnTypeCode type = df.columnType(columnIndex).getCode();
 		return switch (type) {
 		case BD -> df.getBigDecimal(rowIndex, columnIndex).doubleValue();
-		case S, NS -> Double.parseDouble(df.getString(rowIndex, columnIndex));
+		case S, NS, FS -> Double.parseDouble(df.getString(rowIndex, columnIndex));
 		case D -> df.getDouble(rowIndex, columnIndex);
 		case F -> df.getFloat(rowIndex, columnIndex);
 		case L -> df.getLong(rowIndex, columnIndex);
@@ -500,7 +501,7 @@ public class DataFrameResultSet implements ResultSet {
 		ColumnTypeCode type = df.columnType(columnIndex).getCode();
 		return switch (type) {
 		case BD -> df.getBigDecimal(rowIndex, columnIndex).floatValue();
-		case S, NS -> Float.parseFloat(df.getString(rowIndex, columnIndex));
+		case S, NS, FS -> Float.parseFloat(df.getString(rowIndex, columnIndex));
 		case D -> (float) df.getDouble(rowIndex, columnIndex);
 		case F -> df.getFloat(rowIndex, columnIndex);
 		case L -> df.getLong(rowIndex, columnIndex);
@@ -536,7 +537,7 @@ public class DataFrameResultSet implements ResultSet {
 		ColumnTypeCode type = df.columnType(columnIndex).getCode();
 		return switch (type) {
 		case BD -> df.getBigDecimal(rowIndex, columnIndex).intValue();
-		case S, NS -> Integer.parseInt(df.getString(rowIndex, columnIndex));
+		case S, NS, FS -> Integer.parseInt(df.getString(rowIndex, columnIndex));
 		case D -> (int) df.getDouble(rowIndex, columnIndex);
 		case F -> (int) df.getFloat(rowIndex, columnIndex);
 		case L -> (int) df.getLong(rowIndex, columnIndex);
@@ -567,7 +568,7 @@ public class DataFrameResultSet implements ResultSet {
 		ColumnTypeCode type = df.columnType(columnIndex).getCode();
 		return switch (type) {
 		case BD -> df.getBigDecimal(rowIndex, columnIndex).longValue();
-		case S, NS -> Long.parseLong(df.getString(rowIndex, columnIndex));
+		case S, NS, FS -> Long.parseLong(df.getString(rowIndex, columnIndex));
 		case D -> (long) df.getDouble(rowIndex, columnIndex);
 		case F -> (long) df.getFloat(rowIndex, columnIndex);
 		case L -> df.getLong(rowIndex, columnIndex);
@@ -707,7 +708,7 @@ public class DataFrameResultSet implements ResultSet {
 		ColumnTypeCode type = df.columnType(columnIndex).getCode();
 		return switch (type) {
 		case BD -> df.getBigDecimal(rowIndex, columnIndex).shortValue();
-		case S, NS -> Short.parseShort(df.getString(rowIndex, columnIndex));
+		case S, NS, FS -> Short.parseShort(df.getString(rowIndex, columnIndex));
 		case D -> (short) df.getDouble(rowIndex, columnIndex);
 		case F -> (short) df.getFloat(rowIndex, columnIndex);
 		case L -> (short) df.getLong(rowIndex, columnIndex);

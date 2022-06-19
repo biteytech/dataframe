@@ -34,6 +34,7 @@ public enum ColumnTypeCode {
 	UU, // UUID
 	NS, // Normal String
 	BL, // Blob
+	FS, // Fixed Ascii String
 	;
 
 	ColumnType<?> getType() {
@@ -54,6 +55,7 @@ public enum ColumnTypeCode {
 		case UU -> ColumnType.UUID;
 		case NS -> ColumnType.NSTRING;
 		case BL -> ColumnType.BLOB;
+		case FS -> ColumnType.FSTRING;
 		};
 	}
 }

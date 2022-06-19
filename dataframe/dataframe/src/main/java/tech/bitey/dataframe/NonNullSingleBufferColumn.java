@@ -117,6 +117,9 @@ abstract class NonNullSingleBufferColumn<E, I extends Column<E>, C extends NonNu
 		return buffer.slice((long) offset * elementSize(), (long) (offset + size) * elementSize());
 	}
 
+	void writeTo0(WritableByteChannel channel, ByteOrder order) throws IOException {
+	}
+
 	@Override
 	void writeTo(WritableByteChannel channel) throws IOException {
 
@@ -126,6 +129,12 @@ abstract class NonNullSingleBufferColumn<E, I extends Column<E>, C extends NonNu
 		writeInt(channel, order, size);
 
 		writeBuffer(channel, slice0());
+
+		writeTo0(channel, order);
+	}
+
+	C readFrom0(ReadableByteChannel channel, ByteOrder order, BigByteBuffer bbb, int size) throws IOException {
+		return construct(bbb, 0, size, characteristics, false);
 	}
 
 	@Override
@@ -146,6 +155,6 @@ abstract class NonNullSingleBufferColumn<E, I extends Column<E>, C extends NonNu
 			bbb = readBuffer(channel, order, map);
 		}
 
-		return construct(bbb, 0, size, characteristics, false);
+		return readFrom0(channel, order, bbb, size);
 	}
 }

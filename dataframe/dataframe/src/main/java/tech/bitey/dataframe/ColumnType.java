@@ -27,6 +27,7 @@ import static tech.bitey.dataframe.ColumnTypeCode.D;
 import static tech.bitey.dataframe.ColumnTypeCode.DA;
 import static tech.bitey.dataframe.ColumnTypeCode.DT;
 import static tech.bitey.dataframe.ColumnTypeCode.F;
+import static tech.bitey.dataframe.ColumnTypeCode.FS;
 import static tech.bitey.dataframe.ColumnTypeCode.I;
 import static tech.bitey.dataframe.ColumnTypeCode.IN;
 import static tech.bitey.dataframe.ColumnTypeCode.L;
@@ -74,6 +75,7 @@ import tech.bitey.bufferstuff.BufferBitSet;
  * <li>{@link #UUID}
  * <li>{@link #NSTRING}
  * <li>{@link #BLOB}
+ * <li>{@link #FSTRING}
  * </ul>
  * 
  * @author biteytech@protonmail.com
@@ -224,6 +226,15 @@ public abstract class ColumnType<E> {
 		}
 	};
 
+	/** The type for {@link FixedAsciiColumn} */
+	public static final ColumnType<String> FSTRING = new ColumnType<>(FS, String.class) {
+
+		@Override
+		public int compare(String lhs, String rhs) {
+			return lhs.compareTo(rhs);
+		}
+	};
+
 	private final ColumnTypeCode code;
 	private final Class<E> elementType;
 
@@ -289,6 +300,7 @@ public abstract class ColumnType<E> {
 		case UU -> UuidColumn.builder(characteristic);
 		case NS -> NormalStringColumn.builder();
 		case BL -> BlobColumn.builder();
+		case FS -> FixedAsciiColumn.builder(characteristic);
 		};
 	}
 
@@ -417,6 +429,14 @@ public abstract class ColumnType<E> {
 			else
 				yield new NullableUuidColumn(column, nonNulls, null, 0, size);
 		}
+		case FS -> {
+			NonNullFixedAsciiColumn column = NonNullFixedAsciiColumn.empty(characteristics).readFrom(channel, version,
+					map);
+			if (nonNulls == null)
+				yield column;
+			else
+				yield new NullableFixedAsciiColumn(column, nonNulls, null, 0, size);
+		}
 		case NS -> {
 			final ColumnTypeCode colTypeCode;
 			if (version < 5)
@@ -477,6 +497,7 @@ public abstract class ColumnType<E> {
 		case UU -> NullableUuidColumn::new;
 		case Y -> NullableByteColumn::new;
 		case NS -> throw new IllegalStateException();
+		case FS -> NullableFixedAsciiColumn::new;
 		case BL -> NullableBlobColumn::new;
 		};
 	}
@@ -570,7 +591,7 @@ public abstract class ColumnType<E> {
 		case L -> Long.valueOf(string);
 		case T -> Short.valueOf(string);
 		case Y -> Byte.valueOf(string);
-		case S, NS -> string;
+		case S, NS, FS -> string;
 		case BD -> new BigDecimal(string);
 		case UU -> java.util.UUID.fromString(string);
 		case BL -> new ByteArrayInputStream(string.getBytes());
@@ -610,7 +631,7 @@ public abstract class ColumnType<E> {
 		case I -> Integer.class;
 		case IN -> Instant.class;
 		case L -> Long.class;
-		case NS, S -> String.class;
+		case S, NS, FS -> String.class;
 		case T -> Short.class;
 		case TI -> LocalTime.class;
 		case UU -> UUID.class;
@@ -645,10 +666,11 @@ public abstract class ColumnType<E> {
 	static {
 		for (ColumnTypeCode code : ColumnTypeCode.values()) {
 
-			if (code == ColumnTypeCode.NS)
+			ColumnType<?> type = code.getType();
+
+			if (type.isStringType() && type != STRING)
 				continue;
 
-			ColumnType<?> type = code.getType();
 			CLASS_TYPE_MAP.put(type.getType(), type);
 
 			if (type.getPrimitiveType() != null)
@@ -676,5 +698,12 @@ public abstract class ColumnType<E> {
 	@Override
 	public String toString() {
 		return code.toString();
+	}
+
+	public boolean isStringType() {
+		return switch (code) {
+		case S, NS, FS -> true;
+		default -> false;
+		};
 	}
 }

@@ -76,7 +76,6 @@ import tech.bitey.dataframe.db.IFromResultSet;
 import tech.bitey.dataframe.db.InstantFromResultSet;
 import tech.bitey.dataframe.db.IntFromResultSet;
 import tech.bitey.dataframe.db.LongFromResultSet;
-import tech.bitey.dataframe.db.NormalStringFromResultSet;
 import tech.bitey.dataframe.db.ShortFromResultSet;
 import tech.bitey.dataframe.db.StringFromResultSet;
 import tech.bitey.dataframe.db.TimeFromResultSet;
@@ -98,7 +97,8 @@ public class TestDataFrame {
 
 		TestColumn[] columnTest = new TestColumn[] { new TestLongColumn(), new TestFloatColumn(),
 				new TestDoubleColumn(), new TestStringColumn(), new TestBooleanColumn(), new TestDecimalColumn(),
-				new TestShortColumn(), new TestByteColumn(), new TestUuidColumn(), new TestNormalStringColumn() };
+				new TestShortColumn(), new TestByteColumn(), new TestUuidColumn(), new TestNormalStringColumn(),
+				new TestFixedAsciiColumn() };
 
 		for (TestColumn<?> tests : columnTest) {
 			tests.samples().forEach(s -> {
@@ -332,6 +332,8 @@ public class TestDataFrame {
 						fromRsLogic.add(InstantFromResultSet.INSTANT_FROM_TIMESTAMP);
 						break;
 					case S:
+					case NS:
+					case FS:
 						create.append("TEXT");
 						fromRsLogic.add(StringFromResultSet.STRING_FROM_STRING);
 						break;
@@ -366,10 +368,6 @@ public class TestDataFrame {
 					case UU:
 						create.append("TEXT");
 						fromRsLogic.add(UuidFromResultSet.UUID_FROM_STRING);
-						break;
-					case NS:
-						create.append("TEXT");
-						fromRsLogic.add(NormalStringFromResultSet.STRING_FROM_STRING);
 						break;
 					case BL:
 						create.append("TEXT");

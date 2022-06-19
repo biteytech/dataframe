@@ -16,12 +16,7 @@
 
 package tech.bitey.dataframe;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Collection;
-import java.util.UUID;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collector;
@@ -143,195 +138,13 @@ public interface NormalStringColumn extends StringColumn {
 		return c.stream().collect(collector());
 	}
 
-	/**
-	 * Convert this column into a {@link BooleanColumn} by applying the same logic
-	 * as in {@link ColumnType#parse(String)} to each non-null element. Nulls are
-	 * preserved as-is.
-	 * <p>
-	 * The resulting column will not be flagged as sorted or distinct.
-	 * 
-	 * @return A {@link BooleanColumn} parsed from this column.
-	 */
-	@Override
-	default BooleanColumn parseBoolean() {
-		return toBooleanColumn(ColumnType::parseBoolean);
-	}
-
-	/**
-	 * Convert this column into a {@link DateColumn} by applying the same logic as
-	 * in {@link ColumnType#parse(String)} to each non-null element. Nulls are
-	 * preserved as-is.
-	 * <p>
-	 * The resulting column will not be flagged as sorted or distinct.
-	 * 
-	 * @return A {@link DateColumn} parsed from this column.
-	 */
-	@Override
-	default DateColumn parseDate() {
-		return toDateColumn(ColumnType::parseDate);
-	}
-
-	/**
-	 * Convert this column into a {@link DateColumn} by applying the specified
-	 * {@link DateTimeFormatter} to each non-null element. Nulls are preserved
-	 * as-is.
-	 * <p>
-	 * The resulting column will not be flagged as sorted or distinct.
-	 * 
-	 * @return A {@link DateColumn} parsed from this column.
-	 */
-	@Override
-	default DateColumn parseDate(DateTimeFormatter formatter) {
-		return toDateColumn(text -> LocalDate.parse(text, formatter));
-	}
-
-	/**
-	 * Convert this column into a {@link DateTimeColumn} by applying the same logic
-	 * as in {@link ColumnType#parse(String)} to each non-null element. Nulls are
-	 * preserved as-is.
-	 * <p>
-	 * The resulting column will not be flagged as sorted or distinct.
-	 * 
-	 * @return A {@link DateTimeColumn} parsed from this column.
-	 */
-	@Override
-	default DateTimeColumn parseDateTime() {
-		return toDateTimeColumn(LocalDateTime::parse);
-	}
-
-	/**
-	 * Convert this column into a {@link DateTimeColumn} by applying the specified
-	 * {@link DateTimeFormatter} to each non-null element. Nulls are preserved
-	 * as-is.
-	 * <p>
-	 * The resulting column will not be flagged as sorted or distinct.
-	 * 
-	 * @return A {@link DateTimeColumn} parsed from this column.
-	 */
-	@Override
-	default DateTimeColumn parseDateTime(DateTimeFormatter formatter) {
-		return toDateTimeColumn(text -> LocalDateTime.parse(text, formatter));
-	}
-
-	/**
-	 * Convert this column into a {@link DoubleColumn} by applying the same logic as
-	 * in {@link ColumnType#parse(String)} to each non-null element. Nulls are
-	 * preserved as-is.
-	 * <p>
-	 * The resulting column will not be flagged as sorted or distinct.
-	 * 
-	 * @return A {@link DoubleColumn} parsed from this column.
-	 */
-	@Override
-	default DoubleColumn parseDouble() {
-		return toDoubleColumn(Double::parseDouble);
-	}
-
-	/**
-	 * Convert this column into a {@link FloatColumn} by applying the same logic as
-	 * in {@link ColumnType#parse(String)} to each non-null element. Nulls are
-	 * preserved as-is.
-	 * <p>
-	 * The resulting column will not be flagged as sorted or distinct.
-	 * 
-	 * @return A {@link FloatColumn} parsed from this column.
-	 */
-	@Override
-	default FloatColumn parseFloat() {
-		return toFloatColumn(Float::parseFloat);
-	}
-
-	/**
-	 * Convert this column into a {@link IntColumn} by applying the same logic as in
-	 * {@link ColumnType#parse(String)} to each non-null element. Nulls are
-	 * preserved as-is.
-	 * <p>
-	 * The resulting column will not be flagged as sorted or distinct.
-	 * 
-	 * @return A {@link IntColumn} parsed from this column.
-	 */
-	@Override
-	default IntColumn parseInt() {
-		return toIntColumn(Integer::parseInt);
-	}
-
-	/**
-	 * Convert this column into a {@link LongColumn} by applying the same logic as
-	 * in {@link ColumnType#parse(String)} to each non-null element. Nulls are
-	 * preserved as-is.
-	 * <p>
-	 * The resulting column will not be flagged as sorted or distinct.
-	 * 
-	 * @return A {@link LongColumn} parsed from this column.
-	 */
-	@Override
-	default LongColumn parseLong() {
-		return toLongColumn(Long::parseLong);
-	}
-
-	/**
-	 * Convert this column into a {@link ShortColumn} by applying the same logic as
-	 * in {@link ColumnType#parse(String)} to each non-null element. Nulls are
-	 * preserved as-is.
-	 * <p>
-	 * The resulting column will not be flagged as sorted or distinct.
-	 * 
-	 * @return A {@link ShortColumn} parsed from this column.
-	 */
-	@Override
-	default ShortColumn parseShort() {
-		return toShortColumn(Short::parseShort);
-	}
-
-	/**
-	 * Convert this column into a {@link ByteColumn} by applying the same logic as
-	 * in {@link ColumnType#parse(String)} to each non-null element. Nulls are
-	 * preserved as-is.
-	 * <p>
-	 * The resulting column will not be flagged as sorted or distinct.
-	 * 
-	 * @return A {@link ByteColumn} parsed from this column.
-	 */
-	@Override
-	default ByteColumn parseByte() {
-		return toByteColumn(Byte::parseByte);
-	}
-
-	/**
-	 * Convert this column into a {@link DecimalColumn} by applying the same logic
-	 * as in {@link ColumnType#parse(String)} to each non-null element. Nulls are
-	 * preserved as-is.
-	 * <p>
-	 * The resulting column will not be flagged as sorted or distinct.
-	 * 
-	 * @return A {@link DecimalColumn} parsed from this column.
-	 */
-	@Override
-	default DecimalColumn parseDecimal() {
-		return toDecimalColumn(BigDecimal::new);
-	}
-
-	/**
-	 * Convert this column into a {@link UuidColumn} by applying the same logic as
-	 * in {@link ColumnType#parse(String)} to each non-null element. Nulls are
-	 * preserved as-is.
-	 * <p>
-	 * The resulting column will not be flagged as sorted or distinct.
-	 * 
-	 * @return A {@link UuidColumn} parsed from this column.
-	 */
-	@Override
-	default UuidColumn parseUuid() {
-		return toUuidColumn(UUID::fromString);
-	}
-
 	@Override
 	default StringColumn toStringColumn() {
 		return toStringColumn(Function.identity());
 	}
 
 	@Override
-	default StringColumn normalize(double threshold) {
+	default NormalStringColumn normalize(double threshold) {
 		return this;
 	}
 }

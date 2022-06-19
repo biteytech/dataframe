@@ -21,7 +21,6 @@ import java.util.Spliterator;
 
 import tech.bitey.bufferstuff.BigByteBuffer;
 import tech.bitey.bufferstuff.BufferBitSet;
-import tech.bitey.bufferstuff.SmallIntBuffer;
 
 /**
  * A builder for creating {@link InstantColumn} instances. Example:
@@ -40,8 +39,7 @@ import tech.bitey.bufferstuff.SmallIntBuffer;
  *
  * @author biteytech@protonmail.com
  */
-public final class InstantColumnBuilder
-		extends SingleBufferColumnBuilder<Instant, SmallIntBuffer, InstantColumn, InstantColumnBuilder> {
+public final class InstantColumnBuilder extends FixedLenColumnBuilder<Instant, InstantColumn, InstantColumnBuilder> {
 
 	InstantColumnBuilder(int characteristics) {
 		super(characteristics);
@@ -54,9 +52,8 @@ public final class InstantColumnBuilder
 
 	public void add(long seconds, int nanos) {
 		ensureAdditionalCapacity(1);
-		elements.put((int) (seconds >> 32));
-		elements.put((int) seconds);
-		elements.put(nanos);
+		buffer.putLong(seconds);
+		buffer.putInt(nanos);
 		size++;
 	}
 
@@ -65,34 +62,15 @@ public final class InstantColumnBuilder
 		return NonNullInstantColumn.EMPTY.get(characteristics | Spliterator.NONNULL);
 	}
 
-	@Override
-	boolean checkSorted() {
-
-		for (int i = 1; i < size; i++)
-			if (compareValuesAt(i - 1, i) > 0)
-				return false;
-
-		return true;
-	}
-
-	@Override
-	boolean checkDistinct() {
-
-		for (int i = 1; i < size; i++)
-			if (compareValuesAt(i - 1, i) >= 0)
-				return false;
-
-		return true;
-	}
-
 	private long second(int index) {
-		return elements.get(index * 3) << 32L | elements.get(index * 3 + 1);
+		return buffer.getLong((long) index * 12);
 	}
 
 	private int nano(int index) {
-		return elements.get(index * 3 + 2);
+		return buffer.getInt((long) index * 12 + 8);
 	}
 
+	@Override
 	int compareValuesAt(int l, int r) {
 
 		return (second(l) < second(r) ? -1
@@ -115,29 +93,7 @@ public final class InstantColumnBuilder
 	}
 
 	@Override
-	SmallIntBuffer asBuffer(BigByteBuffer buffer) {
-		return buffer.asIntBuffer();
-	}
-
-	@Override
 	int elementSize() {
 		return 12;
-	}
-
-	@Override
-	int getNonNullSize() {
-		return elements.position() / 3;
-	}
-
-	@Override
-	int getNonNullCapacity() {
-		return elements.capacity() / 3;
-	}
-
-	@Override
-	void append00(SmallIntBuffer elements) {
-		SmallIntBuffer tail = elements.duplicate();
-		tail.flip();
-		this.elements.put(tail);
 	}
 }

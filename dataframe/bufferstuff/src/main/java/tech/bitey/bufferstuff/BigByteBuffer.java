@@ -298,7 +298,7 @@ public sealed interface BigByteBuffer permits AbstractBigByteBuffer {
 	 *
 	 * @throws IllegalArgumentException If the source buffer is this buffer
 	 */
-	public BigByteBuffer put(BigByteBuffer src);
+	BigByteBuffer put(BigByteBuffer src);
 
 	/**
 	 * Relative bulk <i>put</i> method
@@ -337,7 +337,7 @@ public sealed interface BigByteBuffer permits AbstractBigByteBuffer {
 	 * @throws BufferOverflowException If there is insufficient space in this buffer
 	 *                                 for the remaining bytes in the source buffer
 	 */
-	public BigByteBuffer put(ByteBuffer src);
+	BigByteBuffer put(ByteBuffer src);
 
 	/**
 	 * Relative bulk <i>put</i> method
@@ -351,7 +351,52 @@ public sealed interface BigByteBuffer permits AbstractBigByteBuffer {
 	 *
 	 * @throws BufferOverflowException If there is insufficient space in this buffer
 	 */
-	public BigByteBuffer put(byte[] src);
+	BigByteBuffer put(byte[] src);
+
+	/**
+	 * Absolute bulk <i>put</i> method.
+	 *
+	 * <p>
+	 * This method transfers {@code length} bytes into this buffer from the given
+	 * source buffer, starting at the given {@code offset} in the source buffer and
+	 * the given {@code index} in this buffer. The positions of both buffers are
+	 * unchanged.
+	 *
+	 * <p>
+	 * In other words, an invocation of this method of the form
+	 * <code>dst.put(index,&nbsp;src,&nbsp;offset,&nbsp;length)</code> has exactly
+	 * the same effect as the loop
+	 *
+	 * <pre>{@code
+	 * for (int i = offset, j = index; i < offset + length; i++, j++)
+	 * 	dst.put(j, src.get(i));
+	 * }</pre>
+	 *
+	 * except that it first checks the consistency of the supplied parameters and it
+	 * is potentially much more efficient. If this buffer and the source buffer
+	 * share the same backing array or memory, then the result will be as if the
+	 * source elements were first copied to an intermediate location before being
+	 * written into this buffer.
+	 *
+	 * @param index  The index in this buffer at which the first byte will be
+	 *               written; must be non-negative and less than {@code limit()}
+	 *
+	 * @param src    The buffer from which bytes are to be read
+	 *
+	 * @param offset The index within the source buffer of the first byte to be
+	 *               read; must be non-negative and less than {@code src.limit()}
+	 *
+	 * @param length The number of bytes to be read from the given buffer; must be
+	 *               non-negative and no larger than the smaller of
+	 *               {@code limit() - index} and {@code src.limit() - offset}
+	 *
+	 * @return This buffer
+	 *
+	 * @throws IndexOutOfBoundsException If the preconditions on the {@code index},
+	 *                                   {@code offset}, and {@code length}
+	 *                                   parameters do not hold
+	 */
+	BigByteBuffer put(long index, ByteBuffer src, int offset, int length);
 
 	/**
 	 * Relative <i>get</i> method. Reads the byte at this buffer's current position,
@@ -397,12 +442,10 @@ public sealed interface BigByteBuffer permits AbstractBigByteBuffer {
 	 * <code>src.get(dst,&nbsp;off,&nbsp;len)</code> has exactly the same effect as
 	 * the loop
 	 *
-	 * <pre>
-	 * {@code
-	 *     for (int i = off; i < off + len; i++)
-	 *         dst[i] = src.get();
-	 * }
-	 * </pre>
+	 * <pre>{@code
+	 * for (int i = off; i < off + len; i++)
+	 * 	dst[i] = src.get();
+	 * }</pre>
 	 *
 	 * except that it first checks that there are sufficient bytes in this buffer
 	 * and it is potentially much more efficient.
@@ -521,7 +564,7 @@ public sealed interface BigByteBuffer permits AbstractBigByteBuffer {
 	 *
 	 * @throws BufferOverflowException If there is insufficient space in this buffer
 	 */
-	public BigByteBuffer putShort(short[] src);
+	BigByteBuffer putShort(short[] src);
 
 	/**
 	 * Relative bulk <i>put</i> method
@@ -560,7 +603,7 @@ public sealed interface BigByteBuffer permits AbstractBigByteBuffer {
 	 * @throws BufferOverflowException If there is insufficient space in this buffer
 	 *                                 for the remaining shorts in the source buffer
 	 */
-	public BigByteBuffer putShort(ShortBuffer src);
+	BigByteBuffer putShort(ShortBuffer src);
 
 	/**
 	 * Relative <i>get</i> method for reading a short value.
@@ -655,7 +698,7 @@ public sealed interface BigByteBuffer permits AbstractBigByteBuffer {
 	 *
 	 * @throws BufferOverflowException If there is insufficient space in this buffer
 	 */
-	public BigByteBuffer putInt(int[] src);
+	BigByteBuffer putInt(int[] src);
 
 	/**
 	 * Relative bulk <i>put</i> method
@@ -694,7 +737,7 @@ public sealed interface BigByteBuffer permits AbstractBigByteBuffer {
 	 * @throws BufferOverflowException If there is insufficient space in this buffer
 	 *                                 for the remaining ints in the source buffer
 	 */
-	public BigByteBuffer putInt(IntBuffer src);
+	BigByteBuffer putInt(IntBuffer src);
 
 	/**
 	 * Relative <i>get</i> method for reading a int value.
@@ -789,7 +832,7 @@ public sealed interface BigByteBuffer permits AbstractBigByteBuffer {
 	 *
 	 * @throws BufferOverflowException If there is insufficient space in this buffer
 	 */
-	public BigByteBuffer putLong(long[] src);
+	BigByteBuffer putLong(long[] src);
 
 	/**
 	 * Relative bulk <i>put</i> method
@@ -828,7 +871,7 @@ public sealed interface BigByteBuffer permits AbstractBigByteBuffer {
 	 * @throws BufferOverflowException If there is insufficient space in this buffer
 	 *                                 for the remaining longs in the source buffer
 	 */
-	public BigByteBuffer putLong(LongBuffer src);
+	BigByteBuffer putLong(LongBuffer src);
 
 	/**
 	 * Relative <i>get</i> method for reading a long value.
@@ -923,7 +966,7 @@ public sealed interface BigByteBuffer permits AbstractBigByteBuffer {
 	 *
 	 * @throws BufferOverflowException If there is insufficient space in this buffer
 	 */
-	public BigByteBuffer putFloat(float[] src);
+	BigByteBuffer putFloat(float[] src);
 
 	/**
 	 * Relative bulk <i>put</i> method
@@ -962,7 +1005,7 @@ public sealed interface BigByteBuffer permits AbstractBigByteBuffer {
 	 * @throws BufferOverflowException If there is insufficient space in this buffer
 	 *                                 for the remaining floats in the source buffer
 	 */
-	public BigByteBuffer putFloat(FloatBuffer src);
+	BigByteBuffer putFloat(FloatBuffer src);
 
 	/**
 	 * Relative <i>get</i> method for reading a float value.
@@ -1057,7 +1100,7 @@ public sealed interface BigByteBuffer permits AbstractBigByteBuffer {
 	 *
 	 * @throws BufferOverflowException If there is insufficient space in this buffer
 	 */
-	public BigByteBuffer putDouble(double[] src);
+	BigByteBuffer putDouble(double[] src);
 
 	/**
 	 * Relative bulk <i>put</i> method
@@ -1097,7 +1140,7 @@ public sealed interface BigByteBuffer permits AbstractBigByteBuffer {
 	 *                                 for the remaining doubles in the source
 	 *                                 buffer
 	 */
-	public BigByteBuffer putDouble(DoubleBuffer src);
+	BigByteBuffer putDouble(DoubleBuffer src);
 
 	/**
 	 * Relative <i>get</i> method for reading a double value.
