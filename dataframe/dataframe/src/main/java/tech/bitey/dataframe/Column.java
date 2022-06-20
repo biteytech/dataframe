@@ -30,6 +30,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NavigableSet;
 import java.util.NoSuchElementException;
+import java.util.RandomAccess;
 import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.UUID;
@@ -110,7 +111,7 @@ import java.util.function.ToLongFunction;
  *
  * @param <E> the type of elements in this list
  */
-public interface Column<E> extends List<E> {
+public interface Column<E> extends List<E>, RandomAccess {
 
 	static int BASE_CHARACTERISTICS = SIZED | SUBSIZED | IMMUTABLE | ORDERED;
 

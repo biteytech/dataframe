@@ -38,7 +38,6 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
 import java.util.Objects;
-import java.util.RandomAccess;
 import java.util.Set;
 
 import tech.bitey.bufferstuff.BigByteBuffer;
@@ -47,7 +46,7 @@ import tech.bitey.bufferstuff.BufferUtils;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
 abstract class AbstractColumn<E, I extends Column<E>, C extends AbstractColumn<E, I, C>> extends AbstractCollection<E>
-		implements Column<E>, RandomAccess {
+		implements Column<E> {
 
 	final int offset;
 	final int size;
