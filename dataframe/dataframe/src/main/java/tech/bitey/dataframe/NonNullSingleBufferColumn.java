@@ -88,7 +88,7 @@ abstract class NonNullSingleBufferColumn<E, I extends Column<E>, C extends NonNu
 	}
 
 	@Override
-	public C slice() {
+	C slice() {
 		return construct(slice0(), 0, size, characteristics, false);
 	}
 

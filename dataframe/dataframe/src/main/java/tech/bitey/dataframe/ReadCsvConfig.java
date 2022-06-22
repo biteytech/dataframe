@@ -93,16 +93,20 @@ public record ReadCsvConfig(
 		nullValue = nullValue == null ? DEFAULT_NULL_VALUE : nullValue;
 	}
 
-	public ReadCsvConfig(ColumnType<?>... columnTypes) {
-		this(Arrays.asList(columnTypes), null, null, DEFAULT_DELIM, DEFAULT_NULL_VALUE);
-	}
-
 	public ReadCsvConfig(List<ColumnType<?>> columnTypes) {
 		this(columnTypes, null, null, DEFAULT_DELIM, DEFAULT_NULL_VALUE);
 	}
 
+	public ReadCsvConfig(ColumnType<?>... columnTypes) {
+		this(Arrays.asList(columnTypes));
+	}
+
 	public ReadCsvConfig withColumnNames(List<String> columnNames) {
 		return new ReadCsvConfig(columnTypes, columnNames, columnParsers, delim, nullValue);
+	}
+
+	public ReadCsvConfig withColumnNames(String... columnNames) {
+		return withColumnNames(Arrays.asList(columnNames));
 	}
 
 	public ReadCsvConfig withColumnParsers(List<Function<String, Comparable<?>>> columnParsers) {

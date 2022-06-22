@@ -1345,7 +1345,7 @@ public sealed interface DataFrame extends List<Row>, RandomAccess permits DataFr
 	 * @throws IllegalArgumentException if the column counts or types do not match
 	 *                                  between the two dataframes
 	 */
-	DataFrame append(DataFrame df); // union all
+	DataFrame append(DataFrame df);
 
 	/**
 	 * Appends the specified dataframe to this one by calling
