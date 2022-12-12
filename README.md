@@ -11,7 +11,7 @@ To add a dependency on dataframe using Maven, use the following:
 <dependency>
   <groupId>tech.bitey</groupId>
   <artifactId>dataframe</artifactId>
-  <version>1.2.7</version>
+  <version>1.2.8</version>
 </dependency>
 ```
 
@@ -37,7 +37,7 @@ Requires Java 17 or higher. The last version supporting Java 11 was `1.1.7`.
 * Column implements List. DataFrame implements `List<Row>`. If the DataFrame has a key column it can be viewed as a `NavigableMap<T, Row>`
 * Basic filtering, joining, grouping
 * No additional dependencies
-* Extensive unit testing
+* Extensive testing
 
 ### Sample Use Cases
 * Great as a ResultSet cache. Have an expensive query that needs to run every time your app starts and it's slowing down your development? Cache it locally on disk in a DataFrame! Because DataFrame can be viewed as a ResultSet, you can plug it into existing code with minimal changes. Or cache it in a service and pull it over the network (reads/writes directly to Channel).
