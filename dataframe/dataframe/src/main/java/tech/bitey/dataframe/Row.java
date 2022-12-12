@@ -16,9 +16,13 @@
 
 package tech.bitey.dataframe;
 
+import java.io.InputStream;
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.UUID;
 
 /**
  * Represents a logical row in a parent {@link DataFrame}, which implements the
@@ -295,6 +299,32 @@ public interface Row {
 	 * @throws ClassCastException       if the column is not a {@link ShortColumn}
 	 */
 	short getShort(String columnName);
+
+	/**
+	 * {@code byte} primitive specialization of {@link #get(int)}.
+	 * 
+	 * @param columnIndex - index of the column in the parent {@link DataFrame}.
+	 * 
+	 * @return the value for this row in the specified {@code ByteColumn}.
+	 * 
+	 * @throws IndexOutOfBoundsException if {@code columnIndex} is negative or is
+	 *                                   not less than {@link #columnCount()}
+	 * @throws ClassCastException        if the column is not a {@link ByteColumn}
+	 */
+	byte getByte(int columnIndex);
+
+	/**
+	 * {@code byte} primitive specialization of {@link #get(int)}.
+	 * 
+	 * @param columnName - name of the column in the parent {@link DataFrame}.
+	 * 
+	 * @return the value for this row in the specified {@code ByteColumn}.
+	 * 
+	 * @throws IllegalArgumentException if {@code columnName} is not a recognized
+	 *                                  column name in the parent dataframe.
+	 * @throws ClassCastException       if the column is not a {@link ByteColumn}
+	 */
+	byte getByte(String columnName);
 
 	/**
 	 * Returns the value for this row in the specified {@link ShortColumn}, or the
@@ -593,4 +623,109 @@ public interface Row {
 	 *                                  {@code DateTimeColumn}
 	 */
 	LocalDateTime getDateTime(String columnName);
+
+	/**
+	 * Returns the value for this row in the specified {@link TimeColumn}.
+	 * 
+	 * @param columnIndex - index of the column in the parent {@link DataFrame}.
+	 * 
+	 * @return the value for this row in the specified {@code TimeColumn}.
+	 * 
+	 * @throws IndexOutOfBoundsException if {@code columnIndex} is negative or is
+	 *                                   not less than {@link #columnCount()}
+	 * @throws ClassCastException        if the column is not a {@code TimeColumn}
+	 */
+	LocalTime getTime(int columnIndex);
+
+	/**
+	 * Returns the value for this row in the specified {@link TimeColumn}.
+	 * 
+	 * @param columnName - name of the column in the parent {@link DataFrame}.
+	 * 
+	 * @return the value for this row in the specified {@code TimeColumn}.
+	 * 
+	 * @throws IllegalArgumentException if {@code columnName} is not a recognized
+	 *                                  column name in the parent dataframe.
+	 * @throws ClassCastException       if the column is not a {@code TimeColumn}
+	 */
+	LocalTime getTime(String columnName);
+
+	/**
+	 * Returns the value for this row in the specified {@link InstantColumn}.
+	 * 
+	 * @param columnIndex - index of the column in the parent {@link DataFrame}.
+	 * 
+	 * @return the value for this row in the specified {@code InstantColumn}.
+	 * 
+	 * @throws IndexOutOfBoundsException if {@code columnIndex} is negative or is
+	 *                                   not less than {@link #columnCount()}
+	 * @throws ClassCastException        if the column is not a
+	 *                                   {@code InstantColumn}
+	 */
+	Instant getInstant(int columnIndex);
+
+	/**
+	 * Returns the value for this row in the specified {@link InstantColumn}.
+	 * 
+	 * @param columnName - name of the column in the parent {@link DataFrame}.
+	 * 
+	 * @return the value for this row in the specified {@code InstantColumn}.
+	 * 
+	 * @throws IllegalArgumentException if {@code columnName} is not a recognized
+	 *                                  column name in the parent dataframe.
+	 * @throws ClassCastException       if the column is not a {@code InstantColumn}
+	 */
+	Instant getInstant(String columnName);
+
+	/**
+	 * Returns the value for this row in the specified {@link UuidColumn}.
+	 * 
+	 * @param columnIndex - index of the column in the parent {@link DataFrame}.
+	 * 
+	 * @return the value for this row in the specified {@code UuidColumn}.
+	 * 
+	 * @throws IndexOutOfBoundsException if {@code columnIndex} is negative or is
+	 *                                   not less than {@link #columnCount()}
+	 * @throws ClassCastException        if the column is not a {@code UuidColumn}
+	 */
+	UUID getUuid(int columnIndex);
+
+	/**
+	 * Returns the value for this row in the specified {@link UuidColumn}.
+	 * 
+	 * @param columnName - name of the column in the parent {@link DataFrame}.
+	 * 
+	 * @return the value for this row in the specified {@code UuidColumn}.
+	 * 
+	 * @throws IllegalArgumentException if {@code columnName} is not a recognized
+	 *                                  column name in the parent dataframe.
+	 * @throws ClassCastException       if the column is not a {@code UuidColumn}
+	 */
+	UUID getUuid(String columnName);
+
+	/**
+	 * Returns the value for this row in the specified {@link BlobColumn}.
+	 * 
+	 * @param columnIndex - index of the column in the parent {@link DataFrame}.
+	 * 
+	 * @return the value for this row in the specified {@code BlobColumn}.
+	 * 
+	 * @throws IndexOutOfBoundsException if {@code columnIndex} is negative or is
+	 *                                   not less than {@link #columnCount()}
+	 * @throws ClassCastException        if the column is not a {@code BlobColumn}
+	 */
+	InputStream getBlob(int columnIndex);
+
+	/**
+	 * Returns the value for this row in the specified {@link UuidColumn}.
+	 * 
+	 * @param columnName - name of the column in the parent {@link DataFrame}.
+	 * 
+	 * @return the value for this row in the specified {@code BlobColumn}.
+	 * 
+	 * @throws IllegalArgumentException if {@code columnName} is not a recognized
+	 *                                  column name in the parent dataframe.
+	 * @throws ClassCastException       if the column is not a {@code UuidColumn}
+	 */
+	InputStream getBlob(String columnName);
 }

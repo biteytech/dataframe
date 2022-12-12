@@ -16,6 +16,10 @@
 
 package tech.bitey.dataframe;
 
+import static java.nio.charset.StandardCharsets.US_ASCII;
+import static java.nio.charset.StandardCharsets.UTF_8;
+
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.math.BigDecimal;
@@ -46,7 +50,7 @@ import java.util.Map;
  *
  * @author biteytech@protonmail.com
  */
-public class DataFrameResultSet implements ResultSet {
+class DataFrameResultSet implements ResultSet {
 
 	private static final int BEFORE_FIRST = 0;
 
@@ -220,14 +224,28 @@ public class DataFrameResultSet implements ResultSet {
 		throw new SQLFeatureNotSupportedException("BigDecimal scale");
 	}
 
+	private InputStream getBinaryStream0(int columnIndex) throws SQLException {
+
+		final int rowIndex = rowIndex();
+
+		if (wasNull = df.isNull(rowIndex, columnIndex))
+			return null;
+
+		ColumnTypeCode type = df.columnType(columnIndex).getCode();
+		return switch (type) {
+		case BL -> df.getBlob(rowIndex, columnIndex);
+		default -> throw new SQLException("cannot convert from " + type + " to BigDecimal");
+		};
+	}
+
 	@Override
 	public InputStream getBinaryStream(int columnIndex) throws SQLException {
-		throw new SQLFeatureNotSupportedException("getBinaryStream");
+		return getBinaryStream0(columnIndex - 1);
 	}
 
 	@Override
 	public InputStream getBinaryStream(String columnLabel) throws SQLException {
-		throw new SQLFeatureNotSupportedException("getBinaryStream");
+		return getBinaryStream0(df.columnIndex(columnLabel));
 	}
 
 	@Override
@@ -374,14 +392,36 @@ public class DataFrameResultSet implements ResultSet {
 		return getByte0(df.columnIndex(columnLabel));
 	}
 
+	private byte[] getBytes0(int columnIndex) throws SQLException {
+
+		final int rowIndex = rowIndex();
+
+		if (wasNull = df.isNull(rowIndex, columnIndex))
+			return null;
+
+		ColumnTypeCode type = df.columnType(columnIndex).getCode();
+		return switch (type) {
+		case S, NS -> df.getString(rowIndex, columnIndex).getBytes(UTF_8);
+		case FS -> df.getString(rowIndex, columnIndex).getBytes(US_ASCII);
+		case BL -> {
+			try {
+				yield df.getBlob(rowIndex, columnIndex).readAllBytes();
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+		}
+		default -> throw new SQLException("cannot convert from " + type + " to byte[]");
+		};
+	}
+
 	@Override
 	public byte[] getBytes(int columnIndex) throws SQLException {
-		throw new SQLFeatureNotSupportedException("getBytes");
+		return getBytes0(columnIndex - 1);
 	}
 
 	@Override
 	public byte[] getBytes(String columnLabel) throws SQLException {
-		throw new SQLFeatureNotSupportedException("getBytes");
+		return getBytes0(df.columnIndex(columnLabel));
 	}
 
 	@Override

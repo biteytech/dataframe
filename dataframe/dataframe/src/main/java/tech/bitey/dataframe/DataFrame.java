@@ -26,12 +26,14 @@ import static java.util.Spliterator.SUBSIZED;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.nio.channels.WritableByteChannel;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -806,6 +808,20 @@ public sealed interface DataFrame extends List<Row>, RandomAccess permits DataFr
 	TimeColumn timeColumn(int columnIndex);
 
 	/**
+	 * Returns the {@link InstantColumn} at the specified index.
+	 * 
+	 * @param columnIndex - index of the column
+	 * 
+	 * @return the column at the specified index
+	 * 
+	 * @throws IndexOutOfBoundsException if {@code columnIndex} is negative or is
+	 *                                   not less than {@link #columnCount()}
+	 * @throws ClassCastException        if the column is not a
+	 *                                   {@code InstantColumn}
+	 */
+	InstantColumn instantColumn(int columnIndex);
+
+	/**
 	 * Returns the {@link UuidColumn} at the specified index.
 	 * 
 	 * @param columnIndex - index of the column
@@ -817,6 +833,19 @@ public sealed interface DataFrame extends List<Row>, RandomAccess permits DataFr
 	 * @throws ClassCastException        if the column is not a {@code UuidColumn}
 	 */
 	UuidColumn uuidColumn(int columnIndex);
+
+	/**
+	 * Returns the {@link BlobColumn} at the specified index.
+	 * 
+	 * @param columnIndex - index of the column
+	 * 
+	 * @return the column at the specified index
+	 * 
+	 * @throws IndexOutOfBoundsException if {@code columnIndex} is negative or is
+	 *                                   not less than {@link #columnCount()}
+	 * @throws ClassCastException        if the column is not a {@code UuidColumn}
+	 */
+	BlobColumn blobColumn(int columnIndex);
 
 	/**
 	 * Returns the specified {@link Column}
@@ -979,6 +1008,19 @@ public sealed interface DataFrame extends List<Row>, RandomAccess permits DataFr
 	TimeColumn timeColumn(String columnName);
 
 	/**
+	 * Returns the specified {@link InstantColumn}
+	 * 
+	 * @param columnName - column name
+	 * 
+	 * @return the specified column
+	 * 
+	 * @throws IllegalArgumentException if {@code columnName} is not a recognized
+	 *                                  column name in this dataframe.
+	 * @throws ClassCastException       if the column is not a {@code InstantColumn}
+	 */
+	InstantColumn instantColumn(String columnName);
+
+	/**
 	 * Returns the specified {@link DateTimeColumn}
 	 * 
 	 * @param columnName - column name
@@ -1004,6 +1046,19 @@ public sealed interface DataFrame extends List<Row>, RandomAccess permits DataFr
 	 * @throws ClassCastException       if the column is not a {@code UuidColumn}
 	 */
 	UuidColumn uuidColumn(String columnName);
+
+	/**
+	 * Returns the specified {@link BlobColumn}
+	 * 
+	 * @param columnName - column name
+	 * 
+	 * @return the specified column
+	 * 
+	 * @throws IllegalArgumentException if {@code columnName} is not a recognized
+	 *                                  column name in this dataframe.
+	 * @throws ClassCastException       if the column is not a {@code BlobColumn}
+	 */
+	BlobColumn blobColumn(String columnName);
 
 	/**
 	 * Derive a new {@link Column} from the rows of this dataframe. The new column
@@ -2403,6 +2458,44 @@ public sealed interface DataFrame extends List<Row>, RandomAccess permits DataFr
 	LocalTime getTime(int rowIndex, String columnName);
 
 	/**
+	 * Returns the value for the specified row in the specified
+	 * {@link InstantColumn}.
+	 * 
+	 * @param rowIndex    - the row index
+	 * @param columnIndex - index of the column in this {@link DataFrame}.
+	 * 
+	 * @return the value for the specified row in the specified
+	 *         {@code InstantColumn}.
+	 * 
+	 * @throws IndexOutOfBoundsException if {@code rowIndex} is negative or is not
+	 *                                   less than {@link #size()}
+	 * @throws IndexOutOfBoundsException if {@code columnIndex} is negative or is
+	 *                                   not less than {@link #columnCount()}
+	 * @throws ClassCastException        if the column is not a
+	 *                                   {@code InstantColumn}
+	 */
+	Instant getInstant(int rowIndex, int columnIndex);
+
+	/**
+	 * Returns the value for the specified row in the specified
+	 * {@link InstantColumn}.
+	 * 
+	 * @param rowIndex   - the row index
+	 * @param columnName - name of the column in this {@link DataFrame}.
+	 * 
+	 * @return the value for the specified row in the specified
+	 *         {@code InstantColumn}.
+	 * 
+	 * @throws IndexOutOfBoundsException if {@code rowIndex} is negative or is not
+	 *                                   less than {@link #size()}
+	 * @throws IllegalArgumentException  if {@code columnName} is not a recognized
+	 *                                   column name in this dataframe.
+	 * @throws ClassCastException        if the column is not a
+	 *                                   {@code InstantColumn}
+	 */
+	Instant getInstant(int rowIndex, String columnName);
+
+	/**
 	 * Returns the value for the specified row in the specified {@link UuidColumn}.
 	 * 
 	 * @param rowIndex    - the row index
@@ -2433,4 +2526,36 @@ public sealed interface DataFrame extends List<Row>, RandomAccess permits DataFr
 	 * @throws ClassCastException        if the column is not a {@code UuidColumn}
 	 */
 	UUID getUuid(int rowIndex, String columnName);
+
+	/**
+	 * Returns the value for the specified row in the specified {@link BlobColumn}.
+	 * 
+	 * @param rowIndex    - the row index
+	 * @param columnIndex - index of the column in this {@link DataFrame}.
+	 * 
+	 * @return the value for the specified row in the specified {@code BlobColumn}.
+	 * 
+	 * @throws IndexOutOfBoundsException if {@code rowIndex} is negative or is not
+	 *                                   less than {@link #size()}
+	 * @throws IndexOutOfBoundsException if {@code columnIndex} is negative or is
+	 *                                   not less than {@link #columnCount()}
+	 * @throws ClassCastException        if the column is not a {@code BlobColumn}
+	 */
+	InputStream getBlob(int rowIndex, int columnIndex);
+
+	/**
+	 * Returns the value for the specified row in the specified {@link BlobColumn}.
+	 * 
+	 * @param rowIndex   - the row index
+	 * @param columnName - name of the column in this {@link DataFrame}.
+	 * 
+	 * @return the value for the specified row in the specified {@code BlobColumn}.
+	 * 
+	 * @throws IndexOutOfBoundsException if {@code rowIndex} is negative or is not
+	 *                                   less than {@link #size()}
+	 * @throws IllegalArgumentException  if {@code columnName} is not a recognized
+	 *                                   column name in this dataframe.
+	 * @throws ClassCastException        if the column is not a {@code BlobColumn}
+	 */
+	InputStream getBlob(int rowIndex, String columnName);
 }

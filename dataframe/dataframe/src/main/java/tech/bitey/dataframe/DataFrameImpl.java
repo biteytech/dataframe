@@ -30,6 +30,7 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.RecordComponent;
@@ -39,6 +40,7 @@ import java.nio.channels.WritableByteChannel;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -581,8 +583,18 @@ final class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 	}
 
 	@Override
+	public InstantColumn instantColumn(int columnIndex) {
+		return (InstantColumn) checkedColumn(columnIndex);
+	}
+
+	@Override
 	public UuidColumn uuidColumn(int columnIndex) {
 		return (UuidColumn) checkedColumn(columnIndex);
+	}
+
+	@Override
+	public BlobColumn blobColumn(int columnIndex) {
+		return (BlobColumn) checkedColumn(columnIndex);
 	}
 
 	@Override
@@ -651,8 +663,18 @@ final class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 	}
 
 	@Override
+	public InstantColumn instantColumn(String columnName) {
+		return (InstantColumn) checkedColumn(columnName);
+	}
+
+	@Override
 	public UuidColumn uuidColumn(String columnName) {
 		return (UuidColumn) checkedColumn(columnName);
+	}
+
+	@Override
+	public BlobColumn blobColumn(String columnName) {
+		return (BlobColumn) checkedColumn(columnName);
 	}
 
 	@Override
@@ -1435,6 +1457,16 @@ final class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 	}
 
 	@Override
+	public Instant getInstant(int rowIndex, int columnIndex) {
+		return instantColumn(columnIndex).get(rowIndex);
+	}
+
+	@Override
+	public Instant getInstant(int rowIndex, String columnName) {
+		return instantColumn(columnName).get(rowIndex);
+	}
+
+	@Override
 	public UUID getUuid(int rowIndex, int columnIndex) {
 		return uuidColumn(columnIndex).get(rowIndex);
 	}
@@ -1442,6 +1474,16 @@ final class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 	@Override
 	public UUID getUuid(int rowIndex, String columnName) {
 		return uuidColumn(columnName).get(rowIndex);
+	}
+
+	@Override
+	public InputStream getBlob(int rowIndex, int columnIndex) {
+		return blobColumn(columnIndex).get(rowIndex);
+	}
+
+	@Override
+	public InputStream getBlob(int rowIndex, String columnName) {
+		return blobColumn(columnName).get(rowIndex);
 	}
 
 	/*--------------------------------------------------------------------------------
@@ -1570,6 +1612,16 @@ final class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 		}
 
 		@Override
+		public byte getByte(int columnIndex) {
+			return DataFrameImpl.this.getByte(rowIndex(), columnIndex);
+		}
+
+		@Override
+		public byte getByte(String columnName) {
+			return DataFrameImpl.this.getByte(rowIndex(), columnName);
+		}
+
+		@Override
 		public double getDouble(int columnIndex) {
 			return DataFrameImpl.this.getDouble(rowIndex(), columnIndex);
 		}
@@ -1642,6 +1694,46 @@ final class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 		@Override
 		public LocalDateTime getDateTime(String columnName) {
 			return DataFrameImpl.this.getDateTime(rowIndex(), columnName);
+		}
+
+		@Override
+		public LocalTime getTime(int columnIndex) {
+			return DataFrameImpl.this.getTime(rowIndex(), columnIndex);
+		}
+
+		@Override
+		public LocalTime getTime(String columnName) {
+			return DataFrameImpl.this.getTime(rowIndex(), columnName);
+		}
+
+		@Override
+		public Instant getInstant(int columnIndex) {
+			return DataFrameImpl.this.getInstant(rowIndex(), columnIndex);
+		}
+
+		@Override
+		public Instant getInstant(String columnName) {
+			return DataFrameImpl.this.getInstant(rowIndex(), columnName);
+		}
+
+		@Override
+		public UUID getUuid(int columnIndex) {
+			return DataFrameImpl.this.getUuid(rowIndex(), columnIndex);
+		}
+
+		@Override
+		public UUID getUuid(String columnName) {
+			return DataFrameImpl.this.getUuid(rowIndex(), columnName);
+		}
+
+		@Override
+		public InputStream getBlob(int columnIndex) {
+			return DataFrameImpl.this.getBlob(rowIndex(), columnIndex);
+		}
+
+		@Override
+		public InputStream getBlob(String columnName) {
+			return DataFrameImpl.this.getBlob(rowIndex(), columnName);
 		}
 	}
 

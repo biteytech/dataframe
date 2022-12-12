@@ -17,9 +17,11 @@
 package tech.bitey.dataframe.test;
 
 import static java.util.Spliterator.DISTINCT;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -29,25 +31,38 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.UUID;
+import java.util.function.BiFunction;
+import java.util.function.BiPredicate;
+import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import com.google.common.collect.Sets;
+
 import tech.bitey.dataframe.ByteColumn;
 import tech.bitey.dataframe.Column;
 import tech.bitey.dataframe.ColumnType;
+import tech.bitey.dataframe.ColumnTypeCode;
 import tech.bitey.dataframe.Cursor;
 import tech.bitey.dataframe.DataFrame;
 import tech.bitey.dataframe.DataFrameFactory;
@@ -851,5 +866,89 @@ public class TestDataFrame {
 
 	DataFrame getDf(String label) {
 		return DF_MAP.get(label);
+	}
+
+	private Supplier<Object> sampleValue(ColumnTypeCode type) {
+		return switch (type) {
+		case B -> () -> true;
+		case BD -> () -> BigDecimal.ONE;
+		case BL -> () -> new ByteArrayInputStream("sample".getBytes());
+		case D -> () -> (double) 100;
+		case DA -> () -> LocalDate.of(2022, 12, 11);
+		case DT -> () -> LocalDateTime.of(2022, 12, 11, 21, 30, 0);
+		case F -> () -> (float) 100;
+		case FS -> () -> "sample";
+		case I -> () -> (int) 100;
+		case IN -> () -> Instant.ofEpochSecond(10000000);
+		case L -> () -> (long) 100;
+		case NS -> () -> "sample";
+		case S -> () -> "sample";
+		case T -> () -> (short) 100;
+		case TI -> () -> LocalTime.of(21, 30, 0);
+		case UU -> () -> new UUID(123, 4560000);
+		case Y -> () -> (byte) 100;
+		default -> throw new IllegalArgumentException("Missing sample value for type: " + type);
+		};
+	}
+
+	@Test
+	public void getters() {
+
+		LinkedHashMap<String, Column<?>> columnMap = new LinkedHashMap<>();
+		for (ColumnTypeCode type : ColumnTypeCode.values())
+			columnMap.put(type.name(), type.getType().builder().add(sampleValue(type).get()).build());
+
+		DataFrame df = DataFrameFactory.create(columnMap);
+
+		Set<ColumnTypeCode> types = EnumSet.noneOf(ColumnTypeCode.class);
+		getters(df, types, ColumnTypeCode.B, df::booleanColumn, df::getBoolean, Row::getBoolean);
+		getters(df, types, ColumnTypeCode.DA, df::dateColumn, df::getDate, Row::getDate);
+		getters(df, types, ColumnTypeCode.DT, df::dateTimeColumn, df::getDateTime, Row::getDateTime);
+		getters(df, types, ColumnTypeCode.TI, df::timeColumn, df::getTime, Row::getTime);
+		getters(df, types, ColumnTypeCode.IN, df::instantColumn, df::getInstant, Row::getInstant);
+		getters(df, types, ColumnTypeCode.D, df::doubleColumn, df::getDouble, Row::getDouble);
+		getters(df, types, ColumnTypeCode.F, df::floatColumn, df::getFloat, Row::getFloat);
+		getters(df, types, ColumnTypeCode.I, df::intColumn, df::getInt, Row::getInt);
+		getters(df, types, ColumnTypeCode.L, df::longColumn, df::getLong, Row::getLong);
+		getters(df, types, ColumnTypeCode.T, df::shortColumn, df::getShort, Row::getShort);
+		getters(df, types, ColumnTypeCode.Y, df::byteColumn, df::getByte, Row::getByte);
+		getters(df, types, ColumnTypeCode.S, df::stringColumn, df::getString, Row::getString);
+		getters(df, types, ColumnTypeCode.NS, df::stringColumn, df::getString, Row::getString);
+		getters(df, types, ColumnTypeCode.FS, df::stringColumn, df::getString, Row::getString);
+		getters(df, types, ColumnTypeCode.BD, df::decimalColumn, df::getBigDecimal, Row::getBigDecimal);
+		getters(df, types, ColumnTypeCode.UU, df::uuidColumn, df::getUuid, Row::getUuid);
+		getters(df, types, ColumnTypeCode.BL, df::blobColumn, df::getBlob, Row::getBlob, (a, b) -> {
+			try {
+				return Arrays.equals(a.readAllBytes(), b.readAllBytes());
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+		});
+
+		if (types.size() < columnMap.size())
+			throw new RuntimeException(
+					"Missing tests for: " + Sets.difference(EnumSet.allOf(ColumnTypeCode.class), types));
+	}
+
+	private <E> void getters(DataFrame df, Set<ColumnTypeCode> types, ColumnTypeCode type,
+			Function<String, Column<E>> column, BiFunction<Integer, String, E> getValue,
+			BiFunction<Row, String, E> row) {
+		getters(df, types, type, column, getValue, row, Object::equals);
+	}
+
+	@SuppressWarnings("unchecked")
+	private <E> void getters(DataFrame df, Set<ColumnTypeCode> types, ColumnTypeCode type,
+			Function<String, Column<E>> column, BiFunction<Integer, String, E> getValue, BiFunction<Row, String, E> row,
+			BiPredicate<E, E> comparator) {
+
+		E columnValue = column.apply(type.name()).get(0);
+		E dfValue = getValue.apply(0, type.name());
+		E rowValue = row.apply(df.get(0), type.name());
+
+		assertTrue(comparator.test((E) sampleValue(type).get(), columnValue), type + " column value");
+		assertTrue(comparator.test((E) sampleValue(type).get(), dfValue), type + " df value");
+		assertTrue(comparator.test((E) sampleValue(type).get(), rowValue), type + " row value");
+
+		types.add(type);
 	}
 }

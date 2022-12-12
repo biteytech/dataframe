@@ -20,7 +20,7 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.Objects;
 
-public class DataFrameResultSetMetaData implements ResultSetMetaData {
+class DataFrameResultSetMetaData implements ResultSetMetaData {
 
 	private final DataFrame df;
 

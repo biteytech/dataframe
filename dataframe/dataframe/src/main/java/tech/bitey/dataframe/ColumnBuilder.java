@@ -23,15 +23,23 @@ import java.util.Iterator;
  * A builder for creating {@link Column} instances. See concrete implementations
  * for additional details:
  * <ul>
+ * <li>{@link BlobColumnBuilder}
  * <li>{@link BooleanColumnBuilder}
+ * <li>{@link ByteColumnBuilder}
  * <li>{@link DateColumnBuilder}
  * <li>{@link DateTimeColumnBuilder}
+ * <li>{@link DecimalColumnBuilder}
  * <li>{@link DoubleColumnBuilder}
+ * <li>{@link FixedAsciiColumnBuilder}
  * <li>{@link FloatColumnBuilder}
+ * <li>{@link InstantColumnBuilder}
  * <li>{@link IntColumnBuilder}
  * <li>{@link LongColumnBuilder}
+ * <li>{@link NormalStringColumnBuilder}
+ * <li>{@link ShortColumnBuilder}
  * <li>{@link StringColumnBuilder}
- * <li>{@link DecimalColumnBuilder}
+ * <li>{@link TimeColumnBuilder}
+ * <li>{@link UuidColumnBuilder}
  * </ul>
  *
  * @author biteytech@protonmail.com
