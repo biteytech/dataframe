@@ -48,6 +48,15 @@ public class TestDateColumn {
 		}
 	}
 
+	@Test
+	public void testOf() {
+
+		DateColumn expected = DateColumn.of(LocalDate.of(1960, 1, 1), LocalDate.of(2050, 12, 31));
+		DateColumn actual = DateColumn.of(19600101, 20501231);
+
+		Assertions.assertEquals(expected, actual);
+	}
+
 	private static LocalDate packUnpack(LocalDate date) {
 		return DateColumn.of(date).get(0);
 	}

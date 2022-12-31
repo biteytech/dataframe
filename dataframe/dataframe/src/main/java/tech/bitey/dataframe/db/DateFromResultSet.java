@@ -68,7 +68,7 @@ public enum DateFromResultSet implements IFromResultSet<LocalDate, DateColumnBui
 			if (rs.wasNull())
 				builder.addNull();
 			else
-				builder.add(yyyymmdd / 10000, yyyymmdd / 100 % 100, yyyymmdd % 100);
+				builder.add(yyyymmdd);
 		}
 	},
 	/**

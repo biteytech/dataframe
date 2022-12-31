@@ -80,4 +80,15 @@ public final class DateColumnBuilder extends IntArrayColumnBuilder<LocalDate, Da
 		size++;
 		return this;
 	}
+
+	/**
+	 * Adds a date to the column.
+	 *
+	 * @param date - in {@code yyyymmdd} format
+	 * 
+	 * @return this builder
+	 */
+	public DateColumnBuilder add(int date) {
+		return add(date / 10000, date / 100 % 100, date % 100);
+	}
 }

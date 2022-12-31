@@ -66,6 +66,7 @@ import tech.bitey.dataframe.ColumnTypeCode;
 import tech.bitey.dataframe.Cursor;
 import tech.bitey.dataframe.DataFrame;
 import tech.bitey.dataframe.DataFrameFactory;
+import tech.bitey.dataframe.DataFrameToStringOptions;
 import tech.bitey.dataframe.DateColumn;
 import tech.bitey.dataframe.DateTimeColumn;
 import tech.bitey.dataframe.DecimalColumn;
@@ -639,13 +640,9 @@ public class TestDataFrame {
 					new BigDecimal("2"), new BigDecimal("5"));
 
 			int yyyymmd0 = 20190100;
-
-			unsorted[7] = DateColumn.of(fromInt(yyyymmd0 + 4), fromInt(yyyymmd0 + 3), fromInt(yyyymmd0 + 1),
-					fromInt(yyyymmd0 + 2), fromInt(yyyymmd0 + 5));
-
-			unsorted[8] = DateTimeColumn.of(fromInt(yyyymmd0 + 4).atStartOfDay(), fromInt(yyyymmd0 + 3).atStartOfDay(),
-					fromInt(yyyymmd0 + 1).atStartOfDay(), fromInt(yyyymmd0 + 2).atStartOfDay(),
-					fromInt(yyyymmd0 + 5).atStartOfDay());
+			DateColumn dc = DateColumn.of(yyyymmd0 + 4, yyyymmd0 + 3, yyyymmd0 + 1, yyyymmd0 + 2, yyyymmd0 + 5);
+			unsorted[7] = dc;
+			unsorted[8] = dc.toDateTimeColumn(LocalDate::atStartOfDay);
 		}
 
 		Column<?>[] sorted = new Column<?>[unsorted.length];
@@ -860,8 +857,14 @@ public class TestDataFrame {
 		Assertions.assertEquals(expected, actual);
 	}
 
-	private static LocalDate fromInt(int yyyymmdd) {
-		return LocalDate.of(yyyymmdd / 10000, yyyymmdd % 10000 / 100, yyyymmdd % 100);
+	@Test
+	public void toStringOptions() {
+
+		for (DataFrame df : DF_MAP.values()) {
+
+			Assertions.assertEquals(df.toString(), df.toString(new DataFrameToStringOptions(20, true)));
+			Assertions.assertEquals(df.toString(df.size()), df.toString(Integer.MAX_VALUE));
+		}
 	}
 
 	DataFrame getDf(String label) {

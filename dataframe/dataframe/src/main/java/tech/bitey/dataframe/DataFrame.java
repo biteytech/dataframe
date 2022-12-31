@@ -81,11 +81,25 @@ public sealed interface DataFrame extends List<Row>, RandomAccess permits DataFr
 	 * DataFrame.
 	 * 
 	 * @param maxRows - the number of rows to print
-	 * @return a pretty String representation of this table
+	 * 
+	 * @return a pretty String representation of this DataFrame
 	 * 
 	 * @throws IllegalArgumentException if {@code rowIndex} is negative
 	 */
-	String toString(int maxRows);
+	default String toString(int maxRows) {
+		return toString(new DataFrameToStringOptions(maxRows, true));
+	}
+
+	/**
+	 * Render this DataFrame to text using the specified options.
+	 * 
+	 * @param options - see {@link DataFrameToStringOptions}
+	 * 
+	 * @return a pretty String representation of this DataFrame
+	 * 
+	 * @throws IllegalArgumentException if {@code rowIndex} is negative
+	 */
+	String toString(DataFrameToStringOptions options);
 
 	/**
 	 * Tests this DataFrame against the specified one for equality. Only compares

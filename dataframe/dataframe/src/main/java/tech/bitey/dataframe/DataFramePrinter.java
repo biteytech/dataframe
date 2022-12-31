@@ -39,14 +39,16 @@ class DataFramePrinter {
 	private static final int PADDING = 1;
 
 	private final int maxRows;
+	private final boolean typesInHeader;
 
 	/**
 	 * Constructor
 	 *
 	 * @param maxRows the max rows to print
 	 */
-	DataFramePrinter(int maxRows) {
-		this.maxRows = maxRows;
+	DataFramePrinter(DataFrameToStringOptions options) {
+		this.maxRows = options.maxRows();
+		this.typesInHeader = options.typesInHeader();
 	}
 
 	/**
@@ -183,11 +185,15 @@ class DataFramePrinter {
 		final String[] header = new String[colCount];
 		Integer keyColumnIndex = frame.keyColumnIndex();
 		IntStream.range(0, colCount).forEach(colIndex -> {
-			header[colIndex] = frame.columnName(colIndex) + " <" + frame.columnType(colIndex).getCode();
-			if (keyColumnIndex != null && keyColumnIndex == colIndex) {
-				header[colIndex] += "*";
+			if (!typesInHeader) {
+				header[colIndex] = frame.columnName(colIndex);
+			} else {
+				header[colIndex] = frame.columnName(colIndex) + " <" + frame.columnType(colIndex).getCode();
+				if (keyColumnIndex != null && keyColumnIndex == colIndex) {
+					header[colIndex] += "*";
+				}
+				header[colIndex] += ">";
 			}
-			header[colIndex] += ">";
 		});
 		return header;
 	}

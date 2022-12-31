@@ -138,6 +138,20 @@ public interface DateColumn extends Column<LocalDate> {
 	}
 
 	/**
+	 * Returns a new {@code DateColumn} containing the specified elements.
+	 * 
+	 * @param dates the dates in {@code yyyymmdd} format
+	 * 
+	 * @return a new {@code DateColumn} containing the specified elements.
+	 */
+	public static DateColumn of(int... dates) {
+		var builder = builder();
+		for (int date : dates)
+			builder.add(date);
+		return builder.build();
+	}
+
+	/**
 	 * Collects a stream of {@code LocalDates} into a new {@code DateColumn} with
 	 * the specified characteristic.
 	 * 

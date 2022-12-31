@@ -79,7 +79,8 @@ import tech.bitey.bufferstuff.SmallIntBuffer;
 @SuppressWarnings({ "rawtypes", "unchecked" })
 final class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 
-	private static final DataFramePrinter DEFAULT_PRINTER = new DataFramePrinter(20);
+	private static final DataFramePrinter DEFAULT_PRINTER = new DataFramePrinter(
+			new DataFrameToStringOptions(20, true));
 
 	/*--------------------------------------------------------------------------------
 	 *	Immutable State
@@ -193,9 +194,8 @@ final class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 	}
 
 	@Override
-	public String toString(int maxRows) {
-		checkArgument(maxRows >= 0, "maxRows cannot be negative");
-		return new DataFramePrinter(maxRows).print(this);
+	public String toString(DataFrameToStringOptions options) {
+		return new DataFramePrinter(options).print(this);
 	}
 
 	@Override
