@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 biteytech@protonmail.com
+ * Copyright 2023 biteytech@protonmail.com
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -194,15 +194,64 @@ public class TestDataFrame {
 		for (Map.Entry<String, DataFrame> e : DF_MAP.entrySet()) {
 
 			DataFrame expected = e.getValue();
+			DataFrame empty = expected.head(0);
 
 			if (expected.stream().collect(Collectors.toSet()).size() < expected.size())
 				continue;
 
 			String[] columnNames = expected.columnNames().stream().toArray(String[]::new);
-			DataFrame actual = expected.join(expected, columnNames, columnNames);
 
+			DataFrame actual = expected.join(expected, columnNames, columnNames);
 			Assertions.assertEquals(expected, actual, e.getKey() + ", hashJoin");
+
+			actual = expected.join(empty, columnNames, columnNames);
+			Assertions.assertEquals(empty, actual, e.getKey() + ", hashJoin");
+
+			actual = empty.join(expected, columnNames, columnNames);
+			Assertions.assertEquals(empty, actual, e.getKey() + ", hashJoin");
 		}
+	}
+
+	@Test
+	public void testHashJoinLeft() {
+
+		for (Map.Entry<String, DataFrame> e : DF_MAP.entrySet()) {
+
+			DataFrame expected = e.getValue();
+			DataFrame empty = expected.head(0);
+
+			if (expected.stream().collect(Collectors.toSet()).size() < expected.size())
+				continue;
+
+			String[] columnNames = expected.columnNames().stream().toArray(String[]::new);
+
+			DataFrame actual = expected.joinLeft(expected, columnNames, columnNames);
+			Assertions.assertEquals(expected, actual, e.getKey() + ", hashJoinLeft");
+
+			actual = expected.joinLeft(empty, columnNames, columnNames);
+			Assertions.assertEquals(expected, actual, e.getKey() + ", hashJoinLeft");
+
+			actual = empty.joinLeft(expected, columnNames, columnNames);
+			Assertions.assertEquals(empty, actual, e.getKey() + ", hashJoinLeft");
+		}
+	}
+
+	@Test
+	public void testHashJoinLeft2() {
+
+		DataFrame left = DataFrameFactory.of("L1", IntColumn.of(1, 2, 3), "L2", StringColumn.of("l_a", "l_b", "l_c"),
+				"L3", StringColumn.of("1", "2", "3"), "L4", StringColumn.of("l_x", "l_y", "l_z"));
+
+		DataFrame right = DataFrameFactory.of("R1", StringColumn.of("r_c", "r_a", "r_c"), "R2",
+				StringColumn.of("3", "1", "3"), "R3", IntColumn.of(3, 1, 3));
+
+		DataFrame actual = left.joinLeft(right, new String[] { "L1", "L3" }, new String[] { "R3", "R2" });
+
+		DataFrame expected = DataFrameFactory.of("L1", IntColumn.of(3, 1, 3, 2), "L2",
+				StringColumn.of("l_c", "l_a", "l_c", "l_b"), "L3", StringColumn.of("3", "1", "3", "2"), "L4",
+				StringColumn.of("l_z", "l_x", "l_z", "l_y"), "R1", StringColumn.of("r_c", "r_a", "r_c", null));
+
+		Assertions.assertEquals(expected, actual, "testHashJoinLeft2");
 	}
 
 	@Test

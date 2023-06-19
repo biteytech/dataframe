@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 biteytech@protonmail.com
+ * Copyright 2023 biteytech@protonmail.com
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -930,23 +930,21 @@ final class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 	}
 
 	private String[] jointColumnNames(DataFrame rhs, int rightColumnIndex) {
-		return jointColumnNames(rhs, new int[] { rightColumnIndex });
+		return jointColumnNames(rhs, Set.of(rightColumnIndex));
 	}
 
-	private String[] jointColumnNames(DataFrame rhs, int[] rightColumnIndices) {
+	private String[] jointColumnNames(DataFrame rhs, Set<Integer> rightColumnIndices) {
 
 		Set<String> names = new HashSet<>(Arrays.asList(this.columnNames));
 
 		String[] columnNames = Arrays.copyOf(this.columnNames,
-				columnCount() + rhs.columnCount() - rightColumnIndices.length);
+				columnCount() + rhs.columnCount() - rightColumnIndices.size());
 
-		for (int i = 0, j = columnCount(), k = 0; i < rhs.columnCount(); i++) {
-			if (i != rightColumnIndices[k])
-				columnNames[j++] = nextColumnName(names, rhs.columnName(i));
-			else {
-				k++;
-				if (k == rightColumnIndices.length)
-					k = 0;
+		for (int i = 0, j = columnCount(); i < rhs.columnCount(); i++) {
+			if (!rightColumnIndices.contains(i)) {
+				String name = nextColumnName(names, rhs.columnName(i));
+				names.add(name);
+				columnNames[j++] = name;
 			}
 		}
 
@@ -1044,8 +1042,7 @@ final class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 		return inner.append(left, true);
 	}
 
-	@Override
-	public DataFrame join(DataFrame df, String[] leftColumnNames, String[] rightColumnNames) {
+	private DataFrame join(DataFrame df, String[] leftColumnNames, String[] rightColumnNames, boolean isLeftJoin) {
 
 		DataFrameImpl rhs = (DataFrameImpl) df;
 
@@ -1059,7 +1056,7 @@ final class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 
 		int[] rightColumnIndices = new int[rightColumnNames.length];
 		for (int i = 0; i < rightColumnNames.length; i++)
-			rightColumnIndices[i] = checkedColumnIndex(rightColumnNames[i]);
+			rightColumnIndices[i] = rhs.checkedColumnIndex(rightColumnNames[i]);
 
 		for (int i = 0; i < leftColumnIndices.length; i++)
 			checkArgument(columns[leftColumnIndices[i]].getType() == rhs.columns[rightColumnIndices[i]].getType(),
@@ -1067,6 +1064,7 @@ final class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 
 		IntColumn indices; // not a BufferBitSet because one-to-many
 		BufferBitSet keepRight = new BufferBitSet();
+		BufferBitSet matchedLeft = isLeftJoin ? new BufferBitSet() : null;
 
 		{
 			Map<Row, Integer> hashMap = new HashMap<>();
@@ -1085,7 +1083,15 @@ final class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 				if (leftRowIndex >= 0) {
 					builder.add(leftRowIndex);
 					keepRight.set(row.rowIndex());
+					if (matchedLeft != null)
+						matchedLeft.set(leftRowIndex);
 				}
+			}
+
+			if (matchedLeft != null) {
+				for (int index = matchedLeft.nextClearBit(0); index < size(); index = matchedLeft
+						.nextClearBit(index + 1))
+					builder.add(index);
 			}
 
 			indices = builder.build();
@@ -1094,20 +1100,34 @@ final class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 		DataFrameImpl left = select(indices);
 		DataFrameImpl right = rhs.filter(keepRight);
 
-		String[] columnNames = jointColumnNames(right, rightColumnIndices);
+		Set<Integer> rightColumnIndicesSet = Arrays.stream(rightColumnIndices).boxed().collect(Collectors.toSet());
+		String[] columnNames = jointColumnNames(right, rightColumnIndicesSet);
 
 		Column<?>[] columns = Arrays.copyOf(left.columns, columnNames.length);
-		for (int i = 0, j = columnCount(), k = 0; i < right.columnCount(); i++) {
-			if (i != rightColumnIndices[k])
-				columns[j++] = right.columns[i];
-			else {
-				k++;
-				if (k == rightColumnIndices.length)
-					k = 0;
+		for (int i = 0, j = columnCount(); i < rhs.columnCount(); i++) {
+			if (!rightColumnIndicesSet.contains(i)) {
+				columns[j] = right.columns[i];
+
+				if (isLeftJoin && left.size() > right.size()) {
+					Column nulls = columns[j].getType().nullColumn(left.size() - right.size());
+					columns[j] = columns[j].append(nulls);
+				}
+
+				j++;
 			}
 		}
 
 		return create(columns, columnNames, null);
+	}
+
+	@Override
+	public DataFrame join(DataFrame df, String[] leftColumnNames, String[] rightColumnNames) {
+		return join(df, leftColumnNames, rightColumnNames, false);
+	}
+
+	@Override
+	public DataFrame joinLeft(DataFrame df, String[] leftColumnNames, String[] rightColumnNames) {
+		return join(df, leftColumnNames, rightColumnNames, true);
 	}
 
 	@Override

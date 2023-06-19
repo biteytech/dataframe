@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 biteytech@protonmail.com
+ * Copyright 2023 biteytech@protonmail.com
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -1603,6 +1603,30 @@ public sealed interface DataFrame extends List<Row>, RandomAccess permits DataFr
 	 *                                  are not recognized.
 	 */
 	DataFrame join(DataFrame df, String[] leftColumnNames, String[] rightColumnNames);
+
+	/**
+	 * Works like {@link #join(DataFrame, String[], String[])}, except that any
+	 * unmatched rows from this dataframe will appear in the resulting dataframe
+	 * with {@code null} values filled in for the columns from the right dataframe.
+	 * 
+	 * @param df               - the right dataframe to be joined with this left one
+	 * @param leftColumnNames  - names of columns in this (left) dataframe, which
+	 *                         taken together form a unique index
+	 * @param rightColumnNames - corresponding columns in the specified (right)
+	 *                         dataframe
+	 * 
+	 * @return a new dataframe formed by the one-to-many left join of this dataframe
+	 *         with the specified dataframe on the specified columns
+	 * 
+	 * @throws IllegalStateException    if the left columns taken together do not
+	 *                                  form a unique index
+	 * @throws IllegalArgumentException if either list of column names is empty, if
+	 *                                  the two lists do not have the same length,
+	 *                                  if the respective columns do not have the
+	 *                                  same types, or if any of the column names
+	 *                                  are not recognized.
+	 */
+	DataFrame joinLeft(DataFrame df, String[] leftColumnNames, String[] rightColumnNames);
 
 	/**
 	 * Sort this dataframe by the specified columns, in the order provided.
