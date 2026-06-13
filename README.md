@@ -1,3 +1,10 @@
+## Deprecated
+This library has been rendered obsolete by [Project Panama](https://openjdk.org/jeps/454) and [Project Valhalla](https://openjdk.org/jeps/401)
+* Panama introduced `MemorySegment`, which supersedes `ByteBuffer`
+* Valhalla introduced value classes, which remove the raison d'etre for this library: compact in-memory storage of dataframe columns
+
+Consider [Tablesaw](https://github.com/jtablesaw/tablesaw) instead
+
 # dataframe
 
 [![Apache 2.0](https://img.shields.io/github/license/nebula-plugins/nebula-project-plugin.svg)](http://www.apache.org/licenses/LICENSE-2.0)
